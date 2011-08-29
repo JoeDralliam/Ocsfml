@@ -1,3 +1,6 @@
+<camlpp/External> : include
+<camlpp/ExternalCpp/pa_cpp_external.ml> : syntax(camlp4o), package(camlp4.quotations), package(camlp4.extend)
+
 <System> or <System/cpp> or <System/ocaml> or <Window> or <Window/cpp> or <Window/ocaml> or <Graphics> or <Graphics/cpp> or <Graphics/ocaml> or <Audio> or <Audio/cpp> or <Audio/ocaml> or <Network> or <Network/cpp> or <Network/ocaml> or <Test>: include
 
 <System/cpp/*.{h,c}pp> : include_sfml_system
