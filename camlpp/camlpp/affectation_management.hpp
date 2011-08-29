@@ -146,6 +146,21 @@ struct AffectationManagement<long>
 		Store_field(v, field,Val_int(d));
 	}
 };
+
+template<>
+struct AffectationManagement<long long>
+{
+	static void affect(value& v, long long d)
+	{
+		v = Val_int(d);
+	}
+
+	static void affect_field(value& v, int field, long long d)
+	{
+		Store_field(v, field,Val_int(d));
+	}
+};
+
 template<>
 struct AffectationManagement<unsigned short>
 {
@@ -185,6 +200,21 @@ struct AffectationManagement<unsigned long>
 		Store_field(v, field,Val_int(d));
 	}
 };
+
+template<>
+struct AffectationManagement<unsigned long long>
+{
+	static void affect(value& v, unsigned long long d)
+	{
+		v = Val_int(d);
+	}
+
+	static void affect_field(value& v, int field, unsigned long long d)
+	{
+		Store_field(v, field,Val_int(d));
+	}
+};
+
 template<>
 struct AffectationManagement<signed char>
 {

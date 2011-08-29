@@ -29,6 +29,7 @@ camlpp__register_custom_class()
 	camlpp__register_method0( GetElapsedTime, &sf::Clock::GetElapsedTime )
 	camlpp__register_method0( Reset, &sf::Clock::Reset )
 camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
 
 
 #include <SFML/System/Sleep.hpp>
@@ -40,14 +41,21 @@ extern "C"
 
 #include <SFML/System/Thread.hpp>
 
+
+sf::Thread* create_from_function_helper(std::function<void()> f) 
+{
+  return new sf::Thread(f);
+}
+
 typedef sf::Thread sf_Thread;
 #define CAMLPP__CLASS_NAME() sf_Thread
 camlpp__register_custom_class()
-	camlpp__register_constructor1( create_from_function, std::function<void()> )
+	camlpp__register_external_constructor1( create_from_function, create_from_function_helper)
 	camlpp__register_method0( Launch, &sf::Thread::Launch )
 	camlpp__register_method0( Wait, &sf::Thread::Wait )
 	camlpp__register_method0( Terminate, &sf::Thread::Terminate )
 camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
 
 
 #include <SFML/System/Mutex.hpp>
@@ -59,7 +67,7 @@ camlpp__register_custom_class()
 	camlpp__register_method0( Lock, &sf::Mutex::Lock )
 	camlpp__register_method0( Unlock, &sf::Mutex::Unlock )
 camlpp__custom_class_registered()
-
+#undef CAMLPP__CLASS_NAME
 /* lock ? */
 /* thread local ? */
 /* thread local ptr ? */

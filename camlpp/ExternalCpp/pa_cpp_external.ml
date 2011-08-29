@@ -49,7 +49,7 @@ struct
 
   let rec adapt_to_module = function
     | Ast.TyPol (_,_,t) -> adapt_to_module t
-    | t -> simplify_type t
+    | t -> t
 
   let mk_class_body class_name cpp_class_name module_name str_items =
     let t_name = "t_"^class_name in
@@ -81,7 +81,7 @@ struct
 	    | None -> class_name in
 	  let sl = Ast.LCons (("upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl"), Ast.LNil) in
 	    <:str_item< external $"to_"^parent_name$ : $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t_"^parent_name$ = $sl$ >>
-      | Method(label, type_method, cpp_name) -> <:str_item< external $label$ : $lid:t_name$ -> $adapt_to_module type_method$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
+      | Method(label, type_method, cpp_name) -> <:str_item< external $label$ : $lid:t_name$ -> $simplify_type (adapt_to_module type_method)$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
       | Constructor(label, type_method, cpp_name) -> <:str_item< external $label$ : $enfouir <:ctyp<$lid:t_name$>> (adapt_to_module type_method)$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
       | ClassStrItem _ -> <:str_item< >>
     in

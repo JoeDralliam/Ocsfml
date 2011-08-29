@@ -20,61 +20,65 @@
 #ifndef OCSFML_SYSTEM_HPP_INCLUDED
 #define OCSFML_SYSTEM_HPP_INCLUDED
 
-
 #include <camlpp/custom_class.hpp>
+#include <cstring>
 
 #include <SFML/System/InputStream.hpp>
 
 class CamlInputStream : public sf::InputStream
 {
-	value inputStreamInst_;
+        std::unique_ptr<value> inputStreamInst_;
 public:
-	CamlInputStream( value& v ) : inputSreamInst_( v )
+        CamlInputStream( value& v ) : inputStreamInst_(new value(v) )
 	{
-		caml_register_generational_global_root( &inputStreamInst_ );
+	  caml_register_generational_global_root( inputStreamInst_.get() );
 	}
+
+        CamlInputStream( CamlInputStream&& other ) : inputStreamInst_( std::move( other.inputStreamInst_ ) )
+        {}				 
 
 	CamlInputStream( CamlInputStream const& ) = delete;
 	CamlInputStream& operator=( CamlInputStream const& ) = delete;
 	
 	virtual ~CamlInputStream()
 	{
-		caml_remove_generational_global_root( &inputStreamInst_ );
+	  caml_remove_generational_global_root( inputStreamInst_.get() );
 	}
 
-	virtual Int64 Read(char* data, Int64 size)
+        virtual sf::Int64 Read(char* data, sf::Int64 size)
 	{
-		CAMLparam0;
+	  CAMLparam0();
 		CAMLlocal1( res );
-		res = callback2( caml_get_public_method(inputStreamInst_, 
+		res = callback2( caml_get_public_method(*inputStreamInst_, 
 							hash_variant("read") ), 
-				 inputStreamInst_, 
+				 *inputStreamInst_, 
 				 Val_int( size ) );
-		auto tup = ConversionManagement< std::pair<char*, Int64> >::from_value( res );
-		memcopy( data, tup->first, tup->second );
-		return tup->second;
+		ConversionManagement< std::pair<char*, sf::Int64> > cm;
+		auto tup = cm.from_value( res );
+		std::memcpy( data, tup.first, tup.second );
+		CAMLreturnT(sf::Int64, tup.second);
 	}
 
-	virtual Int64 Seek(Int64 position)
+        virtual sf::Int64 Seek(sf::Int64 position)
 	{
-		return Int_val( callback2( caml_get_public_method(inputStreamInst_, 
+		return Int_val( callback2( caml_get_public_method(*inputStreamInst_, 
 								  hash_variant("seek") ), 
-					   inputStreamInst_, 
+					   *inputStreamInst_, 
 					   Val_int( position ) ) );
 	}
     
-	virtual Int64 Tell()
+        virtual sf::Int64 Tell()
 	{
-		return Int_val( callback( caml_get_public_method(inputStreamInst_, 
+		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
 								 hash_variant("tell") ), 
-					  inputStreamInst_ ) );
+					  *inputStreamInst_ ) );
 	}
 		
-	virtual Int64 GetSize()
+        virtual sf::Int64 GetSize()
 	{
-		return Int_val( callback( caml_get_public_method(inputStreamInst_, 
+		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
 								 hash_variant("tell") ), 
-					  inputStreamInst_ ) );
+					  *inputStreamInst_ ) );
 	}
 };
 
@@ -83,7 +87,7 @@ class ConversionManagement< CamlInputStream >
 {
 	CamlInputStream from_value( value& v)
 	{
-		return CamlInputStream(v);
+	  return CamlInputStream(v);
 	}
 };
 

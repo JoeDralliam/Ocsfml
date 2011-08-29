@@ -6,3 +6,18 @@ object
 end
 
 external sleep : int -> unit = "sf_Sleep"
+
+external class thread : "sf_Thread" =
+object
+  constructor create : (unit -> unit) -> unit = "create_from_function"
+  external method launch : unit -> unit = "Launch"
+  external method wait : unit -> unit = "Wait"
+  external method terminate : unit -> unit = "Terminate"
+end
+
+external class mutex : "sf_Mutex" =
+object
+  constructor create : unit = "default_constructor"
+  external method lock : unit -> unit = "Lock"
+  external method unlock : unit -> unit = "Unlock"
+end

@@ -27,6 +27,7 @@
 #include "conversion_management.hpp"
 #include "res_management.hpp"
 #include "memory_management.hpp"
+#include "stub_generator.hpp"
 
 template<class MemFunc>
 struct method_traits;
@@ -35,6 +36,12 @@ template<class Ret, class C, class... Args>
 struct method_traits< Ret (C::*)(Args...) >
 {
 	typedef Ret type (C*, Args...);
+};
+
+template<class Ret, class C, class... Args>
+struct method_traits< Ret (C::*)(Args...)const >
+{
+	typedef Ret type (C const*, Args...);
 };
 
 template<class Ret, class C, class... Args>
@@ -58,7 +65,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		return rm.call \
 		( \
 			std::bind(func, std::placeholders::_1), \
-			ConversionManagement< FuncTraits::arg1_type >::from_value( obj ) \
+			cm1.from_value( obj ) \
 		); \
 	}
 
@@ -75,7 +82,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		return rm.call \
 		( \
 			std::bind(func, std::placeholders::_1, std::place_holders::_2), \
-			ConversionManagement< FuncTraits::arg1_type >::from_value( obj ), \
+			cm1.from_value( obj ), \
 			cm2.from_value( param1 ) \
 		); \
 	}
@@ -93,7 +100,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		return rm.call \
 		( \
 			std::bind(func, std::placeholders::_1, std::place_holders::_2, std::place_holders::_3), \
-			ConversionManagement< FuncTraits::arg1_type >::from_value( obj ), \
+			cm1.from_value( obj ), \
 			cm2.from_value( param1 ) \
 			cm3.from_value( param2 ) \
 		); \
@@ -147,7 +154,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_external_constructor0( constructor_name, func) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
 		{ \
-			typedef std::remove_pointer<func>::type FuncType; \
+			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -160,7 +167,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_external_constructor1( constructor_name, func) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
 		{ \
-			typedef std::remove_pointer<func>::type FuncType; \
+			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -175,7 +182,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_external_constructor2( constructor_name, func ) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
 		{ \
-			typedef std::remove_pointer<func>::type FuncType; \
+			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -192,7 +199,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_external_constructor3( constructor_name, func ) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
 		{ \
-			typedef std::remove_pointer<func>::type FuncType; \
+			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -211,7 +218,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_external_constructor4( constructor_name, func ) \
 		CAMLprim value BOOSt_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
 		{ \
-			typedef std::remove_pointer<func>::type FuncType; \
+			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3, param4 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -232,7 +239,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_external_constructor5( constructor_name, func) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
 		{ \
-			typedef std::remove_pointer<func>::type FuncType; \
+			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3, param4, param5 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -311,7 +318,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		}
 
 #define camlpp__register_constructor4( constructor_name, param1_type, param2_type, param3_type, param4_type) \
-		CAMLprim value BOOSt_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
+		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
 		{ \
 			MemoryManagement< 4 > mm( param1, param2, param3, param4 ); \
 			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
@@ -366,7 +373,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 	template<> \
 	struct ConversionManagement< CAMLPP__CLASS_NAME() * > \
 	{ \
-		static CAMLPP__CLASS_NAME()* from_value( value& v) \
+		CAMLPP__CLASS_NAME()* from_value( value const& v) \
 		{ \
 			if( Tag_val( v ) == Object_tag ) \
 			{ \
@@ -377,9 +384,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		} \
 	}; \
 	template<> \
-	struct ConversionManagement< CAMLPP__CLASS_NAME() & > \
+	struct ConversionManagement< CAMLPP__CLASS_NAME() & > : private ConversionManagement< CAMLPP__CLASS_NAME() * > \
 	{ \
-		static CAMLPP__CLASS_NAME()& from_value( value& v) \
+		CAMLPP__CLASS_NAME()& from_value( value const& v) \
 		{ \
 			return *ConversionManagement< CAMLPP__CLASS_NAME() * >::from_value( v ); \
 		} \

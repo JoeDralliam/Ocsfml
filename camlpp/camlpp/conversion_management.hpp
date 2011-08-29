@@ -22,8 +22,9 @@
 
 extern "C"
 {
-	#include <caml/mlvalues.h>
-	#include <caml/callback.h>
+#include <caml/mlvalues.h>
+#include <caml/memory.h>
+#include <caml/callback.h>
 }
 
 #include <functional>
@@ -32,8 +33,9 @@ extern "C"
 #include <tuple>
 #include <memory>
 
-template<class T> class ConversionManagement;
+#include "affectation_management.hpp"
 
+template<class T> class ConversionManagement;
 template<class T>
 struct ConversionManagement<T*>
 {
@@ -48,7 +50,7 @@ struct ConversionManagement<T*>
 template<class T>
 struct ConversionManagement<T&>
 {
-	std::unique_pointer<T> ptr;
+	std::unique_ptr<T> ptr;
 	T& from_value(value& v)
 	{
 		ptr.reset(new T( ConversionManagement<T>::from_value() ) );
@@ -79,16 +81,27 @@ struct ConversionManagement<int>
 template<>
 struct ConversionManagement<long>
 {
-	int from_value(value& v)
+	long from_value(value& v)
 	{
 		assert( Is_long( v ) );
 		return Int_val(v);
 	}
 };
+
+template<>
+struct ConversionManagement<long long>
+{
+        long long from_value(value& v)
+	{
+		assert( Is_long( v ) );
+		return Int_val(v);
+	}
+};
+
 template<>
 struct ConversionManagement<unsigned short>
 {
-	int from_value(value& v)
+	unsigned short from_value(value& v)
 	{
 		assert( Is_long( v ) );
 		return Int_val(v);
@@ -97,7 +110,7 @@ struct ConversionManagement<unsigned short>
 template<>
 struct ConversionManagement<unsigned int>
 {
-	int from_value(value& v)
+	unsigned int from_value(value& v)
 	{
 		assert( Is_long( v ) );
 		return Int_val(v);
@@ -106,12 +119,23 @@ struct ConversionManagement<unsigned int>
 template<>
 struct ConversionManagement<unsigned long>
 {
-	int from_value(value& v)
+	unsigned long from_value(value& v)
 	{
 		assert( Is_long( v ) );
 		return Int_val(v);
 	}
 };
+
+template<>
+struct ConversionManagement<unsigned long long>
+{
+        unsigned long long from_value(value& v)
+	{
+		assert( Is_long( v ) );
+		return Int_val(v);
+	}
+};
+
 template<>
 struct ConversionManagement<signed char>
 {

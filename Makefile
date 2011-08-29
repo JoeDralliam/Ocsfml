@@ -1,3 +1,5 @@
+.PHONY: all system window graphics audio network camlpp install_camlpp clean
+
 all: system # window graphics audio network
 
 system:
@@ -27,6 +29,11 @@ install_camlpp:
 	ocamlfind install "external_cpp" camlpp/ExternalCpp/META \
 	_build/camlpp/ExternalCpp/pa_cpp_external.cmo && \
 	cp -R ./camlpp/camlpp /usr/local/include/camlpp
+
+uninstall_camlpp:
+	ocamlfind remove "external_cpp" && \
+	rm -R /usr/local/include/camlpp
+
 #test:
 #	ocamlbuild -use-ocamlfind test.cmo
 
@@ -38,3 +45,4 @@ install_camlpp:
 
 clean:
 	ocamlbuild -clean
+

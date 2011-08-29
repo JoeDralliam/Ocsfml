@@ -61,8 +61,9 @@ let add_gcc_rules () =
 	let cpplib = env "%.cpplib" in
 	let tags = tags_of_pathname cpplib ++ "archive" ++ "g++" in
 	let o_files = string_list_of_file cpplib in 
-	  List.iter Outcome.ignore_good (builder (parallel (dirname cpplib) o_files));
-	  let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A o ]) in
+	let dir = dirname cpplib in
+	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
+	  let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A (dir/o) ]) in
 	    Seq (List.map ar_cmd o_files)   
     end
 
@@ -72,6 +73,7 @@ let get_directory s =
     s'
 
 let static = true 
+let debug = true
 let system = "-lsfml-system"
 let window = "-lsfml-window"
 let graphics = "-lsfml-graphics"
@@ -92,6 +94,7 @@ let _ = dispatch begin function
   | Before_rules ->  
       let create_libs_flags (s,l) = 
 	let link_libs = (A libdir)::(List.map (fun x -> A x) l) in
+	let verbose = if debug then [A"-verbose"] else [] in
 	let link_libs_ocaml = 
 List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
 	let d = get_directory s in
@@ -108,7 +111,7 @@ List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	  flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
-	    S[A "-cclib"; A("-L."); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lstdc++"]; 
+	    S(verbose@[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lstdc++"]); 
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
 	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
@@ -119,8 +122,8 @@ List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
 	add_gcc_rules () ;
 	flag [ "g++" ; "include_boost"] & A"-I/usr/local/include" ;
 	flag [ "g++" ; "include_caml"] & A"-I/usr/local/lib/ocaml" ;
-	dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["pa_cpp_external.cmo"] ;
-	flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"pa_cpp_external.cmo"] ;
+	dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["camlpp/ExternalCpp/pa_cpp_external.cmo"] ;
+	flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"camlpp/ExternalCpp/pa_cpp_external.cmo"] ;
 	List.iter create_libs_flags libs ;
 	(* If `static' is true then every ocaml link in bytecode will add -custom *)
 	if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
