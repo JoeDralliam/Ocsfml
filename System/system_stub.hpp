@@ -89,8 +89,8 @@ class ConversionManagement< CamlInputStream >
 
 template<>
 class ConversionManagement< sf::InputStream& > : public ConversionManagement< CamlInputStream& >
-9{};
+{};
 
 
-#define
+#endif
 

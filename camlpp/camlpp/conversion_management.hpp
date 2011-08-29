@@ -30,6 +30,7 @@ extern "C"
 #include <cassert>
 #include <string>
 #include <tuple>
+#include <memory>
 
 template<class T> class ConversionManagement;
 
@@ -47,7 +48,7 @@ struct ConversionManagement<T*>
 template<class T>
 struct ConversionManagement<T&>
 {
-	std::scoped_pointer<T> ptr;
+	std::unique_pointer<T> ptr;
 	T& from_value(value& v)
 	{
 		ptr.reset(new T( ConversionManagement<T>::from_value() ) );

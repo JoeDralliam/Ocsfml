@@ -1,9 +1,10 @@
 open Ocamlbuild_plugin
+open Pathname
 
 let add_gcc_rules () = 
   let gcc_cpp = "g++-mp-4.5" in
 
-  let parallel files = List.map (fun f -> [f]) files  in
+  let parallel dir files = List.map (fun f -> [dir/f]) files  in
 
   let err_circular file path = 
     Printf.sprintf "Circular build detected (%s already seen in [%s])"
@@ -12,10 +13,10 @@ let add_gcc_rules () =
 
   
   let parse_deps file = 
-    let dir = Pathname.dirname file in
+    let dir = dirname file in
     let deps = List.tl (List.tl (string_list_of_file file)) in
     let deps = List.filter (fun d -> d <> "\\") deps in (* remove \ *)
-    let correct d = if Pathname.dirname d = dir then d else dir / d in
+    let correct d = if dirname d = dir then d else dir / d in
       List.map correct deps
   in
 
@@ -47,8 +48,8 @@ let add_gcc_rules () =
 	      if List.mem f path then failwith (err_circular f path) else
 		let deps = parse_deps (f ^ ".depends") in
 		let dep_files = List.map (fun d -> d ^ ".depends") deps in
-		  List.iter Outcome.ignore_good (builder (parallel deps));
-		  List.iter Outcome.ignore_good (builder (parallel dep_files));
+		  List.iter Outcome.ignore_good (builder (parallel "" deps));
+		  List.iter Outcome.ignore_good (builder (parallel "" dep_files));
 		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
 	  build_transitive_deps [([],[cpp])];
@@ -60,7 +61,7 @@ let add_gcc_rules () =
 	let cpplib = env "%.cpplib" in
 	let tags = tags_of_pathname cpplib ++ "archive" ++ "g++" in
 	let o_files = string_list_of_file cpplib in 
-	  List.iter Outcome.ignore_good (builder (parallel o_files));
+	  List.iter Outcome.ignore_good (builder (parallel (dirname cpplib) o_files));
 	  let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A o ]) in
 	    Seq (List.map ar_cmd o_files)   
     end
@@ -69,8 +70,6 @@ let get_directory s =
   let s' = String.copy s in
     s'.[0] <- Char.uppercase s'.[0] ;
     s'
-
-let expand_name s = (get_directory s) ^ "/ocsfml" ^ s
 
 let static = true 
 let system = "-lsfml-system"
@@ -95,6 +94,7 @@ let _ = dispatch begin function
 	let link_libs = (A libdir)::(List.map (fun x -> A x) l) in
 	let link_libs_ocaml = 
 List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
+	let d = get_directory s in
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
 	  flag ["g++" ; "compile" ; "use_sfml_"^s ] & S link_libs;  
@@ -111,10 +111,10 @@ List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
 	    S[A "-cclib"; A("-L."); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lstdc++"]; 
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
-	  dep  ["link"; "ocaml"; "use_libocsfml"^s] ["libocsfml"^s^".a"] ;
+	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
   
 	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
-	  ocaml_lib (expand_name s);
+	  ocaml_lib (d ^ "/ocsfml" ^ s);
       in 
 	add_gcc_rules () ;
 	flag [ "g++" ; "include_boost"] & A"-I/usr/local/include" ;
