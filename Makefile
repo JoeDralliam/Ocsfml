@@ -21,12 +21,12 @@ network:
 	ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
 
 camlpp:
-	ocamlbuild -use-ocamlfind caml++/External/pa_cpp_external.cmo
+	ocamlbuild -use-ocamlfind ./camlpp/ExternalCpp/pa_cpp_external.cmo
 
 install_camlpp:
-	ocamlfind install "external_cpp" _build/caml++/ExternalCpp/META \
-	_build/caml++/ExternalCpp/pa_cpp_external.cmo && \
-	cp -R ./caml++/camlpp /usr/local/include/camlpp
+	ocamlfind install "external_cpp" camlpp/ExternalCpp/META \
+	_build/camlpp/ExternalCpp/pa_cpp_external.cmo && \
+	cp -R ./camlpp/camlpp /usr/local/include/camlpp
 #test:
 #	ocamlbuild -use-ocamlfind test.cmo
 
