@@ -36,7 +36,12 @@ struct
     | ClassStrItem of Ast.class_str_item
 
   type cpp_class_expr =
-    { cpp_class_name : string option ; expr : Ast.class_str_item -> Ast.class_expr; str_items : cpp_clas_str_item list }
+    { 
+      cpp_class_name : string option ; 
+      expr : Ast.class_str_item -> Ast.class_expr; 
+      str_items : cpp_clas_str_item list ;
+      module_name_opt : string option
+    }
 
   let get_class_name = function
     | <:class_expr< $lid:s$ $_$ >> -> s
@@ -69,18 +74,18 @@ struct
     in
       Ast.crSem_of_list (
 	<:class_str_item< value $lid:t_name$ = $lid:t_name'$ >> ::
-<:class_str_item< method $lid:"rep__"^cpp_class_name$ = $lid:t_name$ >> :: 
-	  (List.map aux str_items)) ;;
+	  <:class_str_item< method $lid:"rep__"^cpp_class_name$ = $lid:t_name$ >> :: 
+	    (List.map aux str_items)) ;;
 
   let mk_module_body class_name cpp_class_name str_items =  
-    let t_name = "t_"^class_name in
+    let t_name = "t" in
     let aux = function
       | Inherit(parent_name,_,p) -> 
 	  let cpp_parent_class_name = match p with
 	    | Some s -> s 
 	    | None -> class_name in
 	  let sl = Ast.LCons (("upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl"), Ast.LNil) in
-	    <:str_item< external $"to_"^parent_name$ : $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t_"^parent_name$ = $sl$ >>
+	    <:str_item< external $"to_"^parent_name$ : $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ = $sl$ >>
       | Method(label, type_method, cpp_name) -> <:str_item< external $label$ : $lid:t_name$ -> $simplify_type (adapt_to_module type_method)$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
       | Constructor(label, type_method, cpp_name) -> <:str_item< external $label$ : $enfouir <:ctyp<$lid:t_name$>> type_method$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
       | ClassStrItem _ -> <:str_item< >>
@@ -89,8 +94,8 @@ struct
 
   let generate_class_and_module ci ce =
     let (class_info, class_name) = ci in
-    let { cpp_class_name = cpp_class_name_opt ; expr = expr; str_items = str_items } = ce in
-    let module_name = lid_to_uid class_name in 
+    let { cpp_class_name = cpp_class_name_opt ; expr = expr; str_items = str_items ; module_name_opt = module_name_opt } = ce in
+    let module_name = match module_name_opt with Some s -> s | None -> lid_to_uid class_name in 
     let cpp_class_name = match cpp_class_name_opt with None -> class_name | Some s -> s in
     let items = (Method("destroy", <:ctyp< unit -> unit >>, "destroy"))::str_items in
       <:class_expr< $class_info$ = fun $lid:"t_"^class_name^"'"$ -> $expr (mk_class_body class_name cpp_class_name <:expr< $lid:module_name$>> items)$ >> , 
@@ -143,9 +148,9 @@ ci,<:class_expr< $id:ci'$ [ $t$ ] >>
         [ ce = SELF; e = expr LEVEL "label" -> 
 	    {ce with expr = (fun x -> <:class_expr< $ce.expr x$ $e$ >>)} ]
       | "simple"
-        [  ce = class_longident_and_param -> {cpp_class_name = None; expr = (fun x -> ce) ; str_items = [] }
+        [  ce = class_longident_and_param -> {cpp_class_name = None; expr = (fun x -> ce) ; str_items = [] ; module_name_opt = None}
         | "object"; csp = opt_class_self_patt; l = cpp_class_structure; "end" ->
-	    { cpp_class_name = None ; expr = (fun x -> <:class_expr< object ($csp$) $x$ end >>) ; str_items = l }
+	    { cpp_class_name = None ; expr = (fun x -> <:class_expr< object ($csp$) $x$ end >>) ; str_items = l ; module_name_opt = None }
         | "("; ce = SELF; ":"; ct = class_type; ")" -> 
 	    {ce with expr = (fun x -> <:class_expr< ($ce.expr x$ : $ct$) >>) }
         | "("; ce = SELF; ")" -> ce 
@@ -153,7 +158,7 @@ ci,<:class_expr< $id:ci'$ [ $t$ ] >>
 
    cpp_class_fun_binding:
    [ [ "="; ce = cpp_class_expr -> ce
-     | ":"; cpp_name = a_STRING; "="; ce = cpp_class_expr -> { ce with cpp_class_name = Some cpp_name }
+     | module_name = OPT [ "("; s = a_UIDENT ; ")" -> s ] ; ":"; cpp_name = a_STRING; "="; ce = cpp_class_expr -> { ce with cpp_class_name = Some cpp_name ; module_name_opt = module_name }
      ] ];
 
    cpp_class_info_for_class_expr:

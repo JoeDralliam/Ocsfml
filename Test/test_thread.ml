@@ -8,8 +8,8 @@ let g s n () =
   done
 
 let _ =
-  let t1 = new thread (Thread.create (g "bonjour" 1000))
-  and t2 = new thread (Thread.create (g "bonsoir" 1000)) in
+  let t1 = new thread (g "bonjour" 1000)
+  and t2 = new thread (g "bonsoir" 1000) in
     t1#launch () ;
     t2#launch () ;
     sleep 500 ;

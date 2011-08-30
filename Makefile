@@ -34,6 +34,12 @@ uninstall_camlpp:
 	ocamlfind remove "external_cpp" && \
 	rm -R /usr/local/include/camlpp
 
+test_clock:
+	ocamlbuild -use-ocamlfind Test/test_clock.native
+
+test_thread:
+	ocamlbuild -use-ocamlfind Test/test_thread.native
+
 #test:
 #	ocamlbuild -use-ocamlfind test.cmo
 

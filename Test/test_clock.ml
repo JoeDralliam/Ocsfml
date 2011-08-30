@@ -1,10 +1,12 @@
 open System
 
 let _ =
-  let ck = new clock (Clock.create ()) in
+  let ck = new clock in
     ck#reset () ;
     sleep 500 ;
     print_int (ck#get_elapsed_time ()) ;
     ck#reset ();
+    print_newline ();
     print_int (ck#get_elapsed_time ()) ;
-    ck#destroy ();
+    print_newline () ;
+    ck#destroy ()
