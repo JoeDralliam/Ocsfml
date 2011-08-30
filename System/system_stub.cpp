@@ -20,6 +20,10 @@
 #include "system_stub.hpp"
 #include <SFML/System/Clock.hpp>
 
+extern "C"
+{
+	#include <caml/threads.h>
+}
 
 typedef sf::Clock sf_Clock;
 
@@ -41,10 +45,17 @@ extern "C"
 
 #include <SFML/System/Thread.hpp>
 
+void thread_function( std::function<void()> f )
+{
+	caml_c_thread_register();
+	f();
+	caml_c_thread_unregister();
+}
+
 
 sf::Thread* create_from_function_helper(std::function<void()> f) 
 {
-  return new sf::Thread(f);
+  return new sf::Thread( std::bind(&thread_function, f) );
 }
 
 typedef sf::Thread sf_Thread;
