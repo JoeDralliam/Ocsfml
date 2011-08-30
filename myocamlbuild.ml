@@ -1,17 +1,22 @@
 open Ocamlbuild_plugin
 open Pathname
 
-(*
 let symbols = 
-  let tmp = Hashtbl.create 10 in
+  let tmp = Hashtbl.create 10 in 
   let l = string_list_of_file "config" in
   let rec fill_tbl = function
-    | [] | [x] -> tmp
-    | x::*)
+    | [] -> tmp
+    | [x] -> tmp
+    | x::y::rest -> (Hashtbl.add tmp x y ; fill_tbl rest) 
+  in fill_tbl l
 
+let get_symbol s = 
+  try
+    Hashtbl.find symbols s
+  with Not_found -> failwith ("this symbol must be defined : "^ s)
 
 let add_gcc_rules () = 
-  let gcc_cpp = "gcc-mp-4.5" in
+  let gcc_cpp = get_symbol "gcc" in
 
   let parallel dir files = List.map (fun f -> [dir/f]) files  in
 
@@ -88,10 +93,10 @@ let window = "-lsfml-window"
 let graphics = "-lsfml-graphics"
 let audio = "-lsfml-audio"
 let network = "-lsfml-network"
-let includedir = "-I/usr/local/include" 
-let libdir = "-L/usr/local/lib" 
+let includedir = "-I" ^ (get_symbol "includedir" )
+let libdir = "-L" ^ (get_symbol "libdir") 
 let libs = [
-  "system",[system] ; 
+  "system", [system] ; 
   "window", [system ; window] ;
   "graphics", [system ; window ; graphics] ;
   "audio", [system ; audio ] ;
@@ -104,8 +109,8 @@ let _ = dispatch begin function
       let create_libs_flags (s,l) = 
 	let link_libs = (A libdir)::(List.map (fun x -> A x) l) in
 	let verbose = if debug then [A"-verbose"] else [] in
-	let link_libs_ocaml = 
-List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
+	let link_libs_ocaml = List.fold_left 
+	  (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
 	let d = get_directory s in
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
