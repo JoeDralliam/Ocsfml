@@ -298,7 +298,11 @@ void caml_cpp__affect(value& v, T const& t)
 	AffectationManagement<T>::affect(v, t);
 }
 
-
+template<class T>
+void caml_cpp__affect_field(value& v, int field, T const& t)
+{
+	AffectationManagement<T>::affect_field(v, field, t);
+}
 
 #endif
 
