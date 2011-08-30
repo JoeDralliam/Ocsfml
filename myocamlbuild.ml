@@ -116,12 +116,12 @@ let _ = dispatch begin function
 	  (* when a c++ file employ the sfml "s" module is compiled *)
 	  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs;  
 
-	  (* when we link an ocaml file against the sfml "s" module *)
-	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
-
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
             S[A"-dllib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lstdc++"];  
+
+	  (* when we link an ocaml file against the sfml "s" module *)
+	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	  flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
