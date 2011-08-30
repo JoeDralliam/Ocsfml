@@ -1,3 +1,5 @@
 gcc g++-mp-4.5
 includedir /usr/local/include
 libdir /usr/local/lib
+camlincludedir /usr/local/lib/ocaml
+boostincludedir /usr/local/include

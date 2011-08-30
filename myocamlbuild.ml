@@ -134,8 +134,8 @@ let _ = dispatch begin function
 	  ocaml_lib (d ^ "/ocsfml" ^ s);
       in 
 	add_gcc_rules () ;
-	flag [ "g++" ; "include_boost"] & A"-I/usr/local/include" ;
-	flag [ "g++" ; "include_caml"] & A"-I/usr/local/lib/ocaml" ;
+	flag [ "g++" ; "include_boost"] & A("-I"^(get_symbol boostincludedir)) ;
+	flag [ "g++" ; "include_caml"] & A("-I"^(get_symbol camlincludedir)) ;
 	dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["camlpp/ExternalCpp/pa_cpp_external.cmo"] ;
 	flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"camlpp/ExternalCpp/pa_cpp_external.cmo"] ;
 	List.iter create_libs_flags libs ;
