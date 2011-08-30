@@ -77,7 +77,7 @@ public:
         virtual sf::Int64 GetSize()
 	{
 		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
-								 hash_variant("tell") ), 
+								 hash_variant("get_size") ), 
 					  *inputStreamInst_ ) );
 	}
 };

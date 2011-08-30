@@ -7,9 +7,11 @@ end
 
 external sleep : int -> unit = "sf_Sleep"
 
+type func0 = unit -> unit
+
 external class thread : "sf_Thread" =
 object
-  constructor create : (unit -> unit) -> unit = "create_from_function"
+  constructor create : func0 = "create_from_function"
   external method launch : unit -> unit = "Launch"
   external method wait : unit -> unit = "Wait"
   external method terminate : unit -> unit = "Terminate"
@@ -20,4 +22,12 @@ object
   constructor create : unit = "default_constructor"
   external method lock : unit -> unit = "Lock"
   external method unlock : unit -> unit = "Unlock"
+end
+
+class virtual input_stream =
+object
+  method virtual read : int -> string * int
+  method virtual seek : int -> int
+  method virtual tell : unit -> int
+  method virtual get_size : unit -> int
 end

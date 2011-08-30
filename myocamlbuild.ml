@@ -1,8 +1,17 @@
 open Ocamlbuild_plugin
 open Pathname
 
+(*
+let symbols = 
+  let tmp = Hashtbl.create 10 in
+  let l = string_list_of_file "config" in
+  let rec fill_tbl = function
+    | [] | [x] -> tmp
+    | x::*)
+
+
 let add_gcc_rules () = 
-  let gcc_cpp = "g++-mp-4.5" in
+  let gcc_cpp = "gcc-mp-4.5" in
 
   let parallel dir files = List.map (fun f -> [dir/f]) files  in
 
@@ -100,7 +109,7 @@ List.fold_left (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
 	let d = get_directory s in
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
-	  flag ["g++" ; "compile" ; "use_sfml_"^s ] & S link_libs;  
+	  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs;  
 
 	  (* when we link an ocaml file against the sfml "s" module *)
 	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;

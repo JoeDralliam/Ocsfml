@@ -82,7 +82,7 @@ struct
 	  let sl = Ast.LCons (("upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl"), Ast.LNil) in
 	    <:str_item< external $"to_"^parent_name$ : $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t_"^parent_name$ = $sl$ >>
       | Method(label, type_method, cpp_name) -> <:str_item< external $label$ : $lid:t_name$ -> $simplify_type (adapt_to_module type_method)$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
-      | Constructor(label, type_method, cpp_name) -> <:str_item< external $label$ : $enfouir <:ctyp<$lid:t_name$>> (adapt_to_module type_method)$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
+      | Constructor(label, type_method, cpp_name) -> <:str_item< external $label$ : $enfouir <:ctyp<$lid:t_name$>> type_method$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
       | ClassStrItem _ -> <:str_item< >>
     in
       Ast.stSem_of_list (<:str_item< type $lid:t_name$>>::(List.map aux str_items)) 
@@ -122,7 +122,7 @@ struct
           [ "external" ; "inherit"; (ci,ce) = cpp_class_longident_and_param ; cpp_class_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
 	      Inherit(ci,(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>), cpp_class_name)
 	  | "external" ; "method" ; l = label; ":"; topt = poly_type ; "=" ; cpp_name = a_STRING -> Method(l,topt, cpp_name)	  
-	  | "constructor" ; l = label; ":"; topt = poly_type ; "=" ; cpp_name = a_STRING -> Constructor(l,topt, cpp_name) 
+	  | "constructor" ; l = label; ":"; topt = ctyp ; "=" ; cpp_name = a_STRING -> Constructor(l,topt, cpp_name) 
 	  | e = class_str_item -> ClassStrItem(e)
 	  ] 
       ];
