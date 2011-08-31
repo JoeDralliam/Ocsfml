@@ -37,6 +37,9 @@ camlpp__custom_class_registered()
 
 
 #include <SFML/System/Sleep.hpp>
+
+
+
 extern "C"
 {
 	camlpp__register_overloaded_free_function1( sf_Sleep, &sf::Sleep )
@@ -45,17 +48,17 @@ extern "C"
 
 #include <SFML/System/Thread.hpp>
 
-void thread_function( std::function<void()> f )
+void thread_function( std::function<void()> const& f )
 {
-	caml_c_thread_register();
+	assert(	caml_c_thread_register() );
 	f();
-	caml_c_thread_unregister();
+	/*  assert(*/ caml_c_thread_unregister() ;
 }
 
 
 sf::Thread* create_from_function_helper(std::function<void()> f) 
 {
-  return new sf::Thread( std::bind(&thread_function, f) );
+  return new sf::Thread( std::bind(&thread_function, std::move(f)) );
 }
 
 typedef sf::Thread sf_Thread;

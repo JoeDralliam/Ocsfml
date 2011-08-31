@@ -259,12 +259,12 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 {
 	class CamlCallback
 	{	
-		value callback_;
+		std::unique_ptr<value> callback_;
 	private:
 
 		value call()
 		{
-			return callback( callback_, Val_unit );
+			return callback( *callback_, Val_unit );
 		}
 
 		template<class T>
@@ -273,7 +273,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 			CAMLparam0();
 			CAMLlocal1( p1 );
 			AffectationManagement< T>::affect(p1, t);
-			CAMLreturn( callback( callback_, p1 ) );
+			CAMLreturn( callback( *callback_, p1 ) );
 		}
 
 		template<class T1, class T2>
@@ -283,7 +283,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 			CAMLlocal2( p1, p2 );
 			AffectationManagement<T1>::affect(p1, t1);
 			AffectationManagement<T2>::affect(p2, t2);
-			CAMLreturn( callback2( callback_, p1, p2 ) );
+			CAMLreturn( callback2( *callback_, p1, p2 ) );
 		}
 
 		template<class T1, class T2, class T3>
@@ -294,7 +294,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 			AffectationManagement<T1>::affect(p1, t1);
 			AffectationManagement<T2>::affect(p2, t2);
 			AffectationManagement<T3>::affect(p3, t3);
-			CAMLreturn( callback3( callback_, p1, p2, p3 ) );
+			CAMLreturn( callback3( *callback_, p1, p2, p3 ) );
 		}
 
 		template<class... OArgs>
@@ -309,7 +309,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 		value call_helper( value pN[I], T tN )
 		{
 			AffectationManagement<T>::affect( pN[I-1], tN);
-			return callbackN( callback_, I, pN );
+			return callbackN( *callback_, I, pN );
 		}
 
 		template<class... OArgs, class T, int I>
@@ -320,16 +320,25 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 		}
 
 	public:
-		CamlCallback( value const& v ) : callback_(v)
+		CamlCallback( value const& v ) : callback_(new value(v))
 		{
-			caml_register_generational_global_root(&callback_);
+			caml_register_generational_global_root(callback_.get());
 		}
 
 		~CamlCallback()
 		{
-			caml_remove_generational_global_root(&callback_);
+			if(callback_)
+			{
+				caml_remove_generational_global_root(callback_.get());
+			}
 		}
-		
+	
+		CamlCallback( CamlCallback const& ) = delete;
+		CamlCallback& operator=( CamlCallback const& ) = delete;
+
+		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
+		{}
+	
 		template<class... OArgs>
 		Ret operator()(OArgs... args)
 		{
@@ -337,7 +346,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 			return cm.from_value( call( std::forward<OArgs>(args)... ) );
 		}
 	};
-	std::function< Ret(Args...) > from_value( value const& v)
+	CamlCallback from_value( value const& v)
 	{
 		
 		assert( Tag_val( v ) == Closure_tag );
@@ -350,12 +359,12 @@ struct ConversionManagement< std::function< void(Args...) > >
 {
 	class CamlCallback
 	{	
-		value callback_;
+		std::shared_ptr<value> callback_;
 	private:
 
 		value call()
 		{
-			return callback( callback_, Val_unit );
+			return callback( *callback_, Val_unit );
 		}
 
 		template<class T>
@@ -364,7 +373,7 @@ struct ConversionManagement< std::function< void(Args...) > >
 			CAMLparam0();
 			CAMLlocal1( p1 );
 			AffectationManagement< T>::affect(p1, t);
-			CAMLreturn( callback( callback_, p1 ) );
+			CAMLreturn( callback( *callback_, p1 ) );
 		}
 
 		template<class T1, class T2>
@@ -374,7 +383,7 @@ struct ConversionManagement< std::function< void(Args...) > >
 			CAMLlocal2( p1, p2 );
 			AffectationManagement<T1>::affect(p1, t1);
 			AffectationManagement<T2>::affect(p2, t2);
-			CAMLreturn( callback2( callback_, p1, p2 ) );
+			CAMLreturn( callback2( *callback_, p1, p2 ) );
 		}
 
 		template<class T1, class T2, class T3>
@@ -385,7 +394,7 @@ struct ConversionManagement< std::function< void(Args...) > >
 			AffectationManagement<T1>::affect(p1, t1);
 			AffectationManagement<T2>::affect(p2, t2);
 			AffectationManagement<T3>::affect(p3, t3);
-			CAMLreturn( callback3( callback_, p1, p2, p3 ) );
+			CAMLreturn( callback3( *callback_, p1, p2, p3 ) );
 		}
 
 		template<class... OArgs>
@@ -400,7 +409,7 @@ struct ConversionManagement< std::function< void(Args...) > >
 		value call_helper( value pN[I], T tN )
 		{
 			AffectationManagement<T>::affect( pN[I-1], tN);
-			return callbackN( callback_, I, pN );
+			return callbackN( *callback_, I, pN );
 		}
 
 		template<class... OArgs, class T, int I>
@@ -411,23 +420,33 @@ struct ConversionManagement< std::function< void(Args...) > >
 		}
 
 	public:
-		CamlCallback( value const& v ) : callback_(v)
+		CamlCallback( value const& v ) : callback_(new value(v))
 		{
-			caml_register_generational_global_root(&callback_);
+			caml_register_generational_global_root(callback_.get());
 		}
 
 		~CamlCallback()
 		{
-			caml_remove_generational_global_root(&callback_);
+			if(callback_) 
+			{
+				caml_remove_generational_global_root(callback_.get());
+			}
 		}
 
+		CamlCallback( CamlCallback const& other) = default;
+
+		CamlCallback& operator=( CamlCallback const& ) = delete;
+
+		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
+		{}
 		template<class... OArgs>
 		void operator()(OArgs&&... args)
 		{
+			assert( callback_ );
 			call(std::forward<OArgs>(args)...);
 		}
 	};
-	std::function< void(Args...) > from_value( value const& v)
+	CamlCallback from_value( value const& v)
 	{
 		
 		assert( Tag_val( v ) == Closure_tag );
