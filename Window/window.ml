@@ -225,7 +225,7 @@ struct
 	bits_per_pixel : int
       }
 
-  external get_full_screen_modes : unit -> t list = "VideoMode_GetFullscreenModes"
+  external get_full_screen_modes : unit -> t array = "VideoMode_GetFullscreenModes"
   external get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode"
 end
 
