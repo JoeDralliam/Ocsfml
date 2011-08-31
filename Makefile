@@ -1,4 +1,4 @@
-.PHONY: all system window graphics audio network camlpp install_camlpp clean
+.PHONY: all system window graphics audio network camlpp install_camlpp uninstall_camlpp test_clock test_thread clean
 
 all: system # window graphics audio network
 
@@ -39,6 +39,9 @@ test_clock:
 
 test_thread:
 	ocamlbuild -use-ocamlfind Test/test_thread.native
+
+doc:
+	ocamlbuild -use-ocamlfind sfml.docdir/index.html
 
 #test:
 #	ocamlbuild -use-ocamlfind test.cmo
