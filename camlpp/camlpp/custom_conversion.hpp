@@ -124,5 +124,29 @@ private:
 		} \
 	}
 
+#define custom_enum_conversion( enum_name ) \
+	template<> \
+	struct ConversionManagement< enum_name > \
+	{ \
+		enum_name from_value( value const& v) \
+		{ \
+			return static_cast<enum_name>( Int_val( v ) ); \
+		} \
+	}
+
+#define custom_enum_affectation( enum_name ) \
+	template<> \
+	struct AffectationManagement< enum_name > \
+	{ \
+		static void affect( value& v, enum_name const& k ) \
+		{ \
+			v = Val_int( k ); \
+		} \
+		static void affect_field( value& v, int field, enum_name const& k ) \
+		{ \
+			Store_field(v, field, Val_int( k )); \
+		} \
+	}
+
 #endif
 

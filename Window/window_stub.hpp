@@ -3,6 +3,21 @@
 
 #include <caml/custom_class.hpp>
 
+#include <SFML/Window/Event.hpp>
+
+
+custom_enum_conversion( sf::Keyboard::Key );
+custom_enum_affectation( sf::Keyboard::Key );
+
+custom_enum_conversion( sf::Mouse::Button );
+custom_enum_affectation( sf::Mouse::Button );
+
+custom_enum_conversion( sf::Joystick::Axis );
+custom_enum_affectation( sf::Joystick::Axis );
+
+
+
+
 
 custom_struct_affectation( 	sf::Event::SizeEvent, 
 				&sf::Event::SizeEvent::Width, 
@@ -38,16 +53,19 @@ custom_struct_affectation( 	sf::Event::JoystickConnectEvent,
 
 custom_struct_affectation( 	sf::Event::JoystickMoveEvent, 
 				&sf::Event::JoystickMoveEvent::JoystickId, 
-				&sf::Event::JoystickMoveEvent::Axis )
+				&sf::Event::JoystickMoveEvent::Axis,
+				&sf::Event::JoystickMoveEvent::Position )
 
 custom_struct_affectation( 	sf::Event::JoystickButtonEvent, 
 				&sf::Event::JoystickButtonEvent::JoystickId, 
 				&sf::Event::JoystickButtonEvent::Button )
 
+
+
 template<>
 struct AffectationManagement< sf::Event >
 {
-	void affect( value& v, sf::Event const& e)
+	static void affect( value& v, sf::Event const& e)
 	{
 		switch( e.Type )
 		{
@@ -111,6 +129,15 @@ struct AffectationManagement< sf::Event >
 				caml_cpp__affect_field( v, 0, e.JoystickConnect );
 				break;
 		}
+	}
+
+	static void affect_field( value& v, int field, sf::Event const& e)
+	{
+		CAMLparam0;
+		CAMLlocal1( eventVal ):
+		affect( eventVal, e);
+		Store_field(v, field, eventVal);
+		CAMLreturn0;
 	}
 private:
 	int constant_index( sf::Event const& e )
