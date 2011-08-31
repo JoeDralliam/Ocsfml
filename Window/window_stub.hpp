@@ -4,6 +4,7 @@
 #include <caml/custom_class.hpp>
 
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
 
 
 custom_enum_conversion( sf::Keyboard::Key );
@@ -166,6 +167,15 @@ private:
 	}
 };
 
+custom_struct_conversion(	 sf::VideoMode,
+				&sf::VideoMode::Width,
+				&sf::VideoMode::Height,
+				&sf::VideoMode::BitsPerPixel )
+
+custom_struct_affectation(	 sf::VideoMode,
+				&sf::VideoMode::Width,
+				&sf::VideoMode::Height,
+				&sf::VideoMode::BitsPerPixel )
 
 
 #endif

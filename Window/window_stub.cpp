@@ -23,5 +23,20 @@ extern "C"
 
 }
 
- 
+bool VideoMode_IsValid( const VideoMode& v )
+{
+	return v.IsValid();
+} 
+
+
+extern "C"
+{
+	camlpp__register_free_function1( VideoMode_IsValid )
+	camlpp__register_overloaded_free_function0( VideoMode_GetFullscreenModes, &sf::VideoMode::GetFullscreenModes)
+	camlpp__register_overloaded_free_function0( VideoMode_GetDesktopMode, &sf::VideoMode::GetDesktopMode)
+}
+
+
+
+
 

@@ -293,6 +293,28 @@ struct AffectationManagement< std::pair< T1, T2 > >
 };
 
 template<class T>
+struct AffectationManagement< std::vector< T > >
+{
+	static void affect(value& v, std::vector<T> const& vec)
+	{
+		v = caml_alloc_tuple( vec.size() );
+		for(int i = 0; i < vec.size(); ++i)
+		{
+			AffectationManagement< T >::affect_field(v, i, v[i]);
+		}
+	}
+
+	static void affect_field( value& v, int field, std::vector<T> const& vec)
+	{
+		CAMLparam0();
+		CAMLlocal1( vecVal );
+		affect( vecVal, vec);
+		Store_field(v, field, vecVal);
+		CAMLreturn0;
+	}
+};
+
+template<class T>
 void caml_cpp__affect(value& v, T const& t)
 {
 	AffectationManagement<T>::affect(v, t);
