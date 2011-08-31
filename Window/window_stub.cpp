@@ -36,7 +36,64 @@ extern "C"
 	camlpp__register_overloaded_free_function0( VideoMode_GetDesktopMode, &sf::VideoMode::GetDesktopMode)
 }
 
+typedef sf::Window sf_Window;
 
+sf::Window* window_constructor_helper( VideoMode vm, std::string const& title, Option<unsigned long> style , Optional<ContextSettings> cs)
+{
+	unsigned long actualStyle = style.isSome() ? style.get_value() : sf::Style::Default;
+	sf::ContextSettings actualSettings = cs.isSome() ? cs.get_value() : sf::ContextSettings();
+	return new Window( vm, title, actualStyle, actualSettings );
+}
 
+void window_create_helper( sf::Window* window,  VideoMode vm, std::string const& title, Option<unsigned long> style , Optional<ContextSettings> cs)
+{
+	unsigned long actualStyle = style.isSome() ? style.get_value() : sf::Style::Default;
+	sf::ContextSettings actualSettings = cs.isSome() ? cs.get_value() : sf::ContextSettings();
+	window->Create( vm, title, actualStyle, actualSettings );
+}
 
+Optional<sf::Event> window_poll_event_helper( sf::Window* window )
+{
+	sf::Event e;
+	return (window.poll_event( e ) ? some( e ) : none<sf::Event>() );
+}
+
+Optional<sf::Event> window_wait_event_helper( sf::Window* window )
+{
+	sf::Event e;
+	return (window.wait_event( e ) ? some( e ) : none<sf::Event>() );
+}
+
+void window_set_active_helper( sf::Window* window, Optional<bool> active )
+{
+	window->SetActive( active.IsSome() ?  active.get_value() : true );
+}
+
+#define CAMLPP__CLASS_NAME() sf_Window
+camlpp__register_preregistered_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_external_constructor4( constructor_create, window_constructor_helper)
+	camlpp__register_method4( Create, window_create_helper )
+	camlpp__register_method0( Close, &sf::Window::Close )
+	camlpp__register_method0( IsOpened, &sf::Window::IsOpened )
+	camlpp__register_method0( GetWidth, &sf::Window::GetWidth )
+	camlpp__register_method0( GetHeight, &sf::Window::GetHeight )
+	camlpp__register_method0( GetSettings, &sf::Window::GetSettings )
+	camlpp__register_method0( PollEvent, window_poll_event_helper )
+	camlpp__register_method0( WaitEvent, window_wait_event_helper )
+	camlpp__register_method1( EnableVerticalSync, &sf::Window::EnableVerticalSync )
+	camlpp__register_method1( ShowMouseCursor, &sf::Window::ShowMouseCursor )
+	camlpp__register_method2( SetPosition &sf::Window::SetPosition )
+	camlpp__register_method2( SetSize, &sf::Window::SetSize )
+	camlpp__register_method1( SetTitle, &sf::Window::SetTitle )
+	camlpp__register_method1( Show, &sf::Window::Show )
+	camlpp__register_method1( EnableKeyRepeat, &sf::Window::EnableKeyRepeat )
+//	camlpp__register_method3( SetIcon, &sf::Window::SetIcon )
+	camlpp__register_method1( SetActive, window_set_active_helper )
+	camlpp__register_method0( Display, &sf::Window::Display )
+	camlpp__register_method1( SetFramerateLimit, &sf::Window::SetFramerateLimit )
+	camlpp__register_method0( GetFrameTime, &sf::Window::GetFrameTime )
+	camlpp__register_method1( SetJoystickThreshold, &sf::Window::SetJoystickThreshold )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME	
 

@@ -6,6 +6,10 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
+namespace sf
+{
+	class Window;
+}
 
 custom_enum_conversion( sf::Keyboard::Key );
 custom_enum_affectation( sf::Keyboard::Key );
@@ -172,5 +176,7 @@ custom_struct_affectation(	 sf::VideoMode,
 				&sf::VideoMode::Height,
 				&sf::VideoMode::BitsPerPixel )
 
+
+camlpp__preregister_custom_class( sf::Window )
 
 #endif
