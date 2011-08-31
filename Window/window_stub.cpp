@@ -38,16 +38,28 @@ extern "C"
 
 typedef sf::Window sf_Window;
 
-sf::Window* window_constructor_helper( VideoMode vm, std::string const& title, Option<unsigned long> style , Optional<ContextSettings> cs)
+unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst )
 {
-	unsigned long actualStyle = style.isSome() ? style.get_value() : sf::Style::Default;
+	unsigned long res;
+	for( auto it = lst.begin(); it != lst.end(); ++it)
+	{
+		res |= 1 << *it;
+	}
+	return res;
+}
+
+sf::Window* window_constructor_helper( VideoMode vm, std::string const& title, Option<std::list<unsigned long> > style , Optional<ContextSettings> cs)
+{
+	unsigned long actualStyle =  style.isSome() ? style_of_list_unsigned( style.get_value() )
+						    : sf::Style::Default;
 	sf::ContextSettings actualSettings = cs.isSome() ? cs.get_value() : sf::ContextSettings();
 	return new Window( vm, title, actualStyle, actualSettings );
 }
 
 void window_create_helper( sf::Window* window,  VideoMode vm, std::string const& title, Option<unsigned long> style , Optional<ContextSettings> cs)
 {
-	unsigned long actualStyle = style.isSome() ? style.get_value() : sf::Style::Default;
+	unsigned long actualStyle = style.isSome() ? style_of_list_unsigned( style.get_value() )
+						   : sf::Style::Default;
 	sf::ContextSettings actualSettings = cs.isSome() ? cs.get_value() : sf::ContextSettings();
 	window->Create( vm, title, actualStyle, actualSettings );
 }

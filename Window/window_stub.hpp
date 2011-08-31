@@ -176,6 +176,19 @@ custom_struct_affectation(	 sf::VideoMode,
 				&sf::VideoMode::Height,
 				&sf::VideoMode::BitsPerPixel )
 
+custom_struct_conversion(	 sf::ContextSettings,
+				&sf::ContextSettings::DepthBits,
+				&sf::ContextSettings::StencilBits,
+				&sf::ContextSettings::AntialiasingLevel,
+				&sf::ContextSettings::MajorVersion,
+				&sf::ContextSettings::MinorVersion )
+
+custom_struct_affectation(	 sf::VideoMode,
+				&sf::VideoMode::Width,
+				&sf::VideoMode::Height,
+				&sf::VideoMode::BitsPerPixel )
+
+
 
 camlpp__preregister_custom_class( sf::Window )
 
