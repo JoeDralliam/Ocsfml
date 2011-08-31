@@ -54,13 +54,8 @@ custom_struct_affectation( 	sf::Event::JoystickConnectEvent,
 
 custom_struct_affectation( 	sf::Event::JoystickMoveEvent, 
 				&sf::Event::JoystickMoveEvent::JoystickId, 
-<<<<<<< HEAD
 				&sf::Event::JoystickMoveEvent::Axis,
 				&sf::Event::JoystickMoveEvent::Position )
-=======
-				&sf::Event::JoystickMoveEvent::Axis )
-// est-ce qu'il ne manquerait pas un champ position ci-dessus ? (si c'est le cas update le fichier caml)
->>>>>>> 320bdc5f964f8679e94de6569a2ea97b2d3a3c9d
 
 custom_struct_affectation( 	sf::Event::JoystickButtonEvent, 
 				&sf::Event::JoystickButtonEvent::JoystickId, 

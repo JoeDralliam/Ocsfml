@@ -107,7 +107,7 @@ struct
     | Count
 end
 
-external is_key_pressed : KeyCode.t -> bool = "keyboard__is_key_pressed"
+external is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed"
 
 module Joystick =
 struct
@@ -125,93 +125,113 @@ struct
     | PovX  (* The X axis of the point-of-view hat *)
     | PovY  (* The Y axis of the point-of-view hat *)
 	
-  external is_connected : int -> bool = "joystick__is_connected"
-  external get_button_count : int -> int = "joystick__get_button_count"
-  external has_axis : int -> axis -> bool = "joystick__has_axis"
-  external is_button_pressed : int -> int -> bool = "joystick__is_button_pressed"
-  external get_axis_position : int -> axis -> float = "joystick__get_axis_position"
-  external update : unit -> unit = "joystick__update"
+  external is_connected : int -> bool = "Joystick_IsConnected"
+  external get_button_count : int -> int = "Joystick_GetButtonCount"
+  external has_axis : int -> axis -> bool = "Joystick_HasAxis"
+  external is_button_pressed : int -> int -> bool = "Joystick_IsButtonPressed"
+  external get_axis_position : int -> axis -> float = "Joystick_GetAxisPosition"
+  external update : unit -> unit = "Joystick_Update"
 end 
 
-type mouseButton = 
-    MouseLeft 
-  | MouseRight
-  | MouseMiddle
-  | MouseXButton1
-  | MouseXButton2
-  | MouseButtonCount
 
-external is_button_pressed : mouseButton -> bool = "mouse__is_button_pressed"
+module Event = 
+struct
 
-type sizeEvent = {
-  width : int ;
-  height : int
-}
+  type button = 
+      MouseLeft 
+    | MouseRight
+    | MouseMiddle
+    | MouseXButton1
+    | MouseXButton2
+    | MouseButtonCount
 
-type keyEvent = {
-  code : KeyCode.t ;
-  alt : bool ;
-  control : bool ;
-  shift : bool ;
-  system : bool
-}
+  type sizeEvent = {
+    width : int ;
+    height : int
+  }
+      
+  type keyEvent = {
+    code : KeyCode.t ;
+    alt : bool ;
+    control : bool ;
+    shift : bool ;
+    system : bool
+  }
+      
+  type textEvent = {
+    unicode : int
+  }
+      
+  type mouseMoveEvent = {
+    x : int ;
+    y : int
+  }
+      
+  type mouseButtonEvent =  {
+    button : mouseButton ;
+    x : int ;
+    y : int
+  }
+      
+  type mouseWheelEvent = {
+    delta : int;
+    x : int ;
+    y : int
+  }
+      
+  type joystickConnectEvent = {
+    joystickId : int
+  }
+      
+  type joystickMoveEvent = {
+    joystickId : int ;
+    axis : axis ;
+    position : float
+  }
+      
+  type joystickButtonEvent = {
+    joystickId : int ;
+    button : int
+  }
 
-type textEvent = {
-  unicode : int
-}
+  type t = 
+      Closed 
+    | LostFocus
+    | GainedFocus
+    | Resized of sizeEvent 
+    | TextEntered of textEvent
+    | KeyPressed of keyEvent
+    | KeyReleased of keyEvent
+    | MouseWheelMoved of mouseWheelEvent
+    | MouseButtonPressed of mouseButtonEvent
+    | MouseButtonReleased of mouseButtonEvent
+    | MouseMoved of mouseMoveEvent
+    | MouseEntered
+    | MouseLeft
+    | JoystickButtonPressed of joystickButtonEvent
+    | JoystickButtonReleased of joystickButtonEvent
+    | JoystickMoved of joystickMoveEvent
+    | JoystickConnected of joystickConnectEvent
+    | JoystickDisconnected of joystickConnectEvent
 
-type mouseMoveEvent = {
-  x : int ;
-  y : int
-}
-  
-type mouseButtonEvent =  {
-  button : mouseButton ;
-  x : int ;
-  y : int
-}
+end	    
 
-type mouseWheelEvent = {
-  delta : int;
-  x : int ;
-  y : int
-}
+module VideoMode =
+struct
+  type t =
+      {
 
-type joystickConnectEvent = {
-   joystickId : int
-}
+      }
 
-type joystickMoveEvent = {
-  joystickId : int ;
-  axis : axis (*;
-  position : float*)
-}
+	exter
+end
 
-type joystickButtonEvent = {
-  joystickId : int ;
-  button : int
-}
+module Mouse =
+struct
+  type button = Event.mouseButton
 
-
-
-type t = 
-    Closed 
-  | LostFocus
-  | GainedFocus
-  | Resized of sizeEvent 
-  | TextEntered of textEvent
-  | KeyPressed of keyEvent
-  | KeyReleased of keyEvent
-  | MouseWheelMoved of mouseWheelEvent
-  | MouseButtonPressed of mouseButtonEvent
-  | MouseButtonReleased of mouseButtonEvent
-  | MouseMoved of mouseMoveEvent
-  | MouseEntered of mouseMoveEvent
-  | MouseLeft of mouseMoveEvent
-  | JoystickButtonPressed of joystickButtonEvent
-  | JoystickButtonReleased of joystickButtonEvent
-  | JoystickMoved of joystickMoveEvent
-  | JoystickConnected of joystickConnectEvent
-  | JoystickDisconnected of joystickConnectEvent
-
-	    
+  external is_button_pressed : mouseButton -> bool = "Mouse_IsButtonPressed"
+  external get_position : unit -> int*int = "Mouse_GetPosition"
+  external get_relative_position : window -> int*int = "Mouse_GetRelativePosition"
+  external set_position : int * int -> 
+end
