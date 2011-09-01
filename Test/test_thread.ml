@@ -4,48 +4,30 @@ let mtx = new mutex;;
 
 let h () =
   for i = 0 to 10 do
-	mtx#lock ();
 	print_string "Bonjour";
-	print_newline () ;
-	flush stdout ;
-	mtx#unlock ();
-	sleep 50  
   done
 
 
 let f () =
   for i = 0 to 10 do
-	mtx#lock ();
 	print_string "Bonsoir";
-	print_newline () ;
-	flush stdout ;
-	mtx#unlock ();
-	sleep 50
   done
 
 let g s n () =
   for i = 0 to n do
-    print_string s ;
-    print_newline () ;
+    print_string (s^"\n") ;
+    sleep 10
 (*    flush stdout *)
   done
 
 let _ =
-<<<<<<< HEAD
-  let t1 = new thread h
-  and t2 = new thread f in 
+  let t1 = new thread (g "Bonjour" 10)
+  and t2 = new thread (g "Bonsoir" 10) in 
     Gc.full_major () ;
     t1#launch () ;
     t2#launch () ;
-(*    sleep 5000 ; *)
-=======
-  let t1 = new thread (g "bonjour" 1000) (*
-  and t2 = new thread (g "bonsoir" 1000) *)in
-    t1#launch () ;
-    (* t2#launch () ; *)
-    sleep 500 ;
->>>>>>> added target doc to the Makefile
+(*    sleep 5000 *)
     t1#wait () ;
-    (* t2#wait () ; *)
+    t2#wait () ;
     t1#destroy () ;
-    (* t2#destroy () *)
+    t2#destroy ()
