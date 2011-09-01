@@ -48,7 +48,7 @@ unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst )
 	return res;
 }
 
-sf::Window* window_constructor_helper( VideoMode vm, std::string const& title, Option<std::list<unsigned long> > style , Optional<ContextSettings> cs)
+sf::Window* window_constructor_helper(Optional<std::list<unsigned long> > style , Optional<ContextSettings> cs, VideoMode vm, std::string const& title)
 {
 	unsigned long actualStyle =  style.isSome() ? style_of_list_unsigned( style.get_value() )
 						    : sf::Style::Default;
@@ -56,7 +56,7 @@ sf::Window* window_constructor_helper( VideoMode vm, std::string const& title, O
 	return new Window( vm, title, actualStyle, actualSettings );
 }
 
-void window_create_helper( sf::Window* window,  VideoMode vm, std::string const& title, Option<std::list<unsigned long> > style , Optional<ContextSettings> cs)
+void window_create_helper(sf::Window* window, Optional<std::list<unsigned long> > style , Optional<ContextSettings> cs,  VideoMode vm, std::string const& title)
 {
 	unsigned long actualStyle = style.isSome() ? style_of_list_unsigned( style.get_value() )
 						   : sf::Style::Default;
@@ -76,9 +76,9 @@ Optional<sf::Event> window_wait_event_helper( sf::Window* window )
 	return (window.wait_event( e ) ? some( e ) : none<sf::Event>() );
 }
 
-void window_set_active_helper( sf::Window* window, Optional<bool> active )
+bool window_set_active_helper( sf::Window* window, Optional<bool> active )
 {
-	window->SetActive( active.IsSome() ?  active.get_value() : true );
+	return window->SetActive( active.IsSome() ?  active.get_value() : true );
 }
 
 #define CAMLPP__CLASS_NAME() sf_Window

@@ -133,11 +133,16 @@ struct
   external update : unit -> unit = "Joystick_Update"
 end 
 
+external class context : "sf_Context" = 
+object
+  constructor create : unit = "default_constructor"
+  external method set_active : bool -> unit = "SetActive"
+end
 
 module Event = 
 struct
 
-  type button = 
+  type mouseButton = 
       MouseLeft 
     | MouseRight
     | MouseMiddle
@@ -229,6 +234,45 @@ struct
   external get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode"
 end
 
+type context_settings =
+{
+  depth_bits : int ;
+  stencil_bits : int ;
+  antialising_level : int ;
+  major_version : int ;
+  minor_version : int 
+}
+
+type window_style = Titlebar | Resize | Close | Fullscreen
+
+external class window : "sf_Window" =
+object
+  constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
+  external method : = 
+    external method close : unit -> unit = "Close"
+    external method is_opened : unit -> bool = "IsOpened" 
+    external method get_width : unit -> int = "GetWidth"
+    external method get_height : unit -> int = "GetHeight"
+    method get_size t = get_width t, get_height t
+    external method get_settings : unit -> ContextSettings.t = "GetSettings" 
+    external method poll_event : unit -> Event.t option = "PollEvent"
+    external method wait_event : unit -> Event.t option = "WaitEvent"
+    external method enable_vertical_sync : bool -> unit = "EnableVerticalSync" 
+    external method show_mouse_cursor : bool -> unit = "ShowMouseCursor"
+    external method set_position : int -> int -> unit = "SetPosition" 
+    external method set_size : int -> int -> unit = "SetSize"
+    external method set_title : string -> unit = "SetTitle"
+    external method show : bool -> unit = "Show" 
+    external method enable_key_repeat : bool -> unit = "EnableKeyRepeat"
+    (* external method set_icon : int -> int -> char array -> unit = "window__set_icon" *)
+    external method set_active : bool -> bool = "SetActive" 
+    external method display : unit -> unit = "Display"
+    external method set_framerate_limit : int -> unit = "SetFramerateLimit"
+    external method get_frame_time : unit -> int = "GetFrameTime" 
+    external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
+
+end
+
 module Mouse =
 struct
   type button = Event.mouseButton
@@ -236,5 +280,6 @@ struct
   external is_button_pressed : mouseButton -> bool = "Mouse_IsButtonPressed"
   external get_position : unit -> int*int = "Mouse_GetPosition"
   external get_relative_position : window -> int*int = "Mouse_GetRelativePosition"
-  external set_position : int * int -> 
+  external set_position : int * int -> unit = "Mouse_SetPosition"
+  external set_relative_position : int*int -> window -> unit = "Mouse_SetRelativePosition"
 end
