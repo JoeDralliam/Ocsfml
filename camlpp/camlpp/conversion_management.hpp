@@ -458,4 +458,20 @@ template<class T>
 struct ConversionManagement< T const& >: public ConversionManagement< T >
 {};
 
+template<class T>
+struct ConversionManagement< std::list< T > >
+{
+	ConversionManagement< T > cm;
+
+	std::list< T > from_value( value const& v)
+	{
+		std::list< T > res;
+		for( value iter = v; iter != Val_int(0); iter = Field(iter, 1))
+		{
+			res.push_back( cm.from_value( Field(iter, 0) ) );
+		}
+		return std::move( res ); 
+	}
+};
+
 #endif
