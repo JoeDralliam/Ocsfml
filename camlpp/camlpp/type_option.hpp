@@ -44,8 +44,8 @@ struct Optional
 	Optional( std::unique_ptr< T > ptr ) : val_( std::move( ptr ) )
 	{}
 
-//	Optional( Optional const& other) val_( other.val_ ? new T(*other.val_) : 0)
-//	{}
+  Optional( Optional const& other) : val_( other.val_ ? new T(*other.val_) : 0)
+	{}
 
 	bool isNone() const
 	{
@@ -71,7 +71,7 @@ struct Optional
 };
 
 template<class T>
-Optional< T > some ( T&& t )
+Optional< T > some ( T t )
 {
 	return Optional< T >( std::unique_ptr<T>(new T(std::forward< T >( t ) ) ) );
 }

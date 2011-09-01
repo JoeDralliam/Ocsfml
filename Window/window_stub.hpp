@@ -1,15 +1,12 @@
 #ifndef OCSFML_WINDOW_STUB_HPP_INCLUDED
 #define OCSFML_WINDOW_STUB_HPP_INCLUDED
 
-#include <caml/custom_class.hpp>
+#include <camlpp/custom_class.hpp>
+#include <camlpp/custom_conversion.hpp>
+#include <stdexcept>
+#include <SFML/Window.hpp>
 
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/VideoMode.hpp>
-
-namespace sf
-{
-	class Window;
-}
+#include "system_stub.hpp"
 
 custom_enum_conversion( sf::Keyboard::Key );
 custom_enum_affectation( sf::Keyboard::Key );
@@ -26,46 +23,48 @@ custom_enum_affectation( sf::Joystick::Axis );
 
 custom_struct_affectation( 	sf::Event::SizeEvent, 
 				&sf::Event::SizeEvent::Width, 
-				&sf::Event::SizeEvent::Height )
+				&sf::Event::SizeEvent::Height );
 
 custom_struct_affectation( 	sf::Event::KeyEvent, 
 				&sf::Event::KeyEvent::Code, 
 				&sf::Event::KeyEvent::Alt,
 				&sf::Event::KeyEvent::Control,
 				&sf::Event::KeyEvent::Shift,
-				&sf::Event::KeyEvent::System )
+				&sf::Event::KeyEvent::System );
 
 custom_struct_affectation( 	sf::Event::TextEvent, 
-				&sf::Event::TextEvent::Unicode )
+				&sf::Event::TextEvent::Unicode );
 
 
 custom_struct_affectation( 	sf::Event::MouseMoveEvent, 
 				&sf::Event::MouseMoveEvent::X, 
-				&sf::Event::MouseMoveEvent::Y )
+				&sf::Event::MouseMoveEvent::Y );
 
 custom_struct_affectation( 	sf::Event::MouseButtonEvent, 
 				&sf::Event::MouseButtonEvent::Button, 
 				&sf::Event::MouseButtonEvent::X,
-				&sf::Event::MouseButtonEvent::Y )
+				&sf::Event::MouseButtonEvent::Y );
 
 custom_struct_affectation( 	sf::Event::MouseWheelEvent, 
 				&sf::Event::MouseWheelEvent::Delta,
 				&sf::Event::MouseWheelEvent::X,
-				&sf::Event::MouseWheelEvent::Y )
+				&sf::Event::MouseWheelEvent::Y );
 
 custom_struct_affectation( 	sf::Event::JoystickConnectEvent, 
-				&sf::Event::JoystickConnectEvent::JoystickId )
+				&sf::Event::JoystickConnectEvent::JoystickId );
 
 custom_struct_affectation( 	sf::Event::JoystickMoveEvent, 
 				&sf::Event::JoystickMoveEvent::JoystickId, 
 				&sf::Event::JoystickMoveEvent::Axis,
-				&sf::Event::JoystickMoveEvent::Position )
+				&sf::Event::JoystickMoveEvent::Position );
 
 custom_struct_affectation( 	sf::Event::JoystickButtonEvent, 
 				&sf::Event::JoystickButtonEvent::JoystickId, 
-				&sf::Event::JoystickButtonEvent::Button )
+				&sf::Event::JoystickButtonEvent::Button );
 
-
+template<>
+struct ConversionManagement<sf::Event>
+{};
 
 template<>
 struct AffectationManagement< sf::Event >
@@ -127,7 +126,7 @@ struct AffectationManagement< sf::Event >
 				break;
         		case sf::Event::JoystickConnected:
 				v = caml_alloc( 1, 11 );
-				caml_cpp__affect_field( v, 0, e.JoysticConnect );
+				caml_cpp__affect_field( v, 0, e.JoystickConnect );
 				break;
         		case sf::Event::JoystickDisconnected:
 				v = caml_alloc( 1, 12 );
@@ -138,14 +137,14 @@ struct AffectationManagement< sf::Event >
 
 	static void affect_field( value& v, int field, sf::Event const& e)
 	{
-		CAMLparam0;
-		CAMLlocal1( eventVal ):
+	        CAMLparam0();
+		CAMLlocal1( eventVal );
 		affect( eventVal, e);
 		Store_field(v, field, eventVal);
 		CAMLreturn0;
 	}
 private:
-	int constant_index( sf::Event const& e )
+	static int constant_index( sf::Event const& e )
 	{
 		switch( e.Type )
 		{
@@ -169,28 +168,28 @@ private:
 custom_struct_conversion(	 sf::VideoMode,
 				&sf::VideoMode::Width,
 				&sf::VideoMode::Height,
-				&sf::VideoMode::BitsPerPixel )
+				 &sf::VideoMode::BitsPerPixel );
 
 custom_struct_affectation(	 sf::VideoMode,
 				&sf::VideoMode::Width,
 				&sf::VideoMode::Height,
-				&sf::VideoMode::BitsPerPixel )
+				 &sf::VideoMode::BitsPerPixel );
 
 custom_struct_conversion(	 sf::ContextSettings,
 				&sf::ContextSettings::DepthBits,
 				&sf::ContextSettings::StencilBits,
 				&sf::ContextSettings::AntialiasingLevel,
 				&sf::ContextSettings::MajorVersion,
-				&sf::ContextSettings::MinorVersion )
+				 &sf::ContextSettings::MinorVersion );
 
 custom_struct_affectation(	 sf::ContextSettings,
 				&sf::ContextSettings::DepthBits,
 				&sf::ContextSettings::StencilBits,
 				&sf::ContextSettings::AntialiasingLevel,
 				&sf::ContextSettings::MajorVersion,
-				&sf::ContextSettings::MinorVersion )
+				 &sf::ContextSettings::MinorVersion );
 
 
 
-camlpp__preregister_custom_class( sf::Window )
+camlpp__preregister_custom_class( sf::Window );
 #endif

@@ -32,6 +32,7 @@ extern "C"
 #include <string>
 #include <tuple>
 #include <memory>
+#include <list>
 
 #include "affectation_management.hpp"
 
@@ -152,6 +153,15 @@ struct ConversionManagement<unsigned char>
 	{
 		assert( Is_long( v ) );
 		return Int_val(v);
+	}
+};
+
+template<>
+struct ConversionManagement<bool>
+{
+	bool from_value(value& v)
+	{
+		return Bool_val(v);
 	}
 };
 

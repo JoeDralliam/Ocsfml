@@ -29,6 +29,7 @@ extern "C"
 #include <string>
 #include <type_traits>
 #include <tuple>
+#include <vector>
 
 template< class T>
 class AffectationManagement;
@@ -115,6 +116,20 @@ struct AffectationManagement<short>
 	}
 
 	static void affect_field(value& v, int field, short d)
+	{
+		Store_field(v, field,Val_int(d));
+	}
+};
+
+template<>
+struct AffectationManagement<bool>
+{
+	static void affect(value& v, bool d)
+	{
+		v = Val_int(d);
+	}
+
+	static void affect_field(value& v, int field, bool d)
 	{
 		Store_field(v, field,Val_int(d));
 	}
@@ -300,7 +315,7 @@ struct AffectationManagement< std::vector< T > >
 		v = caml_alloc_tuple( vec.size() );
 		for(int i = 0; i < vec.size(); ++i)
 		{
-			AffectationManagement< T >::affect_field(v, i, v[i]);
+			AffectationManagement< T >::affect_field(v, i, vec[i]);
 		}
 	}
 

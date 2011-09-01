@@ -11,18 +11,22 @@
 <Window/*.{h,c}pp> : include_sfml_window
 "Window/libocsfmlwindow.a" : use_sfml_window
 <Window/*.cm{x,}a> : use_sfml_window, use_libocsfmlwindow
+<Window/*.ml> : package(external_cpp), use_cpp_external
 
 <Graphics/*.{h,c}pp> : include_sfml_graphics
 "Graphics/libocsfmlgraphics.a" : use_sfml_graphics
 <Graphics/*.cm{x,}a> : use_sfml_graphics, use_libocsfmlgraphics
+<Graphics/*.ml> : package(external_cpp), use_cpp_external
 
 <Audio/*.{h,c}pp> : include_sfml_audio
 "Audio/libocsfmlaudio.a" : use_sfml_audio
 <Audio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
+<Audio/*.ml> : package(external_cpp), use_cpp_external
 
 <Network/*.{h,c}pp> : include_sfml_network
 "Network/libocsfmlnetwork.a" : use_sfml_network
 <Network/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork
+<Network/*.ml> : package(external_cpp), use_cpp_external
 
 <Test/test_clock.{byte,native}> : use_ocsfmlsystem
 <Test/test_thread.{byte,native}> : use_ocsfmlsystem

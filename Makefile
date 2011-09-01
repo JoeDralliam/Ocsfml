@@ -37,8 +37,11 @@ uninstall_camlpp:
 test_clock:
 	ocamlbuild -use-ocamlfind Test/test_clock.native
 
-test_thread:
-	ocamlbuild -use-ocamlfind Test/test_thread.native
+#test_thread:
+#	ocamlbuild -use-ocamlfind Test/test_thread.native
+
+test_window:
+	ocamlbuild -use-ocamlfind Test/test_window.native
 
 doc:
 	ocamlbuild -use-ocamlfind sfml.docdir/index.html

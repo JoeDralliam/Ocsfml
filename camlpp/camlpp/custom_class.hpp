@@ -81,7 +81,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		return rm.call \
 		( \
-			std::bind(func, std::placeholders::_1, std::place_holders::_2), \
+			std::bind(func, std::placeholders::_1, std::placeholders::_2), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ) \
 		); \
@@ -99,9 +99,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg2_type > cm3; \
 		return rm.call \
 		( \
-			std::bind(func, std::placeholders::_1, std::place_holders::_2, std::place_holders::_3), \
+			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), \
 			cm1.from_value( obj ), \
-			cm2.from_value( param1 ) \
+			cm2.from_value( param1 ),	\
 			cm3.from_value( param2 ) \
 		); \
 	}
@@ -119,7 +119,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		return rm.call \
 		( \
-			std::bind(func, std::placeholders::_1, std::place_holders::_2, std::place_holders::_3), \
+			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
 			cm3.from_value( param2 ), \
@@ -142,7 +142,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		return rm.call \
 		( \
-			std::bind(func, std::placeholders::_1, std::place_holders::_2, std::place_holders::_3, std;;place_holders::_4), \
+		 std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
 			cm3.from_value( param2 ), \
@@ -216,7 +216,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		}
 
 #define camlpp__register_external_constructor4( constructor_name, func ) \
-		CAMLprim value BOOSt_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
+		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
@@ -371,13 +371,13 @@ struct method_traits< Ret (*)(C*, Args...)>
 
 #define camlpp__preregister_custom_class( class_name ) \
 	template<> \
-	struct ConversionManagement< claas_name * > \
+	struct ConversionManagement< class_name * > \
 	{ \
 		class_name* from_value( value const& v) \
 		{ \
 			if( Tag_val( v ) == Object_tag ) \
 			{ \
-				return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v, hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, CAMLPP__CLASS_NAME() ) ) ) ), v), 0)); \
+				return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v, hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ), v), 0)); \
 			} \
 			assert( Tag_val( v ) == Abstract_tag ); \
 			return reinterpret_cast< class_name *>( Field(v, 0) ); \
@@ -386,11 +386,19 @@ struct method_traits< Ret (*)(C*, Args...)>
 	template<> \
 	struct ConversionManagement< class_name & > : private ConversionManagement< class_name * > \
 	{ \
-		CAMLPP__CLASS_NAME()& from_value( value const& v) \
+	        class_name& from_value( value const& v)		\
 		{ \
 			return *ConversionManagement< class_name * >::from_value( v ); \
 		} \
-	};
+	}; \
+	template<> \
+	struct ConversionManagement< class_name const & > : private ConversionManagement< class_name * > \
+	{ \
+	        class_name const& from_value( value const& v)		\
+		{ \
+			return *ConversionManagement< class_name * >::from_value( v ); \
+		} \
+	}; 
 
 #define camlpp__register_preregistered_custom_class() \
 	void  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _destroy) ( CAMLPP__CLASS_NAME() * sub ) \

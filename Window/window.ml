@@ -1,5 +1,3 @@
-open Window__joystick
-
 module KeyCode =
 struct
   type t =
@@ -190,7 +188,7 @@ struct
       
   type joystickMoveEvent = {
     joystickId : int ;
-    axis : axis ;
+    axis : Joystick.axis ;
     position : float
   }
       
@@ -246,15 +244,15 @@ type context_settings =
 type window_style = Titlebar | Resize | Close | Fullscreen
 
 external class window : "sf_Window" =
-object
+object (self)
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
-  external method : = 
-    external method close : unit -> unit = "Close"
-    external method is_opened : unit -> bool = "IsOpened" 
-    external method get_width : unit -> int = "GetWidth"
+   (*external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"*)
+  external method close : unit -> unit = "Close"
+  external method is_opened : unit -> bool = "IsOpened"
+  external method get_width : unit -> int = "GetWidth"
     external method get_height : unit -> int = "GetHeight"
-    method get_size t = get_width t, get_height t
-    external method get_settings : unit -> ContextSettings.t = "GetSettings" 
+    method get_size () = self#get_width (), self#get_height ()
+    external method get_settings : unit -> context_settings = "GetSettings" 
     external method poll_event : unit -> Event.t option = "PollEvent"
     external method wait_event : unit -> Event.t option = "WaitEvent"
     external method enable_vertical_sync : bool -> unit = "EnableVerticalSync" 
@@ -277,7 +275,7 @@ module Mouse =
 struct
   type button = Event.mouseButton
 
-  external is_button_pressed : mouseButton -> bool = "Mouse_IsButtonPressed"
+  external is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
   external get_position : unit -> int*int = "Mouse_GetPosition"
   external get_relative_position : window -> int*int = "Mouse_GetRelativePosition"
   external set_position : int * int -> unit = "Mouse_SetPosition"
