@@ -191,5 +191,4 @@ custom_struct_affectation(	 sf::VideoMode,
 
 
 camlpp__preregister_custom_class( sf::Window )
-
 #endif

@@ -40,7 +40,7 @@ typedef sf::Window sf_Window;
 
 unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst )
 {
-	unsigned long res;
+	unsigned long resi = 0;
 	for( auto it = lst.begin(); it != lst.end(); ++it)
 	{
 		res |= 1 << *it;
@@ -56,7 +56,7 @@ sf::Window* window_constructor_helper( VideoMode vm, std::string const& title, O
 	return new Window( vm, title, actualStyle, actualSettings );
 }
 
-void window_create_helper( sf::Window* window,  VideoMode vm, std::string const& title, Option<unsigned long> style , Optional<ContextSettings> cs)
+void window_create_helper( sf::Window* window,  VideoMode vm, std::string const& title, Option<std::list<unsigned long> > style , Optional<ContextSettings> cs)
 {
 	unsigned long actualStyle = style.isSome() ? style_of_list_unsigned( style.get_value() )
 						   : sf::Style::Default;
@@ -108,4 +108,12 @@ camlpp__register_preregistered_custom_class()
 	camlpp__register_method1( SetJoystickThreshold, &sf::Window::SetJoystickThreshold )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME	
+
+typedef sf::Context sf_Context
+#define CAMLPP__CLASS_NAME() sf_Context
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method1( SetActive, &sf::Context::SetActive )
+camlpp__custom_class_registered()
+
 
