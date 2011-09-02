@@ -151,6 +151,35 @@ struct method_traits< Ret (*)(C*, Args...)>
 		); \
 	}
 
+#define camlpp__register_method5( method_name, func ) \
+	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
+	{ \
+		typedef method_traits< decltype( func ) >::type FuncType; \
+		typedef boost::function_traits< FuncType > FuncTraits; \
+		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2, param3, param4); \
+		ResManagement< FuncTraits::result_type> rm; \
+		ConversionManagement< FuncTraits::arg1_type > cm1; \
+		ConversionManagement< FuncTraits::arg2_type > cm2; \
+		ConversionManagement< FuncTraits::arg3_type > cm3; \
+		ConversionManagement< FuncTraits::arg4_type > cm4; \
+		ConversionManagement< FuncTraits::arg5_type > cm5; \
+		return rm.call \
+		( \
+		 std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), \
+			cm1.from_value( obj ), \
+			cm2.from_value( param1 ), \
+			cm3.from_value( param2 ), \
+			cm4.from_value( param3 ), \
+			cm5.from_value( param4 ) \
+		); \
+	} \
+	CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME, _## method_name ## __byte ) ( value* v, int count ) \
+	{ \
+		assert( count == 6 ); \
+		return BOOST_PP_CAT( CAMLPP__CLASS_NAME, _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
+	}
+
+
 #define camlpp__register_external_constructor0( constructor_name, func) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
 		{ \
