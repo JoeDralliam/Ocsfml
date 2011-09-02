@@ -1,4 +1,53 @@
-module Color =
+type 'a rect =
+    {
+      left : 'a ;
+      top : 'a ;
+      width : 'a ;
+      height : 'a
+    }
+
+module type RECT_VAL =
+sig
+  type t
+  val add : t -> t -> t
+end
+
+module Rect (M : RECT_VAL) =
+struct
+  let contains { left; top; width; height} x y =
+    x >= left && y >= top  && x < (M.add left width) && y < (M.add top height)
+  let contains_v r (x,y) = contains r x y
+  let intersects 
+      { left = l1 ; top = t1 ; width = w1 ; height = h1 }
+      { left = l2 ; top = t2 ; width = w2 ; height = h2 } =
+    let left = max l1 l2 in
+    let top = max t1 t2 in
+    let right = min (M.add l1 w1) (M.add l2 w2) in
+    let bottom = min (M.add t1 h1) (M.add t2 h2) in
+      if left < right && top < bottom
+      then Some { left ; top ; width = M.sub right left ; height = M.sub bottom top }
+      else None
+end
+
+module MyInt : RECT_VAL =
+struct
+  type t = int
+  let add = ( + )
+  let sub = ( - )
+end
+
+module IntRect = Rect(MyInt)
+
+module MyFloat : RECT_VAL =
+struct
+  type t = float
+  let add = ( +. )
+  let sub = ( -. )
+end
+
+module IntRect = Rect(MyInt)
+
+module Color = 
 struct
   type t = {
     r : int ;
@@ -50,9 +99,44 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
-(* glyph *)
+external class texture : "" =
+object
+  external method create : int -> int -> unit = ""
+  external method load_from_file : 
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+  external method
+end
 
-(* texture *)
+type glyph =
+    {
+      advance : int ;
+      bounds : int rect ;
+      sub_rect : int rect
+    }
 
 external class fontCpp (Font): "" =
 object 
@@ -67,6 +151,16 @@ end
 
 class font = fontCpp (Font.create ())
 
-let create_font = function
+exception Font_error of font * string;
+
+let create_font init = 
+  let try_or_fail f b e = if b then f else raise e in
+  match init with
   | `Font t -> new font (Font.create_from_copy t)
-  | `File f -> (new font (Font.create ()))#load_from_file s
+  | `File s -> let f = new font (Font.create ()) in
+      try_or_fail f (f#load_from_file s) (Font_error (f, "file : "^s))
+  | `Memory m -> let f = new font (Font.create ()) in
+      try_or_fail f (f#load_from_memory m) (Font_error (f, "memory"))
+  | `Stream s -> let f = new font (Font.create ()) in
+      try_or_fail f (f#load_from_stream s) (Font_error (f, "stream"))
+
