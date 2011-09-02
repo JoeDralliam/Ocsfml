@@ -12,7 +12,7 @@ custom_struct_conversion(	 sf::FloatRect,
 				&sf::FloatRect::Top,
 				&sf::FloatRect::Width,
 				&sf::FloatRect::Height );
-
+/*  
 bool FloatRect_Contains( sf::FloatRect f, float x, float y)
 {
 	return f.Contains(x, y);
@@ -45,7 +45,7 @@ extern "C"
 	camlpp__register_free_function2( FloatRect_Intersects )
 	camlpp__register_free_function2( FloatRect_Intersection )
 }
-
+*/
 custom_struct_affectation(	 sf::IntRect,
 				&sf::IntRect::Left,
 				&sf::IntRect::Top,
@@ -58,7 +58,7 @@ custom_struct_conversion(	 sf::IntRect,
 				&sf::IntRect::Width,
 				&sf::IntRect::Height );
 
-
+/*
 bool IntRect_Contains( sf::IntRect f,int x, int y)
 {
 	return f.Contains(x, y);
@@ -91,6 +91,7 @@ extern "C"
 	camlpp__register_free_function2( IntRect_Intersects )
 	camlpp__register_free_function2( IntRect_Intersection )
 }
+*/
 
 custom_struct_affectation(	 sf::Color,
 				&sf::Color::r,
@@ -157,6 +158,13 @@ void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> 
 	image->CreateMaskFromColor( image, color, alpha.isSome() ? alpha.get_value : 0 );
 }
 
+void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
+{
+	image->Copy( 	src, destX, destY, 
+			srcRect.isSome() ? srcRect.get_value() : sf::IntRect(0,0,0,0),
+			applyAlpha.isSome() ? applyAlpha.get_value() : false );
+}
+
 typedef sf::Image sf_Image;
 #define CAMLPP__CLASS_NAME() sf_Image
 camlpp__register_custom_class()
@@ -170,7 +178,7 @@ camlpp__register_custom_class()
 	camlpp__register_method0( GetWidth, &sf::Image::GetWidth )
 	camlpp__register_method0( GetHeight, &sf::Image::GetHeight )
 	camlpp__register_method2( CreateMaskFromColor, image_create_mask_from_color_helper )
-//	camlpp__register_method5( Copy,
+	camlpp__register_method5( Copy, image_copy_helper )
 	camlpp__register_method3( SetPixel, &sf::Image::SetPixel )
 	camlpp__register_method2( GetPixel, &sf::Image::GetPixel )
 	camlpp__register_method0( FlipHorizontally, &sf::Image::FlipHorizontally )
@@ -205,9 +213,103 @@ camlpp__register_custom_class()
 	camlpp__register_method1( GetTexture, &sf::Font::GetTexture )
 	camlpp__register_method1( Affect, &sf::Font::operator= )
 camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME()
 
 extern "C"
 {
 	camlpp__register_overloaded_free_function0( GetDefaultFont, &sf::Font::GetDefaultFont)
 }
+
+void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color )
+{
+	return target->Clear( color.isSome() ? color.get_value() : sf::Color(0, 0, 0, 255) );
+}
+
+sf::Vector2f render_target_convert_coords_coords( sf::RenderTarget* target, Optional<sf::View const*> opt, unsigned int x, unsigned int y)
+{
+	if( opt.isSome() )
+	{
+		return target->ConvertCoords(x, y, *opt.get_value() );
+	}
+	return target->ConvertCoords(x, y);
+}
+
+typedef sf::RenderTarget sf_RenderTarget;
+#define CAMLPP__CLASS_NAME() sf_RenderTarget
+camlpp__register_custom_class()
+	camlpp__register_method1( Clear, &render_target_clear_helper );
+	camlpp__register_method1( Draw, ((void (sf::RenderTarget::*)(sf::Drawable const&)) &sf::RenderTarget::Draw) )
+	camlpp__register_method2( DrawWithShader, ((void (sf::RenderTarget::*)(sf::Drawable const&, sf::Shader const&)) &sf::RenderTarget::Draw) )
+	camlpp__register_method0( GetWidth, &sf::RenderTarget::GetWidth )
+	camlpp__register_method0( GetHeight, &sf::RenderTarget::GetHeight )
+	camlpp__register_method1( SetView, &sf::RenderTarget::SetView )
+	camlpp__register_method0( GetView, &sf::RenderTarget::GetView )
+	camlpp__register_method0( GetDefaultView, &sf::RenderTarget::GetDefaultView )
+	camlpp__register_method1( GetViewport, &sf::RenderTarget::GetViewport )
+	camlpp__register_method3( ConvertCoords, &render_target_convert_coords_helper )
+	camlpp__register_method0( SaveGLStates, &sf::RenderTarget::SaveGLStates)
+	camlpp__register_method0( RestorGLStates, &sf::RenderTarget::RestorGLStates )	
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME()
+
+
+bool render_image_create_helper( sf::RenderImage* rI, Optional<bool> depthBfr, unsigned w, unsigned h)
+{
+	return rI->Create( w, h, depthBfr.isSome() ? depthBfr.get_value() : false)
+}
+
+void set_active( sf::RenderImage* rI, Optional<bool> active )
+{
+	return rI->SetActive( active.isSome() ? active.get_value() : true );
+}
+
+
+typedef sf::RenderImage sf_RenderImage;
+#define CAMLPP__CLASS_NAME() sf_RenderImage
+camlpp__register_custom_class()
+	camlpp__register_inheritance_relationship( sf_RenderTarget )
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method3( Create, &render_image_create_helper )
+	camlpp__register_method1( SetSmooth, &sf::RenderImage::SetSmooth )
+	camlpp__register_method0( IsSmooth, &sf::RenderImage::IsSmooth )
+	camlpp__register_method1( SetActive, &render_image_set_active_helper )
+	camlpp__register_method0( Display, &sf::RenderImage::Display )
+	camlpp__register_method0( GetImage, &sf::RenderImage::GetImage )	
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME()
+
+
+bool render_texture_create_helper( sf::RenderTexture* rI, Optional<bool> depthBfr, unsigned w, unsigned h)
+{
+	return rI->Create( w, h, depthBfr.isSome() ? depthBfr.get_value() : false)
+}
+
+void set_active( sf::RenderTexture* rI, Optional<bool> active )
+{
+	return rI->SetActive( active.isSome() ? active.get_value() : true );
+}
+
+
+typedef sf::RenderTexture sf_RenderTexture;
+#define CAMLPP__CLASS_NAME() sf_RenderTexture
+camlpp__register_custom_class()
+	camlpp__register_inheritance_relationship( sf_RenderTarget )
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method3( Create, &render_texture_create_helper )
+	camlpp__register_method1( SetSmooth, &sf::RenderTexture::SetSmooth )
+	camlpp__register_method0( IsSmooth, &sf::RenderTexture::IsSmooth )
+	camlpp__register_method1( SetActive, &render_texture_set_active_helper )
+	camlpp__register_method0( Display, &sf::RenderTexture::Display )
+	camlpp__register_method0( GetTexture, &sf::RenderTexture::GetTexture )	
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME()
+
+
+
+typedef sf::RenderWindow sf_RenderWindow;
+
+
+
+
+
 
