@@ -99,36 +99,49 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
+external class image : "" =
+object
+  external method create_from_color : ?color:color -> int -> int -> unit = ""
+  external method create_from_memory : int -> int -> string (* should it be a bigarray ? *) = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+  external method : = ""
+end
+
+external get_maximum_size : unit -> int = ""
+
 external class texture : "" =
 object
   external method create : int -> int -> unit = ""
-  external method load_from_file : 
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
+  external method load_from_file : ?rect: int rect -> string -> unit = ""
+  external method load_from_memory : ?rect: int rect -> string -> unit = ""
+  external method load_from_stream : ?rect: int rect -> stream -> unit = ""
+  external method load_from_image : ?rect: int rect -> image -> unit = ""
+  external method get_width : unit -> int = ""
+  external method get_height : unit -> int = ""
+  external method copy_to_image : unit -> image = ""
+  external method update_from_memory : ?coords:int*int*int*int -> string (* ou devrait-ce être un bigarray *) -> unit = ""
+  external method update_from_image : ?coords:int*int -> image -> unit = ""
+  external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = ""
+  external method bind : unit -> unit = ""
+  external method set_smooth : bool -> unit = ""
+  external method get_tex_coords : int rect -> float rect = ""
 end
 
 type glyph =
