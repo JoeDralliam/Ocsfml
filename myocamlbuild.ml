@@ -107,11 +107,13 @@ let libs = [
 let _ = dispatch begin function 
   | Before_rules ->  
       let create_libs_flags (s,l) = 
-	let link_libs = (A libdir)::(List.map (fun x -> A x) l) in
+	let link_prefix = "-lsfml-" in
+	let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in
 	let verbose = if debug then [A"-verbose"] else [] in
 	let link_libs_ocaml = List.fold_left 
-	  (fun l' x -> [A"-cclib" ; A x] @ l') [A"-ccopt"; A libdir] l in
+	  (fun l' x -> [A"-cclib" ; A (link_prefix^x)] @ l') [A"-ccopt"; A libdir] l in
 	let d = get_directory s in
+	  List.iter (fun x -> dep ["g++"] [x^"_stub.hpp"]) l ;
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
 	  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs;  

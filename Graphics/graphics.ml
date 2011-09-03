@@ -56,10 +56,10 @@ struct
     a : int
   }
 
-  external rgb : int -> int -> int -> t = ""
-  external rgba : int -> int -> int -> int -> t = ""
-  external add : t -> t -> t = "color__add"
-  external modulate : t -> t -> t = "color__modulate"
+  let rgb r g b = { r = r ; g = g ; b = b ; a = 255 }
+  let rgba r g b a = { r = r ; g = g ; b = b ; a = a }
+  external add : t -> t -> t = "color_add"
+  external modulate : t -> t -> t = "color_multiply"
   let ( +# ) c1 c2 = add c1 c2
   let ( *# ) c1 c2 = modulate c1 c2
 end
@@ -317,7 +317,7 @@ class render_window ?style ?context vm name = render_windowCpp (RenderWindow.cre
 
 external class shapeCpp (Shape) : "sf_Shape" =
 object
-  external inherit drawable
+  external inherit drawable "sf_Drawable"
   constructor default : unit = "default_constructor"
   external method add_point : ?color:Color.t -> ?outline:Color.t -> float -> float -> unit = "AddPoint"
   external method add_point_v : ?color:Color.t -> ?outline:Color.t -> float * float -> unit = "AddPointV"
@@ -351,32 +351,37 @@ end
 
 external class textCpp (Text) : "sf_Text" =
 object
-  external inherit drawable
+  external inherit drawable "sf_Drawable"
   constructor default : unit = "default_constructor"
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = "" 
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = "" 
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
-  external method  : = ""
+  constructor create : string -> font -> int = "init_constructor"
+  external method set_string : string -> unit = "SetString"
+  external method set_font : font -> unit = "SetFont"
+  external method set_character_size : int -> unit = "SetCharacterSize"
+  external method set_style : style list -> unit = "SetStyle"
+  external method get_string : unit -> string = "GetString"
+  external method get_font : unit -> font = "GetFont"
+  external method get_character_size : unit -> int = "GetCharacterSize"
+  external method get_style : unit -> style list = "GetStyle" 
+  external method get_character_pos : int -> float * float = "GetCharacterPos"
+  external method get_rect : unit -> float rect = "GetRect"
 end
 
 class text = let t = Text. in textCpp t
 
 external class spriteCpp (Sprite) : "sf_Sprite" =
 object
-  external inherit drawable
+  external inherit drawable "sf_Drawable"
   constructor default : unit = "default_constructor"
+  constructor create_from_texture : texture = "texture_constructor"
+  external method set_texture : texture -> unit = "SetTexture"
+  external method set_sub_rect : int rect -> unit = "SetSubRect"
+  external method resize : float -> float -> unit = "Resize"
+  external method resize_v : float * float -> unit = "ResizeV"
+  external method flip_x : bool -> unit = "FlipX"
+  external method flip_y : bool -> unit = "FlipY" 
+  external method get_texture : unit -> texture = "GetTexture"
+  external method get_sub_rect : unit -> int rect = "GetSubRect"
+  external method get_size : = "GetSize"
 end
 
 class sprite = let t = Sprite. in spriteCpp t
