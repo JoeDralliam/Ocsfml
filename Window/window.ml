@@ -131,11 +131,13 @@ struct
   external update : unit -> unit = "Joystick_Update"
 end 
 
-external class context : "sf_Context" = 
+external class contextCpp (Context) : "sf_Context" = 
 object
-  constructor create : unit = "default_constructor"
+  constructor default : unit = "default_constructor"
   external method set_active : bool -> unit = "SetActive"
 end
+
+class context = contextCpp (Context.default ())
 
 module Event = 
 struct

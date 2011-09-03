@@ -149,6 +149,7 @@ camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
 
+
 void shape_add_point_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, float x, float y)
 {
 	shape->AddPoint(x, y, 

@@ -101,7 +101,7 @@ end
 
 external class image : "sf_Image" =
 object
-  constructor create : unit = "default_constructor"
+  constructor default : unit = "default_constructor"
   external method create_from_color : ?color:Color.t -> int -> int -> unit = "CreateFromColor"
   (* external method create_from_pixels : int -> int -> string (* should it be a bigarray ? *) -> unit = "CreateFromPixels" *)
   external method load_from_file : string -> bool = "LoadFromFile"
@@ -148,7 +148,7 @@ type glyph =
 
 external class fontCpp (Font): "sf_Font" =
 object (_:'b)
-  constructor create : unit = "default_constructor"
+  constructor default : unit = "default_constructor"
   (*  constructor copy : 'b ---> pas possible ya un prob sur le type *)
   external method load_from_file : string -> bool = "LoadFromFile"
   external method load_from_memory : string -> bool = "LoadFromMemory"
@@ -159,7 +159,7 @@ object (_:'b)
   external method get_texture : int -> texture = "GetTexture"
 end
 
-class font = fontCpp (Font.create ())
+class font = fontCpp (Font.default ())
 
 exception Font_error of font * string;
 
@@ -167,11 +167,11 @@ let create_font init =
   let try_or_fail f b e = if b then f else raise e in
   match init with
   | `Font t -> new font (Font.create_from_copy t)
-  | `File s -> let f = new font (Font.create ()) in
+  | `File s -> let f = new font in
       try_or_fail f (f#load_from_file s) (Font_error (f, "file : "^s))
-  | `Memory m -> let f = new font (Font.create ()) in
+  | `Memory m -> let f = new font in
       try_or_fail f (f#load_from_memory m) (Font_error (f, "memory"))
-  | `Stream s -> let f = new font (Font.create ()) in
+  | `Stream s -> let f = new font in
       try_or_fail f (f#load_from_stream s) (Font_error (f, "stream"))
 
 (* shader *)
@@ -229,7 +229,7 @@ object
   external method get_inverse_matrix : unit -> matrix3 = ""*)
 end
 
-external class virtual render_target : "sf_RenderTarget" =
+external class virtual render_target (RenderTarget): "sf_RenderTarget" =
 object
   external method clear : ?color:Color.t -> unit -> unit = "Clear"
   external method draw : 'a . (#drawable as 'a) -> unit = "Draw"
@@ -245,10 +245,10 @@ object
   external method restore_gl_states : unit -> unit = "RestoreGLStates" 
 end 
 
-external class render_image : "sf_RenderImage" =
+external class render_imageCpp (RenderImage) : "sf_RenderImage" =
 object
   external inherit render_target "sf_RenderTarget"
-  constructor create_init : unit = "default_constructor"
+  constructor default : unit = "default_constructor"
   external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
   external method is_smooth : unit -> bool = "IsSmooth"
@@ -257,14 +257,35 @@ object
   external method get_image : unit -> image = "GetImage"
 end
 
-external class render_texture : "sf_RenderTexture" =
+class render_image = render_imageCpp (RenderImage.default ())
+
+external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
   external inherit render_target "sf_RenderTarget"
-  constructor create_init : unit = "default_constructor"
+  constructor default : unit = "default_constructor"
   external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
   external method is_smooth : unit -> bool = "IsSmooth"
   external method set_active : bool -> unit = "SetActive"
   external method display : unit -> unit = "Display"
   external method get_texture : unit -> texture = "GetTexture"
+end
+
+class render_texture = render_textureCpp (RenderTexture.default ())
+
+external class render_windowCpp (RenderWindow) : "sf_RenderWindow" =
+object
+  external inherit render_target "sf_RenderTarget"
+  external inherit Window.window "sf_Window"
+  constructor default : unit = "default_constructor"
+  constructor create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
+  external method capture : unit -> image = "Capture"
+end
+
+class render_window ?style ?context vm name = render_windowCpp (RenderWindow.create ?style ?context vm name)
+
+external class text : "sf_Text" =
+object
+  external inherit drawable
+    constructor default : unit = "default_constructor"
 end
