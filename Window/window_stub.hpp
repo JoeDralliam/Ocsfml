@@ -189,7 +189,7 @@ custom_struct_affectation(	 sf::ContextSettings,
 				&sf::ContextSettings::MajorVersion,
 				 &sf::ContextSettings::MinorVersion );
 
-
+unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst );
 
 camlpp__preregister_custom_class( sf::Window );
 #endif

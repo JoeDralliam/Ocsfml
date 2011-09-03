@@ -148,6 +148,48 @@ camlpp__register_custom_class()
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
+
+void shape_add_point_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, float x, float y)
+{
+	shape->AddPoint(x, y, 
+			col.isSome() ? col.get_value() : sf::Color(255, 255, 255),
+			outline.isSome() ? outline.get_value() : sf::Color(0, 0, 0) );
+}
+
+void shape_add_pointV_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, sf::Vector2f vec)
+{
+	shape->AddPoint( vec
+			col.isSome() ? col.get_value() : sf::Color(255, 255, 255),
+			outline.isSome() ? outline.get_value() : sf::Color(0, 0, 0) );
+}
+
+typedef sf::Shape sf_Shape;
+#define CAMLPP__CLASS_NAME() sf_Shape
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method4( AddPoint, shape_add_point_helper)
+	camlpp__register_method3( AddPointV, shape_add_pointV_helper)
+	camlpp__register_method0( GetPointsCount, &sf::Shape::GetPointsCount )
+	camlpp__register_method1( EnableFill, &sf::Shape::EnableFill )
+	camlpp__register_method1( EnableOutline, &sf::Shape::EnableOutline )
+	camlpp__register_method2( SetPointPositionV, ((void (sf::Shape::*)(unsigned, sf::Vector2f const&)) &sf::Shape::SetPointPosition ) )
+	camlpp__register_method3( SetPointPosition, ((void (sf::Shape::*)(unsigned, float, float)) &sf::Shape::SetPointPosition) )
+	camlpp__register_method2( SetPointColor, &sf::Shape::SetPointColor )
+	camlpp__register_method2( SetPointOutlineColor, &sf::Shape::SetPointOutlineColor )
+	camlpp__register_method1( SetOutlineThickness, &sf::Shape::SetOutlineThickness )
+	camlpp__register_method1( GetPointPosition, &sf::Shape::SetPointPosition )
+	camlpp__register_method1( GetPointColor, &sf::Shape::GetPointColor )
+	camlpp__register_method1( GetPointOutlineColor, &sf::Shape::GetPointOutlineColor )
+	camlpp__register_method0( GetOutlineThickness, &sf::Shape::GetOutlineThickness )
+
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
+//TODO: implement Shape static func : Line(), Circle(), Rectangle(), ....
+
+
+
+
 void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
 {
 	image->Create(w, h, color.isSome() ? color.get_value() : sf::Color(0, 0, 0));
@@ -218,6 +260,40 @@ camlpp__custom_class_registered()
 extern "C"
 {
 	camlpp__register_overloaded_free_function0( GetDefaultFont, &sf::Font::GetDefaultFont)
+}
+
+typedef void (sf::Shader::*SetFloatParameterType)(std::string const&, float);
+typedef void (sf::Shader::*SetVec2ParameterType)(std::string const&, float, float);
+typedef void (sf::Shader::*SetVec3ParameterType)(std::string const&, float, float, float);
+typedef void (sf::Shader::*SetVec4ParameterType)(std::string const&, float, float, float, float);
+typedef void (sf::Shader::*SetVec3ParameterTypeV)(std::string const&, sf::Vector2f const&);
+typedef void (sf::Shader::*SetVec4ParameterTypeV)(std::string const&, sf::Vector3f const&);
+
+typedef sf::Shader sf_Shader;
+#define CAMLPP__CLASS_NAME() sf_Shader
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_constructor1( copy_constructor, sf::Shader const& )
+	camlpp__register_method1( LoadFromFile, &sf::Shader::LoadFromFile )
+//	camlpp__register_method1( LoadFromMemory
+	camlpp__register_method1( LoadFromStream, &sf::Shader::LoadFromStream )
+	camlpp__register_method2( SetFloatParameter, ((SetFloatParameterType) &sf::Shader::SetParameter) )
+	camlpp__register_method3( SetVec2Parameter, ((SetVec2ParameterType) &sf::Shader::SetParameter) )
+	camlpp__register_method4( SetVec3Parameter, ((SetVec3ParameterType) &sf::Shader::SetParameter) )
+	camlpp__register_method5( SetVec4Parameter, ((SetVec4ParameterType) &sf::Shader::SetParameter) 
+)	camlpp__register_method2( SetVec2ParameterV, ((SetVec2ParameterTypeV) &sf::Shader::SetParameter) )
+	camlpp__register_method2( SetVec3ParameterV, ((SetVec3ParameterTypeV) &sf::Shader::SetParameter) )
+	camlpp__register_method2( SetTexture, &sf::Shader::SetTexture)
+	camlpp__register_method1( SetCurrentTexture, &sf::Shader::SetCurrentTexture)
+	camlpp__register_method0( Bind, &sf::Shader::Bind )
+	camlpp__register_method0( Unbind, &sf::Shader::Unbind )
+	camlpp__register_method1( Affect, &sf::Shader::operator= );	
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
+extern "C"
+{
+	camlpp__register_overloaded_free_function( Shader_IsAvailable, &sf::Shader::IsAvailable )
 }
 
 void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color )
@@ -302,11 +378,26 @@ camlpp__register_custom_class()
 	camlpp__register_method0( Display, &sf::RenderTexture::Display )
 	camlpp__register_method0( GetTexture, &sf::RenderTexture::GetTexture )	
 camlpp__custom_class_registered()
-#undef CAMLPP__CLASS_NAME()
+#undef CAMLPP__CLASS_NAME
 
-
+sf::RenderWindow* render_window_constructor_helper(Optional<std::list<unsigned long> > style , Optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
+{
+	unsigned long actualStyle =  style.isSome() ? style_of_list_unsigned( style.get_value() )
+						    : sf::Style::Default;
+	sf::ContextSettings actualSettings = cs.isSome() ? cs.get_value() : sf::ContextSettings();
+	return new sf::RenderWindow( vm, title, actualStyle, actualSettings );
+}
 
 typedef sf::RenderWindow sf_RenderWindow;
+#define CAMLPP__CLASS_NAME() sf_RenderWindow
+camlpp__register_custom_class()
+	camlpp__register_inheritance_relationship( sf_RenderTarget )
+	camlpp__register_inheritance_relationship( sf_Window )
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper)
+	camlpp__register_method0( Capture, &sf::RenderWindow::Capture)
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
 
 
 
