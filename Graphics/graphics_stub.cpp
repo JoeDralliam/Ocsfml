@@ -400,6 +400,25 @@ std::string text_get_string_helper( sf::Text const* txt )
 	return text->GetString().ToAnsiString();
 }
 
+void text_set_style_helper( sf::Text* txt, std::list<unsigned long> style)
+{
+	txt->SetStyle( style_of_list_unsigned( style ) );
+}
+
+unsigned text_get_style_helper( sf::Text* txt )
+{
+	unsigned long style = txt->GetStyle;
+	std::list<unsigned long> res;
+	for(int i = 0; i < 3; ++i)
+	{
+		if(style & (1 << i))
+		{
+			res.push_back(i);
+		}
+	}
+	return std::move(res);
+}
+
 typedef sf::Text sf_Text
 #define CAMLPP__CLASS_NAME() sf_Text
 camlpp__register_custom_class()
@@ -409,9 +428,11 @@ camlpp__register_custom_class()
 	camlpp__register_method1( SetString, &text_set_string_helper )
 	camlpp__register_method1( SetFont, &sf::Text::SetFont )
 	camlpp__register_method1( SetCharacterSize, &sf::Text::SetCharacterSize )
+	camlpp__register_method1( SetStyle, &text_set_style_helper )
 	camlpp__register_method0( GetString, &text_get_string_helper )
 	camlpp__register_method0( GetFont, &sf::Text::GetFont )
 	camlpp__register_method0( GetCharacterSize, &sf::Text::GetCharacterSize )
+	camlpp__register_method0( GetStyle, &text_get_style_helper )
 	camlpp__register_method1( GetCharacterPos, &sf::Text::GetCharacterPos )
 	camlpp__register_method1( GetRect, &sf::Text::GetRect )
 camlpp__custom_class_registered()
