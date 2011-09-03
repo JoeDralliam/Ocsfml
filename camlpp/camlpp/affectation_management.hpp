@@ -31,11 +31,11 @@ extern "C"
 #include <tuple>
 #include <vector>
 
-template< class T>
+template< class T, bool shoudReturnObject = true>
 class AffectationManagement;
 
 template< class T >
-struct AffectationManagement<T*>
+struct AffectationManagement<T*, false>
 {
 	static void affect(value& v, T* t)
 	{
@@ -49,6 +49,11 @@ struct AffectationManagement<T*>
 		Store_field(tmp, 0, reinterpret_cast<value>(t));
 		Store_field(v, field, tmp);
 	}
+};
+
+template< class T >
+struct AffectationManagement<T const&> : AffectationManagement<T>
+{
 };
 
 template<>
@@ -329,16 +334,16 @@ struct AffectationManagement< std::vector< T > >
 	}
 };
 
-template<class T>
+template<bool shoudReturnObject, class T>
 void caml_cpp__affect(value& v, T const& t)
 {
-	AffectationManagement<T>::affect(v, t);
+	AffectationManagement<T, shouldReturnObject>::affect(v, t);
 }
 
 template<class T>
 void caml_cpp__affect_field(value& v, int field, T const& t)
 {
-	AffectationManagement<T>::affect_field(v, field, t);
+	AffectationManagement<T, shouldReturnObject>::affect_field(v, field, t);
 }
 
 #endif

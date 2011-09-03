@@ -186,7 +186,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			return rm.call \
 			( \
 				func \
@@ -199,7 +199,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			return rm.call \
 			( \
@@ -214,7 +214,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			return rm.call \
@@ -231,7 +231,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
@@ -250,7 +250,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3, param4 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
@@ -271,7 +271,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
 			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3, param4, param5 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
@@ -294,7 +294,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
 		{ \
 			MemoryManagement< 0 > mm( unit ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			return rm.call \
 			( \
 				boost::factory< CAMLPP__CLASS_NAME() * >() \
@@ -305,7 +305,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
 		{ \
 			MemoryManagement< 1 > mm( param1 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			return rm.call \
 			( \
@@ -318,7 +318,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
 		{ \
 			MemoryManagement< 2 > mm( param1, param2 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			return rm.call \
@@ -333,7 +333,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
 		{ \
 			MemoryManagement< 3 > mm( param1, param2, param3 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
@@ -350,7 +350,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
 		{ \
 			MemoryManagement< 4 > mm( param1, param2, param3, param4 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
@@ -369,7 +369,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
 		{ \
 			MemoryManagement< 5 > mm( param1, param2, param3, param4, param5 ); \
-			ResManagement< CAMLPP__CLASS_NAME() * > rm; \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
@@ -426,6 +426,70 @@ struct method_traits< Ret (*)(C*, Args...)>
 	        class_name const& from_value( value const& v)		\
 		{ \
 			return *ConversionManagement< class_name * >::from_value( v ); \
+		} \
+	}; \
+	template<> \
+	struct ConversionManagement< class_name const * > : private ConversionManagement< class_name * > \
+	{ \
+	        class_name const* from_value( value const& v)		\
+		{ \
+			return ConversionManagement< class_name * >::from_value( v ); \
+		} \
+	}; \
+	template<> \
+	struct AffectationManagement< class_name const*, true > \
+	{ \
+		static void affect( value& v, class_name const* obj ) \
+		{ \
+			CAMLparam0(); \
+			CAMLlocal1( objPtrVal ); \
+			AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
+			v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name) ) ),  objPtrVal ); \
+			CAMLreturn0; \
+		} \
+		static void affect_field( value& v, int field, class_name const* obj) \
+		{ \
+			CAMLparam0(); \
+			CAMLlocal1( objVal ); \
+			affect( objVal, obj ); \
+			Store_field(v, 0, objVal); \
+			CAMLreturn0; \
+		} \
+	}; \
+	template<> \
+	struct AffectationManagement< class_name const&, true > \
+	{ \
+		static void affect( value& v, class_name const& obj ) \
+		{ \
+			AffectationManagement< class_name const*, true >::affect( v, &obj ); \
+		} \
+		static void affect_field( value& v, int field, class_name const& obj) \
+		{ \
+			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
+		} \
+	}; \
+	template<> \
+	struct AffectationManagement< class_name*, true > \
+	{ \
+		static void affect( value& v, class_name* obj ) \
+		{ \
+			AffectationManagement< class_name const*, true >::affect( v, obj ); \
+		} \
+		static void affect_field( value& v, int field, class_name* obj) \
+		{ \
+			AffectationManagement< class_name const*, true>::affect_field(v, field, obj);\
+		} \
+	}; \
+	template<> \
+	struct AffectationManagement< class_name&, true > \
+	{ \
+		static void affect( value& v, class_name& obj ) \
+		{ \
+			AffectationManagement< class_name const*, true >::affect( v, &obj ); \
+		} \
+		static void affect_field( value& v, int field, class_name& obj) \
+		{ \
+			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
 		} \
 	}; 
 

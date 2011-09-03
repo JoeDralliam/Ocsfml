@@ -166,6 +166,7 @@ void shape_add_pointV_helper( sf::Shape* shape, Optional<sf::Color> col, Optiona
 typedef sf::Shape sf_Shape;
 #define CAMLPP__CLASS_NAME() sf_Shape
 camlpp__register_custom_class()
+	camlpp__register_inheritance_relationship( sf_Drawable )
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method4( AddPoint, shape_add_point_helper)
 	camlpp__register_method3( AddPointV, shape_add_pointV_helper)
@@ -186,6 +187,29 @@ camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
 //TODO: implement Shape static func : Line(), Circle(), Rectangle(), ....
+
+
+void sprite_set_texture_helper( sf::Sprite* spr, Optional<bool> resize, sf::Texture const& texture)
+{
+	spr->SetTexture( texture, resize.isSome() ? resize.get_value() : false );
+}
+
+typedef sf::Sprite sf_Sprite;
+#define CAMLPP__CLASS_NAME() sf_Sprite
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_constructor1( texture_constructor, sf::Texture const&)
+	camlpp__register_method2( SetTexture, &sprite_set_texture_helper )
+	camlpp__register_method1( SetSubRect, &sf::Sprite::SetSubRect )
+	camlpp__register_method2( Resize,((void (sf::Sprite::*)(float, float)) &sf::Sprite::Resize) )
+	camlpp__register_method1( ResizeV, ((void (sf::Sprite::*)(sf::Vector2f const&)) &sf::Sprite::Resize) )
+	camlpp__register_method1( FlipX, &sf::Sprite::FlipX )
+	camlpp__register_method1( FlipY, &sf::Sprite::FlipY )
+	camlpp__register_method0( GetTexture, &sf::Sprite::GetTexture )
+	camlpp__register_method0( GetSubRect, &sf::Sprite::GetSubRect )
+	camlpp__register_method0( GetSize, &sf::Sprite::GetSize )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
 
 
 
@@ -262,6 +286,45 @@ extern "C"
 	camlpp__register_overloaded_free_function0( GetDefaultFont, &sf::Font::GetDefaultFont)
 }
 
+custom_enum_affectation( sf::Text::Style );
+
+custom_enum_conversion( sf::Text::Style );
+
+sf::Text text_constructor_helper( Optional<sf::Font const*> font, Optional<unsigned> characterSize, char* str)
+{
+	return new sf::Text( 	sf::String(str),
+				font.isSome() ? *font.get_value() : sf::Font::GetDefaultFont(), 
+				characterSize.isSome() ? characterSize.get_value() : 30);
+}
+
+void text_set_string_helper( sf::Text* txt, char* str)
+{
+	txt->SetString( sf::String( str ) );
+}
+
+std::string text_get_string_helper( sf::Text const* txt )
+{
+	return text->GetString().ToAnsiString();
+}
+
+typedef sf::Text sf_Text
+#define CAMLPP__CLASS_NAME() sf_Text
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_external_constructor3( init_constructor, &text_constructor_helper )
+	camlpp__register_method1( SetString, &text_set_string_helper )
+	camlpp__register_method1( SetFont, &sf::Text::SetFont )
+	camlpp__register_method1( SetCharacterSize, &sf::Text::SetCharacterSize )
+	camlpp__register_method0( GetString, &text_get_string_helper )
+	camlpp__register_method0( GetFont, &sf::Text::GetFont )
+	camlpp__register_method0( GetCharacterSize, &sf::Text::GetCharacterSize )
+	camlpp__register_method1( GetCharacterPos, &sf::Text::GetCharacterPos )
+	camlpp__register_method1( GetRect, &sf::Text::GetRect )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
+
+
 typedef void (sf::Shader::*SetFloatParameterType)(std::string const&, float);
 typedef void (sf::Shader::*SetVec2ParameterType)(std::string const&, float, float);
 typedef void (sf::Shader::*SetVec3ParameterType)(std::string const&, float, float, float);
@@ -324,7 +387,7 @@ camlpp__register_custom_class()
 	camlpp__register_method1( GetViewport, &sf::RenderTarget::GetViewport )
 	camlpp__register_method3( ConvertCoords, &render_target_convert_coords_helper )
 	camlpp__register_method0( SaveGLStates, &sf::RenderTarget::SaveGLStates)
-	camlpp__register_method0( RestorGLStates, &sf::RenderTarget::RestorGLStates )	
+	camlpp__register_method0( RestoreGLStates, &sf::RenderTarget::RestoreGLStates )	
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME()
 

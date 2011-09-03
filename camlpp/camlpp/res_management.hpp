@@ -21,7 +21,7 @@
 
 #include "affectation_management.hpp"
 
-template<class T>
+template<class T, bool shouldReturnObject = true>
 struct ResManagement {
 	value res;
 	ResManagement( ) : res(0)
@@ -32,7 +32,7 @@ struct ResManagement {
 	template<class Func,class... Args>
 	value& call(Func&& f, Args&&... args)
 	{
-		caml_cpp__affect(res, f(std::forward<Args>(args)...));
+		caml_cpp__affect<shouldReturnObject>(res, f(std::forward<Args>(args)...));
 		return res;
 	}
 };
