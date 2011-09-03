@@ -284,6 +284,11 @@ end
 
 class render_window ?style ?context vm name = render_windowCpp (RenderWindow.create ?style ?context vm name)
 
+external class shapeCpp (Shape) : "sf_Shape" =
+object
+
+end
+
 external class text : "sf_Text" =
 object
   external inherit drawable

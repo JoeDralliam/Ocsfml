@@ -22,9 +22,9 @@ let rec boucle_principale app =
 
 
 let window_test () =
-  let window = new window (Window.create_init (VideoMode.get_desktop_mode ()) "SF2ML2") in
-    boucle_principale window ;
-    window#destroy ()
+  let w = new window (VideoMode.get_desktop_mode ()) "SF2ML2" in
+    boucle_principale w ;
+    w#destroy ()
 
 let _ = window_test()
 

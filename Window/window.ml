@@ -137,7 +137,7 @@ object
   external method set_active : bool -> unit = "SetActive"
 end
 
-class context = contextCpp (Context.default ())
+class context = let d = Context.default () in contextCpp d
 
 module Event = 
 struct
@@ -245,33 +245,37 @@ type context_settings =
 
 type window_style = Titlebar | Resize | Close | Fullscreen
 
-external class window : "sf_Window" =
+external class windowCpp (Window) : "sf_Window" =
 object (self)
+  constructor default : unit = "default_constructor" 
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
-   external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"
-   external method close : unit -> unit = "Close"
+  external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"
+  external method close : unit -> unit = "Close"
   external method is_opened : unit -> bool = "IsOpened"
   external method get_width : unit -> int = "GetWidth"
-    external method get_height : unit -> int = "GetHeight"
-    method get_size () = self#get_width (), self#get_height ()
-    external method get_settings : unit -> context_settings = "GetSettings" 
-    external method poll_event : unit -> Event.t option = "PollEvent"
-    external method wait_event : unit -> Event.t option = "WaitEvent"
-    external method enable_vertical_sync : bool -> unit = "EnableVerticalSync" 
-    external method show_mouse_cursor : bool -> unit = "ShowMouseCursor"
-    external method set_position : int -> int -> unit = "SetPosition" 
-    external method set_size : int -> int -> unit = "SetSize"
-    external method set_title : string -> unit = "SetTitle"
-    external method show : bool -> unit = "Show" 
-    external method enable_key_repeat : bool -> unit = "EnableKeyRepeat"
-    (* external method set_icon : int -> int -> char array -> unit = "window__set_icon" *)
-    external method set_active : bool -> bool = "SetActive" 
-    external method display : unit -> unit = "Display"
-    external method set_framerate_limit : int -> unit = "SetFramerateLimit"
-    external method get_frame_time : unit -> int = "GetFrameTime" 
-    external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
-
+  external method get_height : unit -> int = "GetHeight"
+  method get_size () = self#get_width (), self#get_height ()
+  external method get_settings : unit -> context_settings = "GetSettings" 
+  external method poll_event : unit -> Event.t option = "PollEvent"
+  external method wait_event : unit -> Event.t option = "WaitEvent"
+  external method enable_vertical_sync : bool -> unit = "EnableVerticalSync" 
+  external method show_mouse_cursor : bool -> unit = "ShowMouseCursor"
+  external method set_position : int -> int -> unit = "SetPosition" 
+  external method set_size : int -> int -> unit = "SetSize"
+  external method set_title : string -> unit = "SetTitle"
+  external method show : bool -> unit = "Show" 
+  external method enable_key_repeat : bool -> unit = "EnableKeyRepeat"
+  (* external method set_icon : int -> int -> char array -> unit = "window__set_icon" *)
+  external method set_active : bool -> bool = "SetActive" 
+  external method display : unit -> unit = "Display"
+  external method set_framerate_limit : int -> unit = "SetFramerateLimit"
+  external method get_frame_time : unit -> int = "GetFrameTime" 
+  external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
 end
+
+class window ?style ?context vm name = 
+  let t = Window.create_init ?style ?context vm name in 
+    windowCpp t
 
 module Mouse =
 struct

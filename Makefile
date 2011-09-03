@@ -1,4 +1,4 @@
-.PHONY: all system window graphics audio network camlpp install_camlpp uninstall_camlpp test_clock test_thread clean
+.PHONY: all system window graphics audio network camlpp install_camlpp uninstall_camlpp test_clock test_window clean doc
 
 all: system # window graphics audio network
 

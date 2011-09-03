@@ -2,8 +2,8 @@ open Camlp4
   
 module Id : Sig.Id = 
 struct 
-  let name = "cpp_external" 
-  let version = "0.0" 
+  let name = "external_cpp" 
+  let version = "0.1" 
 end 
 
 module Make (Syntax : Sig.Camlp4Syntax) = 
@@ -119,16 +119,37 @@ struct
     in
       Ast.stSem_of_list (<:str_item< type $lid:t_name$>>::(List.map aux str_items)) 
 
+  let mk_ext_create_func cpp_class_name class_name =
+    let ext_name = "external_cpp_create_"^cpp_class_name in
+      <:str_item< 
+	  let $lid:ext_name$ t = new $lid:class_name$ t in
+	  Callback.register $str:ext_name$ $lid:ext_name$
+	 >>
+	      
   let generate_class_and_module ci ce =
     let (class_info, class_name) = ci in
-    let { cpp_class_name = cpp_class_name_opt ; expr = expr; str_items = str_items ; module_name_opt = module_name_opt } = ce in
-    let module_name = match module_name_opt with Some s -> s | None -> lid_to_uid class_name in 
-    let cpp_class_name = match cpp_class_name_opt with None -> class_name | Some s -> s in
+    let { cpp_class_name = cpp_class_name_opt ; 
+	  expr = expr; str_items = str_items ; 
+	  module_name_opt = module_name_opt } = ce in
+    let module_name = 
+      match module_name_opt with 
+	  Some s -> s 
+	| None -> lid_to_uid class_name 
+    in 
+    let cpp_class_name = 
+      match cpp_class_name_opt with 
+	  None -> class_name 
+	| Some s -> s 
+    in
+    let t_name' = "t_"^class_name^"'" in 
     let items = (Method("destroy", <:ctyp< unit -> unit >>, "destroy"))::str_items in
-      <:class_expr< $class_info$ = fun $lid:"t_"^class_name^"'"$ -> $expr (mk_class_body class_name cpp_class_name <:expr< $lid:module_name$>> items)$ >> , 
-    <:str_item< module $module_name$ = struct $mk_module_body class_name cpp_class_name items$ end >>
+    let class_body = expr (mk_class_body class_name cpp_class_name <:expr< $lid:module_name$>> items) in
+    let module_body = mk_module_body class_name cpp_class_name items in
+      <:class_expr< $class_info$ = fun $lid:t_name'$ -> $class_body$ >> , 
+	<:str_item< module $module_name$ = struct $module_body$ end >> ,
+	mk_ext_create_func cpp_class_name class_name
 
-      let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s;;
+      let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s;; 
 
       let string_list = Gram.Entry.mk "string_list";;
 
@@ -143,10 +164,12 @@ struct
         | `STRING (_,x) -> Ast.LCons (x, Ast.LNil) ] ];
 
    str_item: LEVEL "top" 
-   [ [ "external"; "class" ; (cd,md) = cpp_class_declaration -> 
-	 Ast.stSem_of_list [md ; <:str_item< class $cd$ >> ]
-	 | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >> 
-	 | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> <:str_item<external $i$ : $t$ = $s$ >> ]
+   [ [ "external"; "class" ; (cd,md, ld) = cpp_class_declaration -> 
+	 Ast.stSem_of_list [md ; <:str_item< class $cd$ >> ; ld ]
+     | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> 
+	 <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >> 
+     | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> 
+	 <:str_item<external $i$ : $t$ = $s$ >> ]
    ];
 
    cpp_class_str_item:
@@ -162,7 +185,7 @@ struct
    cpp_class_longident_and_param:
       [ [ ci = a_LIDENT; "["; t = comma_ctyp; "]" ->
 	    let ci' = <:ident<$lid:ci$>> in
-ci,<:class_expr< $id:ci'$ [ $t$ ] >>
+	      ci,<:class_expr< $id:ci'$ [ $t$ ] >>
         | ci = a_LIDENT ->let ci' = <:ident<$lid:ci$>> in ci,<:class_expr< $id:ci'$ >>
       ] ]
     ;
@@ -197,8 +220,8 @@ ci,<:class_expr< $id:ci'$ [ $t$ ] >>
       
    cpp_class_declaration:
    [ LEFTA
-       [ (c1,m1) = SELF; "and"; (c2,m2) = SELF ->
-           <:class_expr< $c1$ and $c2$ >>, Ast.stSem_of_list [m1 ; m2] 
+       [ (c1,m1,l1) = SELF; "and"; (c2,m2,l2) = SELF ->
+           <:class_expr< $c1$ and $c2$ >>, Ast.stSem_of_list [m1 ; m2] , Ast.stSem_of_list [l1 ; l2 ]
            | ci = cpp_class_info_for_class_expr; ce = cpp_class_fun_binding ->
 	       generate_class_and_module ci ce
    ] ];
