@@ -105,6 +105,34 @@ custom_struct_conversion(	 sf::Color,
 				&sf::Color::b,
 				&sf::Color::a );
 
+bool color_is_equal( sf::Color const& a, sf::Color const& b)
+{
+	return a == b;
+}
+
+bool color_is_not_equal( sf::Color const& a, sf::Color const& b)
+{
+	return a != b;
+}
+
+sf::Color color_add( sf::Color const& a, sf::Color const& b)
+{
+	return a + b;
+}
+
+sf::Color color_multiply( sf::Color const& a, sf::Color const& b)
+{
+	return a * b;
+}
+
+extern "C"
+{
+	camlpp__register_free_function( color_is_equal )
+	camlpp__register_free_function( color_is_not_equal )
+	camlpp__register_free_function( color_add )
+	camlpp__register_free_function( color_multiply )
+}
+
 #include <SFML/Graphics/Drawable.hpp>
 
 void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
@@ -302,6 +330,7 @@ void sprite_set_texture_helper( sf::Sprite* spr, Optional<bool> resize, sf::Text
 typedef sf::Sprite sf_Sprite;
 #define CAMLPP__CLASS_NAME() sf_Sprite
 camlpp__register_custom_class()
+	camlpp__register_inheritance_relationship( sf_Drawable )
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_constructor1( texture_constructor, sf::Texture const&)
 	camlpp__register_method2( SetTexture, &sprite_set_texture_helper )
@@ -374,6 +403,7 @@ std::string text_get_string_helper( sf::Text const* txt )
 typedef sf::Text sf_Text
 #define CAMLPP__CLASS_NAME() sf_Text
 camlpp__register_custom_class()
+	camlpp__register_inheritance_relationship( sf_Drawable )
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_external_constructor3( init_constructor, &text_constructor_helper )
 	camlpp__register_method1( SetString, &text_set_string_helper )
@@ -446,13 +476,13 @@ camlpp__register_custom_class()
 	camlpp__register_method1( MoveV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::SetMove) )
 	camlpp__register_method1( Rotate, &sf::View::Rotate )
 	camlpp__register_method1( Zoom, &sf::View::Zoom )
-	camlpp__register_method0( GetMatrix, &sf::View::GetMatrix )
-	camlpp__register_method0( GetInverseMatrix, &sf::View::GetInverseMatrix )
+//	camlpp__register_method0( GetMatrix, &sf::View::GetMatrix )
+//	camlpp__register_method0( GetInverseMatrix, &sf::View::GetInverseMatrix )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
 
-void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color )
+void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color, UnitTypeHolder )
 {
 	return target->Clear( color.isSome() ? color.get_value() : sf::Color(0, 0, 0, 255) );
 }
