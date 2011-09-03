@@ -229,7 +229,8 @@ struct
 	height : int ;
 	bits_per_pixel : int
       }
-
+  let create ?(w=800) ?(h=600) ?(bpp=32) () =
+    { width = w ; height = h ; bits_per_pixel = bpp }
   external get_full_screen_modes : unit -> t array = "VideoMode_GetFullscreenModes"
   external get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode"
 end

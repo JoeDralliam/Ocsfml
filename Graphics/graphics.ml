@@ -175,11 +175,12 @@ let create_font init =
       try_or_fail f (f#load_from_stream s) (Font_error (f, "stream"))
 
 (* shader *)
-external class shader : "" =
+external class shaderCpp (Shader) : "sf_Shader" =
 object (self)
-  external method load_from_file : string -> bool = ""
-  external method load_from_memory : string -> bool = ""
-  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = ""
+  constructor default : unit = "default_constructor"
+  external method load_from_file : string -> bool = "LoadFromFile"
+(* external method load_from_memory : string -> bool = "LoadFromMemory" *)
+  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = "LoadFromStream"
   method set_parameter t name ?x ?y ?z w =
     let count = ref 0 in
     let vars = Array.make 4 0.0 in
@@ -193,19 +194,23 @@ object (self)
 	| 3 -> self#set_parameter3 name vars.(0) vars.(1) vars.(2)
 	| 4 -> self#set_parameter4 name vars.(0) vars.(1) vars.(2) vars.(3)
 	| _ -> assert false
-  external method set_parameter1 : string -> float -> unit = ""
-  external method set_parameter2 : string -> float -> float -> unit = ""
-  external method set_parameter3 : string -> float -> float -> float -> unit = ""
-  external method set_parameter4 : string -> float -> float -> float -> float -> unit = ""
-  external method set_parameter2v : string -> float * float -> unit = ""
-  external method set_parameter3v : string -> float * float * float -> unit = ""
-  external method set_texture : string -> texture -> unit = ""
-  external method set_current_texture : string -> unit = ""
-  external method bind : unit -> unit = ""
-  external method unbind : unit -> unit = ""
+  external method set_parameter1 : string -> float -> unit = "SetFloatParameter"
+  external method set_parameter2 : string -> float -> float -> unit = "SetVec2Parameter"
+  external method set_parameter3 : string -> float -> float -> float -> unit = "SetVec3Parameter"
+  external method set_parameter4 : string -> float -> float -> float -> float -> unit = "SetVec4Parameter"
+  external method set_parameter2v : string -> float * float -> unit = "SetVec2ParameterV"
+  external method set_parameter3v : string -> float * float * float -> unit = "SetVec3ParameterV"
+  external method set_texture : string -> texture -> unit = "SetTexture"
+  external method set_current_texture : string -> unit = "SetCurrentTexture"
+  external method bind : unit -> unit = "Bind"
+  external method unbind : unit -> unit = "Unbind"
 end
 
-external is_available : unit -> unit = ""
+external is_available : unit -> unit = "Shader_IsAvailable"
+
+class shader = 
+  let t = Shader.default () in 
+    shaderCpp t
 
 (* view *)
 external class view : "" =
@@ -286,11 +291,66 @@ class render_window ?style ?context vm name = render_windowCpp (RenderWindow.cre
 
 external class shapeCpp (Shape) : "sf_Shape" =
 object
-
+  external inherit drawable
+  constructor default : unit = "default_constructor"
+  external method add_point : ?color:Color.t -> ?outline:Color.t -> float -> float -> unit = "AddPoint"
+  external method add_point_v : ?color:Color.t -> ?outline:Color.t -> float * float -> unit = "AddPointV"
+  external method get_points_count : unit -> int = "GetPointsCount"
+  external method enable_fill : bool -> unit = "EnableFill"
+  external method enable_outline : bool -> unit = "EnableOutline"
+  external method set_point_position : int -> float -> float -> unit = "SetPointPosition"
+  external method set_point_position_v : int -> float * float -> unit = "SetPointPositionV"
+  external method set_point_color : int -> Color.t -> unit = "SetPointColor"
+  external method set_point_outline_color : int -> Color.t -> unit = "SetPointOutlineColor"
+  external method set_outline_thickness : float -> unit = "SetOutlineThickness"
+  external method get_point_position : int -> float * float = "GetPointPosition"
+  external method get_point_color : int -> Color.t = "GetPointColor"
+  external method get_point_outline_color : int -> Color.t = "GetPointOutlineColor"
+  external method get_outline_thickness : unit -> float = "GetOutlineThickness"
 end
 
-external class text : "sf_Text" =
+class shape = let t = Shape.default () in shapeCpp t
+
+(* TODO : faire se bouger jun pour qu'il implémente toutes ces fonctions
+module ShapeObjects =
+struct
+  external line : float -> float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = ""
+  external line_v : float * float -> float -> Color.t -> float -> Color.t -> shape = ""
+  external rectangle : float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = ""
+  external rectangle_r : float rect ->  Color.t -> float -> Color.t -> shape = ""
+  external circle : float -> float -> float -> Color.t -> float -> Color.t -> shape = ""
+  external circle_v : float * float -> float -> Color.t -> float -> Color.t -> shape = ""
+end 
+*)
+
+external class textCpp (Text) : "sf_Text" =
 object
   external inherit drawable
-    constructor default : unit = "default_constructor"
+  constructor default : unit = "default_constructor"
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = "" 
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = "" 
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
+  external method  : = ""
 end
+
+class text = let t = Text. in textCpp t
+
+external class spriteCpp (Sprite) : "sf_Sprite" =
+object
+  external inherit drawable
+  constructor default : unit = "default_constructor"
+end
+
+class sprite = let t = Sprite. in spriteCpp t
