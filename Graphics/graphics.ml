@@ -99,7 +99,7 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
-external class image : "sf_Image" =
+external class imageCpp (Image) : "sf_Image" =
 object
   constructor default : unit = "default_constructor"
   external method create_from_color : ?color:Color.t -> int -> int -> unit = "CreateFromColor"
@@ -119,25 +119,42 @@ object
   external method flip_vertically : unit -> unit = "FlipVertically"
 end
 
-external get_maximum_size : unit -> int = ""
+class image = let t = Image.default () in imageCpp t
 
-external class texture : "" =
+external get_maximum_size : unit -> int = "Texture_GetMaximumSize"
+
+external class textureCpp (Texture) : "sf_texture" =
 object
-  external method create : int -> int -> unit = ""
-  external method load_from_file : ?rect: int rect -> string -> unit = ""
-  external method load_from_memory : ?rect: int rect -> string -> unit = ""
-  external method load_from_stream : ?rect: int rect -> System.input_stream -> unit = ""
-  external method load_from_image : ?rect: int rect -> image -> unit = ""
-  external method get_width : unit -> int = ""
-  external method get_height : unit -> int = ""
-  external method copy_to_image : unit -> image = ""
-  external method update_from_pixels : ?coords:int*int*int*int -> string (* ou devrait-ce être un bigarray *) -> unit = ""
-  external method update_from_image : ?coords:int*int -> image -> unit = ""
-  external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = ""
-  external method bind : unit -> unit = ""
-  external method set_smooth : bool -> unit = ""
-  external method get_tex_coords : int rect -> float rect = ""
+  constructor default : unit = "default_constructor"
+  external method create : int -> int -> unit = "Create"
+  external method load_from_file : ?rect: int rect -> string -> unit = "LoadFromFile" 
+(*external method load_from_memory : ?rect: int rect -> string -> unit = "LoadFromMemory" *)
+  external method load_from_stream : ?rect: int rect -> System.input_stream -> unit = "LoadFromStream"
+  external method load_from_image : ?rect: int rect -> image -> unit = "LoadFromImage"
+  external method get_width : unit -> int = "GetWidth"
+  external method get_height : unit -> int = "GetHeight"
+  external method copy_to_image : unit -> image = "CopyToImage"
+  (*external method update_from_pixels : ?coords:int*int*int*int -> string  ou devrait-ce être un bigarray  -> unit = "UpdateFromPixels"*)
+  external method update_from_image : ?coords:int*int -> image -> unit = "UpdateFromImage"
+  external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = "UpdateFromWindow"
+  external method bind : unit -> unit = "Bind"
+  external method unbind : unit -> unit = "Unbind"
+  external method set_smooth : bool -> unit = "SetSmooth"
+  external method is_smooth : bool -> unit = "IsSmooth"
+  external method get_tex_coords : int rect -> float rect = "GetTexCoords"
 end
+
+class texture = let t = Texture.default () in textureCpp t	 
+
+let create_texture init = 
+  let t = new texture in
+    if (match init with
+      | `File f -> t#load_from_file f
+      | `Stream s -> t#load_from_stream s
+      | `Memory m -> t#load_from_memory m
+      | `Image img -> t#load_from_image img)
+    then t
+    else failwith "unable to create the texture from this source" 
 
 type glyph =
     {
@@ -161,18 +178,14 @@ end
 
 class font = fontCpp (Font.default ())
 
-exception Font_error of font * string;
-
 let create_font init = 
-  let try_or_fail f b e = if b then f else raise e in
-  match init with
-  | `Font t -> new font (Font.create_from_copy t)
-  | `File s -> let f = new font in
-      try_or_fail f (f#load_from_file s) (Font_error (f, "file : "^s))
-  | `Memory m -> let f = new font in
-      try_or_fail f (f#load_from_memory m) (Font_error (f, "memory"))
-  | `Stream s -> let f = new font in
-      try_or_fail f (f#load_from_stream s) (Font_error (f, "stream"))
+  let f = new font in
+  if (match init with
+	| `File s -> f#load_from_file s
+	| `Memory m -> f#load_from_memory m
+	| `Stream s -> f#load_from_stream s)
+  then f
+  else failwith "unable to initialise font from this source"
 
 (* shader *)
 external class shaderCpp (Shader) : "sf_Shader" =
@@ -213,26 +226,39 @@ class shader =
     shaderCpp t
 
 (* view *)
-external class view : "" =
+external class viewCpp (View) : "sf_View" =
 object
-  external method set_center : float -> float -> unit = ""
-  external method set_center_v : float * float -> unit = ""
-  external method set_size : float -> float -> unit = ""
-  external method set_size_v : float * float -> unit = ""
-  external method set_rotation : float -> unit = ""
-  external method set_viewport : float rect -> unit = ""
-  external method reset : float rect -> unit = ""
-  external method get_center : unit -> float * float = ""
-  external method get_size : unit -> float * float = ""
-  external method get_rotation : unit -> float = ""
-  external method get_viewport : unit -> float rect = ""
-  external method move : float -> float -> unit = ""
-  external method move_v : float * float -> unit = ""
-  external method rotate : float -> unit = ""
-  external method zoom : float -> unit = ""
+  constructor default : unit = "default_constructor"
+  constructor create_from_rect : float rect = "rectangle_constructor"
+  constructor create_from_vectors : float * float -> float * float = "center_and_size_constructor"
+  external method set_center : float -> float -> unit = "SetCenter"
+  external method set_center_v : float * float -> unit = "SetCenterV"
+  external method set_size : float -> float -> unit = "SetSize"
+  external method set_size_v : float * float -> unit = "SetSizeV"
+  external method set_rotation : float -> unit = "SetRotation"
+  external method set_viewport : float rect -> unit = "SetViewport"
+  external method reset : float rect -> unit = "Reset"
+  external method get_center : unit -> float * float = "GetCenter"
+  external method get_size : unit -> float * float = "GetSize"
+  external method get_rotation : unit -> float = "GetRotation"
+  external method get_viewport : unit -> float rect = "GetViewport"
+  external method move : float -> float -> unit = "Move"
+  external method move_v : float * float -> unit = "MoveV"
+  external method rotate : float -> unit = "Rotate"
+  external method zoom : float -> unit = "Zoom"
   (*external method get_matrix : unit -> matrix3 = "" --> matrix3
   external method get_inverse_matrix : unit -> matrix3 = ""*)
 end
+
+(** must be called either with param rect, either with both center and size*)
+class view ?rect ?center ?size () =
+  let t = 
+    match rect with
+      | Some r -> View.create_from_rect r
+      | None -> (match (center, size) with
+	  | (Some c) , (Some s) -> View.create_from_vectors c s
+	  | _ -> View.default ()) 
+  in viewCpp t
 
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
 object

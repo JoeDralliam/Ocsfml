@@ -129,7 +129,7 @@ let _ = dispatch begin function
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
 	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
-  
+
 	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
 	  ocaml_lib (d ^ "/ocsfml" ^ s);
       in 
