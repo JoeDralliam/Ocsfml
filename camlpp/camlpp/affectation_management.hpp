@@ -334,7 +334,7 @@ struct AffectationManagement< std::vector< T > >
 	}
 };
 
-template<bool shoudReturnObject, class T>
+template<bool shouldReturnObject, class T>
 void caml_cpp__affect(value& v, T const& t)
 {
 	AffectationManagement<T, shouldReturnObject>::affect(v, t);
@@ -343,7 +343,7 @@ void caml_cpp__affect(value& v, T const& t)
 template<class T>
 void caml_cpp__affect_field(value& v, int field, T const& t)
 {
-	AffectationManagement<T, shouldReturnObject>::affect_field(v, field, t);
+	AffectationManagement<T, true>::affect_field(v, field, t);
 }
 
 #endif

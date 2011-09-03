@@ -22,7 +22,8 @@ let rec boucle_principale app =
 
 
 let window_test () =
-  let w = new window (VideoMode.get_desktop_mode ()) "SF2ML2" in
+  let vm = VideoMode.( { width=400; height=400; bits_per_pixel=32 } ) in
+  let w = new window vm "SF2ML2" in
     boucle_principale w ;
     w#destroy ()
 

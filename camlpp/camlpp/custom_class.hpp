@@ -491,7 +491,19 @@ struct method_traits< Ret (*)(C*, Args...)>
 		{ \
 			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
 		} \
-	}; 
+	}; \
+	template<> \
+	struct AffectationManagement< class_name, true > \
+	{ \
+		static void affect( value& v, class_name&& obj ) \
+		{ \
+			AffectationManagement< class_name const*, true >::affect( v, new class_name( std::move(obj) ) ); \
+		} \
+		static void affect_field( value& v, int field, class_name&& obj) \
+		{ \
+			AffectationManagement< class_name const*, true>::affect_field(v, field, new class_name( std::move(obj) ));\
+		} \
+	};  
 
 #define camlpp__register_preregistered_custom_class() \
 	void  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _destroy) ( CAMLPP__CLASS_NAME() * sub ) \

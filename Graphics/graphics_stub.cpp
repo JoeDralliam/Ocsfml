@@ -107,6 +107,44 @@ custom_struct_conversion(	 sf::Color,
 
 #include <SFML/Graphics/Drawable.hpp>
 
+void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
+{
+	image->Create(w, h, color.isSome() ? color.get_value() : sf::Color(0, 0, 0));
+}
+
+void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> alpha, sf::Color color)
+{
+	image->CreateMaskFromColor( image, color, alpha.isSome() ? alpha.get_value : 0 );
+}
+
+void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
+{
+	image->Copy( 	src, destX, destY, 
+			srcRect.isSome() ? srcRect.get_value() : sf::IntRect(0,0,0,0),
+			applyAlpha.isSome() ? applyAlpha.get_value() : false );
+}
+
+typedef sf::Image sf_Image;
+#define CAMLPP__CLASS_NAME() sf_Image
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method3( CreateFromColor, &image_create_with_opt_color_helper )
+//	camlpp__register_method3( CreateFromPixels
+	camlpp__register_method1( LoadFromFile, &sf::Image::LoadFromFile )
+//	camlpp__register_method1( LoadFromMemory, &sf::Image::LoadFromMemory )
+	camlpp__register_method1( LoadFromStream, &sf::Image::LoadFromStream )
+	camlpp__register_method1( SaveToFile, &sf::Image::SaveToFile )
+	camlpp__register_method0( GetWidth, &sf::Image::GetWidth )
+	camlpp__register_method0( GetHeight, &sf::Image::GetHeight )
+	camlpp__register_method2( CreateMaskFromColor, image_create_mask_from_color_helper )
+	camlpp__register_method5( Copy, image_copy_helper )
+	camlpp__register_method3( SetPixel, &sf::Image::SetPixel )
+	camlpp__register_method2( GetPixel, &sf::Image::GetPixel )
+	camlpp__register_method0( FlipHorizontally, &sf::Image::FlipHorizontally )
+	camlpp__register_method0( FlipVertically, &sf::Image::FlipVertically )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
 
 custom_enum_affectation( sf::Blend::Mode )
 
@@ -190,6 +228,72 @@ camlpp__custom_class_registered()
 //TODO: implement Shape static func : Line(), Circle(), Rectangle(), ....
 
 
+bool texture_load_from_file_helper( sf::Texture* text, Optional<sf::IntRect> area, std::string filename )
+{
+	return text->LoadFromFile( filename, area.isSome() ? area.get_value() : sf::IntRect() );
+}
+
+bool texture_load_from_stream_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::InputStream& stream )
+{
+	return text->LoadFromStream( stream, area.isSome() ? area.get_value() : sf::IntRect() );
+}
+
+bool texture_load_from_image_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::Image const& image)
+{
+	return text->LoadFromImage_helper( image , area.isSome() ? area.get_value() : sf::IntRect() );
+}
+
+void texture_update_from_image_helper( sf::Texture* tex, sf::Image const& img, Optional<sf::Vector2<unsigned int> > p)
+{
+	if(p.isSome())
+	{
+		tex->Update( img, p.get_value().x, p.get_value().y );
+	}
+	else
+	{
+		tex->Update( img );
+	}
+}
+
+void texture_update_from_window_helper( sf::Texture* tex, sf::Window const& img, Optional<sf::Vector2<unsigned int> > p)
+{
+	if(p.isSome())
+	{
+		tex->Update( img, p.get_value().x, p.get_value().y );
+	}
+	else
+	{
+		tex->Update( img );
+	}
+}
+
+typedef sf::Texture sf_Texture;
+#define CAMLPP__CLASS_NAME() sf_Texture
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_constructor1( copy_constructor, sf::Texture const& )
+	camlpp__register_method2( Create, &sf::Texture::Create )
+	camlpp__register_method2( LoadFromFile, &texture_load_from_file_helper )
+	camlpp__register_method2( LoadFromStream, &texture_load_from_stream_helper )
+	camlpp__register_method2( LoadFromImage, &texture_load_from_image_helper )
+	camlpp__register_method0( GetWidth, &sf::Texture::GetWidth )
+	camlpp__register_method0( GetHeight, &sf::Texture::GetHeight )
+	camlpp__register_method0( CopyToImage, &sf::Texture::CopyToImage )
+//	camlpp__register_method2( UpdateFromPixels, &texture_update_from_pixels_helper )
+	camlpp__register_method2( UpdateFromImage, &texture_update_from_image_helper )
+	camlpp__register_method2( UpdateFromWindow, &texture_update_from_window_helper )
+	camlpp__register_method0( Bind, &sf::Texture::Bind )
+	camlpp__register_method0( Unbind, &sf::Texture::Unbind )
+	camlpp__register_method1( SetSmooth, &sf::Texture::SetSmooth )
+	camlpp__register_method0( IsSmooth, &sf::Texture::IsSmooth )
+	camlpp__register_method1( GetTexCoords, &sf::Texture::GetTexCoords ) 
+#undef CAMLPP__CLASS_NAME()
+
+extern "C"
+{
+	camlpp_register_overloaded_free_function0( Texture_GetMaximumSize, &sf::Texture::GetMaximumSize);
+}
+
+
 void sprite_set_texture_helper( sf::Sprite* spr, Optional<bool> resize, sf::Texture const& texture)
 {
 	spr->SetTexture( texture, resize.isSome() ? resize.get_value() : false );
@@ -209,47 +313,6 @@ camlpp__register_custom_class()
 	camlpp__register_method0( GetTexture, &sf::Sprite::GetTexture )
 	camlpp__register_method0( GetSubRect, &sf::Sprite::GetSubRect )
 	camlpp__register_method0( GetSize, &sf::Sprite::GetSize )
-camlpp__custom_class_registered()
-#undef CAMLPP__CLASS_NAME
-
-
-
-
-void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
-{
-	image->Create(w, h, color.isSome() ? color.get_value() : sf::Color(0, 0, 0));
-}
-
-void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> alpha, sf::Color color)
-{
-	image->CreateMaskFromColor( image, color, alpha.isSome() ? alpha.get_value : 0 );
-}
-
-void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
-{
-	image->Copy( 	src, destX, destY, 
-			srcRect.isSome() ? srcRect.get_value() : sf::IntRect(0,0,0,0),
-			applyAlpha.isSome() ? applyAlpha.get_value() : false );
-}
-
-typedef sf::Image sf_Image;
-#define CAMLPP__CLASS_NAME() sf_Image
-camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_method3( CreateFromColor, &image_create_with_opt_color_helper )
-//	camlpp__register_method3( CreateFromPixels
-	camlpp__register_method1( LoadFromFile, &sf::Image::LoadFromFile )
-//	camlpp__register_method1( LoadFromMemory, &sf::Image::LoadFromMemory )
-	camlpp__register_method1( LoadFromStream, &sf::Image::LoadFromStream )
-	camlpp__register_method1( SaveToFile, &sf::Image::SaveToFile )
-	camlpp__register_method0( GetWidth, &sf::Image::GetWidth )
-	camlpp__register_method0( GetHeight, &sf::Image::GetHeight )
-	camlpp__register_method2( CreateMaskFromColor, image_create_mask_from_color_helper )
-	camlpp__register_method5( Copy, image_copy_helper )
-	camlpp__register_method3( SetPixel, &sf::Image::SetPixel )
-	camlpp__register_method2( GetPixel, &sf::Image::GetPixel )
-	camlpp__register_method0( FlipHorizontally, &sf::Image::FlipHorizontally )
-	camlpp__register_method0( FlipVertically, &sf::Image::FlipVertically )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
@@ -359,6 +422,35 @@ extern "C"
 {
 	camlpp__register_overloaded_free_function( Shader_IsAvailable, &sf::Shader::IsAvailable )
 }
+
+
+
+typedef sf::View sf_View;
+#define CAMLPP__CLASS_NAME()
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_constructor1( rectangle_constructor,  sf::FloatRect )
+	camlpp__register_constructor2( center_and_size_constructor, sf::Vector2f, sf::Vector2f )
+	camlpp__register_method2( SetCenter, ((void (sf::View::*)(float, float)) &sf::View::SetCenter) )
+	camlpp__register_method1( SetCenterV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::SetCenter) )
+	camlpp__register_method2( SetSize, ((void (sf::View::*)(float, float)) &sf::View::SetSize) )
+	camlpp__register_method1( SetSizeV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::SetSize) )
+	camlpp__register_method1( SetRotation, &sf::View::SetRotation )
+	camlpp__register_method1( SetViewport, &sf::View::SetViewport )
+	camlpp__register_method1( Reset, &sf::View::Reset )
+	camlpp__register_method0( GetCenter, &sf::View::GetCenter )
+	camlpp__register_method0( GetSize, &sf::View::GetSize )
+	camlpp__register_method0( GetRotation, &sf::View::GetRotation )
+	camlpp__register_method0( GetViewport, &sf::View::GetViewport )
+	camlpp__register_method2( Move, ((void (sf::View::*)(float, float)) &sf::View::Move) )
+	camlpp__register_method1( MoveV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::SetMove) )
+	camlpp__register_method1( Rotate, &sf::View::Rotate )
+	camlpp__register_method1( Zoom, &sf::View::Zoom )
+	camlpp__register_method0( GetMatrix, &sf::View::GetMatrix )
+	camlpp__register_method0( GetInverseMatrix, &sf::View::GetInverseMatrix )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
 
 void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color )
 {
