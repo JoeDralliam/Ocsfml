@@ -99,36 +99,44 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
+external class image : "sf_Image" =
+object
+  constructor create : unit = "default_constructor"
+  external method create_from_color : ?color:Color.t -> int -> int -> unit = "CreateFromColor"
+  (* external method create_from_pixels : int -> int -> string (* should it be a bigarray ? *) -> unit = "CreateFromPixels" *)
+  external method load_from_file : string -> bool = "LoadFromFile"
+(*  external method load_from_memory : string -> bool = "LoadFromMemory" *)
+  external method load_from_stream : System.input_stream -> bool = "LoadFromStream"
+  external method save_to_file : string -> bool = "SaveToFile"
+  external method get_height : unit -> int = "GetWidth"
+  external method get_width : unit -> int = "GetHeight"
+  external method create_mask_from_color : ?alpha:int -> Color.t = "CreateMaskFromColor"
+  external method copy :  ?srcRect:int rect -> ?alpha:bool -> image -> int -> int -> unit = "Copy"
+  external method set_pixel : int -> int -> Color.t -> unit = "SetPixel"
+  external method get_pixel : int -> int -> Color.t = "GetPixel"
+(* external method get_pixels : unit -> string (* bigarray !!! *) = "GetPixelPtr" *)
+  external method flip_horizontally : unit -> unit = "FlipHorizontally"
+  external method flip_vertically : unit -> unit = "FlipVertically"
+end
+
+external get_maximum_size : unit -> int = ""
+
 external class texture : "" =
 object
   external method create : int -> int -> unit = ""
-  external method load_from_file : 
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
-  external method
+  external method load_from_file : ?rect: int rect -> string -> unit = ""
+  external method load_from_memory : ?rect: int rect -> string -> unit = ""
+  external method load_from_stream : ?rect: int rect -> System.input_stream -> unit = ""
+  external method load_from_image : ?rect: int rect -> image -> unit = ""
+  external method get_width : unit -> int = ""
+  external method get_height : unit -> int = ""
+  external method copy_to_image : unit -> image = ""
+  external method update_from_pixels : ?coords:int*int*int*int -> string (* ou devrait-ce être un bigarray *) -> unit = ""
+  external method update_from_image : ?coords:int*int -> image -> unit = ""
+  external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = ""
+  external method bind : unit -> unit = ""
+  external method set_smooth : bool -> unit = ""
+  external method get_tex_coords : int rect -> float rect = ""
 end
 
 type glyph =
@@ -138,15 +146,17 @@ type glyph =
       sub_rect : int rect
     }
 
-external class fontCpp (Font): "" =
-object 
-  external method load_from_file : string -> bool = ""
-  external method load_from_memory : string -> bool = ""
-  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = ""
-  external method get_glyph : int -> int -> bool -> glyph = ""
-  external method get_kerning : int -> int -> int -> int = ""
-  external method get_line_spacing : int -> int = ""
-  external method get_texture : int -> texture = ""
+external class fontCpp (Font): "sf_Font" =
+object (_:'b)
+  constructor create : unit = "default_constructor"
+  (*  constructor copy : 'b ---> pas possible ya un prob sur le type *)
+  external method load_from_file : string -> bool = "LoadFromFile"
+  external method load_from_memory : string -> bool = "LoadFromMemory"
+  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = "LoadFromStream"
+  external method get_glyph : int -> int -> bool -> glyph = "GetGlyph"
+  external method get_kerning : int -> int -> int -> int = "GetKerning"
+  external method get_line_spacing : int -> int = "GetLineSpacing"
+  external method get_texture : int -> texture = "GetTexture"
 end
 
 class font = fontCpp (Font.create ())
@@ -164,3 +174,97 @@ let create_font init =
   | `Stream s -> let f = new font (Font.create ()) in
       try_or_fail f (f#load_from_stream s) (Font_error (f, "stream"))
 
+(* shader *)
+external class shader : "" =
+object (self)
+  external method load_from_file : string -> bool = ""
+  external method load_from_memory : string -> bool = ""
+  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = ""
+  method set_parameter t name ?x ?y ?z w =
+    let count = ref 0 in
+    let vars = Array.make 4 0.0 in
+    let process v = match v with
+      | None -> () 
+      | Some v' -> (vars.(!count) <- v' ; incr count)
+    in process x ; process y ; process z ; process (Some w) ;
+      match !count with
+	| 1 -> self#set_parameter1 name vars.(0)
+	| 2 -> self#set_parameter2 name vars.(0) vars.(1)
+	| 3 -> self#set_parameter3 name vars.(0) vars.(1) vars.(2)
+	| 4 -> self#set_parameter4 name vars.(0) vars.(1) vars.(2) vars.(3)
+	| _ -> assert false
+  external method set_parameter1 : string -> float -> unit = ""
+  external method set_parameter2 : string -> float -> float -> unit = ""
+  external method set_parameter3 : string -> float -> float -> float -> unit = ""
+  external method set_parameter4 : string -> float -> float -> float -> float -> unit = ""
+  external method set_parameter2v : string -> float * float -> unit = ""
+  external method set_parameter3v : string -> float * float * float -> unit = ""
+  external method set_texture : string -> texture -> unit = ""
+  external method set_current_texture : string -> unit = ""
+  external method bind : unit -> unit = ""
+  external method unbind : unit -> unit = ""
+end
+
+external is_available : unit -> unit = ""
+
+(* view *)
+external class view : "" =
+object
+  external method set_center : float -> float -> unit = ""
+  external method set_center_v : float * float -> unit = ""
+  external method set_size : float -> float -> unit = ""
+  external method set_size_v : float * float -> unit = ""
+  external method set_rotation : float -> unit = ""
+  external method set_viewport : float rect -> unit = ""
+  external method reset : float rect -> unit = ""
+  external method get_center : unit -> float * float = ""
+  external method get_size : unit -> float * float = ""
+  external method get_rotation : unit -> float = ""
+  external method get_viewport : unit -> float rect = ""
+  external method move : float -> float -> unit = ""
+  external method move_v : float * float -> unit = ""
+  external method rotate : float -> unit = ""
+  external method zoom : float -> unit = ""
+  (*external method get_matrix : unit -> matrix3 = "" --> matrix3
+  external method get_inverse_matrix : unit -> matrix3 = ""*)
+end
+
+external class virtual render_target : "sf_RenderTarget" =
+object
+  external method clear : ?color:Color.t -> unit -> unit = "Clear"
+  external method draw : 'a . (#drawable as 'a) -> unit = "Draw"
+  external method draw_with_shader : 'a . shader -> (#drawable as 'a) -> unit = "DrawWithShader"
+  external method get_width : unit -> int = "GetWidth"
+  external method get_height : unit -> int = "GetHeight"
+  external method set_view : view -> unit = "SetView"
+  external method get_view : unit -> view = "GetView"
+  external method get_default_view : unit -> view = "GetDefaultView"
+  external method get_viewport : unit -> int rect = "GetViewport"
+  external method convert_coords : ?view:view -> int -> int -> float * float = "ConvertCoords"
+  external method save_gl_states : unit -> unit = "SaveGLStates"
+  external method restore_gl_states : unit -> unit = "RestoreGLStates" 
+end 
+
+external class render_image : "sf_RenderImage" =
+object
+  external inherit render_target "sf_RenderTarget"
+  constructor create_init : unit = "default_constructor"
+  external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
+  external method set_smooth : bool -> unit = "SetSmooth"
+  external method is_smooth : unit -> bool = "IsSmooth"
+  external method set_active : bool -> unit = "SetActive"
+  external method display : unit -> unit = "Display"
+  external method get_image : unit -> image = "GetImage"
+end
+
+external class render_texture : "sf_RenderTexture" =
+object
+  external inherit render_target "sf_RenderTarget"
+  constructor create_init : unit = "default_constructor"
+  external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
+  external method set_smooth : bool -> unit = "SetSmooth"
+  external method is_smooth : unit -> bool = "IsSmooth"
+  external method set_active : bool -> unit = "SetActive"
+  external method display : unit -> unit = "Display"
+  external method get_texture : unit -> texture = "GetTexture"
+end

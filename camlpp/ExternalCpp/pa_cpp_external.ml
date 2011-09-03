@@ -16,20 +16,34 @@ struct
   let lid_to_uid s = let s' = String.copy s in s'.[0] <- Char.uppercase s'.[0] ; s'
 
   let rec arg_count ?(n=0) = function
-      Ast.TyArr (_,_,t) -> arg_count ~n:(n+1) t
-    | Ast.TyPol (_,_,t) -> arg_count ~n t
+      Ast.TyArr (_,_,t) -> arg_count ~n:(n+1) t 
+    | Ast.TyPol (_,_,t) -> arg_count ~n t 
     | _ -> n
+ 
+  let rec process_arg ?(n=1) t0 =
+    let n' = string_of_int n in  
+    let repr_of_type = function
+      | Ast.TyOlb (_,s,t) -> (fun e -> <:expr< fun [ ?($lid:s$) -> $e$ ] >>), <:expr< ? $lid:s$ >>
+      | _ -> (fun e  -> <:expr< fun [ $lid:"p"^n'$ -> $e$ ] >>), <:expr<$lid:"p"^n'$>>
+    in match t0 with
+	Ast.TyArr (_,t',t) -> (repr_of_type t')::(process_arg ~n:(n+1) t)
+      | Ast.TyPol (_,_,t) -> process_arg ~n t
+      | t -> []
+
+  let create_params_expr e l = List.fold_left (fun e (_,p) -> <:expr< $e$ $p$>>) e l
+  let create_params_patt e l = List.fold_right (fun (p,_) e -> p e) l e
+
 
   let rec enfouir t0 = function
       Ast.TyArr (loc,t',t) -> Ast.TyArr (loc,t',enfouir t0 t)
     | t -> <:ctyp< $t$ -> $t0$ >>
-
+(*
   let rec range ?(acc=[]) a b = if a > b then acc else range ~acc:(b::acc) a (b-1)
   let create_params_expr e i = List.fold_left (fun e i -> <:expr< $e$ $lid:"p"^ (string_of_int i)$>>) e (range 1 i)
   let create_params_patt e i = List.fold_right (fun i e -> <:expr< fun $lid:"p"^ (string_of_int i)$ -> $e$ >>)  (range 1 i) e
+*)
 
-
-  type cpp_clas_str_item =
+  type cpp_clas_str_item = 
       Inherit of string * (Ast.expr -> Ast.class_str_item) * string option
     | Method of string * Ast.ctyp * string
     | Constructor of string * Ast.ctyp * string
@@ -62,13 +76,13 @@ struct
     let aux = function
       | Inherit(parent_name,s,_) -> s <:expr< ( $module_name$.$lid:"to_"^parent_name$ $lid:t_name'$ ) >> 
       | Method(label, type_method, cpp_name) -> 
-	  let count = arg_count type_method in
+	  let args = process_arg type_method in
 	  let t' = simplify_type type_method in
 	    if t' <> type_method 
 	    then <:class_str_item< method $label$ () = $module_name$.$lid:label$ $lid:t_name$ >>
 	    else let appel_func = <:expr< $module_name$.$lid:label$ $lid:t_name$ >> in
-	    let ajout_param = <:expr< $create_params_expr appel_func count$ >> in
-	      <:class_str_item< method $label$ : $type_method$ = $create_params_patt ajout_param count$>>
+	    let ajout_param = <:expr< $create_params_expr appel_func args$ >> in
+	      <:class_str_item< method $label$ : $type_method$ = $create_params_patt ajout_param args$>>
       | Constructor _ -> <:class_str_item< >> 
       | ClassStrItem e -> e
     in
@@ -79,6 +93,13 @@ struct
 
   let mk_module_body class_name cpp_class_name str_items =  
     let t_name = "t" in
+    let mk_sl cpp_name ft =
+      let base_nom = cpp_class_name^"_"^cpp_name in
+      let base_list = Ast.LCons (base_nom^"__impl", Ast.LNil) in
+	if (arg_count ft) > 4
+	then Ast.LCons (base_nom^"__byte", base_list)
+	else base_list
+    in
     let aux = function
       | Inherit(parent_name,_,p) -> 
 	  let cpp_parent_class_name = match p with
@@ -86,8 +107,14 @@ struct
 	    | None -> class_name in
 	  let sl = Ast.LCons (("upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl"), Ast.LNil) in
 	    <:str_item< external $"to_"^parent_name$ : $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ = $sl$ >>
-      | Method(label, type_method, cpp_name) -> <:str_item< external $label$ : $lid:t_name$ -> $simplify_type (adapt_to_module type_method)$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
-      | Constructor(label, type_method, cpp_name) -> <:str_item< external $label$ : $enfouir <:ctyp<$lid:t_name$>> type_method$ = $Ast.LCons (cpp_class_name^"_"^cpp_name^"__impl", Ast.LNil)$ >>
+      | Method(label, type_method, cpp_name) -> 
+	  let func_type_end = simplify_type (adapt_to_module type_method) in
+	  let string_list = mk_sl cpp_name func_type_end in
+	  <:str_item< external $label$ : $lid:t_name$ -> $func_type_end$ = $string_list$ >>
+      | Constructor(label, type_method, cpp_name) -> 
+	  let func_type = enfouir <:ctyp<$lid:t_name$>> type_method in
+	  let string_list = mk_sl cpp_name func_type in
+	  <:str_item< external $label$ : $func_type$ = $string_list$ >>
       | ClassStrItem _ -> <:str_item< >>
     in
       Ast.stSem_of_list (<:str_item< type $lid:t_name$>>::(List.map aux str_items)) 

@@ -246,8 +246,8 @@ type window_style = Titlebar | Resize | Close | Fullscreen
 external class window : "sf_Window" =
 object (self)
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
-   (*external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"*)
-  external method close : unit -> unit = "Close"
+   external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"
+   external method close : unit -> unit = "Close"
   external method is_opened : unit -> bool = "IsOpened"
   external method get_width : unit -> int = "GetWidth"
     external method get_height : unit -> int = "GetHeight"
