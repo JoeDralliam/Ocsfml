@@ -51,15 +51,57 @@ struct
 
   type cpp_class_expr =
     { 
-      cpp_class_name : string option ; 
       expr : Ast.class_str_item -> Ast.class_expr; 
       str_items : cpp_clas_str_item list ;
-      module_name_opt : string option
+      class_self_patt : Ast.patt * Ast.ctyp
     }
 
-  let get_class_name = function
-    | <:class_expr< $lid:s$ $_$ >> -> s
-    | _ -> assert false
+  let create_cpp_class_expr expr str_items csp =
+    {
+      expr = expr ;
+      str_items = str_items;
+      class_self_patt = 
+	(match csp with
+	   | Some (s, t0 ) -> 
+	       s, (match t0 with
+		     | Some t -> t
+		     | None -> <:ctyp< 'self >>)
+	   | None -> <:patt< self >>, <:ctyp< 'self >>)
+    }
+
+  type class_info = 
+      {
+	is_virtual : bool;
+	caml_class_name : string; 
+	module_name : string;
+	cpp_class_name : string;
+	params : Ast.ctyp
+      }
+
+  let create_class_info is_virtual caml_class_name module_name cpp_class_name params =
+    {
+      is_virtual = (match is_virtual with Some _ -> true | None -> false);
+      caml_class_name = caml_class_name; 
+      module_name = (match module_name with Some s -> s | None -> lid_to_uid caml_class_name);
+      cpp_class_name = (match cpp_class_name with Some s -> s | None -> caml_class_name);
+      params = params
+    }
+
+  type class_decl =
+      {
+	class_decl : Ast.class_expr;
+	mod_decl : Ast.module_binding;
+	helper_decl : Ast.str_item;
+	is_rec : bool;
+      }
+
+  type create_class_declaration ?(is_rec=false) class_decl mod_decl helper_decl =
+      {
+	class_decl = class_decl; 
+	mod_decl = mod_decl;
+	helper_decl = helper_decl;
+	is_rec = is_rec;
+      }
 
   let rec simplify_type = function
     | (Ast.TyArr (_,<:ctyp<unit>>,t)) as t' -> if arg_count t = 0 then t else t'
@@ -125,9 +167,77 @@ struct
 	  let $lid:ext_name$ t = new $lid:class_name$ t in
 	  Callback.register $str:ext_name$ $lid:ext_name$
 	 >>
+
+  let app_params_to_func func params =
+    List.fold_left (fun e x -> <:expr< $e$ $x$ >>) func params
 	      
   let generate_class_and_module ci ce =
-    let (class_info, class_name) = ci in
+    
+    let v = match ci.is_virtual with
+      | true -> <:virtual< virtual >>
+      | false -> <:virtual< >> 
+    in
+
+    let t_name = <:ident< $lid:"t_" ^ ci.caml_class_name >> in
+    
+    let process_class_sig_item = function
+      | Method (label, type_meth, _) ->
+	  <:class_sig_item< method $lid:label$ : $type_meth$ >>
+      | Inherit (class_name,_,_) ->
+	  <:class_sig_item< inherit $lid:class_name$ >>
+      | _ -> <:class_sig_item< >>
+	  (*
+	    il manque les commandes caml classiques ; 
+	    mais comment transformer un class_str_item en class_sig_item ?
+	  *)
+    in
+
+    let mk_class_type =
+      let sig_items = Ast.cgSem_of_list (List.map process_class_sig_item ce.str_items) in
+	<:class_type<
+          class type $virtual:v$ $id:ci.caml_class_name$ [ $list:ci.params$ ] =
+          object
+	    $sig_items$
+	  end >>
+    in
+
+    let process_class_str_item = function
+      | Method (label, type_meth, _) ->
+	  let fun_params, get_params =
+	    let n = ref 1 in
+	    let rec aux = function
+	      | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
+	      | <:ctyp< $t0$ -> $t1$ >> -> (aux t0) @ (aux t1)
+	      | <:ctyp< ~ $s$ : $t0$ -> $t1$ >> -> [<:patt< ~ $s$ >>, <:expr< ~ $s$ >>] @ (aux t1)
+	      | <:ctyp< ? $s$ : $t0$ -> $t1$ >> -> [<:patt< ? $s$ >>, <:expr< ? $s$ >>] @ (aux t1)
+	      | t -> let pn = "p"^(incr n; string_of_int !n) in
+		  [<:patt< $lid:pn$ >> <:expr< $lid:pn$ >>]
+	    in aux type_meth in
+	    
+	  let func = <:expr< $ci.module_name$.$label$ $t_name$ >>
+	  <:class_str_item< method $lable$ : $type_meth$ =  >>
+      |
+      |
+      | _ -> <:class_str_item< >>
+    in
+
+    let mk_class =
+
+    in
+
+    let process_mod_str_item =
+      
+    in
+
+    let mk_module =
+
+    in
+
+    let mk_create_helper =
+
+    in
+
+    let (class_info, class_name, is_virtual) = ci in
     let { cpp_class_name = cpp_class_name_opt ; 
 	  expr = expr; str_items = str_items ; 
 	  module_name_opt = module_name_opt } = ce in
@@ -147,7 +257,9 @@ struct
     let module_body = mk_module_body class_name cpp_class_name items in
       <:class_expr< $class_info$ = fun $lid:t_name'$ -> $class_body$ >> , 
 	<:str_item< module $module_name$ = struct $module_body$ end >> ,
-	mk_ext_create_func cpp_class_name class_name
+	if is_virtual 
+	then <:str_item< >>
+	else mk_ext_create_func cpp_class_name class_name
 
       let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s;; 
 
@@ -164,72 +276,88 @@ struct
         | `STRING (_,x) -> Ast.LCons (x, Ast.LNil) ] ];
 
    str_item: LEVEL "top" 
-   [ [ "external"; "class" ; (cd,md, ld) = cpp_class_declaration -> 
-	 Ast.stSem_of_list [md ; <:str_item< class $cd$ >> ; ld ]
+   [ 
+     [ "external"; "class" ; cpp = cpp_class_declaration -> 
+	 if cpp.is_rec 
+	 then Ast.stSem_of_list [<:str_item<module rec $cpp.mod_decl$>> ; <:str_item< class $cpp.class_decl$ >> ; cpp.helper_decl ]
+	 else Ast.stSem_of_list [<:str_item<module $cpp.mod_decl$>> ; <:str_item< class $cpp.class_decl$ >> ; cpp.helper_decl ]
      | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> 
 	 <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >> 
      | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> 
-	 <:str_item<external $i$ : $t$ = $s$ >> ]
+	 <:str_item<external $i$ : $t$ = $s$ >> 
+     ]
    ];
 
-   cpp_class_str_item:
-      [ LEFTA
-          [ "external" ; "inherit"; (ci,ce) = cpp_class_longident_and_param ; cpp_class_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
-	      Inherit(ci,(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>), cpp_class_name)
-	  | "external" ; "method" ; l = label; ":"; topt = poly_type ; "=" ; cpp_name = a_STRING -> Method(l,topt, cpp_name)	  
-	  | "constructor" ; l = label; ":"; topt = ctyp ; "=" ; cpp_name = a_STRING -> Constructor(l,topt, cpp_name) 
-	  | e = class_str_item -> ClassStrItem(e)
-	  ] 
-      ];
-
-   cpp_class_longident_and_param:
-      [ [ ci = a_LIDENT; "["; t = comma_ctyp; "]" ->
-	    let ci' = <:ident<$lid:ci$>> in
-	      ci,<:class_expr< $id:ci'$ [ $t$ ] >>
-        | ci = a_LIDENT ->let ci' = <:ident<$lid:ci$>> in ci,<:class_expr< $id:ci'$ >>
-      ] ]
-    ;
-
-    cpp_class_structure:
-      [[ l = LIST0 [ cst = cpp_class_str_item; semi -> cst ] -> l ]];
-
-   cpp_class_expr:
-      [ "apply" NONA
-        [ ce = SELF; e = expr LEVEL "label" -> 
-	    {ce with expr = (fun x -> <:class_expr< $ce.expr x$ $e$ >>)} ]
-      | "simple"
-        [  ce = class_longident_and_param -> {cpp_class_name = None; expr = (fun x -> ce) ; str_items = [] ; module_name_opt = None}
-        | "object"; csp = opt_class_self_patt; l = cpp_class_structure; "end" ->
-	    { cpp_class_name = None ; expr = (fun x -> <:class_expr< object ($csp$) $x$ end >>) ; str_items = l ; module_name_opt = None }
-        | "("; ce = SELF; ":"; ct = class_type; ")" -> 
-	    {ce with expr = (fun x -> <:class_expr< ($ce.expr x$ : $ct$) >>) }
-        | "("; ce = SELF; ")" -> ce 
-	] ];
-
-   cpp_class_fun_binding:
-   [ [ "="; ce = cpp_class_expr -> ce
-     | module_name = OPT [ "("; s = a_UIDENT ; ")" -> s ] ; ":"; cpp_name = a_STRING; "="; ce = cpp_class_expr -> { ce with cpp_class_name = Some cpp_name ; module_name_opt = module_name }
-     ] ];
+   cpp_class_declaration:
+   [ LEFTA
+     [ (c1,m1,l1) = SELF; "and"; (c2,m2,l2) = SELF ->
+	 create_class_declaration 
+	   ~is_rec:true 
+	   <:class_expr< $c1$ and $c2$ >> 
+           <:module_binding< $m1$ and $m2$ >>  
+	   (Ast.stSem_of_list [l1 ; l2 ])
+     | ci = cpp_class_info_for_class_expr; "="; ce = cpp_class_expr ->
+         generate_class_and_module ci ce
+     ] 
+   ];
 
    cpp_class_info_for_class_expr:
    [ 
-     [ mv = opt_virtual; (i, ot) = class_name_and_param ->
-         <:class_expr< $virtual:mv$ $lid:i$ [ $ot$ ] >>, i
+     [ is_virtual = OPT [ "virtual" -> () ]; 
+       (caml_class_name, params) = class_name_and_param ;  
+       module_name = OPT [ "("; s = a_UIDENT ; ")" -> s ] ; 
+       cpp_class_name = OPT [":"; cpp_name = a_STRING -> cpp_name ] ->
+	 create_class_info is_virtual caml_class_name module_name cpp_class_name params
      ] 
    ];
-      
-   cpp_class_declaration:
-   [ LEFTA
-       [ (c1,m1,l1) = SELF; "and"; (c2,m2,l2) = SELF ->
-           <:class_expr< $c1$ and $c2$ >>, Ast.stSem_of_list [m1 ; m2] , Ast.stSem_of_list [l1 ; l2 ]
-           | ci = cpp_class_info_for_class_expr; ce = cpp_class_fun_binding ->
-	       generate_class_and_module ci ce
-   ] ];
-      
-   
 
+   cpp_class_expr:
+   [ "apply" NONA
+     [ ce = SELF; e = expr LEVEL "label" -> 
+	    {ce with expr = (fun x -> <:class_expr< $ce.expr x$ $e$ >>)} 
+     ]
+   | "simple"
+     [  ce = class_longident_and_param -> create_cpp_class_expr (fun x -> ce) [] None 
+     | "object"; 
+	csp = OPT [ "(" ; 
+		    s = patt ; 
+		    st = OPT [":" ; t = ctyp -> t ] ; 
+		    ")" -> s,st ] ;
+	l = cpp_class_structure; "end" ->
+	    create_cpp_class_expr (fun x -> <:class_expr< object (*$csp$*) $x$ end >>) l csp 
+     | "("; ce = SELF; ":"; ct = class_type; ")" -> 
+	    {ce with expr = (fun x -> <:class_expr< ($ce.expr x$ : $ct$) >>) } 
+     | "("; ce = SELF; ")" -> ce 
+     ] 
+   ];
+
+   cpp_class_longident_and_param:
+   [ 
+     [ ci = a_LIDENT; "["; t = comma_ctyp; "]" ->
+	 let ci' = <:ident<$lid:ci$>> in
+	   ci,<:class_expr< $id:ci'$ [ $t$ ] >>
+     | ci = a_LIDENT ->let ci' = <:ident<$lid:ci$>> in ci,<:class_expr< $id:ci'$ >>
+     ] 
+   ];
+
+   cpp_class_structure:
+   [
+     [ 
+       l = LIST0 [ cst = cpp_class_str_item; semi -> cst ] -> l 
+     ]
+   ];
+
+   cpp_class_str_item:
+   [ LEFTA
+     [ "external" ; "inherit"; (ci,ce) = cpp_class_longident_and_param ; cpp_class_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
+	 Inherit(ci,(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>), cpp_class_name)
+     | "external" ; "method" ; l = label; ":"; topt = poly_type ; "=" ; cpp_name = a_STRING -> Method(l,topt, cpp_name)	  
+     | "constructor" ; l = label; ":"; topt = ctyp ; "=" ; cpp_name = a_STRING -> Constructor(l,topt, cpp_name) 
+     | e = class_str_item -> ClassStrItem(e)
+     ] 
+   ];
     
-    END 
+   END 
 end 
   
 module M = Register.OCamlSyntaxExtension(Id)(Make)

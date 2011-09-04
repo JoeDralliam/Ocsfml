@@ -10,6 +10,7 @@ module type RECT_VAL =
 sig
   type t
   val add : t -> t -> t
+  val sub : t -> t -> t
 end
 
 module Rect (M : RECT_VAL) =
@@ -45,7 +46,7 @@ struct
   let sub = ( -. )
 end
 
-module IntRect = Rect(MyInt)
+module FloatRect = Rect(MyFloat)
 
 module Color = 
 struct
@@ -60,8 +61,8 @@ struct
   let rgba r g b a = { r = r ; g = g ; b = b ; a = a }
   external add : t -> t -> t = "color_add"
   external modulate : t -> t -> t = "color_multiply"
-  let ( +# ) c1 c2 = add c1 c2
-  let ( *# ) c1 c2 = modulate c1 c2
+  (*let ( +# ) c1 c2 = add c1 c2
+  let ( *# ) c1 c2 = modulate c1 c2*)
 end
 
 type blend_mode = 
@@ -99,8 +100,9 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
+
 external class imageCpp (Image) : "sf_Image" =
-object
+object (moiMemeMaitreDuMonde)
   constructor default : unit = "default_constructor"
   external method create_from_color : ?color:Color.t -> int -> int -> unit = "CreateFromColor"
   (* external method create_from_pixels : int -> int -> string (* should it be a bigarray ? *) -> unit = "CreateFromPixels" *)
@@ -111,12 +113,14 @@ object
   external method get_height : unit -> int = "GetWidth"
   external method get_width : unit -> int = "GetHeight"
   external method create_mask_from_color : ?alpha:int -> Color.t = "CreateMaskFromColor"
-  external method copy :  ?srcRect:int rect -> ?alpha:bool -> image -> int -> int -> unit = "Copy"
+  external method copy__impl :  ?srcRect:int rect -> ?alpha:bool -> t -> int -> int -> unit = "Copy"
   external method set_pixel : int -> int -> Color.t -> unit = "SetPixel"
   external method get_pixel : int -> int -> Color.t = "GetPixel"
 (* external method get_pixels : unit -> string (* bigarray !!! *) = "GetPixelPtr" *)
   external method flip_horizontally : unit -> unit = "FlipHorizontally"
   external method flip_vertically : unit -> unit = "FlipVertically"
+  method copy ?srcRect ?alpha src x y = 
+    moiMemeMaitreDuMonde#copy__impl ?srcRect ?alpha (src#rep__sf_Image ()) x y
 end
 
 class image = let t = Image.default () in imageCpp t
@@ -255,9 +259,13 @@ class view ?rect ?center ?size () =
   let t = 
     match rect with
       | Some r -> View.create_from_rect r
-      | None -> (match (center, size) with
-	  | (Some c) , (Some s) -> View.create_from_vectors c s
-	  | _ -> View.default ()) 
+      | None -> View.default ()
+	  (*match center with
+	     | Some c ->
+		 (match size with
+		    | Some s -> View.create_from_vectors c s
+		    | None -> View.default ())
+	     | None -> View.default ()*)
   in viewCpp t
 
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
@@ -278,7 +286,7 @@ end
 
 external class render_imageCpp (RenderImage) : "sf_RenderImage" =
 object
-  external inherit render_target "sf_RenderTarget"
+  external inherit render_target : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
   external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
@@ -292,7 +300,7 @@ class render_image = render_imageCpp (RenderImage.default ())
 
 external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
-  external inherit render_target "sf_RenderTarget"
+  external inherit render_target : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
   external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
@@ -304,10 +312,12 @@ end
 
 class render_texture = render_textureCpp (RenderTexture.default ())
 
+open Window
+
 external class render_windowCpp (RenderWindow) : "sf_RenderWindow" =
 object
-  external inherit render_target "sf_RenderTarget"
-  external inherit Window.window "sf_Window"
+  external inherit render_target : "sf_RenderTarget"
+  external inherit windowCpp : "sf_Window"
   constructor default : unit = "default_constructor"
   constructor create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
   external method capture : unit -> image = "Capture"
@@ -317,7 +327,7 @@ class render_window ?style ?context vm name = render_windowCpp (RenderWindow.cre
 
 external class shapeCpp (Shape) : "sf_Shape" =
 object
-  external inherit drawable "sf_Drawable"
+  external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   external method add_point : ?color:Color.t -> ?outline:Color.t -> float -> float -> unit = "AddPoint"
   external method add_point_v : ?color:Color.t -> ?outline:Color.t -> float * float -> unit = "AddPointV"
@@ -351,7 +361,7 @@ end
 
 external class textCpp (Text) : "sf_Text" =
 object
-  external inherit drawable "sf_Drawable"
+  external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   constructor create : string -> font -> int = "init_constructor"
   external method set_string : string -> unit = "SetString"
@@ -366,11 +376,11 @@ object
   external method get_rect : unit -> float rect = "GetRect"
 end
 
-class text = let t = Text. in textCpp t
+class text = let t = Text.default () in textCpp t
 
 external class spriteCpp (Sprite) : "sf_Sprite" =
 object
-  external inherit drawable "sf_Drawable"
+  external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   constructor create_from_texture : texture = "texture_constructor"
   external method set_texture : texture -> unit = "SetTexture"
@@ -381,7 +391,7 @@ object
   external method flip_y : bool -> unit = "FlipY" 
   external method get_texture : unit -> texture = "GetTexture"
   external method get_sub_rect : unit -> int rect = "GetSubRect"
-  external method get_size : = "GetSize"
+  external method get_size : unit -> float * float = "GetSize"
 end
 
-class sprite = let t = Sprite. in spriteCpp t
+class sprite = let t = Sprite.default () in spriteCpp t
