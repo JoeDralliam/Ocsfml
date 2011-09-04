@@ -50,8 +50,33 @@ struct method_traits< Ret (*)(C*, Args...)>
 	typedef Ret type (C*, Args...);
 };
 
+template<class T, bool cpConstructor>
+struct copy_instance_helper2
+{
+	template< class T2 >
+	static void affect( value& v, T2&& obj )
+	{
+		AffectationManagement< T const*, true >::affect( v, new T( std::forward<T2>(obj) ) );
+	}
+	
+	template<class T2>
+	static void affect_field( value& v, int field, T2&& obj)
+	{
+		AffectationManagement< T const*, true>::affect_field(v, field, new T( std::forward<T2>(obj) ));
+	}
+};
 
+template<class T>
+struct copy_instance_helper2< T, false >
+{};
 
+template<class T, bool abstract>
+struct copy_instance_helper : public copy_instance_helper2<T, std::is_constructible<T, T&&>::value>
+{};
+
+template<class T>
+struct copy_instance_helper< T, true >
+{};
 //#define CAMLPP__CLASS_NAME() CAMLPP__CLASS_NAME()
 
 #define camlpp__register_method0( method_name, func ) \
@@ -96,7 +121,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		ConversionManagement< FuncTraits::arg2_type > cm3; \
+		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		return rm.call \
 		( \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), \
@@ -152,31 +177,33 @@ struct method_traits< Ret (*)(C*, Args...)>
 	}
 
 #define camlpp__register_method5( method_name, func ) \
-	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
+	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5 ) \
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2, param3, param4); \
+		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2, param3, param4, param5); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
+		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		return rm.call \
 		( \
-		 std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), \
+		 std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
 			cm3.from_value( param2 ), \
 			cm4.from_value( param3 ), \
-			cm5.from_value( param4 ) \
+			cm5.from_value( param4 ), \
+			cm6.from_value( param5 ) \
 		); \
 	} \
-	CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME, _## method_name ## __byte ) ( value* v, int count ) \
+	CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
 	{ \
 		assert( count == 6 ); \
-		return BOOST_PP_CAT( CAMLPP__CLASS_NAME, _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
+		return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
 	}
 
 
@@ -493,16 +520,8 @@ struct method_traits< Ret (*)(C*, Args...)>
 		} \
 	}; \
 	template<> \
-	struct AffectationManagement< class_name, true > \
+	struct AffectationManagement< class_name, true > : public copy_instance_helper< class_name, std::is_abstract<class_name>::value > \
 	{ \
-		static void affect( value& v, class_name&& obj ) \
-		{ \
-			AffectationManagement< class_name const*, true >::affect( v, new class_name( std::move(obj) ) ); \
-		} \
-		static void affect_field( value& v, int field, class_name&& obj) \
-		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, new class_name( std::move(obj) ));\
-		} \
 	};  
 
 #define camlpp__register_preregistered_custom_class() \

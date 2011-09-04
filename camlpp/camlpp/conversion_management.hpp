@@ -51,10 +51,11 @@ struct ConversionManagement<T*>
 template<class T>
 struct ConversionManagement<T&>
 {
+	ConversionManagement<T> cm;
 	std::unique_ptr<T> ptr;
 	T& from_value(value& v)
 	{
-		ptr.reset(new T( ConversionManagement<T>::from_value() ) );
+		ptr.reset(new T( cm.from_value(v) ) );
 		return *ptr;
 	}
 };

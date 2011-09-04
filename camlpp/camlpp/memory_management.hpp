@@ -119,6 +119,22 @@ struct MemoryManagement<5> {
 	}
 };
 
+template<>
+struct MemoryManagement<6> {
+	caml__roots_block* caml_cpp__frame;
+	MemoryManagement(value& a, value& b, value& c, value& d, value& e, value& f)
+	{
+		CAMLparam5( a, b, c, d, e);
+		CAMLxparam1( f );
+		caml_cpp__frame = caml__frame;
+	}
+
+	~MemoryManagement()
+	{
+		caml_local_roots = caml_cpp__frame;
+	}
+};
+
 #endif
 
 

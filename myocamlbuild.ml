@@ -88,11 +88,11 @@ let get_directory s =
 
 let static = true 
 let debug = true
-let system = "-lsfml-system"
-let window = "-lsfml-window"
-let graphics = "-lsfml-graphics"
-let audio = "-lsfml-audio"
-let network = "-lsfml-network"
+let system = "system"
+let window = "window"
+let graphics = "graphics"
+let audio = "audio"
+let network = "network"
 let includedir = "-I" ^ (get_symbol "includedir" )
 let libdir = "-L" ^ (get_symbol "libdir") 
 let libs = [
@@ -113,7 +113,7 @@ let _ = dispatch begin function
 	let link_libs_ocaml = List.fold_left 
 	  (fun l' x -> [A"-cclib" ; A (link_prefix^x)] @ l') [A"-ccopt"; A libdir] l in
 	let d = get_directory s in
-	  List.iter (fun x -> dep ["g++"] [x^"_stub.hpp"]) l ;
+	(*  List.iter (fun x -> dep ["g++"] [(get_directory x)^"/"^x^"_stub.hpp"]) l ; *)
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
 	  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs;  

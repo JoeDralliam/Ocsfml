@@ -22,7 +22,7 @@
 struct UnitTypeHolder {};
 
 template<>
-class ConversionManagement< UnitTypeHolder >
+struct ConversionManagement< UnitTypeHolder >
 {
 	UnitTypeHolder from_value(value const&)
 	{
