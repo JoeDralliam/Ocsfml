@@ -23,7 +23,7 @@
 #include <camlpp/custom_class.hpp>
 #include <cstring>
 
-#include <SFML/System/InputStream.hpp>
+#include <SFML/System.hpp>
 
 class CamlInputStream : public sf::InputStream
 {
@@ -83,7 +83,7 @@ public:
 };
 
 template<>
-class ConversionManagement< CamlInputStream >
+struct ConversionManagement< CamlInputStream >
 {
 	CamlInputStream from_value( value& v)
 	{
@@ -124,5 +124,45 @@ struct AffectationManagement< sf::Vector2<T> >
     CAMLreturn0;
   }
 };
+
+
+
+template<class T>
+struct ConversionManagement< sf::Vector3<T> >
+{
+  ConversionManagement< T > cm;
+  sf::Vector3<T> from_value( value const& v)
+  {
+    return sf::Vector3<T>( cm.from_value(Field(v, 0)), cm.from_value(Field(v, 1)), cm.from_value(Field(v,2)) );
+  }
+};
+
+template<class T>
+struct AffectationManagement< sf::Vector3<T> >
+{
+  static void affect( value& v, sf::Vector3<T> vec )
+  {
+    v = caml_alloc_tuple( 3 );
+    AffectationManagement< T >::affect_field(v, 0, vec.x );
+    AffectationManagement< T >::affect_field(v, 1, vec.y );
+    AffectationManagement< T >::affect_field(v, 2, vec.z );
+  }
+
+  static void affect_field( value& v, int field, sf::Vector3<T> vec )
+  {
+    CAMLparam0();
+    CAMLlocal1( vecVal );
+    affect( vecVal, vec );
+    Store_field(v, field, vecVal);
+    CAMLreturn0;
+  }
+};
+
+
+
+
+
+
+
 #endif
 

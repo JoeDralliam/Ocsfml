@@ -19,50 +19,50 @@
 
 #include "conversion_management.hpp"
 #include "affectation_management.hpp"
-
+#include <cstdint>
 extern "C"
 {
 	#include <caml/bigarray.h>
 }
 
-template< IntegerType >
+template< class IntegerType >
 struct BigarrayIntegerTraits;
 
 template<>
-struct BigarrayIntegerTraits< sf::Uint8 >
+struct BigarrayIntegerTraits< std::uint8_t >
 {
 	enum { mask_value = BIGARRAY_UINT8 };
-}
+};
 
 template<>
-struct BigarrayIntegerTraits< sf::Int8 >
+struct BigarrayIntegerTraits< std::int8_t >
 {
 	enum { mask_value = BIGARRAY_SINT8 };
-}
+};
 
 template<>
-struct BigarrayIntegerTraits< sf::Uint16 >
+struct BigarrayIntegerTraits< std::uint16_t >
 {
 	enum { mask_value = BIGARRAY_UINT16 };
-}
+};
 
 template<>
-struct BigarrayIntegerTraits< sf::Int16 >
+struct BigarrayIntegerTraits< std::int16_t >
 {
 	enum { mask_value = BIGARRAY_SINT16 };
-}
-
+};
+/*  
 template<>
-struct BigarrayIntegerTraits< sf::Uint32 >
+struct BigarrayIntegerTraits< std::uint32_t >
 {
 	enum { mask_value = BIGARRAY_UINT32 };
-}
+};*/
 
 template<>
-struct BigarrayIntegerTraits< sf::Int32 >
+struct BigarrayIntegerTraits< std::int32_t >
 {
-	enum { mask_value = BIGARRAY_SINT32 };
-}
+	enum { mask_value = BIGARRAY_INT32 };
+};
 
 template<class IntegerType, int dimension>
 struct BigarrayInterface
@@ -76,9 +76,18 @@ struct BigarrayInterface
 		}
 	}
 
+	BigarrayInterface( IntegerType* d, intnat s[dimension])
+	:data(d)
+	{
+		for(int i = 0; i < dimension; ++i)
+		{
+			size[i] = s[i];
+		}
+	}
+
 
 	IntegerType* data;
-	int size[dimension];
+	intnat size[dimension];
 };
 
 
@@ -89,17 +98,22 @@ struct ConversionManagement< BigarrayInterface<IType, dim> >
 	{
 		assert( Bigarray_val(v)->flags & BigarrayIntegerTraits< IType >::mask_value );
 		assert( Bigarray_val(v)->flags & BIGARRAY_C_LAYOUT);
-		return BigarrayInterface<IType, dim>( Bigarray_data_val(v), Bigarray_val(v)->dim );
+		return BigarrayInterface<IType, dim>( static_cast<IType*>(Data_bigarray_val(v)), Bigarray_val(v)->dim );
 	}
 };
 
 template<class IType, int dim>
 struct AffectationManagement< BigarrayInterface<IType, dim> >
 {
-	static void affect( value& v, Bigarray const& b)
+	static void affect( value& v, BigarrayInterface<IType, dim> const& b)
 	{
-		v = alloc_bigarray( 	BigarrayIntegerTraits< IType >::mask_value | BIGARRAY_C_LAYOUT,
-					b.data, b.size );
+		static intnat size[dim];
+		for(int i = 0; i < dim; ++i)
+		{
+			size[i] = b.size[i];
+		}
+		v = alloc_bigarray( 	BigarrayIntegerTraits<typename std::remove_const<IType>::type >::mask_value | BIGARRAY_C_LAYOUT,
+					dim, const_cast<void*>(static_cast<void const*>(b.data)), size);
 	}
 };
 
