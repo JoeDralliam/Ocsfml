@@ -1,0 +1,227 @@
+open Camlp4
+open Sig
+
+module Make(Syntax : Camlp4Syntax) =
+struct
+
+  include Syntax
+
+  let _loc = Loc.ghost
+
+  let lid_to_uid s = let s' = String.copy s in s'.[0] <- Char.uppercase s'.[0] ; s'
+
+  type cpp_clas_str_item = 
+      Inherit of string * (Ast.expr -> Ast.class_str_item) * string option
+    | Method of string * Ast.ctyp * string
+    | Constructor of string * Ast.ctyp * string
+    | ClassStrItem of Ast.class_str_item
+
+  type cpp_class_expr =
+    { 
+      expr : Ast.class_str_item -> Ast.class_expr; 
+      str_items : cpp_clas_str_item list ;
+      class_self_patt : Ast.patt * Ast.ctyp ;
+      is_auto : bool ;
+    }
+
+  let create_cpp_class_expr ?(auto=false) expr str_items csp =
+    {
+      expr = expr ;
+      str_items = str_items;
+      class_self_patt = 
+	(match csp with
+	   | Some (s, t0 ) -> 
+	       s, (match t0 with
+		     | Some t -> t
+		     | None -> <:ctyp< 'self >>)
+	   | None -> <:patt< self >>, <:ctyp< 'self >>) ;
+      is_auto = auto
+    }
+
+  type class_info = 
+      {
+	is_virtual : bool;
+	caml_class_name : string; 
+	module_name : string;
+	cpp_class_name : string;
+	params : Ast.ctyp
+      }
+
+	
+  let create_class_info is_virtual caml_class_name module_name cpp_class_name params =
+    {
+      is_virtual = (match is_virtual with Some _ -> true | None -> false);
+      caml_class_name = caml_class_name; 
+      module_name = (match module_name with Some s -> s | None -> lid_to_uid caml_class_name);
+      cpp_class_name = (match cpp_class_name with Some s -> s | None -> caml_class_name);
+      params = params
+    }
+
+  type class_decl =
+      {
+	class_decl : Ast.class_expr;
+	mod_decl : Ast.module_binding;
+	helper_decl : Ast.str_item;
+	is_rec : bool;
+      }
+
+  let create_class_declaration ?(is_rec=false) class_decl mod_decl helper_decl =
+      {
+	class_decl = class_decl; 
+	mod_decl = mod_decl;
+	helper_decl = helper_decl;
+	is_rec = is_rec;
+      }
+
+  let generate_class_and_module ci ce =
+    
+    let v = match ci.is_virtual with
+      | true -> <:virtual_flag< virtual >>
+      | false -> <:virtual_flag< >> 
+    in
+      
+    let t_name = <:ident< $lid:"t_" ^ ci.caml_class_name$ >> in
+      
+    let process_class_sig_item = function
+      | Method (label, type_meth, _) ->
+	  <:class_sig_item< method $lid:label$ : $type_meth$ >>
+      | Inherit (class_name,_,_) ->
+	  <:class_sig_item< inherit $lid:class_name$ >>
+      | _ -> <:class_sig_item< >>
+	  (*
+	    il manque les commandes caml classiques ; 
+	    mais comment transformer un class_str_item en class_sig_item ?
+	  *)
+    in
+      
+    let class_type_name = ci.caml_class_name ^ "_class_type" in
+      
+    let mk_class_type () =
+      let sig_items = Ast.cgSem_of_list (List.map process_class_sig_item ce.str_items) in
+	<:str_item<
+          class type $virtual:v$ $lid:class_type_name$ [ $list:ci.params$ ] =
+          object
+	    $sig_items$
+	  end >>
+    in
+
+    let app_params_to_func func params =
+      List.fold_left (fun e x -> <:expr< $e$ $x$ >>) func params
+
+    let process_class_str_item = function
+      | Method (label, type_meth, _) ->
+	  let fun_params, get_params =
+	    let n = ref 1 in
+	    let rec aux = function
+	      | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
+	      | <:ctyp< $t0$ -> $t1$ >> -> (aux t0) @ (aux t1)
+	      | <:ctyp< ~ $s$ : $t0$ -> $t1$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ] @ (aux t1)
+	      | <:ctyp< ? $s$ : $t0$ -> $t1$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ] @ (aux t1)
+	      | t -> let pn = "p"^(incr n; string_of_int !n) in
+		  [ <:patt< $lid:pn$ >>, <:expr< $lid:pn$ >> ]
+	    in List.split (aux type_meth) in
+	  let func = <:expr< $ci.module_name$.$label$ $t_name$ >> in
+	  let method_body = app_params_to_func func get_params in
+	    <:class_str_item< method $label$ : $type_meth$ =  fun $fun_params$ -> $method_body$ >>
+
+      | Inherit(parent_name,inherit_expr,_) -> 
+	  let inherit_body = <:expr< ( $ci.module_name$.$lid:"to_"^parent_name$ $lid:t_name^"'"$ ) >> in
+	    inherit_expr inherit_body
+
+      | ClassStrItem e -> e
+
+      | _ -> <:class_str_item< >>
+    in
+
+    let mk_class () =
+      let val_t = <:class_str_item< value $lid:t_name$ = $lid:t_name^"'"$ >> in
+      let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $lid:t_name$ >> in
+      let class_str_items = val_t::rep_method::(List.map process_class_str_item ce.str_items) in
+      let class_body = Ast.crSem_of_list class_str_items in
+	<:class_expr< 
+	  $virtual:v$ $lid:ci.caml_class_name$ [ $list:ci.params$ ] =
+          object
+	    $class_body$
+	  end >>
+    in
+
+    let rec adapt_to_module = function
+      | <:ctyp< ! $t0$ . $t1$  >> -> adapt_to_module t1
+      | <:ctyp< unit -> $t0$ -> $t1$ >> as tot -> tot
+      | <:ctyp< unit -> $t0$ >> -> <:ctyp< $lid:"t"$ -> $t0$ >>
+      | tot -> tot
+    in
+      
+    let rec erase_self_type = function
+      | <:ctyp< $t0$ $t1$ >> -> 
+	<:ctyp< $erase_self_type t0$ $erase_self_type t1$ >> 
+      | <:ctyp< $t0$ -> $t1$ >> ->
+	<:ctyp< $erase_self_type t0$ -> $erase_self_type t1$ >>
+      | t when t = snd ce.class_self_patt -> <:ctyp< #$class_type_name$ >>
+      | t -> t
+    in
+
+    let make_string_list cpp_name ft =
+      let base_nom = ci.cpp_class_name^"_"^cpp_name in
+      let open Ast in
+      let base_list = LCons (base_nom^"__impl", LNil) in
+	if (arg_count ft) > 5
+	then LCons (base_nom^"__byte", base_list)
+	else base_list
+    in
+
+    let process_mod_str_item = function
+      | Method (label, tf, cpp_name) ->
+	  let type_func = <:ctyp< $lid:t$ -> $erase_self_type (adapt_to_module tf)$>> in
+	  let string_list = make_string_list cpp_name type_func in 
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+      | Inherit(parent_name, _, p) ->
+	  let cpp_parent_class_name = match p with
+	    | Some s -> s 
+	    | None -> ci.caml_class_name in
+	  let upcast_func_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	  let upcast_func_list = Ast.( LCons (upcast_func_name, LNil)) in
+	  let type_func = <:ctyp< $lid:"t"$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	    <:str_item< external $"to"^parent_name$ : $type_func$ = $sl$ >>
+
+      | Constructor(label, tf, cpp_name) ->
+	  let rec enfouir = function
+	    | <:ctyp< $t0$ -> $t1$ >> -> enfouir t1
+	    | t' -> <:ctyp< $t'$ -> $lid:"t"$ >> in
+	    (** if there is only one function as argument you should before create un alias to its type *)
+	  let type_func = enfouir tf in
+	  let string_list = make_string_list cpp_name type_func in 
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+	  
+      | _ -> <:str_item< >>
+    in
+(** abandonner l'espoir de pouvoir faire des définitions récursives : il faudrait générer la signature du module *)
+    let mk_module () =
+      let type_t = <:str_item< type $lid:"t"$ >> in
+      let class_type = mk_class_type () in
+      let upcast_to_parent =  
+	let upcast_name = "to_"^parent_name in
+	let upcast_cpp_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	let upcast_type = <:ctyp< $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	let string_list = Ast.(LCons (upcast_name, LNil)) in
+	<:str_item< external $upcast_name$ : $upcast_type$ = $string_list$ >>
+      in
+      let mod_str_items = type_t :: class_type :: upcast_to_parent :: 
+	(List.map process_mod_str_item ce.str_items) in
+      let mod_body = Ast.stSem_of_list mod_str_items in
+<:module_binding< $uid:ci.module_name$ = struct $mod_body$ end >>
+    in
+
+    let mk_create_helper () =
+      let ext_name = "external_cpp_create_"^ci.cpp_class_name in
+      <:str_item< 
+	  let $lid:ext_name$ t = new $lid:class_name$ t in
+	  Callback.register $str:ext_name$ $lid:ext_name$
+	 >>
+    in
+
+      create_class_declaration 
+	(mk_class ())
+	(mk_module ())
+	(if ci.is_virtual then mk_create_helper () else <:str_item< >>)
+end
