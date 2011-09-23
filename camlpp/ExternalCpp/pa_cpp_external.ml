@@ -15,34 +15,6 @@ struct
 
   let lid_to_uid s = let s' = String.copy s in s'.[0] <- Char.uppercase s'.[0] ; s'
 
-  let rec arg_count ?(n=0) = function
-      Ast.TyArr (_,_,t) -> arg_count ~n:(n+1) t 
-    | Ast.TyPol (_,_,t) -> arg_count ~n t 
-    | _ -> n
- 
-  let rec process_arg ?(n=1) t0 =
-    let n' = string_of_int n in  
-    let repr_of_type = function
-      | Ast.TyOlb (_,s,t) -> (fun e -> <:expr< fun [ ?($lid:s$) -> $e$ ] >>), <:expr< ? $lid:s$ >>
-      | _ -> (fun e  -> <:expr< fun [ $lid:"p"^n'$ -> $e$ ] >>), <:expr<$lid:"p"^n'$>>
-    in match t0 with
-	Ast.TyArr (_,t',t) -> (repr_of_type t')::(process_arg ~n:(n+1) t)
-      | Ast.TyPol (_,_,t) -> process_arg ~n t
-      | t -> []
-
-  let create_params_expr e l = List.fold_left (fun e (_,p) -> <:expr< $e$ $p$>>) e l
-  let create_params_patt e l = List.fold_right (fun (p,_) e -> p e) l e
-
-
-  let rec enfouir t0 = function
-      Ast.TyArr (loc,t',t) -> Ast.TyArr (loc,t',enfouir t0 t)
-    | t -> <:ctyp< $t$ -> $t0$ >>
-(*
-  let rec range ?(acc=[]) a b = if a > b then acc else range ~acc:(b::acc) a (b-1)
-  let create_params_expr e i = List.fold_left (fun e i -> <:expr< $e$ $lid:"p"^ (string_of_int i)$>>) e (range 1 i)
-  let create_params_patt e i = List.fold_right (fun i e -> <:expr< fun $lid:"p"^ (string_of_int i)$ -> $e$ >>)  (range 1 i) e
-*)
-
   type cpp_clas_str_item = 
       Inherit of string * (Ast.expr -> Ast.class_str_item) * string option
     | Method of string * Ast.ctyp * string
@@ -95,7 +67,7 @@ struct
 	is_rec : bool;
       }
 
-  type create_class_declaration ?(is_rec=false) class_decl mod_decl helper_decl =
+  let create_class_declaration ?(is_rec=false) class_decl mod_decl helper_decl =
       {
 	class_decl = class_decl; 
 	mod_decl = mod_decl;
@@ -103,83 +75,18 @@ struct
 	is_rec = is_rec;
       }
 
-  let rec simplify_type = function
-    | (Ast.TyArr (_,<:ctyp<unit>>,t)) as t' -> if arg_count t = 0 then t else t'
-    | Ast.TyPol (loc,t0,t) -> Ast.TyPol (loc,t0,simplify_type t)
-    | t -> t
-
-  let rec adapt_to_module = function
-    | Ast.TyPol (_,_,t) -> adapt_to_module t
-    | t -> t
-
-  let mk_class_body class_name cpp_class_name module_name str_items =
-    let t_name = "t_"^class_name in
-    let t_name' = "t_"^class_name^"'" in
-    let aux = function
-      | Inherit(parent_name,s,_) -> s <:expr< ( $module_name$.$lid:"to_"^parent_name$ $lid:t_name'$ ) >> 
-      | Method(label, type_method, cpp_name) -> 
-	  let args = process_arg type_method in
-	  let t' = simplify_type type_method in
-	    if t' <> type_method 
-	    then <:class_str_item< method $label$ () = $module_name$.$lid:label$ $lid:t_name$ >>
-	    else let appel_func = <:expr< $module_name$.$lid:label$ $lid:t_name$ >> in
-	    let ajout_param = <:expr< $create_params_expr appel_func args$ >> in
-	      <:class_str_item< method $label$ : $type_method$ = $create_params_patt ajout_param args$>>
-      | Constructor _ -> <:class_str_item< >> 
-      | ClassStrItem e -> e
-    in
-      Ast.crSem_of_list (
-	<:class_str_item< value $lid:t_name$ = $lid:t_name'$ >> ::
-	  <:class_str_item< method $lid:"rep__"^cpp_class_name$ = $lid:t_name$ >> :: 
-	    (List.map aux str_items)) ;;
-
-  let mk_module_body class_name cpp_class_name str_items =  
-    let t_name = "t" in
-    let mk_sl cpp_name ft =
-      let base_nom = cpp_class_name^"_"^cpp_name in
-      let base_list = Ast.LCons (base_nom^"__impl", Ast.LNil) in
-	if (arg_count ft) > 4
-	then Ast.LCons (base_nom^"__byte", base_list)
-	else base_list
-    in
-    let aux = function
-      | Inherit(parent_name,_,p) -> 
-	  let cpp_parent_class_name = match p with
-	    | Some s -> s 
-	    | None -> class_name in
-	  let sl = Ast.LCons (("upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl"), Ast.LNil) in
-	    <:str_item< external $"to_"^parent_name$ : $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ = $sl$ >>
-      | Method(label, type_method, cpp_name) -> 
-	  let func_type_end = simplify_type (adapt_to_module type_method) in
-	  let string_list = mk_sl cpp_name func_type_end in
-	  <:str_item< external $label$ : $lid:t_name$ -> $func_type_end$ = $string_list$ >>
-      | Constructor(label, type_method, cpp_name) -> 
-	  let func_type = enfouir <:ctyp<$lid:t_name$>> type_method in
-	  let string_list = mk_sl cpp_name func_type in
-	  <:str_item< external $label$ : $func_type$ = $string_list$ >>
-      | ClassStrItem _ -> <:str_item< >>
-    in
-      Ast.stSem_of_list (<:str_item< type $lid:t_name$>>::(List.map aux str_items)) 
-
-  let mk_ext_create_func cpp_class_name class_name =
-    let ext_name = "external_cpp_create_"^cpp_class_name in
-      <:str_item< 
-	  let $lid:ext_name$ t = new $lid:class_name$ t in
-	  Callback.register $str:ext_name$ $lid:ext_name$
-	 >>
-
   let app_params_to_func func params =
     List.fold_left (fun e x -> <:expr< $e$ $x$ >>) func params
 	      
   let generate_class_and_module ci ce =
     
     let v = match ci.is_virtual with
-      | true -> <:virtual< virtual >>
-      | false -> <:virtual< >> 
+      | true -> <:virtual_flag< virtual >>
+      | false -> <:virtual_flag< >> 
     in
-
-    let t_name = <:ident< $lid:"t_" ^ ci.caml_class_name >> in
-    
+      
+    let t_name = <:ident< $lid:"t_" ^ ci.caml_class_name$ >> in
+      
     let process_class_sig_item = function
       | Method (label, type_meth, _) ->
 	  <:class_sig_item< method $lid:label$ : $type_meth$ >>
@@ -191,11 +98,13 @@ struct
 	    mais comment transformer un class_str_item en class_sig_item ?
 	  *)
     in
-
-    let mk_class_type =
+      
+    let class_type_name = ci.caml_class_name ^ "_class_type" in
+      
+    let mk_class_type () =
       let sig_items = Ast.cgSem_of_list (List.map process_class_sig_item ce.str_items) in
-	<:class_type<
-          class type $virtual:v$ $id:ci.caml_class_name$ [ $list:ci.params$ ] =
+	<:str_item<
+          class type $virtual:v$ $lid:class_type_name$ [ $list:ci.params$ ] =
           object
 	    $sig_items$
 	  end >>
@@ -208,67 +117,125 @@ struct
 	    let rec aux = function
 	      | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
 	      | <:ctyp< $t0$ -> $t1$ >> -> (aux t0) @ (aux t1)
-	      | <:ctyp< ~ $s$ : $t0$ -> $t1$ >> -> [<:patt< ~ $s$ >>, <:expr< ~ $s$ >>] @ (aux t1)
-	      | <:ctyp< ? $s$ : $t0$ -> $t1$ >> -> [<:patt< ? $s$ >>, <:expr< ? $s$ >>] @ (aux t1)
+	      | <:ctyp< ~ $s$ : $t0$ -> $t1$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ] @ (aux t1)
+	      | <:ctyp< ? $s$ : $t0$ -> $t1$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ] @ (aux t1)
 	      | t -> let pn = "p"^(incr n; string_of_int !n) in
-		  [<:patt< $lid:pn$ >> <:expr< $lid:pn$ >>]
-	    in aux type_meth in
-	    
-	  let func = <:expr< $ci.module_name$.$label$ $t_name$ >>
-	  <:class_str_item< method $lable$ : $type_meth$ =  >>
-      |
-      |
+		  [ <:patt< $lid:pn$ >>, <:expr< $lid:pn$ >> ]
+	    in List.split (aux type_meth) in
+	  let func = <:expr< $ci.module_name$.$label$ $t_name$ >> in
+	  let method_body = app_params_to_func func get_params in
+	    <:class_str_item< method $label$ : $type_meth$ =  fun $fun_params$ -> $method_body$ >>
+
+      | Inherit(parent_name,inherit_expr,_) -> 
+	  let inherit_body = <:expr< ( $ci.module_name$.$lid:"to_"^parent_name$ $lid:t_name^"'"$ ) >> in
+	    inherit_expr inherit_body
+
+      | ClassStrItem e -> e
+
       | _ -> <:class_str_item< >>
     in
 
-    let mk_class =
-
+    let mk_class () =
+      let val_t = <:class_str_item< value $lid:t_name$ = $lid:t_name^"'"$ >> in
+      let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $lid:t_name$ >> in
+      let class_str_items = val_t::rep_method::(List.map process_class_str_item ce.str_items) in
+      let class_body = Ast.crSem_of_list class_str_items in
+	<:class_expr< 
+	  $virtual:v$ $lid:ci.caml_class_name$ [ $list:ci.params$ ] =
+          object
+	    $class_body$
+	  end >>
     in
 
-    let process_mod_str_item =
+    let rec adapt_to_module = function
+      | <:ctyp< ! $t0$ . $t1$  >> -> adapt_to_module t1
+      | <:ctyp< unit -> $t0$ -> $t1$ >> as tot -> tot
+      | <:ctyp< unit -> $t0$ >> -> <:ctyp< $lid:"t"$ -> $t0$ >>
+      | tot -> tot
+    in
       
+    let rec erase_self_type = function
+      | <:ctyp< $t0$ $t1$ >> -> 
+	<:ctyp< $erase_self_type t0$ $erase_self_type t1$ >> 
+      | <:ctyp< $t0$ -> $t1$ >> ->
+	<:ctyp< $erase_self_type t0$ -> $erase_self_type t1$ >>
+      | t when t = snd ce.class_self_patt -> <:ctyp< #$class_type_name$ >>
+      | t -> t
     in
 
-    let mk_module =
-
+    let make_string_list cpp_name ft =
+      let base_nom = ci.cpp_class_name^"_"^cpp_name in
+      let open Ast in
+      let base_list = LCons (base_nom^"__impl", LNil) in
+	if (arg_count ft) > 5
+	then LCons (base_nom^"__byte", base_list)
+	else base_list
     in
 
-    let mk_create_helper =
+    let process_mod_str_item = function
+      | Method (label, tf, cpp_name) ->
+	  let type_func = <:ctyp< $lid:t$ -> $erase_self_type (adapt_to_module tf)$>> in
+	  let string_list = make_string_list cpp_name type_func in 
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+      | Inherit(parent_name, _, p) ->
+	  let cpp_parent_class_name = match p with
+	    | Some s -> s 
+	    | None -> ci.caml_class_name in
+	  let upcast_func_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	  let upcast_func_list = Ast.( LCons (upcast_func_name, LNil)) in
+	  let type_func = <:ctyp< $lid:"t"$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	    <:str_item< external $"to"^parent_name$ : $type_func$ = $sl$ >>
 
+      | Constructor(label, tf, cpp_name) ->
+	  let rec enfouir = function
+	    | <:ctyp< $t0$ -> $t1$ >> -> enfouir t1
+	    | t' -> <:ctyp< $t'$ -> $lid:"t"$ >> in
+	    (** if there is only one function as argument you should before create un alias to its type *)
+	  let type_func = enfouir tf in
+	  let string_list = make_string_list cpp_name type_func in 
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+	  
+      | _ -> <:str_item< >>
+    in
+(** abandonner l'espoir de pouvoir faire des définitions récursives : il faudrait générer la signature du module *)
+    let mk_module () =
+      let type_t = <:str_item< type $lid:"t"$ >> in
+      let class_type = mk_class_type () in
+      let upcast_to_parent =  
+	let upcast_name = "to_"^parent_name in
+	let upcast_cpp_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	let upcast_type = <:ctyp< $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	let string_list = Ast.(LCons (upcast_name, LNil)) in
+	<:str_item< external $upcast_name$ : $upcast_type$ = $string_list$ >>
+      in
+      let mod_str_items = type_t :: class_type :: upcast_to_parent :: 
+	(List.map process_mod_str_item ce.str_items) in
+      let mod_body = Ast.stSem_of_list mod_str_items in
+<:module_binding< $uid:ci.module_name$ = struct $mod_body$ end >>
     in
 
-    let (class_info, class_name, is_virtual) = ci in
-    let { cpp_class_name = cpp_class_name_opt ; 
-	  expr = expr; str_items = str_items ; 
-	  module_name_opt = module_name_opt } = ce in
-    let module_name = 
-      match module_name_opt with 
-	  Some s -> s 
-	| None -> lid_to_uid class_name 
-    in 
-    let cpp_class_name = 
-      match cpp_class_name_opt with 
-	  None -> class_name 
-	| Some s -> s 
+    let mk_create_helper () =
+      let ext_name = "external_cpp_create_"^ci.cpp_class_name in
+      <:str_item< 
+	  let $lid:ext_name$ t = new $lid:class_name$ t in
+	  Callback.register $str:ext_name$ $lid:ext_name$
+	 >>
     in
-    let t_name' = "t_"^class_name^"'" in 
-    let items = (Method("destroy", <:ctyp< unit -> unit >>, "destroy"))::str_items in
-    let class_body = expr (mk_class_body class_name cpp_class_name <:expr< $lid:module_name$>> items) in
-    let module_body = mk_module_body class_name cpp_class_name items in
-      <:class_expr< $class_info$ = fun $lid:t_name'$ -> $class_body$ >> , 
-	<:str_item< module $module_name$ = struct $module_body$ end >> ,
-	if is_virtual 
-	then <:str_item< >>
-	else mk_ext_create_func cpp_class_name class_name
 
-      let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s;; 
+      create_class_declaration 
+	(mk_class ())
+	(mk_module ())
+	(if ci.is_virtual then mk_create_helper () else <:str_item< >>)
 
-      let string_list = Gram.Entry.mk "string_list";;
+			
+  let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s;; 
+			
+  let string_list = Gram.Entry.mk "string_list";;
 
-   DELETE_RULE Gram str_item:"external";a_LIDENT;":";ctyp;"=";string_list END; 
+  DELETE_RULE Gram str_item:"external";a_LIDENT;":";ctyp;"=";string_list END; 
 
-   EXTEND Gram 
-   GLOBAL: str_item string_list;
+  EXTEND Gram 
+    GLOBAL: str_item string_list;
 
    string_list:
      [ [ `ANTIQUOT((""|"str_list"),s) -> Ast.LAnt (mk_anti "str_list" s)
@@ -279,8 +246,8 @@ struct
    [ 
      [ "external"; "class" ; cpp = cpp_class_declaration -> 
 	 if cpp.is_rec 
-	 then Ast.stSem_of_list [<:str_item<module rec $cpp.mod_decl$>> ; <:str_item< class $cpp.class_decl$ >> ; cpp.helper_decl ]
-	 else Ast.stSem_of_list [<:str_item<module $cpp.mod_decl$>> ; <:str_item< class $cpp.class_decl$ >> ; cpp.helper_decl ]
+	 then Ast.stSem_of_list [ <:str_item<module rec $cpp.mod_decl$>> ; <:str_item< class $cpp.class_decl$ >> ; cpp.helper_decl ]
+	 else Ast.stSem_of_list [ <:str_item<module $cpp.mod_decl$>> ; <:str_item< class $cpp.class_decl$ >> ; cpp.helper_decl ]
      | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> 
 	 <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >> 
      | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> 
@@ -290,12 +257,12 @@ struct
 
    cpp_class_declaration:
    [ LEFTA
-     [ (c1,m1,l1) = SELF; "and"; (c2,m2,l2) = SELF ->
+     [c1 = SELF; "and"; c2 = SELF ->
 	 create_class_declaration 
 	   ~is_rec:true 
-	   <:class_expr< $c1$ and $c2$ >> 
-           <:module_binding< $m1$ and $m2$ >>  
-	   (Ast.stSem_of_list [l1 ; l2 ])
+	   <:class_expr< $c1.class_decl$ and $c2.class_decl$ >> 
+           <:module_binding< $c1.mod_decl$ and $c2.mod_decl$ >>  
+	   (Ast.stSem_of_list [c1.helper_decl ; c2.helper_decl ])
      | ci = cpp_class_info_for_class_expr; "="; ce = cpp_class_expr ->
          generate_class_and_module ci ce
      ] 
