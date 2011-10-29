@@ -30,6 +30,7 @@ extern "C"
 #include <type_traits>
 #include <tuple>
 #include <vector>
+#include <list>
 
 template< class T, bool shoudReturnObject = true>
 class AffectationManagement;

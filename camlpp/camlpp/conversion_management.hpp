@@ -33,10 +33,12 @@ extern "C"
 #include <tuple>
 #include <memory>
 #include <list>
+#include <complex>
 
 #include "affectation_management.hpp"
 
 template<class T> class ConversionManagement;
+
 template<class T>
 struct ConversionManagement<T*>
 {
@@ -147,6 +149,7 @@ struct ConversionManagement<signed char>
 		return Int_val(v);
 	}
 };
+
 template<>
 struct ConversionManagement<unsigned char>
 {
@@ -470,10 +473,27 @@ struct ConversionManagement< T const& >: public ConversionManagement< T >
 {};
 
 template<class T>
-struct ConversionManagement< std::list< T > >
+class ConversionManagement< std::vector< T > >
 {
 	ConversionManagement< T > cm;
+public:
+	std::vector< T > from_value( value const& v)
+	{
+		std::vector< T > res;
+		res.reserve( Wosize_val( v ) );
+		for(int i = 0; i < res.capacity(); ++i)
+		{
+			res.push_back( cm.from_value( Field(v, i) ) );
+		}
+		return std::move( res );
+	}
+};
 
+template<class T>
+class ConversionManagement< std::list< T > >
+{
+	ConversionManagement< T > cm;
+public:
 	std::list< T > from_value( value const& v)
 	{
 		std::list< T > res;
@@ -482,6 +502,18 @@ struct ConversionManagement< std::list< T > >
 			res.push_back( cm.from_value( Field(iter, 0) ) );
 		}
 		return std::move( res ); 
+	}
+};
+
+template<class T>
+class ConversionManagement< std::complex< T > >
+{
+	ConversionManagement< std::pair< T, T > > cm;
+public:
+	std::complex< T > from_value( value const& v)
+	{
+		std::pair< T, T > p( cm.from_value( v ) );
+		return std::complex<T>( p.first, p.second );	
 	}
 };
 
