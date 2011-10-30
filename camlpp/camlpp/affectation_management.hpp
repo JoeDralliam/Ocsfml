@@ -344,8 +344,9 @@ struct AffectationManagement< std::list< T > >
 		CAMLlocal1( tmp );
 		tmp = caml_alloc_tuple( 2 );
 		Store_field( tmp, 1, Val_int(0) );
-		for( T const& val : lst)
+		for( auto it = lst.begin(); it != lst.end(); ++it)
 		{
+			T const& val = *it;
 			AffectationManagement< T >::affect_field(tmp, 0, val);
 			v = tmp;
 			tmp = caml_alloc_tuple( 2 );
