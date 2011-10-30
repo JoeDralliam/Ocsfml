@@ -12,7 +12,7 @@ let rec event_loop app =
 	event_loop app )
     | None -> ()
 
-
+(*
 let hello_world = 
   let t = new text in
     t#set_string "hello_world" ;
@@ -20,11 +20,11 @@ let hello_world =
     t#set_style [ Bold ] ;
     t#set_position 50.0 150.0 ;
     t
-
+*)
 let draw (app:#render_window) =
-  app#clear () ;  
-  app#draw hello_world ; 
-  app#display ()
+ (* app#clear () ;  
+  app#draw hello_world ; *)
+   app#display () ()
   
 
 let rec main_loop app =
@@ -39,9 +39,8 @@ let rec main_loop app =
 let graphics_test () =
   let vm = VideoMode.( { width=600; height=400; bits_per_pixel=32 } ) in
   let app = new render_window vm "OCSFML2" in
-    ignore(app#get_view ()) ;
     main_loop app ;
     app#destroy ()
 
 
-let _ = graphics_test (); hello_world#destroy ()
+let _ = graphics_test (); (* hello_world#destroy () *)

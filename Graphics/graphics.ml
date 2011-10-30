@@ -279,8 +279,8 @@ class view ?rect ?center ?size () =
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
 object
   external method clear : ?color:Color.t -> unit -> unit = "Clear"
-  external method draw : 'a . (#drawable as 'a) -> unit = "Draw"
-  external method draw_with_shader : 'a . shader -> (#drawable as 'a) -> unit = "DrawWithShader"
+  external method draw : +'a . (#drawable as 'a) -> unit = "Draw"
+  external method draw_with_shader : +'a . shader -> (#drawable as 'a) -> unit = "DrawWithShader"
   external method get_width : unit -> int = "GetWidth"
   external method get_height : unit -> int = "GetHeight"
   external method set_view : view -> unit = "SetView"
@@ -370,7 +370,7 @@ struct
 end 
 *)
 
-type text_style = Regular | Bold | Italic | Underline
+type text_style = Bold | Italic | Underline
 
 external class textCpp (Text) : "sf_Text" =
 object
