@@ -26,6 +26,10 @@ struct
       let compare = Pervasives.compare
     end)
 
+
+  let rec arg_count ?(acc=0) = function
+    | <:ctyp< $t0$ -> $t1$ >> -> arg_count ~acc:(acc+1) t1
+    | t -> acc
       
   (** Génère un class_decl à partir 
       d'un class_info et d'un class_expr 
@@ -192,11 +196,6 @@ struct
       | <:ctyp< unit -> $t0$ -> $t1$ >> as tot -> tot
       | <:ctyp< unit -> $t0$ >> -> <:ctyp< $t0$ >>
       | tot -> tot
-    in
-
-    let rec arg_count ?(acc=0) = function
-      | <:ctyp< $t0$ -> $t1$ >> -> arg_count ~acc:(acc+1) t1
-      | t -> acc
     in
 
     let make_string_list cpp_name ft =

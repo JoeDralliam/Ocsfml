@@ -358,17 +358,16 @@ end
 
 class shape = let t = Shape.default () in shapeCpp t
 
-(* TODO : faire se bouger jun pour qu'il implémente toutes ces fonctions
+
 module ShapeObjects =
-struct
-  external line : float -> float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = ""
-  external line_v : float * float -> float -> Color.t -> float -> Color.t -> shape = ""
-  external rectangle : float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = ""
-  external rectangle_r : float rect ->  Color.t -> float -> Color.t -> shape = ""
-  external circle : float -> float -> float -> Color.t -> float -> Color.t -> shape = ""
-  external circle_v : float * float -> float -> Color.t -> float -> Color.t -> shape = ""
+struct 
+  external cpp line : float -> float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_Line"
+  external cpp line_v : float * float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_LineV"
+  external cpp rectangle : float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_Rectangle"
+  external cpp rectangle_r : float rect ->  Color.t -> float -> Color.t -> shape = "sf_Shape_RectangleR"
+  external cpp circle : float -> float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_Circle"
+  external cpp circle_v : float * float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_CircleV"
 end 
-*)
 
 type text_style = Bold | Italic | Underline
 

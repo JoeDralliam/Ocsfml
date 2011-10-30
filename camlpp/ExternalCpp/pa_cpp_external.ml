@@ -30,9 +30,11 @@ struct
      [ "external"; "class" ; cpp = cpp_class_declaration -> 
 	 generate_all cpp
      | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> 
-	 <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >>  
+	 if arg_count t <= 5
+	 then <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >>  
+	 else <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__byte", Ast.LCons (s^"__impl", Ast.LNil))$ >>
      | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> 
-	 <:str_item<external $i$ : $t$ = $s$ >> 
+	 <:str_item<external $i$ : $t$ = $s$ >>  
      ]
    ];
 
