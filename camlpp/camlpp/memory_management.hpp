@@ -135,6 +135,56 @@ struct MemoryManagement<6> {
 	}
 };
 
+template<>
+struct MemoryManagement<7> {
+	caml__roots_block* caml_cpp__frame;
+	MemoryManagement(value& a, value& b, value& c, value& d, value& e, 
+			 value& f, value& g)
+	{
+		CAMLparam5( a, b, c, d, e);
+		CAMLxparam2( f, g );
+		caml_cpp__frame = caml__frame;
+	}
+
+	~MemoryManagement()
+	{
+		caml_local_roots = caml_cpp__frame;
+	}
+};
+
+template<>
+struct MemoryManagement<8> {
+	caml__roots_block* caml_cpp__frame;
+	MemoryManagement(value& a, value& b, value& c, value& d, value& e, 
+			 value& f, value& g, value& h)
+	{
+		CAMLparam5( a, b, c, d, e);
+		CAMLxparam3( f, g, h );
+		caml_cpp__frame = caml__frame;
+	}
+
+	~MemoryManagement()
+	{
+		caml_local_roots = caml_cpp__frame;
+	}
+};
+
+template<>
+struct MemoryManagement<9> {
+	caml__roots_block* caml_cpp__frame;
+	MemoryManagement(value& a, value& b, value& c, value& d, value& e, 
+			 value& f, value& g, value& h, value& i)
+	{
+		CAMLparam5( a, b, c, d, e);
+		CAMLxparam4( f, g, h, i );
+		caml_cpp__frame = caml__frame;
+	}
+
+	~MemoryManagement()
+	{
+		caml_local_roots = caml_cpp__frame;
+	}
+};
 #endif
 
 

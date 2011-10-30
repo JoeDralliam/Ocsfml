@@ -261,6 +261,115 @@ camlpp__custom_class_registered()
 
 //TODO: implement Shape static func : Line(), Circle(), Rectangle(), ....
 
+sf::Shape* shape_line_helper(float  p1x, float p1y, float p2x, float p2y, 
+			     float thickness, const sf::Color& color, 
+			     Optional<float> outline, Optional<sf::Color> outlineColor)
+{
+	return new sf::Shape
+			( 
+				sf::Shape::Line
+				(
+			    		p1x, p1y, p2x, p2y,
+			    		thickness, color,
+			    		outline.isSome() ? outline.get_value() : 0.f,
+			    		outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+				)
+			);
+}
+
+sf::Shape* shape_lineV_helper(sf::Vector2f const& start, sf::Vector2f const& end, 
+			      float thickness, const sf::Color& color, 
+			      Optional<float> outline, Optional<sf::Color> outlineColor)
+{
+	return new sf::Shape
+			( 
+				sf::Shape::Line
+				(
+					start, end,
+					thickness, color,
+					outline.isSome() ? outline.get_value() : 0.f,
+					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+				)
+			);
+}
+
+
+sf::Shape* shape_rectangle_helper(float left, float top, float width, float height, 
+				  const sf::Color& color, 
+				  Optional<float> outline, Optional<sf::Color> outlineColor)
+{
+	return new sf::Shape
+			(
+				sf::Shape::Rectangle
+				(
+					left, top, width, height,
+					color,
+					outline.isSome() ? outline.get_value() : 0.f,
+					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+				)
+			);
+}
+
+
+sf::Shape* shape_rectangleR_helper( sf::FloatRect const& rectangle, 
+				    const sf::Color& color, 
+				    Optional<float> outline, Optional<sf::Color> outlineColor)
+{
+	return new sf::Shape
+			(
+				sf::Shape::Rectangle
+				(
+					rectangle,
+			 		color,
+					outline.isSome() ? outline.get_value() : 0.f,
+					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+				)
+			);
+}
+
+
+sf::Shape* shape_circle_helper( float x, float y, 
+				float radius, const sf::Color& color, 
+				Optional<float> outline, Optional<sf::Color> outlineColor)
+{
+	return new sf::Shape
+			(
+				sf::Shape::Circle
+				(
+					x, y,
+					radius, color,
+					outline.isSome() ? outline.get_value() : 0.f,
+					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+				)
+			);
+}
+
+sf::Shape* shape_circleV_helper( sf::Vector2f center, 
+				 float radius, const sf::Color& color, 
+				 Optional<float> outline, Optional<sf::Color> outlineColor)
+{
+	return new sf::Shape
+			(
+				sf::Shape::Circle
+				(
+					center,
+					radius, color,
+					outline.isSome() ? outline.get_value() : 0.f,
+					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+				)
+			);
+}
+
+
+extern "C"
+{
+	camlpp__register_overloaded_free_function8( sf_Shape_Line, shape_line_helper )
+	camlpp__register_overloaded_free_function6( sf_Shape_LineV, shape_lineV_helper )
+	camlpp__register_overloaded_free_function7( sf_Shape_Rectangle, shape_rectangle_helper )
+	camlpp__register_overloaded_free_function4( sf_Shape_RectangleR, shape_rectangleR_helper )
+	camlpp__register_overloaded_free_function6( sf_Shape_Circle, shape_circle_helper )
+	camlpp__register_overloaded_free_function5( sf_Shape_CircleV, shape_circleV_helper )
+}
 
 bool texture_load_from_file_helper( sf::Texture* text, Optional<sf::IntRect> area, std::string filename )
 {
