@@ -422,7 +422,17 @@ struct copy_instance_helper< T, true >
 	{ \
 		return sub; \
 	} \
-	camlpp__register_free_function1( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ) )
+	CAMLprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
+	{ \
+		MemoryManagement< 1 > mm( param1 ); \
+		ResManagement< superclass_name *, false> rm; \
+		ConversionManagement< CAMLPP__CLASS_NAME() * > cm1;\
+		return rm.call \
+		( \
+			BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), \
+			cm1.from_value( param1 ) \
+		); \
+	}
 
 
 #define camlpp__preregister_custom_class( class_name ) \

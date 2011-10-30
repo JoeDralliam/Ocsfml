@@ -525,7 +525,7 @@ std::list<unsigned long> text_get_style_helper( sf::Text* txt )
 {
 	unsigned long style = txt->GetStyle();
 	std::list<unsigned long> res;
-	for(int i = 0; i < 3; ++i)
+	for(int i = 0; i < 2; ++i)
 	{
 		if(style & (1 << i))
 		{
