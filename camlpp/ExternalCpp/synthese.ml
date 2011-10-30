@@ -4,10 +4,12 @@ open Sig
 module Make(Syntax : Camlp4Syntax) =
 struct
 
-  include Syntax
   include CppExternalAst.Make(Syntax)
 
   let _loc = Loc.ghost
+
+  exception DebugSigItemConversion of Ast.str_item
+
 
   (** Fabrique le nom canonique du class 
       type associé à un class info
@@ -37,8 +39,10 @@ struct
       | false -> <:virtual_flag< >> 
     in
       
-    let t_name = <:ident< $lid:"t_" ^ ci.caml_class_name$ >> in
-
+    let t_name_str = "t_" ^ ci.caml_class_name in
+    let t_name_str' = "t_" ^ ci.caml_class_name ^ "'" in
+    let t_name = <:ident< $lid:t_name_str$ >> in
+    let t_name' = <:ident< $lid:t_name_str'$ >> in
 
 
 
@@ -59,9 +63,11 @@ struct
     let mk_class_type () =
       let sig_items = Ast.cgSem_of_list (List.map process_class_sig_item ce.str_items) in
 	<:str_item<
-          class type $virtual:v$ $lid:class_type_name$ [ $list:ci.params$ ] =
+          class type $virtual:v$ $lid:class_type_name$ [ $ci.params$ ] =
           object
-	    $sig_items$
+            value $lid:t_name_str$ : $uid:ci.module_name$.$lid:"t"$ ;
+	    method $lid:"rep__"^ci.cpp_class_name$ : $uid:ci.module_name$.$lid:"t"$ ;
+	    $sig_items$ ;
 	  end >>
     in
 
@@ -78,22 +84,24 @@ struct
     let process_class_str_item = function
       | Method (label, type_meth, _) ->
 	  let fun_params, get_params =
-	    let n = ref 1 in
+	    let n = ref 0 in
 	    let rec aux = function
 	      | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
-	      | <:ctyp< $t0$ -> $t1$ >> -> (aux t0) @ (aux t1)
-	      | <:ctyp< ~ $s$ : $t0$ -> $t1$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ] @ (aux t1)
-	      | <:ctyp< ? $s$ : $t0$ -> $t1$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ] @ (aux t1)
+	      | <:ctyp< $t0$ -> $t1$ >> ->  (aux t1) @ (aux t0)
+	      | <:ctyp< ~ $s$ : $t0$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ]
+	      | <:ctyp< ? $s$ : $t0$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ]
 	      | t -> let pn = "p"^(incr n; string_of_int !n) in
 		  [ <:patt< $lid:pn$ >>, <:expr< $lid:pn$ >> ]
-	    in List.split (aux type_meth) 
+	    in List.(split (rev (tl (aux type_meth)))) 
 	  in
-	  let func = <:expr< $ci.module_name$.$label$ $t_name$ >> in
+	  let func = <:expr< $uid:ci.module_name$.$lid:label$ $id:t_name$ >> in
        	  let method_body = app_params_to_func func get_params in
-       	    <:class_str_item< method $label$ : $type_meth$ =  fun $fun_params$ -> $method_body$ >>
+	  let expr = List.fold_right (fun x mb -> <:expr< fun $x$ -> $mb$ >>) 
+	    fun_params method_body in 
+       	    <:class_str_item< method $label$ : $type_meth$ =  $expr$ >>
            
       | Inherit(parent_name,inherit_expr,_) -> 
-	  let inherit_body = <:expr< ( $ci.module_name$.$lid:"to_"^parent_name$ $lid:t_name^"'"$ ) >> in
+	  let inherit_body = <:expr< ( $uid:ci.module_name$.$lid:"to_"^parent_name$ $id:t_name'$ ) >> in
 	    inherit_expr inherit_body
 
       | ClassStrItem e -> e
@@ -103,32 +111,43 @@ struct
     in
 
     let mk_class () =
-      let val_t = <:class_str_item< value $lid:t_name$ = $lid:t_name^"'"$ >> in
-      let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $lid:t_name$ >> in
-      let class_str_items = val_t::rep_method::(List.map process_class_str_item ce.str_items) in
+
+      let val_t = <:class_str_item< value $lid:t_name_str$ : $uid:ci.module_name$.$lid:"t"$ = $id:t_name'$ >> in
+      let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $id:t_name$ >> in
+      let class_str_items = val_t::rep_method::(List.map process_class_str_item ce.str_items) in 
       let class_body = Ast.crSem_of_list class_str_items in
+      let patt = <:patt< $lid:t_name_str'$ >> in
 	<:class_expr< 
-	  $virtual:v$ $lid:ci.caml_class_name$ [ $list:ci.params$ ] =
+	  $virtual:v$ $lid:ci.caml_class_name$ [ $ci.params$ ] =
+	  fun $patt$ ->
           object
 	    $class_body$
-	  end >>
+	  end  >>
     in
 
 
 
-
+      
     (** Création du module type *)
 
     let rec sig_item_of_str_item = function 
+      | <:str_item< >> -> <:sig_item< >>
+      | <:str_item< class type $class_type_decl$ >> -> <:sig_item< class type $typ:class_type_decl$ >>
+      | <:str_item< $stmt1$ ; $stmt2$ >> ->  
+	  <:sig_item< $sig_item_of_str_item stmt1$ ; $sig_item_of_str_item stmt2$ >>
+      | <:str_item< # $s$ >> -> <:sig_item< # $s$ >>
+      | <:str_item< # $s$ $e$ >> -> <:sig_item< # $s$ $e$ >>
+      | <:str_item< exception $t$ >> -> <:sig_item< exception $t$ >>
+      | <:str_item< exception $t$ = $i$ >> -> <:sig_item< exception $t$ >>
       | <:str_item< external $id$ : $type_ext$ = $string_list$ >> -> 
 		      <:sig_item< external $lid:id$ : $typ:type_ext$ = $str_list:string_list$ >>
-      | <:str_item< type $type_def$>> -> <:sig_item< type $typ:type_def$>>
-      | <:str_item< class type $class_type_decl$ >> -> <:sig_item< class type $typ:class_type_decl$ >>
-      | <:str_item< $stmt1$ ; $stmt2$ >> -> 
-	  <:sig_item< $sig_item_of_str_item stmt1$ ; $sig_item_of_str_item stmt2$ >> 
-      | _ -> failwith "conversion str_item -> sig_item non gérée"
+      | <:str_item< module rec $mb$ >> -> <:sig_item< module rec $mb$ >>
+      | <:str_item< module type $s$ = $mt$ >> -> <:sig_item< module type $s$ = $mt$ >>
+      | <:str_item< open $i$ >> -> <:sig_item< open $i$ >>
+      | <:str_item< type $type_def$>> -> <:sig_item< type $typ:type_def$>> 
+      | s -> raise (DebugSigItemConversion s)
 
-
+    in
 
     (** Création du module *)
 
@@ -137,6 +156,11 @@ struct
       | <:ctyp< unit -> $t0$ -> $t1$ >> as tot -> tot
       | <:ctyp< unit -> $t0$ >> -> <:ctyp< $t0$ >>
       | tot -> tot
+    in
+
+    let rec arg_count ?(acc=0) = function
+      | <:ctyp< $t0$ -> $t1$ >> -> arg_count ~acc:(acc+1) t1
+      | t -> acc
     in
 
     let make_string_list cpp_name ft =
@@ -150,15 +174,15 @@ struct
 
     let process_mod_str_item = function
       | Method (label, tf, cpp_name) ->
-	  let type_func = <:ctyp< $lid:t$ -> $adapt_to_module tf$>> in
+	  let type_func = <:ctyp< $lid:"t"$ -> $adapt_to_module tf$>> in
 	  let string_list = make_string_list cpp_name type_func in 
-	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >> 
 
       | Inherit(parent_name, _, cpp_parent_class_name) ->
-	  let upcast_func_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	  let upcast_func_name = "upcast__"^cpp_parent_class_name^"_of_"^ ci.cpp_class_name ^"__impl" in
 	  let upcast_func_list = Ast.( LCons (upcast_func_name, LNil)) in
 	  let type_func = <:ctyp< $lid:"t"$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
-	    <:str_item< external $"to"^parent_name$ : $type_func$ = $sl$ >>
+	    <:str_item< external $"to_"^parent_name$ : $type_func$ = $upcast_func_list$ >>
 
       | Constructor(label, tf, cpp_name) ->
 	  let rec enfouir = function
@@ -175,24 +199,18 @@ struct
     let mk_module () =
       let type_t = <:str_item< type $lid:"t"$ >> in
       let class_type = if ce.is_auto then mk_class_type () else <:str_item< >> in
-      let upcast_to_parent =  
-	let upcast_name = "to_"^parent_name in
-	let upcast_cpp_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
-	let upcast_type = <:ctyp< $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
-	let string_list = Ast.(LCons (upcast_name, LNil)) in
-	<:str_item< external $upcast_name$ : $upcast_type$ = $string_list$ >>
-      in
-      let mod_str_items = type_t :: class_type :: upcast_to_parent :: 
+      let mod_str_items = type_t :: class_type :: 
 	(List.map process_mod_str_item ce.str_items) in
       let mod_body = Ast.stSem_of_list mod_str_items in
-      let mod_type_body = sig_item_to_str_item mod_body in
-	<:module_binding< $uid:ci.module_name$ : sig $mod_type_body$ end = struct $mod_body$ end >>
+      let mod_type_body = sig_item_of_str_item mod_body in
+	<:module_expr< struct $mod_body$ end >>, 
+        <:module_type< sig $mod_type_body$ end >>
     in
 
     let mk_create_helper () =
       let ext_name = "external_cpp_create_"^ci.cpp_class_name in
       <:str_item< 
-	  let $lid:ext_name$ t = new $lid:class_name$ t in
+	  let $lid:ext_name$ t = new $lid:ci.caml_class_name$ t in
 	  Callback.register $str:ext_name$ $lid:ext_name$
 	 >>
     in
@@ -204,26 +222,28 @@ struct
     in
       
     let type_matching = function
-      | e when TypeMap.mem e -> TypeMap.find e
+      | e when TypeMap.mem e map -> TypeMap.find e map
       | e -> e
     in
       
     let map_types = Ast.map_ctyp type_matching in
       
     let class_decl = map_types#class_expr (mk_class ()) in
-    let mod_decl = map_types#module_binding (mk_module ()) in
+    let mod_expr, mod_type = mk_module () in
+    let mod_expr = map_types#module_expr mod_expr in
+    let mod_type = map_types#module_type mod_type in
     let helper_decl = 
       if ci.is_virtual 
       then <:str_item< >> 
       else map_types#str_item (mk_create_helper ())
     in
 
-      mk_class_declaration ~class_decl ~mod_decl ~helper_decl
+      mk_class_declaration ~class_decl ~mod_expr ~helper_decl ~mod_type ~mod_name:ci.module_name
 
 
   let extract_type_info acc (ci,ce) =
     let class_type_name = mk_class_type_name ci in
-      TypeMap.add <:ctyp< $lid:caml_class_name$ >> 
+      TypeMap.add <:ctyp< $lid:ci.caml_class_name$ >> 
       <:ctyp< $uid:ci.module_name$.$lid:class_type_name$ >> acc
 
 
@@ -238,13 +258,12 @@ struct
   let generate_all = function 
     | [] -> failwith "empty class"
     | [x] -> 
-	let declaration = generate_class TypeMap.empty x in
+	let declaration = generate_class_and_module TypeMap.empty x in
 	  Ast.stSem_of_list
-	  [ <:str_item< module $module_binding:declaration.mod_decl$ >> ;
-	    <:str_item< class $class_expr:declaration.class_decl$ >> ;
+	  [ <:str_item< module $declaration.mod_name$ = $declaration.mod_expr$ >> ;
+	    <:str_item< class $declaration.class_decl$ >> ;
 	    declaration.helper_decl ]
     | l -> 
-	let is_rec = true in
 	let is_not_auto (ci,ce) = not ce.is_auto in
 	  if List.filter is_not_auto l <> []
 	  then 
@@ -254,15 +273,16 @@ struct
 	    in
 	    failwith error_msg
 	  else
-	    let types_map = List.fold_left extract_type_info TypeMap.empty  el in
-	    let declaration_list = List.map (generate_class types_map) l in
+	    let types_map = List.fold_left extract_type_info TypeMap.empty l in
+	    let declaration_list = List.map (generate_class_and_module types_map) l in
 	    let head,tail = List.( hd declaration_list, tl declaration_list ) in
 	    let module_binding = 
-	      let bind mod_bind d = <:module_binding< $mod_bind$ and $d.mod_decl$ >> in
-	      List.fold_left bind head tail in
+	      let mk_module d = <:module_binding< $d.mod_name$ : $d.mod_type$ = $d.mod_expr$ >> in
+	      let bind mod_bind d = <:module_binding< $mod_bind$ and $mk_module d$ >> in
+		List.fold_left bind (mk_module head) tail in
 	    let class_binding =
 	      let bind class_bind d = <:class_expr< $class_bind$ and $d.class_decl$ >> in
-		List.fold_left bind head tail in
+		List.fold_left bind head.class_decl tail in
 	    let helpers_decl = Ast.stSem_of_list 
 	      (List.map (fun x -> x.helper_decl) declaration_list) in
 	      Ast.stSem_of_list

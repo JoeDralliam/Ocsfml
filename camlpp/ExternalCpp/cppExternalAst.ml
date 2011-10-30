@@ -6,6 +6,7 @@ struct
 
   include Syntax
 
+  let _loc = Loc.ghost
 
   (** transforme un identifiant commençant par une minuscule 
       en identifiant commençant par une majuscule
@@ -36,7 +37,7 @@ struct
      }
   *)
   type cpp_clas_str_item = 
-      Inherit of string * (Ast.expr -> Ast.class_str_item) * string option 
+      Inherit of string * (Ast.expr -> Ast.class_str_item) * string 
     | Method of string * Ast.ctyp * string
     | Constructor of string * Ast.ctyp * string
     | ClassStrItem of Ast.class_str_item
@@ -66,7 +67,7 @@ struct
   (** fabrique un cpp_class_str_item correspondant 
       à un class_str_item et un class_sig_item classique *)
   let mk_full_class_str_item ~class_str_item ~class_sig_item =
-    ClassStrItem (class_str_item, class_sig_item)
+    FullClassStrItem (class_str_item, class_sig_item)
 
 
 
@@ -98,11 +99,11 @@ struct
 	    let t =
 	      match t0 with
 		| Some t -> t
-()		| None -> <:ctyp< 'self >>
+		| None -> <:ctyp< 'self >>
 	    in s, t
     in
       {
-~	expr = expr ;
+	expr = expr ;
 	str_items = str_items;
 	class_self_patt = class_self_patt;
 	is_auto = auto
@@ -155,17 +156,21 @@ struct
   type class_decl =
       {
 	class_decl : Ast.class_expr;
-	mod_decl : Ast.module_binding;
+	mod_name : string ;
+	mod_expr : Ast.module_expr;
+	mod_type : Ast.module_type;
 	helper_decl : Ast.str_item;
       }
 
 
   (** fabrique une class_decl *)
-  let mk_class_declaration ~class_decl ~mod_decl ~helper_decl =
+  let mk_class_declaration ~class_decl ~mod_name ~mod_expr ~mod_type ~helper_decl =
       {
 	class_decl = class_decl; 
-	mod_decl = mod_decl;
+	mod_expr = mod_expr;
 	helper_decl = helper_decl;
+	mod_name = mod_name ;
+	mod_type = mod_type
       }
 
 

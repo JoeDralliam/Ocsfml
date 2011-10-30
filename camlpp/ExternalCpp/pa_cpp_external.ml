@@ -15,22 +15,22 @@ struct
 			
   let string_list = Gram.Entry.mk "string_list";;
 
-  DELETE_RULE Gram str_item:"external";a_LIDENT;":";ctyp;"=";string_list END; 
+  (* DELETE_RULE Gram str_item: "external"; a_LIDENT; ":"; ctyp; "="; string_list END;  *)
 
-  EXTEND Gram 
-    GLOBAL: str_item string_list;
+  EXTEND Gram   
+    GLOBAL:  str_item string_list;
 
-   string_list:
-     [ [ `ANTIQUOT((""|"str_list"),s) -> Ast.LAnt (mk_anti "str_list" s)
+   string_list: 
+     [ [ `ANTIQUOT((""|"str_list"),s) -> Ast.LAnt (mk_anti "str_list" s) 
         | `STRING (_,x); xs = string_list -> Ast.LCons (x, xs)
         | `STRING (_,x) -> Ast.LCons (x, Ast.LNil) ] ];
 
-   str_item: LEVEL "top" 
+   str_item: 
    [ 
      [ "external"; "class" ; cpp = cpp_class_declaration -> 
 	 generate_all cpp
      | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> 
-	 <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >> 
+	 <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >>  
      | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> 
 	 <:str_item<external $i$ : $t$ = $s$ >> 
      ]
@@ -59,7 +59,7 @@ struct
 	    {ce with expr = (fun x -> <:class_expr< $ce.expr x$ $e$ >>)} 
      ]
    | "simple"
-     [  ce = class_longident_and_param -> create_cpp_class_expr (fun x -> ce) [] None 
+     [  ce = class_longident_and_param -> mk_cpp_class_expr ~expr:(fun x -> ce) ~str_items:[] ~csp:None () 
 
      | "object"; 
 	csp = OPT [ "(" ; 
@@ -75,7 +75,7 @@ struct
 	str_items = full_cpp_class_structure ; "end" -> 
 	  mk_cpp_class_expr  
 	    ~expr:(fun x -> <:class_expr< object (*$csp$*) $x$ end >>) 
-	    ~auto:true ~str_items ~csp ()
+	    ~auto:true ~str_items ~csp:(Some (s,Some t)) ()
 
      | "("; ce = SELF; ":"; ct = class_type; ")" -> 
 	    {ce with expr = (fun x -> <:class_expr< ($ce.expr x$ : $ct$) >>) } 
@@ -105,7 +105,7 @@ struct
      [ "external" ; "inherit"; (caml_name,ce) = cpp_class_longident_and_param ; 
        cpp_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
 	 mk_inherit ~caml_name ~cpp_name 
-	   ~expr:(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>)
+	   ~inherit_expr:(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>)
 
      | "external" ; "method" ; caml_name = label; ":"; 
        caml_type = poly_type ; "=" ; cpp_name = a_STRING -> 
@@ -133,7 +133,7 @@ struct
      [ "external" ; "inherit"; (caml_name,ce) = cpp_class_longident_and_param ; 
        cpp_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
 	 mk_inherit ~caml_name ~cpp_name 
-	   ~expr:(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>)
+	   ~inherit_expr:(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>)
 
      | "external" ; "method" ; caml_name = label; ":"; 
        caml_type = poly_type ; "=" ; cpp_name = a_STRING -> 
@@ -151,9 +151,11 @@ struct
    (*tous les items doivent avoir un type explicite -  ce n'est pas encore le cas *)
    full_class_str_item:
       [ LEFTA
-        [ "inherit"; o = opt_override; ce = class_longident_and_param; pb = opt_as_lident ->
-            <:class_str_item< inherit $override:o$ $ce$ as $pb$ >>,
-	    <:class_sig_item< inherit $cs$ >>
+        [ "inherit"; o = opt_override; 
+	  (ce,t) = class_and_class_type_longident_and_param ; 
+	  pb = opt_as_lident ->
+            <:class_str_item< inherit $override:o$ $id:ce$ [$t$] as $pb$ >>,
+<:class_sig_item< inherit $id:ce$ (* [$t$] as $pb$ *) >>
 
         | o = value_val_opt_override; mf = opt_mutable; 
 	  lab = label; ":" ; t = poly_type ; 
@@ -166,7 +168,7 @@ struct
               raise (Stream.Error "override (!) is incompatible with virtual")
             else
               <:class_str_item< value virtual $mutable:mf$ $l$ : $t$ >>,
-	    <:class_sig_item< value $mutable:mf$ virtual $lab$ : $t$ >>
+	    <:class_sig_item< value $mutable:mf$ virtual $l$ : $t$ >>
 
         | o = value_val_opt_override; "virtual"; mf = opt_mutable; l = label; ":"; t = poly_type ->
             if o <> <:override_flag<>> then
@@ -203,7 +205,24 @@ struct
 	] ]
     ;
 
-   END 
+   method_opt_override:
+      [ [ "method"; "!" -> <:override_flag< ! >>
+        | "method" -> <:override_flag<>>
+      ] ]
+    ;
+
+   value_val_opt_override:
+      [ [ value_val; "!" -> <:override_flag< ! >>
+        | value_val -> <:override_flag<>>
+      ] ]
+    ;
+
+   class_and_class_type_longident_and_param:
+      [ [ ci = class_longident; "["; t = comma_ctyp; "]" -> ci, t
+        | ci = class_longident -> ci, <:ctyp< >>
+      ] ];
+
+   END  
 end 
   
 module M = Register.OCamlSyntaxExtension(Id)(Make)
