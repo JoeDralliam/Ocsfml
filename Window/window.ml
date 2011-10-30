@@ -105,7 +105,7 @@ struct
     | Count
 end
 
-external is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed"
+external cpp is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed"
 
 module Joystick =
 struct
@@ -123,12 +123,12 @@ struct
     | PovX  (* The X axis of the point-of-view hat *)
     | PovY  (* The Y axis of the point-of-view hat *)
 	
-  external is_connected : int -> bool = "Joystick_IsConnected"
-  external get_button_count : int -> int = "Joystick_GetButtonCount"
-  external has_axis : int -> axis -> bool = "Joystick_HasAxis"
-  external is_button_pressed : int -> int -> bool = "Joystick_IsButtonPressed"
-  external get_axis_position : int -> axis -> float = "Joystick_GetAxisPosition"
-  external update : unit -> unit = "Joystick_Update"
+  external cpp is_connected : int -> bool = "Joystick_IsConnected"
+  external cpp get_button_count : int -> int = "Joystick_GetButtonCount"
+  external cpp has_axis : int -> axis -> bool = "Joystick_HasAxis"
+  external cpp is_button_pressed : int -> int -> bool = "Joystick_IsButtonPressed"
+  external cpp get_axis_position : int -> axis -> float = "Joystick_GetAxisPosition"
+  external cpp update : unit -> unit = "Joystick_Update"
 end 
 
 external class contextCpp (Context) : "sf_Context" = 
@@ -231,8 +231,8 @@ struct
       }
   let create ?(w=800) ?(h=600) ?(bpp=32) () =
     { width = w ; height = h ; bits_per_pixel = bpp }
-  external get_full_screen_modes : unit -> t array = "VideoMode_GetFullscreenModes"
-  external get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode"
+  external cpp get_full_screen_modes : unit -> t array = "VideoMode_GetFullscreenModes"
+  external cpp get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode"
 end
 
 type context_settings =
@@ -282,9 +282,9 @@ module Mouse =
 struct
   type button = Event.mouseButton
 
-  external is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
-  external get_position : unit -> int*int = "Mouse_GetPosition"
-  external get_relative_position : window -> int*int = "Mouse_GetRelativePosition"
-  external set_position : int * int -> unit = "Mouse_SetPosition"
-  external set_relative_position : int*int -> window -> unit = "Mouse_SetRelativePosition"
+  external cpp is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
+  external cpp get_position : unit -> int*int = "Mouse_GetPosition"
+  external cpp get_relative_position : window -> int*int = "Mouse_GetRelativePosition"
+  external cpp set_position : int * int -> unit = "Mouse_SetPosition"
+  external cpp set_relative_position : int*int -> window -> unit = "Mouse_SetRelativePosition"
 end

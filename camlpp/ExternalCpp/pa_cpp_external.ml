@@ -71,7 +71,7 @@ struct
 	      ~expr:(fun x -> <:class_expr< object (*$csp$*) $x$ end >>) 
 	      ~str_items ~csp  ()
 
-     | "object" ; "auto" ; "(" ; s = patt ; t = ctyp ; ")" ; 
+     | "object" ; "auto" ; "(" ; s = patt ; ":" ; t = ctyp ; ")" ; 
 	str_items = full_cpp_class_structure ; "end" -> 
 	  mk_cpp_class_expr  
 	    ~expr:(fun x -> <:class_expr< object (*$csp$*) $x$ end >>) 
@@ -103,8 +103,9 @@ struct
    cpp_class_str_item:
    [ LEFTA
      [ "external" ; "inherit"; (caml_name,ce) = cpp_class_longident_and_param ; 
+       caml_module_name = OPT [ "(" ; s = a_UIDENT ; ")" -> s ] ;
        cpp_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
-	 mk_inherit ~caml_name ~cpp_name 
+	 mk_inherit ~caml_name ~cpp_name ~caml_module_name
 	   ~inherit_expr:(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>)
 
      | "external" ; "method" ; caml_name = label; ":"; 
@@ -131,8 +132,9 @@ struct
    full_cpp_class_str_item:
    [ LEFTA
      [ "external" ; "inherit"; (caml_name,ce) = cpp_class_longident_and_param ; 
+       caml_module_name = OPT [ "(" ; s = a_UIDENT ; ")" -> s ] ;
        cpp_name = OPT [ ":" ; s = a_STRING -> s] ; pb = opt_as_lident -> 
-	 mk_inherit ~caml_name ~cpp_name 
+	 mk_inherit ~caml_name ~cpp_name ~caml_module_name
 	   ~inherit_expr:(fun x -> <:class_str_item< inherit $ce$ begin $x$ end as $pb$ >>)
 
      | "external" ; "method" ; caml_name = label; ":"; 

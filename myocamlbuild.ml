@@ -138,8 +138,8 @@ let _ = dispatch begin function
 	add_gcc_rules () ;
 	flag [ "g++" ; "include_boost"] & A("-I"^(get_symbol "boostincludedir")) ;
 	flag [ "g++" ; "include_caml"] & A("-I"^(get_symbol "camlincludedir")) ;
-	dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["camlpp/ExternalCpp/pa_cpp_external.cmo"] ;
-	flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"camlpp/ExternalCpp/pa_cpp_external.cmo"] ;
+	dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["camlpp/ExternalCpp/pa_cpp_external.cma"] ;
+	flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"camlpp/ExternalCpp/pa_cpp_external.cma"] ;
 	List.iter create_libs_flags libs ;
 	(* If `static' is true then every ocaml link in bytecode will add -custom *)
 	if static then flag ["link"; "ocaml"; "byte"] (A"-custom");

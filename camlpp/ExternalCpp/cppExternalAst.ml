@@ -23,7 +23,8 @@ struct
      { - d'un héritage : 
          nom de la classe dont il hérite (caml),
          fonction fabriquant l'expression d'héritage dans le code final,
-         nom (optionnel) de la classe dont il hérite (cpp)
+         nom (optionnel) de la classe dont il hérite (cpp),
+         nom (optionnel) du module de la classe dont il hérite
      }
      { - d'une méthode externe : 
          nom de la méthode en caml, 
@@ -36,8 +37,8 @@ struct
      { - d'un élément classique (définition caml d'un élément d'une classe) }
      }
   *)
-  type cpp_clas_str_item = 
-      Inherit of string * (Ast.expr -> Ast.class_str_item) * string 
+  type cpp_class_str_item = 
+      Inherit of string * (Ast.expr -> Ast.class_str_item) * string * string
     | Method of string * Ast.ctyp * string
     | Constructor of string * Ast.ctyp * string
     | ClassStrItem of Ast.class_str_item
@@ -45,12 +46,16 @@ struct
 
 
   (** fabrique un cpp_class_str_item correspondant à un héritage *)
-  let mk_inherit ~caml_name ~inherit_expr ~cpp_name =
+  let mk_inherit ~caml_name ~inherit_expr ~cpp_name ~caml_module_name =
     let cpp_parent_class_name = 
       match cpp_name with
 	| None -> caml_name
 	| Some name -> name in
-      Inherit (caml_name, inherit_expr, cpp_parent_class_name)
+    let parent_caml_module_name = 
+      match caml_module_name with
+	| None -> lid_to_uid caml_name
+	| Some name -> name in
+      Inherit (caml_name, inherit_expr, cpp_parent_class_name, parent_caml_module_name)
 
   (** fabrique un cpp_class_str_item correspondant à une méthode *)
   let mk_method ~caml_name ~caml_type ~cpp_name =
@@ -84,7 +89,7 @@ struct
   type cpp_class_expr = 
     { 
       expr : Ast.class_str_item -> Ast.class_expr; 
-      str_items : cpp_clas_str_item list ;
+      str_items : cpp_class_str_item list ;
       class_self_patt : Ast.patt * Ast.ctyp ;
       is_auto : bool ;
     }

@@ -43,6 +43,35 @@ struct
     let t_name_str' = "t_" ^ ci.caml_class_name ^ "'" in
     let t_name = <:ident< $lid:t_name_str$ >> in
     let t_name' = <:ident< $lid:t_name_str'$ >> in
+    let class_type_name = mk_class_type_name ci in
+
+
+    let map = 
+      TypeMap.add (snd ce.class_self_patt) 
+      <:ctyp< $lid:class_type_name$ >> map 
+    in
+      
+    let type_matching = function
+      | e when TypeMap.mem e map -> TypeMap.find e map
+      | e -> e
+    in
+      
+    let map_types = Ast.map_ctyp type_matching in
+	  
+    let mk_auto_cpp_class_str_item map = function
+      | Method(s1,typ,s2) -> Method(s1, map#ctyp typ, s2)
+      | Constructor(s1,typ,s2) -> Constructor(s1, map#ctyp typ, s2)
+      | t -> t
+    in
+
+    let mk_auto_cpp_class_expr map cpp_ce = 
+      { cpp_ce with 
+	  str_items = List.map (mk_auto_cpp_class_str_item map) cpp_ce.str_items ;
+	  class_self_patt = (fst cpp_ce.class_self_patt, map#ctyp (snd cpp_ce.class_self_patt))
+      }
+    in
+
+    let auto_ce = mk_auto_cpp_class_expr map_types ce in
 
 
 
@@ -51,22 +80,21 @@ struct
     let process_class_sig_item = function
       | Method (label, type_meth, _) ->
 	  <:class_sig_item< method $lid:label$ : $type_meth$ >>
-      | Inherit (class_name,_,_) ->
+      | Inherit (class_name,_,_,_) ->
 	  <:class_sig_item< inherit $lid:class_name$ >>
       | FullClassStrItem(_,class_sig_item) -> class_sig_item
       | Constructor _ -> <:class_sig_item< >>
       | ClassStrItem _ -> failwith "la classe n'a pas du être déclarée en auto"
     in
       
-    let class_type_name = mk_class_type_name ci in
-      
     let mk_class_type () =
       let sig_items = Ast.cgSem_of_list (List.map process_class_sig_item ce.str_items) in
 	<:str_item<
           class type $virtual:v$ $lid:class_type_name$ [ $ci.params$ ] =
-          object
-            value $lid:t_name_str$ : $uid:ci.module_name$.$lid:"t"$ ;
-	    method $lid:"rep__"^ci.cpp_class_name$ : $uid:ci.module_name$.$lid:"t"$ ;
+          object ( $snd ce.class_self_patt$ )
+            value $lid:t_name_str$ : t ;
+	    method $lid:"rep__"^ci.cpp_class_name$ : t ;
+	    method destroy : unit -> unit ;
 	    $sig_items$ ;
 	  end >>
     in
@@ -84,15 +112,19 @@ struct
     let process_class_str_item = function
       | Method (label, type_meth, _) ->
 	  let fun_params, get_params =
-	    let n = ref 0 in
-	    let rec aux = function
-	      | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
-	      | <:ctyp< $t0$ -> $t1$ >> ->  (aux t1) @ (aux t0)
-	      | <:ctyp< ~ $s$ : $t0$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ]
-	      | <:ctyp< ? $s$ : $t0$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ]
-	      | t -> let pn = "p"^(incr n; string_of_int !n) in
-		  [ <:patt< $lid:pn$ >>, <:expr< $lid:pn$ >> ]
-	    in List.(split (rev (tl (aux type_meth)))) 
+	    match type_meth with
+	      | <:ctyp< unit -> $t$ >> -> [ <:patt< $lid:"p1"$>> ],[]
+	      | <:ctyp< ! $t0$ . unit -> $t$ >> -> [ <:patt< $lid:"p1"$>> ],[]
+	      | type_meth ->
+		  let n = ref 0 in
+		  let rec aux = function
+		    | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
+		    | <:ctyp< $t0$ -> $t1$ >> ->  (aux t1) @ (aux t0)
+		    | <:ctyp< ~ $s$ : $t0$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ]
+		    | <:ctyp< ? $s$ : $t0$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ]
+		    | t -> let pn = "p"^(incr n; string_of_int !n) in
+			[ <:patt< $lid:pn$ >>, <:expr< $lid:pn$ >> ]
+		  in List.(split (rev (tl (aux type_meth)))) 
 	  in
 	  let func = <:expr< $uid:ci.module_name$.$lid:label$ $id:t_name$ >> in
        	  let method_body = app_params_to_func func get_params in
@@ -100,7 +132,7 @@ struct
 	    fun_params method_body in 
        	    <:class_str_item< method $label$ : $type_meth$ =  $expr$ >>
            
-      | Inherit(parent_name,inherit_expr,_) -> 
+      | Inherit(parent_name,inherit_expr,_,_) -> 
 	  let inherit_body = <:expr< ( $uid:ci.module_name$.$lid:"to_"^parent_name$ $id:t_name'$ ) >> in
 	    inherit_expr inherit_body
 
@@ -114,13 +146,17 @@ struct
 
       let val_t = <:class_str_item< value $lid:t_name_str$ : $uid:ci.module_name$.$lid:"t"$ = $id:t_name'$ >> in
       let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $id:t_name$ >> in
-      let class_str_items = val_t::rep_method::(List.map process_class_str_item ce.str_items) in 
-      let class_body = Ast.crSem_of_list class_str_items in
+      let destroy_method = <:class_str_item< method destroy () =  $uid:ci.module_name$.destroy $id:t_name$ >> in
+      let class_str_items = val_t::rep_method::destroy_method::
+	(List.map process_class_str_item auto_ce.str_items) in 
+      let class_body = Ast.crSem_of_list class_str_items in 
       let patt = <:patt< $lid:t_name_str'$ >> in
+      let self_patt = <:patt< ($fst ce.class_self_patt$ : $snd ce.class_self_patt$) >>
+      in
 	<:class_expr< 
 	  $virtual:v$ $lid:ci.caml_class_name$ [ $ci.params$ ] =
 	  fun $patt$ ->
-          object
+          object ( $self_patt$ )
 	    $class_body$
 	  end  >>
     in
@@ -178,15 +214,15 @@ struct
 	  let string_list = make_string_list cpp_name type_func in 
 	    <:str_item< external $label$ : $type_func$ = $string_list$ >> 
 
-      | Inherit(parent_name, _, cpp_parent_class_name) ->
+      | Inherit(parent_name, _, cpp_parent_class_name, parent_module_name) ->
 	  let upcast_func_name = "upcast__"^cpp_parent_class_name^"_of_"^ ci.cpp_class_name ^"__impl" in
 	  let upcast_func_list = Ast.( LCons (upcast_func_name, LNil)) in
-	  let type_func = <:ctyp< $lid:"t"$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	  let type_func = <:ctyp< t -> $uid:parent_module_name$.t >> in
 	    <:str_item< external $"to_"^parent_name$ : $type_func$ = $upcast_func_list$ >>
 
       | Constructor(label, tf, cpp_name) ->
 	  let rec enfouir = function
-	    | <:ctyp< $t0$ -> $t1$ >> -> enfouir t1
+	    | <:ctyp< $t0$ -> $t1$ >> -> <:ctyp< $t0$ -> $enfouir t1$ >>
 	    | t' -> <:ctyp< $t'$ -> $lid:"t"$ >> in
 	    (** if there is only one function as argument you should before create an alias to its type *)
 	  let type_func = enfouir tf in
@@ -198,9 +234,11 @@ struct
 
     let mk_module () =
       let type_t = <:str_item< type $lid:"t"$ >> in
-      let class_type = if ce.is_auto then mk_class_type () else <:str_item< >> in
-      let mod_str_items = type_t :: class_type :: 
-	(List.map process_mod_str_item ce.str_items) in
+      let class_type = if auto_ce.is_auto then mk_class_type () else <:str_item< >> in
+      let destroy_fct = <:str_item< external destroy : $lid:"t"$ -> unit = 
+	$make_string_list "destroy" <:ctyp< t -> unit >> $ >> in
+      let mod_str_items = type_t :: class_type :: destroy_fct ::
+	(List.map process_mod_str_item auto_ce.str_items) in 
       let mod_body = Ast.stSem_of_list mod_str_items in
       let mod_type_body = sig_item_of_str_item mod_body in
 	<:module_expr< struct $mod_body$ end >>, 
@@ -214,32 +252,15 @@ struct
 	  Callback.register $str:ext_name$ $lid:ext_name$
 	 >>
     in
-
-      
-    let map = 
-      TypeMap.add (snd ce.class_self_patt) 
-      <:ctyp< $lid:class_type_name$ >> map 
-    in
-      
-    let type_matching = function
-      | e when TypeMap.mem e map -> TypeMap.find e map
-      | e -> e
-    in
-      
-    let map_types = Ast.map_ctyp type_matching in
-      
-    let class_decl = map_types#class_expr (mk_class ()) in
+    let class_decl = mk_class () in
     let mod_expr, mod_type = mk_module () in
-    let mod_expr = map_types#module_expr mod_expr in
-    let mod_type = map_types#module_type mod_type in
     let helper_decl = 
       if ci.is_virtual 
       then <:str_item< >> 
-      else map_types#str_item (mk_create_helper ())
-    in
-
+      else mk_create_helper ()
+    in	  
       mk_class_declaration ~class_decl ~mod_expr ~helper_decl ~mod_type ~mod_name:ci.module_name
-
+	
 
   let extract_type_info acc (ci,ce) =
     let class_type_name = mk_class_type_name ci in

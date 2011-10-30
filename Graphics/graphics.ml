@@ -1,3 +1,5 @@
+open Window
+
 type 'a rect =
     {
       left : 'a ;
@@ -59,8 +61,8 @@ struct
 
   let rgb r g b = { r = r ; g = g ; b = b ; a = 255 }
   let rgba r g b a = { r = r ; g = g ; b = b ; a = a }
-  external add : t -> t -> t = "color_add"
-  external modulate : t -> t -> t = "color_multiply"
+  external cpp add : t -> t -> t = "color_add"
+  external cpp modulate : t -> t -> t = "color_multiply"
   (*let ( +# ) c1 c2 = add c1 c2
   let ( *# ) c1 c2 = modulate c1 c2*)
 end
@@ -102,7 +104,7 @@ end
 
 
 external class imageCpp (Image) : "sf_Image" =
-object (moiMemeMaitreDuMonde)
+object auto (self:'a)
   constructor default : unit = "default_constructor"
   external method create_from_color : ?color:Color.t -> int -> int -> unit = "CreateFromColor"
   (* external method create_from_pixels : int -> int -> string (* should it be a bigarray ? *) -> unit = "CreateFromPixels" *)
@@ -113,28 +115,26 @@ object (moiMemeMaitreDuMonde)
   external method get_height : unit -> int = "GetWidth"
   external method get_width : unit -> int = "GetHeight"
   external method create_mask_from_color : ?alpha:int -> Color.t = "CreateMaskFromColor"
-  external method copy__impl :  ?srcRect:int rect -> ?alpha:bool -> t -> int -> int -> unit = "Copy"
+  external method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit = "Copy" (* à mettre private *)
   external method set_pixel : int -> int -> Color.t -> unit = "SetPixel"
-  external method get_pixel : int -> int -> Color.t = "GetPixel"
+  external method get_pixel : int -> int -> Color.t = "GetPixel" 
 (* external method get_pixels : unit -> string (* bigarray !!! *) = "GetPixelPtr" *)
   external method flip_horizontally : unit -> unit = "FlipHorizontally"
   external method flip_vertically : unit -> unit = "FlipVertically"
-  method copy ?srcRect ?alpha src x y = 
-    moiMemeMaitreDuMonde#copy__impl ?srcRect ?alpha (src#rep__sf_Image ()) x y
 end
 
 class image = let t = Image.default () in imageCpp t
 
-external get_maximum_size : unit -> int = "Texture_GetMaximumSize"
+external cpp get_maximum_size : unit -> int = "Texture_GetMaximumSize"
 
 external class textureCpp (Texture) : "sf_texture" =
 object
   constructor default : unit = "default_constructor"
   external method create : int -> int -> unit = "Create"
-  external method load_from_file : ?rect: int rect -> string -> unit = "LoadFromFile" 
-(*external method load_from_memory : ?rect: int rect -> string -> unit = "LoadFromMemory" *)
-  external method load_from_stream : ?rect: int rect -> System.input_stream -> unit = "LoadFromStream"
-  external method load_from_image : ?rect: int rect -> image -> unit = "LoadFromImage"
+  external method load_from_file : ?rect: int rect -> string -> bool = "LoadFromFile" 
+(*external method load_from_memory : ?rect: int rect -> string -> bool = "LoadFromMemory" *)
+  external method load_from_stream : ?rect: int rect -> System.input_stream -> bool = "LoadFromStream"
+  external method load_from_image : ?rect: int rect -> image -> bool = "LoadFromImage"
   external method get_width : unit -> int = "GetWidth"
   external method get_height : unit -> int = "GetHeight"
   external method copy_to_image : unit -> image = "CopyToImage"
@@ -155,9 +155,9 @@ let create_texture init =
     if (match init with
       | `File f -> t#load_from_file f
       | `Stream s -> t#load_from_stream s
-      | `Memory m -> t#load_from_memory m
+     (*  | `Memory m -> t#load_from_memory m *)
       | `Image img -> t#load_from_image img)
-    then t
+    then t 
     else failwith "unable to create the texture from this source" 
 
 type glyph =
@@ -180,7 +180,7 @@ object (_:'b)
   external method get_texture : int -> texture = "GetTexture"
 end
 
-class font = fontCpp (Font.default ())
+class font = let t = Font.default () in fontCpp t
 
 let create_font init = 
   let f = new font in
@@ -198,7 +198,7 @@ object (self)
   external method load_from_file : string -> bool = "LoadFromFile"
 (* external method load_from_memory : string -> bool = "LoadFromMemory" *)
   external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = "LoadFromStream"
-  method set_parameter t name ?x ?y ?z w =
+  method set_parameter name ?x ?y ?z w =
     let count = ref 0 in
     let vars = Array.make 4 0.0 in
     let process v = match v with
@@ -223,7 +223,7 @@ object (self)
   external method unbind : unit -> unit = "Unbind"
 end
 
-external is_available : unit -> unit = "Shader_IsAvailable"
+external cpp is_available : unit -> unit = "Shader_IsAvailable"
 
 class shader = 
   let t = Shader.default () in 
@@ -286,7 +286,7 @@ end
 
 external class render_imageCpp (RenderImage) : "sf_RenderImage" =
 object
-  external inherit render_target : "sf_RenderTarget"
+  external inherit render_target (RenderTarget) : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
   external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
@@ -296,11 +296,11 @@ object
   external method get_image : unit -> image = "GetImage"
 end
 
-class render_image = render_imageCpp (RenderImage.default ())
+class render_image = let t = RenderImage.default () in render_imageCpp t
 
 external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
-  external inherit render_target : "sf_RenderTarget"
+  external inherit render_target (RenderTarget) : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
   external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
@@ -310,20 +310,20 @@ object
   external method get_texture : unit -> texture = "GetTexture"
 end
 
-class render_texture = render_textureCpp (RenderTexture.default ())
-
-open Window
+class render_texture = let t = RenderTexture.default () in render_textureCpp t
 
 external class render_windowCpp (RenderWindow) : "sf_RenderWindow" =
 object
-  external inherit render_target : "sf_RenderTarget"
-  external inherit windowCpp : "sf_Window"
+  external inherit render_target (RenderTarget) : "sf_RenderTarget"
+  external inherit windowCpp (Window) : "sf_Window"
   constructor default : unit = "default_constructor"
   constructor create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
   external method capture : unit -> image = "Capture"
 end
 
-class render_window ?style ?context vm name = render_windowCpp (RenderWindow.create ?style ?context vm name)
+class render_window ?style ?context vm name = 
+  let t = RenderWindow.create ?style ?context vm name in 
+    render_windowCpp t
 
 external class shapeCpp (Shape) : "sf_Shape" =
 object
@@ -359,6 +359,8 @@ struct
 end 
 *)
 
+type text_style = Regular | Bold | Italic | Underline
+
 external class textCpp (Text) : "sf_Text" =
 object
   external inherit drawable : "sf_Drawable"
@@ -367,11 +369,11 @@ object
   external method set_string : string -> unit = "SetString"
   external method set_font : font -> unit = "SetFont"
   external method set_character_size : int -> unit = "SetCharacterSize"
-  external method set_style : style list -> unit = "SetStyle"
+  external method set_style : text_style list -> unit = "SetStyle"
   external method get_string : unit -> string = "GetString"
   external method get_font : unit -> font = "GetFont"
   external method get_character_size : unit -> int = "GetCharacterSize"
-  external method get_style : unit -> style list = "GetStyle" 
+  external method get_style : unit -> text_style list = "GetStyle" 
   external method get_character_pos : int -> float * float = "GetCharacterPos"
   external method get_rect : unit -> float rect = "GetRect"
 end

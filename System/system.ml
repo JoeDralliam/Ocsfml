@@ -7,7 +7,7 @@ end
 
 class clock = let ck = Clock.create () in clockCpp ck
 
-external sleep : int -> unit = "sf_Sleep"
+external cpp sleep : int -> unit = "sf_Sleep"
 
 type func0 = unit -> unit
 
