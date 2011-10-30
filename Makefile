@@ -46,6 +46,9 @@ test_clock:
 test_window:
 	ocamlbuild -use-ocamlfind Test/test_window.native
 
+test_graphics:
+	ocamlbuild -use-ocamlfind Test/test_graphics.native
+
 doc:
 	ocamlbuild -use-ocamlfind sfml.docdir/index.html
 

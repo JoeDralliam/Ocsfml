@@ -63,6 +63,14 @@ struct
   let rgba r g b a = { r = r ; g = g ; b = b ; a = a }
   external cpp add : t -> t -> t = "color_add"
   external cpp modulate : t -> t -> t = "color_multiply"
+  let white = rgb 255 255 255
+  let black = rgb 0 0 0
+  let red = rgb 255 0 0
+  let green = rgb 0 255 0
+  let blue = rgb 0 0 255
+  let yellow = rgb 255 255 0
+  let magenta = rgb 255 0 255
+  let cyan = rgb 0 255 255
   (*let ( +# ) c1 c2 = add c1 c2
   let ( *# ) c1 c2 = modulate c1 c2*)
 end
@@ -127,7 +135,7 @@ class image = let t = Image.default () in imageCpp t
 
 external cpp get_maximum_size : unit -> int = "Texture_GetMaximumSize"
 
-external class textureCpp (Texture) : "sf_texture" =
+external class textureCpp (Texture) : "sf_Texture" =
 object
   constructor default : unit = "default_constructor"
   external method create : int -> int -> unit = "Create"
@@ -142,7 +150,7 @@ object
   external method update_from_image : ?coords:int*int -> image -> unit = "UpdateFromImage"
   external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = "UpdateFromWindow"
   external method bind : unit -> unit = "Bind"
-  external method unbind : unit -> unit = "Unbind"
+ (* external method unbind : unit -> unit = "Unbind" Removed *)
   external method set_smooth : bool -> unit = "SetSmooth"
   external method is_smooth : bool -> unit = "IsSmooth"
   external method get_tex_coords : int rect -> float rect = "GetTexCoords"
@@ -172,7 +180,7 @@ object (_:'b)
   constructor default : unit = "default_constructor"
   (*  constructor copy : 'b ---> pas possible ya un prob sur le type *)
   external method load_from_file : string -> bool = "LoadFromFile"
-  external method load_from_memory : string -> bool = "LoadFromMemory"
+  (*external method load_from_memory : string -> bool = "LoadFromMemory" *)
   external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = "LoadFromStream"
   external method get_glyph : int -> int -> bool -> glyph = "GetGlyph"
   external method get_kerning : int -> int -> int -> int = "GetKerning"
@@ -186,7 +194,7 @@ let create_font init =
   let f = new font in
   if (match init with
 	| `File s -> f#load_from_file s
-	| `Memory m -> f#load_from_memory m
+(*	| `Memory m -> f#load_from_memory m *)
 	| `Stream s -> f#load_from_stream s)
   then f
   else failwith "unable to initialise font from this source"
@@ -284,6 +292,8 @@ object
   external method restore_gl_states : unit -> unit = "RestoreGLStates" 
 end 
 
+
+(** DEPRECATED. Do not use.  
 external class render_imageCpp (RenderImage) : "sf_RenderImage" =
 object
   external inherit render_target (RenderTarget) : "sf_RenderTarget"
@@ -295,9 +305,10 @@ object
   external method display : unit -> unit = "Display"
   external method get_image : unit -> image = "GetImage"
 end
+ 
 
 class render_image = let t = RenderImage.default () in render_imageCpp t
-
+*)
 external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
   external inherit render_target (RenderTarget) : "sf_RenderTarget"
@@ -314,8 +325,8 @@ class render_texture = let t = RenderTexture.default () in render_textureCpp t
 
 external class render_windowCpp (RenderWindow) : "sf_RenderWindow" =
 object
-  external inherit render_target (RenderTarget) : "sf_RenderTarget"
   external inherit windowCpp (Window) : "sf_Window"
+  external inherit render_target (RenderTarget) : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
   constructor create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
   external method capture : unit -> image = "Capture"
