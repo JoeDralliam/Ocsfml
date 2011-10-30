@@ -1,0 +1,272 @@
+open Camlp4
+open Sig
+
+module Make(Syntax : Camlp4Syntax) =
+struct
+
+  include Syntax
+  include CppExternalAst.Make(Syntax)
+
+  let _loc = Loc.ghost
+
+  (** Fabrique le nom canonique du class 
+      type associé à un class info
+      @param ci class_info
+      @return nom du class type (string)
+  *)
+  let mk_class_type_name ci =
+    ci.caml_class_name ^ "_class_type" 
+
+
+  module TypeMap = Map.Make(
+    struct
+      type t = Ast.ctyp
+      let compare = Pervasives.compare
+    end)
+
+      
+  (** Génère un class_decl à partir 
+      d'un class_info et d'un class_expr 
+      @param class_info_and_expr class_info * class_expr
+      @return le class_decl généré
+  *)
+  let generate_class_and_module map (ci, ce) =
+    
+    let v = match ci.is_virtual with
+      | true -> <:virtual_flag< virtual >>
+      | false -> <:virtual_flag< >> 
+    in
+      
+    let t_name = <:ident< $lid:"t_" ^ ci.caml_class_name$ >> in
+
+
+
+
+    (** Création du class type *)
+
+    let process_class_sig_item = function
+      | Method (label, type_meth, _) ->
+	  <:class_sig_item< method $lid:label$ : $type_meth$ >>
+      | Inherit (class_name,_,_) ->
+	  <:class_sig_item< inherit $lid:class_name$ >>
+      | FullClassStrItem(_,class_sig_item) -> class_sig_item
+      | Constructor _ -> <:class_sig_item< >>
+      | ClassStrItem _ -> failwith "la classe n'a pas du être déclarée en auto"
+    in
+      
+    let class_type_name = mk_class_type_name ci in
+      
+    let mk_class_type () =
+      let sig_items = Ast.cgSem_of_list (List.map process_class_sig_item ce.str_items) in
+	<:str_item<
+          class type $virtual:v$ $lid:class_type_name$ [ $list:ci.params$ ] =
+          object
+	    $sig_items$
+	  end >>
+    in
+
+
+
+
+
+    (** Création de la class *)
+
+    let app_params_to_func func params = 
+      List.fold_left (fun e x -> <:expr< $e$ $x$ >>) func params
+    in
+	
+    let process_class_str_item = function
+      | Method (label, type_meth, _) ->
+	  let fun_params, get_params =
+	    let n = ref 1 in
+	    let rec aux = function
+	      | <:ctyp< ! $t0$ . $t1$ >> -> aux t1 
+	      | <:ctyp< $t0$ -> $t1$ >> -> (aux t0) @ (aux t1)
+	      | <:ctyp< ~ $s$ : $t0$ -> $t1$ >> -> [ <:patt< ~ $s$ >>, <:expr< ~ $s$ >> ] @ (aux t1)
+	      | <:ctyp< ? $s$ : $t0$ -> $t1$ >> -> [ <:patt< ? $s$ >>, <:expr< ? $s$ >> ] @ (aux t1)
+	      | t -> let pn = "p"^(incr n; string_of_int !n) in
+		  [ <:patt< $lid:pn$ >>, <:expr< $lid:pn$ >> ]
+	    in List.split (aux type_meth) 
+	  in
+	  let func = <:expr< $ci.module_name$.$label$ $t_name$ >> in
+       	  let method_body = app_params_to_func func get_params in
+       	    <:class_str_item< method $label$ : $type_meth$ =  fun $fun_params$ -> $method_body$ >>
+           
+      | Inherit(parent_name,inherit_expr,_) -> 
+	  let inherit_body = <:expr< ( $ci.module_name$.$lid:"to_"^parent_name$ $lid:t_name^"'"$ ) >> in
+	    inherit_expr inherit_body
+
+      | ClassStrItem e -> e
+      | FullClassStrItem (e,_) -> e
+
+      | _ -> <:class_str_item< >>
+    in
+
+    let mk_class () =
+      let val_t = <:class_str_item< value $lid:t_name$ = $lid:t_name^"'"$ >> in
+      let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $lid:t_name$ >> in
+      let class_str_items = val_t::rep_method::(List.map process_class_str_item ce.str_items) in
+      let class_body = Ast.crSem_of_list class_str_items in
+	<:class_expr< 
+	  $virtual:v$ $lid:ci.caml_class_name$ [ $list:ci.params$ ] =
+          object
+	    $class_body$
+	  end >>
+    in
+
+
+
+
+    (** Création du module type *)
+
+    let rec sig_item_of_str_item = function 
+      | <:str_item< external $id$ : $type_ext$ = $string_list$ >> -> 
+		      <:sig_item< external $lid:id$ : $typ:type_ext$ = $str_list:string_list$ >>
+      | <:str_item< type $type_def$>> -> <:sig_item< type $typ:type_def$>>
+      | <:str_item< class type $class_type_decl$ >> -> <:sig_item< class type $typ:class_type_decl$ >>
+      | <:str_item< $stmt1$ ; $stmt2$ >> -> 
+	  <:sig_item< $sig_item_of_str_item stmt1$ ; $sig_item_of_str_item stmt2$ >> 
+      | _ -> failwith "conversion str_item -> sig_item non gérée"
+
+
+
+    (** Création du module *)
+
+    let rec adapt_to_module = function 
+      | <:ctyp< ! $t0$ . $t1$  >> -> adapt_to_module t1
+      | <:ctyp< unit -> $t0$ -> $t1$ >> as tot -> tot
+      | <:ctyp< unit -> $t0$ >> -> <:ctyp< $t0$ >>
+      | tot -> tot
+    in
+
+    let make_string_list cpp_name ft =
+      let base_nom = ci.cpp_class_name^"_"^cpp_name in
+      let open Ast in
+      let base_list = LCons (base_nom^"__impl", LNil) in
+	if (arg_count ft) > 5
+	then LCons (base_nom^"__byte", base_list)
+	else base_list
+    in
+
+    let process_mod_str_item = function
+      | Method (label, tf, cpp_name) ->
+	  let type_func = <:ctyp< $lid:t$ -> $adapt_to_module tf$>> in
+	  let string_list = make_string_list cpp_name type_func in 
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+
+      | Inherit(parent_name, _, cpp_parent_class_name) ->
+	  let upcast_func_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	  let upcast_func_list = Ast.( LCons (upcast_func_name, LNil)) in
+	  let type_func = <:ctyp< $lid:"t"$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	    <:str_item< external $"to"^parent_name$ : $type_func$ = $sl$ >>
+
+      | Constructor(label, tf, cpp_name) ->
+	  let rec enfouir = function
+	    | <:ctyp< $t0$ -> $t1$ >> -> enfouir t1
+	    | t' -> <:ctyp< $t'$ -> $lid:"t"$ >> in
+	    (** if there is only one function as argument you should before create an alias to its type *)
+	  let type_func = enfouir tf in
+	  let string_list = make_string_list cpp_name type_func in 
+	    <:str_item< external $label$ : $type_func$ = $string_list$ >>
+	  
+      | _ -> <:str_item< >>
+    in
+
+    let mk_module () =
+      let type_t = <:str_item< type $lid:"t"$ >> in
+      let class_type = if ce.is_auto then mk_class_type () else <:str_item< >> in
+      let upcast_to_parent =  
+	let upcast_name = "to_"^parent_name in
+	let upcast_cpp_name = "upcast__"^cpp_parent_class_name^"_of_"^ cpp_class_name ^"__impl" in
+	let upcast_type = <:ctyp< $lid:t_name$ -> $uid:lid_to_uid parent_name$.$lid:"t"$ >> in
+	let string_list = Ast.(LCons (upcast_name, LNil)) in
+	<:str_item< external $upcast_name$ : $upcast_type$ = $string_list$ >>
+      in
+      let mod_str_items = type_t :: class_type :: upcast_to_parent :: 
+	(List.map process_mod_str_item ce.str_items) in
+      let mod_body = Ast.stSem_of_list mod_str_items in
+      let mod_type_body = sig_item_to_str_item mod_body in
+	<:module_binding< $uid:ci.module_name$ : sig $mod_type_body$ end = struct $mod_body$ end >>
+    in
+
+    let mk_create_helper () =
+      let ext_name = "external_cpp_create_"^ci.cpp_class_name in
+      <:str_item< 
+	  let $lid:ext_name$ t = new $lid:class_name$ t in
+	  Callback.register $str:ext_name$ $lid:ext_name$
+	 >>
+    in
+
+      
+    let map = 
+      TypeMap.add (snd ce.class_self_patt) 
+      <:ctyp< $lid:class_type_name$ >> map 
+    in
+      
+    let type_matching = function
+      | e when TypeMap.mem e -> TypeMap.find e
+      | e -> e
+    in
+      
+    let map_types = Ast.map_ctyp type_matching in
+      
+    let class_decl = map_types#class_expr (mk_class ()) in
+    let mod_decl = map_types#module_binding (mk_module ()) in
+    let helper_decl = 
+      if ci.is_virtual 
+      then <:str_item< >> 
+      else map_types#str_item (mk_create_helper ())
+    in
+
+      mk_class_declaration ~class_decl ~mod_decl ~helper_decl
+
+
+  let extract_type_info acc (ci,ce) =
+    let class_type_name = mk_class_type_name ci in
+      TypeMap.add <:ctyp< $lid:caml_class_name$ >> 
+      <:ctyp< $uid:ci.module_name$.$lid:class_type_name$ >> acc
+
+
+
+
+
+  (** Génère un str_item correspondant aux entrées
+      @param class_list une liste des classes définies
+      aprés un external cpp ( (class_info * class_expr) list )
+      @return le str_item correspondant
+  *)
+  let generate_all = function 
+    | [] -> failwith "empty class"
+    | [x] -> 
+	let declaration = generate_class TypeMap.empty x in
+	  Ast.stSem_of_list
+	  [ <:str_item< module $module_binding:declaration.mod_decl$ >> ;
+	    <:str_item< class $class_expr:declaration.class_decl$ >> ;
+	    declaration.helper_decl ]
+    | l -> 
+	let is_rec = true in
+	let is_not_auto (ci,ce) = not ce.is_auto in
+	  if List.filter is_not_auto l <> []
+	  then 
+	    let error_msg = List.fold_left 
+	      (fun s (ci,ce) -> s ^ ", " ^ ci.caml_class_name )
+	      "some classes should be specified as auto : " l
+	    in
+	    failwith error_msg
+	  else
+	    let types_map = List.fold_left extract_type_info TypeMap.empty  el in
+	    let declaration_list = List.map (generate_class types_map) l in
+	    let head,tail = List.( hd declaration_list, tl declaration_list ) in
+	    let module_binding = 
+	      let bind mod_bind d = <:module_binding< $mod_bind$ and $d.mod_decl$ >> in
+	      List.fold_left bind head tail in
+	    let class_binding =
+	      let bind class_bind d = <:class_expr< $class_bind$ and $d.class_decl$ >> in
+		List.fold_left bind head tail in
+	    let helpers_decl = Ast.stSem_of_list 
+	      (List.map (fun x -> x.helper_decl) declaration_list) in
+	      Ast.stSem_of_list
+		[ <:str_item< module rec $module_binding$ >> ;
+		  <:str_item< class $class_binding$ >> ;
+		  helpers_decl ]
+end

@@ -1,4 +1,4 @@
-<camlpp/External> : include
+<camlpp/ExternalCpp> : include
 <camlpp/ExternalCpp/pa_cpp_external.ml> : syntax(camlp4o), package(camlp4.quotations), package(camlp4.extend)
 
 <System> or <Window> or <Graphics> or <Audio> or <Network> or <Test>: include
