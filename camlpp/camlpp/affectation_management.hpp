@@ -25,14 +25,37 @@ extern "C"
 	#include <caml/memory.h>
 	#include <caml/alloc.h>
 }
-
+#include <iostream>
 #include <string>
 #include <type_traits>
 #include <tuple>
 #include <vector>
 #include <list>
 
-template< class T, bool shoudReturnObject = true>
+template<class... ArgsToScan>
+struct ShouldUseRegularTag;
+
+template<class T, class... ArgsToScan>
+struct ShouldUseRegularTag<T, ArgsToScan...>
+{
+	enum { value = ((!std::is_same<T, double>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
+};
+
+template<class T>
+struct ShouldUseRegularTag<T>
+{
+	enum { value = !std::is_same<T, double>::value };
+};
+
+
+template<class... Args>
+class RegularOrDoubleArrayTag
+{
+public:
+	enum { value = ShouldUseRegularTag<Args...>::value ? 0 : Double_array_tag };
+};
+
+template< class T, bool shouldReturnObject = true>
 class AffectationManagement;
 
 template< class T >
@@ -95,7 +118,14 @@ struct AffectationManagement<double>
 	
 	static void affect_field(value& v, int field, double d)
 	{
-		Store_double_field(v, field, d);
+		if( Tag_val(v) == Double_array_tag )
+		{
+			Store_double_field(v, field, d);
+		}
+		else
+		{
+			Store_field(v, field, d);
+		}
 	}
 };
 
@@ -109,7 +139,14 @@ struct AffectationManagement<float>
 
 	static void affect_field(value& v, int field, float d)
 	{
-		Store_double_field(v, field, d);
+		if( Tag_val(v) == Double_array_tag )
+		{
+			Store_double_field(v, field, d);
+		}
+		else
+		{
+			Store_field(v, field, d);
+		}
 	}
 };
 
@@ -269,7 +306,7 @@ struct AffectationManagement< std::tuple< Args... > >
 {
 	static void affect(value& v, std::tuple< Args... > const& tup)
 	{
-		v = caml_alloc_tuple( sizeof...( Args ) );
+		v = caml_alloc( sizeof...( Args ), RegularOrDoubleArrayTag<Args...>::value );
 		affect_helper( v, tup, std::integral_constant<size_t, sizeof...(Args) - 1>() );
 	}
 
@@ -298,7 +335,8 @@ struct AffectationManagement< std::pair< T1, T2 > >
 {
 	static void affect(value& v, std::pair< T1, T2 > const& p)
 	{
-		v = caml_alloc_tuple( 2 );
+		v = caml_alloc( 2, RegularOrDoubleArrayTag<T1, T2>::value  );
+		if (RegularOrDoubleArrayTag<T1, T2>::value) std::cout << "Use a double array" << std::endl; 
 		AffectationManagement< T1 >::affect_field(v, 0, p.first);
 		AffectationManagement< T2 >::affect_field(v, 1, p.second);
 	}
@@ -318,7 +356,7 @@ struct AffectationManagement< std::vector< T > >
 {
 	static void affect(value& v, std::vector<T> const& vec)
 	{
-		v = caml_alloc_tuple( vec.size() );
+		v = caml_alloc( vec.size(), RegularOrDoubleArrayTag<T>::value );
 		for(int i = 0; i < vec.size(); ++i)
 		{
 			AffectationManagement< T >::affect_field(v, i, vec[i]);
@@ -342,8 +380,8 @@ struct AffectationManagement< std::list< T > >
 	{
 		CAMLparam0();
 		CAMLlocal1( tmp );
-		tmp = caml_alloc_tuple( 2 );
-		Store_field( tmp, 1, Val_int(0) );
+		tmp = caml_alloc( 2 , RegularOrDoubleArrayTag<T>::value );
+		AffectationManagement<T>::affect_field( tmp, 1, Val_int(0) );
 		for( auto it = lst.begin(); it != lst.end(); ++it)
 		{
 			T const& val = *it;

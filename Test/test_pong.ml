@@ -32,12 +32,14 @@ begin
 	let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 }) in
 	let app = new render_window vm  "Ocsfml - Pong" in
 	
-	let ball_sound_buffer = load_sound_buffer "resources/ball.wav" in
+	let font = load_font "resources/sansation.ttf" in
+	let ball_texture = load_texture "resources/ball.png" in
 	let background_texture = load_texture "resources/background.jpg" in
 	let left_paddle_texture = load_texture "resources/paddle_left.png" in 
 	let right_paddle_texture = load_texture "resources/paddle_right.png" in
-	let ball_texture = load_texture "resources/ball.png" in
-	let font = load_font "resources/sansation.ttf" in
+	let ball_sound_buffer = load_sound_buffer "resources/ball.wav" in
+
+
 
 	
 	let endText = new text in
@@ -51,11 +53,18 @@ begin
 	let ball = new spriteCpp (Sprite.create_from_texture ball_texture) in
 	let ball_sound = new soundCpp (Sound.create_from_sound_buffer ball_sound_buffer) in
 	
-	left_paddle#move 10.0 (((snd ((app#get_view ())#get_size ())) -. (snd (left_paddle#get_size ()))) /. 2.0) ;
+	let view = app#get_view () in
+	let app_size = view#get_size () in
+	let lft_size = left_paddle#get_size () in
+	let rgt_size = right_paddle#get_size () in
+	let ball_size = ball#get_size () in
+	let test = fst app_size -. fst lft_size in
+
+	(*left_paddle#move 10.0 (() /. 2.0) ;
 	right_paddle#move 	((fst ((app#get_view ())#get_size ())) -. (fst (right_paddle#get_size ())) -. 10.0) 
 						(((snd ((app#get_view ())#get_size ())) -. (snd (right_paddle#get_size ())) ) /. 2.0) ;
 	ball#move 	(((fst  ((app#get_view ())#get_size ())) -. (fst  (ball#get_size ()))) /. 2.0)
-				(((snd ((app#get_view ())#get_size ())) -. (snd (ball#get_size ()))) /. 2.0) ;
+				(((snd ((app#get_view ())#get_size ())) -. (snd (ball#get_size ()))) /. 2.0) ; *)
 	
 	let ai_timer = new clock in
 	let ai_time = 100 in
@@ -166,14 +175,14 @@ begin
 		if app#is_opened()
 		then begin
 			event_loop ();
-			update ();
+		(*	update (); *)
 			draw ();
 			app#display ();
 			main_loop ()
 		end
 	in
 	
-(**	main_loop (); *)
+	main_loop ();
 	ai_timer#destroy ();
 	ball_sound#destroy ();
 	ball#destroy ();
@@ -182,12 +191,12 @@ begin
 	background#destroy ();
 	endText#destroy ();
 	ball_sound_buffer#destroy ();
-	background_texture#destroy ();
 	left_paddle_texture#destroy ();
 	right_paddle_texture#destroy ();
 	ball_texture#destroy ();
 	font#destroy () ;
-	app#destroy ()
+	app#destroy () ;
+	background_texture#destroy ()
 end
 
 let _ = test_pong ()

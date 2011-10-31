@@ -106,22 +106,16 @@ struct ConversionManagement< sf::Vector2<T> >
 };
 
 template<class T>
-struct AffectationManagement< sf::Vector2<T> >
+struct AffectationManagement< sf::Vector2<T> > 
 {
   static void affect( value& v, sf::Vector2<T> vec )
   {
-    v = caml_alloc_tuple( 2 );
-    AffectationManagement< T >::affect_field(v, 0, vec.x );
-    AffectationManagement< T >::affect_field(v, 1, vec.y );
+	AffectationManagement< std::pair<T, T> >::affect( v, std::make_pair(vec.x, vec.y) );
   }
 
   static void affect_field( value& v, int field, sf::Vector2<T> vec )
   {
-    CAMLparam0();
-    CAMLlocal1( vecVal );
-    affect( vecVal, vec );
-    Store_field(v, field, vecVal);
-    CAMLreturn0;
+	AffectationManagement< std::pair<T, T> >::affect_field( v, field, std::make_pair(vec.x, vec.y) );
   }
 };
 
