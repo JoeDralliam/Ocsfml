@@ -1,5 +1,8 @@
 exception LoadFailure
 
+let do_if f = function
+    | Some x -> f x
+    | None -> ()
 
 external class clockCpp (Clock): "sf_Clock" =
 object

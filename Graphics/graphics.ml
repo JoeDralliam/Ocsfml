@@ -111,6 +111,11 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
+let mk_drawable ?position ?scale ?origin ?rotation ?color ?blend_mode (t: #drawable) =
+  do_if t#set_position_v position ;
+  do_if t#set_scale_v scale ;
+  do_if t#set_origin_v origin ;
+do_if
 
 external class imageCpp (Image) : "sf_Image" =
 object auto (self:'a)
@@ -445,10 +450,6 @@ end
 class sprite = let t = Sprite.default () in spriteCpp t
 
 let mk_sprite ?texture ?position ?scale ?rotation ?origin ?color ?blendMode ?sub_rect () =
-  let do_if f = function
-    | Some x -> f x
-    | None -> ()
-  in
   let t = new sprite in
     do_if t#set_texture texture ;
     do_if t#set_position_v position ;

@@ -34,6 +34,8 @@ object auto (_:'a)
   external method get_attenuation : unit -> float = "GetAttenuation"
 end
 
+let mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (t: #soun_source) =
+
 
 external class virtual sound_stream : "sf_SoundStream" =
 object 
