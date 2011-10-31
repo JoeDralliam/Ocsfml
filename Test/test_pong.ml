@@ -27,13 +27,10 @@ let load_font file_name  =
 
 let test_pong () =
 begin
-	let init_app title =
-		let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 }) in
-			new render_window vm title
-	in
-
 	Random.self_init () ;
-	let app = init_app "Ocsfml - Pong" in
+
+	let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 }) in
+	let app = new render_window vm  "Ocsfml - Pong" in
 	
 	let ball_sound_buffer = load_sound_buffer "resources/ball.wav" in
 	let background_texture = load_texture "resources/background.jpg" in
@@ -176,7 +173,7 @@ begin
 		end
 	in
 	
-	main_loop ();
+(**	main_loop (); *)
 	ai_timer#destroy ();
 	ball_sound#destroy ();
 	ball#destroy ();
@@ -189,7 +186,8 @@ begin
 	left_paddle_texture#destroy ();
 	right_paddle_texture#destroy ();
 	ball_texture#destroy ();
-	font#destroy ()
+	font#destroy () ;
+	app#destroy ()
 end
 
 let _ = test_pong ()

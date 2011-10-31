@@ -36,10 +36,10 @@ object auto (_:'a)
   external method get_attenuation : unit -> float = "GetAttenuation"
 end
 
-let mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (t: #soun_source) =
+let mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (t: #sound_source) =
   do_if t#set_pitch pitch ;
   do_if t#set_volume volume ;
-  do_if t#set_position position;
+  do_if t#set_position_v position;
   do_if t#set_relative_to_listener relative_to_listener;
   do_if t#set_min_distance min_distance;
   do_if t#set_attenuation attenuation
