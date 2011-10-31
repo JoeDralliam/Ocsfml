@@ -25,16 +25,6 @@ let load_font file_name  =
 		then font
 		else failwith ("Could not load font " ^ file_name)
 
-
-
-let ball_sound_buffer = load_sound_buffer "resources/ball.wav"
-let background_texture = load_texture "resources/background.jpg"
-let left_paddle_texture = load_texture "resources/paddle_left.png"
-let right_paddle_texture = load_texture "resources/paddle_right.png"
-let ball_texture = load_texture "resources/ball.png"
-let font = load_font "resources/sansation.ttf"
-
-
 let test_pong () =
 begin
 	let init_app title =
@@ -45,6 +35,13 @@ begin
 	Random.self_init () ;
 	let app = init_app "Ocsfml - Pong" in
 	
+	let ball_sound_buffer = load_sound_buffer "resources/ball.wav" in
+	let background_texture = load_texture "resources/background.jpg" in
+	let left_paddle_texture = load_texture "resources/paddle_left.png" in 
+	let right_paddle_texture = load_texture "resources/paddle_right.png" in
+	let ball_texture = load_texture "resources/ball.png" in
+	let font = load_font "resources/sansation.ttf" in
+
 	
 	let endText = new text in
 		endText#set_font font;
@@ -149,7 +146,7 @@ begin
 			if 	(fst (ball#get_position ())  +. fst (ball#get_size ())  >  fst(right_paddle#get_position ())) &&
 				(fst (ball#get_position ())  +. fst (ball#get_size ())  <  fst(right_paddle#get_position ()) +. (fst (right_paddle#get_size()) /. 2.0)) &&
 				(snd (ball#get_position ())  +. snd (ball#get_size ())  >= snd (right_paddle#get_position ())) &&
-                (snd (ball#get_position ()) 							<= snd (right_paddle#get_position ()) +. snd (right_paddle#get_size()))
+				(snd (ball#get_position ()) 							<= snd (right_paddle#get_position ()) +. snd (right_paddle#get_size()))
 			then begin
 				ball_sound#play ();
 				ball_angle := pi -. !ball_angle;
@@ -169,11 +166,14 @@ begin
 	in
 
 	let rec main_loop () =
-		event_loop ();
-		update ();
-		draw ();
-		app#display;
-		main_loop ()
+		if app#is_opened()
+		then begin
+			event_loop ();
+			update ();
+			draw ();
+			app#display ();
+			main_loop ()
+		end
 	in
 	
 	main_loop ();

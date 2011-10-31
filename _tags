@@ -20,8 +20,8 @@
 
 <Audio/*.{h,c}pp> : include_sfml_audio
 "Audio/libocsfmlaudio.a" : use_sfml_audio
-<Audio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio, package(bigarray)
-<Audio/*.ml> : package(external_cpp), package(bigarray), use_cpp_external
+<Audio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
+<Audio/*.ml> : package(external_cpp), use_cpp_external
 
 <Network/*.{h,c}pp> : include_sfml_network
 "Network/libocsfmlnetwork.a" : use_sfml_network
@@ -35,4 +35,5 @@
 <Test/test_object.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem, profile
 <Test/test_pong.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
 <Test/test_audio.{byte,native}> : use_ocsfmlaudio, use_ocsfmlsystem, package( bigarray )
+<Test/test_pong.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem, package( bigarray )
 <Test/test_pong_objects.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem
