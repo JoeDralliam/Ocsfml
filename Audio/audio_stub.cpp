@@ -59,7 +59,7 @@ camlpp__register_custom_class()
 	camlpp__register_method1( SetPlayingOffset, &sf::SoundStream::SetPlayingOffset )
 	camlpp__register_method0( GetPlayingOffset, &sf::SoundStream::GetPlayingOffset )
 	camlpp__register_method1( SetLoop, &sf::SoundStream::SetLoop )
-	camlpp__register_method0( GetLopp, &sf::SoundStream::GetLoop )
+	camlpp__register_method0( GetLoop, &sf::SoundStream::GetLoop )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
@@ -120,6 +120,7 @@ void sound_recorder_start_helper( sf::SoundRecorder* rec, Optional< unsigned int
 typedef sf::SoundRecorder sf_SoundRecorder;
 #define CAMLPP__CLASS_NAME() sf_SoundRecorder
 camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method2( Start, &sound_recorder_start_helper)
 	camlpp__register_method0( Stop, &sf::SoundRecorder::Stop )
 	camlpp__register_method0( GetSampleRate, &sf::SoundRecorder::GetSampleRate ) 
