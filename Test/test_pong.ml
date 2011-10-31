@@ -132,18 +132,18 @@ begin
 			then begin
 				ball_sound#play ();
 				ball_angle := -. !ball_angle;
-				ball#set_y  (app#get_view ())#get_size ().snd -. ball#get_size ().snd -. 0.1
+				ball#set_y  (snd((app#get_view ())#get_size ()) -. snd(ball#get_size ()) -. 0.1)
 			end;
 
 			(** Check collision between the paddles and the ball **)
 			if 	(fst (ball#get_position ())  < fst (left_paddle#get_position ()) +. fst (left_paddle#get_size ())) &&
 				(fst (ball#get_position ())  > fst (left_paddle#get_position ()) +. (fst (left_paddle#get_size ()) /. 2.0)) &&
-				(snd (ball#get_position ()) +. ball#get_size ().snd >= snd (left_paddle#get_position ())) &&
+				(snd (ball#get_position ()) +. snd(ball#get_size ()) >= snd (left_paddle#get_position ())) &&
                 (snd (ball#get_position ())							  <= snd (left_paddle#get_position ()) +. snd (left_paddle#get_size()))
 			then begin
 				ball_sound#play ();
 				ball_angle := pi -. !ball_angle;
-				ball#set_y  fst (left_paddle#get_position ()) +. fst (ball#get_size ()) +. 0.1
+				ball#set_y  (fst (left_paddle#get_position ()) +. fst (ball#get_size ()) +. 0.1)
 			end ;
 
 			if 	(fst (ball#get_position ())  +. fst (ball#get_size ())  >  fst(right_paddle#get_position ())) &&
@@ -153,7 +153,7 @@ begin
 			then begin
 				ball_sound#play ();
 				ball_angle := pi -. !ball_angle;
-				ball#set_y  fst(right_paddle#get_position ()) -. fst(ball#get_size ()) -. 0.1
+				ball#set_y  (fst(right_paddle#get_position ()) -. fst(ball#get_size ()) -. 0.1)
 			end
 		end
 		
@@ -161,8 +161,8 @@ begin
 	
 	let draw () =
 		app#draw background ;
-		app#draw leftPaddle ;
-		app#draw rightPaddle ;
+		app#draw left_paddle ;
+		app#draw right_paddle ;
 		app#draw ball ;
 		if not !is_playing
 		then app#draw endText

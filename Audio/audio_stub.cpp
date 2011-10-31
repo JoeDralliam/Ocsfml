@@ -114,7 +114,7 @@ camlpp__custom_class_registered()
 
 void sound_recorder_start_helper( sf::SoundRecorder* rec, Optional< unsigned int >  sampleRate, UnitTypeHolder)
 {
-	rec->Start( sampleRate.isSome() ? sampleRate.get_value() : 44100 );
+	rec->Start( sampleRate.get_value_no_fail( 44100 ) );
 }
 
 typedef sf::SoundRecorder sf_SoundRecorder;
