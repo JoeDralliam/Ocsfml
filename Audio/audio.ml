@@ -148,3 +148,11 @@ end
 class sound = 
   let t = Sound.default () in
     soundCpp t
+
+let mk_sound ?loop ?buffer ?playing_offset ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation () =
+  let t = new sound in
+    mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation t;
+    do_if t#set_loop loop;
+    do_if t#set_buffer buffer ;
+    do_if t#set_playing_offset playing_offset ;
+    t
