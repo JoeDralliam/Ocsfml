@@ -1,3 +1,4 @@
+open System
 open Window
 open Graphics
 open Audio
@@ -9,29 +10,29 @@ let load_sound_buffer file_name =
 		if sound_buffer#load_from_file file_name
 		then sound_buffer
 		else failwith ("Could not load sound buffer " ^ file_name)
-in
+
 
 let load_texture file_name =
 	let texture = new texture in
 		if texture#load_from_file file_name
 		then texture
 		else failwith ("Could not load texture " ^ file_name)
-in
+
 
 let load_font file_name  =
 	let font = new font in
 		if font#load_from_file file_name
 		then font
 		else failwith ("Could not load font " ^ file_name)
-in
 
 
-let ball_sound_buffer = load_sound_buffer "resources/ball.wav" in
-let background_texture = load_texture "resources/background.jpg" in
-let left_paddle_texture = load_texture "resources/paddle_left.png" in
-let right_paddle_texture = load_texture "resources/paddle_right.png" in
-let ball_texture = load_texture "resources/ball.png" in
-let font = load_font "resources/sansation.ttf" in
+
+let ball_sound_buffer = load_sound_buffer "resources/ball.wav"
+let background_texture = load_texture "resources/background.jpg"
+let left_paddle_texture = load_texture "resources/paddle_left.png"
+let right_paddle_texture = load_texture "resources/paddle_right.png"
+let ball_texture = load_texture "resources/ball.png"
+let font = load_font "resources/sansation.ttf"
 
 
 let free_resources =
@@ -44,27 +45,22 @@ let free_resources =
 
 
 
-let test_pong =
+let _ =
 
-	let init_app =
-		let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 }) in
-		new render_window vm "Ocsfml - Pong"
-	in
-	
-	let init_ball_angle =
-      	let angle = acos ((Random.float 0.3) +. 0.7) in
-		if Random.bool () then angle +. pi else angle
+	let init_app title =
+		let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 })
+		new render_window vm title
 	in
 
-	Random.self_init ()
-	let app = init_app () in
+	Random.self_init () ;
+	let app = init_app "Ocsfml - Pong" in
 	
 	
 	let endText = new text in
 		endText#set_font font;
 		endText#set_character_size 50;
 		endText#move 150.0 200.0;
-		endText#set_color (rgb 50 50 250)
+		endText#set_color (Color.rgb 50 50 250) ;
 	let background = new spriteCpp (Sprite.create_from_texture background_texture) in
    	let left_paddle = new spriteCpp (Sprite.create_from_texture left_paddle_texture) in
     let right_paddle = new spriteCpp (Sprite.create_from_texture right_paddle_texture) in
@@ -74,17 +70,20 @@ let test_pong =
 	right_paddle#move 	(((app#get_view ())#get_size ()).first -. (right_paddle#get_size ()).first -. 10.0) 
 						((((app#get_view ())#get_size ()).second -. (right_paddle#get_size ()).second) /. 2.0) ;
 	ball#move 	((((app#get_view ())#get_size ()).first -. (ball#get_size ()).first) /. 2.0)
-			((((app#get_view ())#get_size ()).second -. (ball#get_size ()).second) /. 2.0)
+			((((app#get_view ())#get_size ()).second -. (ball#get_size ()).second) /. 2.0) ;
 	
 	let ai_timer = new clock in
 	let ai_time = 0.1 in
-	let left_paddle_speed = new 400.0 in
-	let right_paddle_speed = new 400.0 in
+	let left_paddle_speed = ref 400.0 in
+	let right_paddle_speed = ref 400.0 in
 	
-	let ball_speed = new 400.0 in
-	let ball_angle = new init_ball_angle in
+	let ball_speed = ref 400.0 in
+	let ball_angle =
+		let angle = acos ((Random.float 0.3) +. 0.7) in
+		ref( if Random.bool () then angle +. pi else angle )
+	in
 	
-	let is_playing = new true in
+	let is_playing = ref true in
 
 	let rec event_loop =
 		match app#poll_event () with
@@ -100,24 +99,24 @@ let test_pong =
 		if is_playing 
 		then begin
 			if is_key_pressed KeyCode.Up && ((left_paddle#get_position ()).second > 5.0) 
-			then left_paddle#move 0.0 (-!left_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
+			then left_paddle#move 0.0 (-. !left_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
 			if is_key_pressed KeyCode.Down && ((left_paddle#get_position ()).second > ((app#get_view ())#get_size()).second -. (left_paddle#get_size ()).second -. 5.0) 
 			then left_paddle#move 0.0 (!left_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
 		
-			if 	(!right_paddle_speed < 0.0 && ((right_paddle#get_position ()).second > 5.0) || 
-				(!right_paddle_speed > 0.0 && ((right_paddle#get_position ()).second > ((app#get_view ())#get_size()).second -. (right_paddle#get_size ()).second -. 5.0)
+			if 	(!right_paddle_speed < 0.0 && ((right_paddle#get_position ()).second > 5.0)) || 
+				(!right_paddle_speed > 0.0 && ((right_paddle#get_position ()).second > ((app#get_view ())#get_size()).second -. (right_paddle#get_size ()).second -. 5.0))
 			then right_paddle#move 0.0 (!right_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
 		
 			if ai_timer.get_elapsed_time () > ai_time
 			then begin
 				ai_timer#reset ();
-				if	((!right_paddle_speed < 0) && 
+				if	(!right_paddle_speed < 0) && 
 					((ball#get_position ().second +. ball#get_size ().second) > (right_paddle#get_position ().second +. right_paddle#get_size ().second))
-				then right_paddle_speed := -!right_paddle_speed;
-				if	((!right_paddle_speed > 0) &&
+				then right_paddle_speed := -. !right_paddle_speed;
+				if	(!right_paddle_speed > 0) &&
 					((ball#get_position ().second) < (right_paddle#get_position ().second))
-				then right_paddle_speed := -!right_paddle_speed
-			end
+				then right_paddle_speed := -. !right_paddle_speed
+			end;
 
 			(** Update Ball Position **)
 			let factor = !ball_speed *. window#get_frame_time () /. 1000.0 in
@@ -135,13 +134,13 @@ let test_pong =
 			if ball#get_position ().second < 0.0
 			then begin
 				ball_sound#play ();
-				ballAngle := -!ballAngle;
+				ballAngle := -. !ballAngle;
 				ball#set_y 0.1
 			end;
 			if (ball#get_position ().second +. ball#get_size ().second) > app#get_view()#get_size().second
 			then begin
 				ball_sound#play ();
-				ballAngle := -!ballAngle;
+				ballAngle := -. !ballAngle;
 				ball#set_y  app#get_view ()#get_size ().second -. ball#get_size ().second -. 0.1
 			end;
 
@@ -154,7 +153,7 @@ let test_pong =
 				ball_sound#play ();
 				ballAngle := pi -. !ballAngle;
 				ball#set_y  left_paddle#get_position ().first +. ball#get_size ().first +. 0.1
-			end
+			end ;
 
 			if 	(ball#get_position ().first  +. ball#get_size ().first  >  right_paddle#get_position ().first) &&
 				(ball#get_position ().first  +. ball#get_size ().first  <  right_paddle#get_position ().first +. (right_paddle#get_size().first /. 2.0)) &&
@@ -170,10 +169,10 @@ let test_pong =
 	in			
 	
 	let draw =
-		app#draw background
-		app#draw leftPaddle
-		app#draw rightPaddle
-		app#draw ball
+		app#draw background ;
+		app#draw leftPaddle ;
+		app#draw rightPaddle ;
+		app#draw ball ;
 		if not !is_playing
 		then app#draw endText
 	in
@@ -192,8 +191,5 @@ let test_pong =
 	right_paddle#destroy ();
 	left_paddle#destroy ();
 	background#destroy ();
-	endText#destroy ()
-	
-	
-
-let _ = test_pong ();free_resources()
+	endText#destroy ();
+	free_resources () ;;
