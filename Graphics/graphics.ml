@@ -361,12 +361,12 @@ class shape = let t = Shape.default () in shapeCpp t
 
 module ShapeObjects =
 struct 
-  external cpp line : float -> float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_Line"
-  external cpp line_v : float * float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_LineV"
-  external cpp rectangle : float -> float -> float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_Rectangle"
-  external cpp rectangle_r : float rect ->  Color.t -> float -> Color.t -> shape = "sf_Shape_RectangleR"
-  external cpp circle : float -> float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_Circle"
-  external cpp circle_v : float * float -> float -> Color.t -> float -> Color.t -> shape = "sf_Shape_CircleV"
+  external cpp line : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Line"
+  external cpp line_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_LineV"
+  external cpp rectangle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Rectangle"
+  external cpp rectangle_r : ?outline:float -> ?outlineColor:Color.t -> float rect ->  Color.t -> shape = "sf_Shape_RectangleR"
+  external cpp circle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> Color.t -> shape = "sf_Shape_Circle"
+  external cpp circle_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_CircleV"
 end 
 
 type text_style = Bold | Italic | Underline

@@ -261,9 +261,9 @@ camlpp__custom_class_registered()
 
 //TODO: implement Shape static func : Line(), Circle(), Rectangle(), ....
 
-sf::Shape* shape_line_helper(float  p1x, float p1y, float p2x, float p2y, 
-			     float thickness, const sf::Color& color, 
-			     Optional<float> outline, Optional<sf::Color> outlineColor)
+sf::Shape* shape_line_helper(Optional<float> outline, Optional<sf::Color> outlineColor,
+			     float  p1x, float p1y, float p2x, float p2y, 
+			     float thickness, const sf::Color& color)
 {
 	return new sf::Shape
 			( 
@@ -277,9 +277,9 @@ sf::Shape* shape_line_helper(float  p1x, float p1y, float p2x, float p2y,
 			);
 }
 
-sf::Shape* shape_lineV_helper(sf::Vector2f const& start, sf::Vector2f const& end, 
-			      float thickness, const sf::Color& color, 
-			      Optional<float> outline, Optional<sf::Color> outlineColor)
+sf::Shape* shape_lineV_helper(Optional<float> outline, Optional<sf::Color> outlineColor,
+			      sf::Vector2f const& start, sf::Vector2f const& end, 
+			      float thickness, const sf::Color& color)
 {
 	return new sf::Shape
 			( 
@@ -294,9 +294,9 @@ sf::Shape* shape_lineV_helper(sf::Vector2f const& start, sf::Vector2f const& end
 }
 
 
-sf::Shape* shape_rectangle_helper(float left, float top, float width, float height, 
-				  const sf::Color& color, 
-				  Optional<float> outline, Optional<sf::Color> outlineColor)
+sf::Shape* shape_rectangle_helper(Optional<float> outline, Optional<sf::Color> outlineColor,
+				  float left, float top, float width, float height, 
+				  const sf::Color& color)
 {
 	return new sf::Shape
 			(
@@ -311,9 +311,9 @@ sf::Shape* shape_rectangle_helper(float left, float top, float width, float heig
 }
 
 
-sf::Shape* shape_rectangleR_helper( sf::FloatRect const& rectangle, 
-				    const sf::Color& color, 
-				    Optional<float> outline, Optional<sf::Color> outlineColor)
+sf::Shape* shape_rectangleR_helper( Optional<float> outline, Optional<sf::Color> outlineColor,
+				    sf::FloatRect const& rectangle, 
+				    const sf::Color& color)
 {
 	return new sf::Shape
 			(
@@ -328,9 +328,9 @@ sf::Shape* shape_rectangleR_helper( sf::FloatRect const& rectangle,
 }
 
 
-sf::Shape* shape_circle_helper( float x, float y, 
-				float radius, const sf::Color& color, 
-				Optional<float> outline, Optional<sf::Color> outlineColor)
+sf::Shape* shape_circle_helper( Optional<float> outline, Optional<sf::Color> outlineColor,
+				float x, float y, 
+				float radius, const sf::Color& color)
 {
 	return new sf::Shape
 			(
@@ -344,9 +344,9 @@ sf::Shape* shape_circle_helper( float x, float y,
 			);
 }
 
-sf::Shape* shape_circleV_helper( sf::Vector2f center, 
-				 float radius, const sf::Color& color, 
-				 Optional<float> outline, Optional<sf::Color> outlineColor)
+sf::Shape* shape_circleV_helper( Optional<float> outline, Optional<sf::Color> outlineColor,
+				 sf::Vector2f center, 
+				 float radius, const sf::Color& color)
 {
 	return new sf::Shape
 			(

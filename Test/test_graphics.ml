@@ -21,7 +21,7 @@ let hello_world =
     t#set_position 50.0 150.0 ;
     t 
 
-let shape = ShapeObjects.circle 400.0 300.0 100.0 Color.yellow 20.0 Color.red 
+let shape = ShapeObjects.circle ~outline:20.0 ~outlineColor:Color.red 400.0 300.0 100.0 Color.yellow   
 
 let draw (app:#render_window) = 
   app#clear () ;   
