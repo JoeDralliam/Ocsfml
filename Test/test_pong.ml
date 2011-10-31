@@ -35,21 +35,11 @@ let ball_texture = load_texture "resources/ball.png"
 let font = load_font "resources/sansation.ttf"
 
 
-let free_resources =
-	ball_sound_buffer#destroy ();
-	background_texture#destroy ();
-	left_paddle_texture#destroy ();
-	right_paddle_texture#destroy ();
-	ball_texture#destroy ();
-	font#destroy ()
-
-
-
-let _ =
-
+let test_pong () =
+begin
 	let init_app title =
-		let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 })
-		new render_window vm title
+		let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 }) in
+			new render_window vm title
 	in
 
 	Random.self_init () ;
@@ -63,17 +53,18 @@ let _ =
 		endText#set_color (Color.rgb 50 50 250) ;
 	let background = new spriteCpp (Sprite.create_from_texture background_texture) in
    	let left_paddle = new spriteCpp (Sprite.create_from_texture left_paddle_texture) in
-    let right_paddle = new spriteCpp (Sprite.create_from_texture right_paddle_texture) in
+	let right_paddle = new spriteCpp (Sprite.create_from_texture right_paddle_texture) in
+	let ball = new spriteCpp (Sprite.create_from_texture ball_texture) in
 	let ball_sound = new soundCpp (Sound.create_from_sound_buffer ball_sound_buffer) in
 	
-	left_paddle#move 10.0 ((((app#get_view ())#get_size ()).second -. (left_paddle#get_size ()).second) /. 2.0) ;
-	right_paddle#move 	(((app#get_view ())#get_size ()).first -. (right_paddle#get_size ()).first -. 10.0) 
-						((((app#get_view ())#get_size ()).second -. (right_paddle#get_size ()).second) /. 2.0) ;
-	ball#move 	((((app#get_view ())#get_size ()).first -. (ball#get_size ()).first) /. 2.0)
-			((((app#get_view ())#get_size ()).second -. (ball#get_size ()).second) /. 2.0) ;
+	left_paddle#move 10.0 (((snd ((app#get_view ())#get_size ())) -. (snd (left_paddle#get_size ()))) /. 2.0) ;
+	right_paddle#move 	((fst ((app#get_view ())#get_size ())) -. (fst (right_paddle#get_size ())) -. 10.0) 
+						(((snd ((app#get_view ())#get_size ())) -. (snd (right_paddle#get_size ())) ) /. 2.0) ;
+	ball#move 	(((fst  ((app#get_view ())#get_size ())) -. (fst  (ball#get_size ()))) /. 2.0)
+				(((snd ((app#get_view ())#get_size ())) -. (snd (ball#get_size ()))) /. 2.0) ;
 	
 	let ai_timer = new clock in
-	let ai_time = 0.1 in
+	let ai_time = 100 in
 	let left_paddle_speed = ref 400.0 in
 	let right_paddle_speed = ref 400.0 in
 	
@@ -85,7 +76,7 @@ let _ =
 	
 	let is_playing = ref true in
 
-	let rec event_loop =
+	let rec event_loop () =
 		match app#poll_event () with
 			| Some e ->
 				Event.( match e with
@@ -95,80 +86,80 @@ let _ =
 			| None -> () 
 	in
 
-	let update =
-		if is_playing 
+	let update () =
+		if !is_playing 
 		then begin
-			if is_key_pressed KeyCode.Up && ((left_paddle#get_position ()).second > 5.0) 
-			then left_paddle#move 0.0 (-. !left_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
-			if is_key_pressed KeyCode.Down && ((left_paddle#get_position ()).second > ((app#get_view ())#get_size()).second -. (left_paddle#get_size ()).second -. 5.0) 
-			then left_paddle#move 0.0 (!left_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
+			if is_key_pressed KeyCode.Up && (snd (left_paddle#get_position ()) > 5.0) 
+			then left_paddle#move 0.0 (-. !left_paddle_speed *. float_of_int(app#get_frame_time ()) /. 1000.0) ;
+			if is_key_pressed KeyCode.Down && (snd (left_paddle#get_position ()) > snd ((app#get_view ())#get_size()) -. snd (left_paddle#get_size ()) -. 5.0) 
+			then left_paddle#move 0.0 (!left_paddle_speed *. float_of_int(app#get_frame_time ()) /. 1000.0) ;
 		
-			if 	(!right_paddle_speed < 0.0 && ((right_paddle#get_position ()).second > 5.0)) || 
-				(!right_paddle_speed > 0.0 && ((right_paddle#get_position ()).second > ((app#get_view ())#get_size()).second -. (right_paddle#get_size ()).second -. 5.0))
-			then right_paddle#move 0.0 (!right_paddle_speed *. (app#get_frame_time ()) /. 1000.0) ;
+			if 	(!right_paddle_speed < 0.0 && (snd (right_paddle#get_position ()) > 5.0)) || 
+				(!right_paddle_speed > 0.0 && (snd (right_paddle#get_position ()) > snd ((app#get_view ())#get_size()) -. snd (right_paddle#get_size ()) -. 5.0))
+			then right_paddle#move 0.0 (!right_paddle_speed *. float_of_int(app#get_frame_time ()) /. 1000.0) ;
 		
-			if ai_timer.get_elapsed_time () > ai_time
+			if ai_timer#get_elapsed_time () > ai_time
 			then begin
 				ai_timer#reset ();
-				if	(!right_paddle_speed < 0) && 
-					((ball#get_position ().second +. ball#get_size ().second) > (right_paddle#get_position ().second +. right_paddle#get_size ().second))
+				if	(!right_paddle_speed < 0.0) && 
+					((snd (ball#get_position ()) +. snd (ball#get_size ()) ) > (snd (right_paddle#get_position ()) +. snd (right_paddle#get_size ())))
 				then right_paddle_speed := -. !right_paddle_speed;
-				if	(!right_paddle_speed > 0) &&
-					((ball#get_position ().second) < (right_paddle#get_position ().second))
+				if	(!right_paddle_speed > 0.0) &&
+					(snd (ball#get_position ()) < snd (right_paddle#get_position ()))
 				then right_paddle_speed := -. !right_paddle_speed
 			end;
 
 			(** Update Ball Position **)
-			let factor = !ball_speed *. window#get_frame_time () /. 1000.0 in
-			ball#move (cos !ballAngle) *. factor (sin !ballAngle) *. factor ;
-			if ball#get_position ().first < 0.0
+			let factor = !ball_speed *. float_of_int (app#get_frame_time ()) /. 1000.0 in
+			ball#move ((cos !ball_angle) *. factor) ((sin !ball_angle) *. factor) ;
+			if fst (ball#get_position ()) < 0.0
 			then begin
-				!is_playing = false;
-				endText#set_text "You lost!\n(press escape to exit)"
+				is_playing := false;
+				endText#set_string "You lost!\n(press escape to exit)"
 			end;
-			if (ball#get_position ().first + ball#get_size ().first) > app#get_view ()#get_size ().first
+			if (fst (ball#get_position ()) +. fst (ball#get_size ())) > fst ((app#get_view ())#get_size ())
 			then begin
-				!is_playing = false;
-				endText#set_text "You lost!\n(press escape to exit)"
+				is_playing := false;
+				endText#set_string "You lost!\n(press escape to exit)"
 			end;
-			if ball#get_position ().second < 0.0
+			if snd(ball#get_position ()) < 0.0
 			then begin
 				ball_sound#play ();
-				ballAngle := -. !ballAngle;
+				ball_angle := -. !ball_angle;
 				ball#set_y 0.1
 			end;
-			if (ball#get_position ().second +. ball#get_size ().second) > app#get_view()#get_size().second
+			if (snd(ball#get_position ()) +. snd(ball#get_size ())) > snd ((app#get_view())#get_size())
 			then begin
 				ball_sound#play ();
-				ballAngle := -. !ballAngle;
-				ball#set_y  app#get_view ()#get_size ().second -. ball#get_size ().second -. 0.1
+				ball_angle := -. !ball_angle;
+				ball#set_y  (app#get_view ())#get_size ().snd -. ball#get_size ().snd -. 0.1
 			end;
 
 			(** Check collision between the paddles and the ball **)
-			if 	(ball#get_position ().first  < left_paddle#get_position ().first +. left_paddle#get_size ().first) &&
-				(ball#get_position ().first  > left_paddle#get_position ().first +. (left_paddle#get_size().first /. 2.0)) &&
-				(ball#get_position ().second +. ball#get_size ().second >= left_paddle#get_position ().second) &&
-                (ball#get_position ().second 						    <= left_paddle#get_position ().second +. left_paddle#get_size().second)
+			if 	(fst (ball#get_position ())  < fst (left_paddle#get_position ()) +. fst (left_paddle#get_size ())) &&
+				(fst (ball#get_position ())  > fst (left_paddle#get_position ()) +. (fst (left_paddle#get_size ()) /. 2.0)) &&
+				(snd (ball#get_position ()) +. ball#get_size ().snd >= snd (left_paddle#get_position ())) &&
+                (snd (ball#get_position ())							  <= snd (left_paddle#get_position ()) +. snd (left_paddle#get_size()))
 			then begin
 				ball_sound#play ();
-				ballAngle := pi -. !ballAngle;
-				ball#set_y  left_paddle#get_position ().first +. ball#get_size ().first +. 0.1
+				ball_angle := pi -. !ball_angle;
+				ball#set_y  fst (left_paddle#get_position ()) +. fst (ball#get_size ()) +. 0.1
 			end ;
 
-			if 	(ball#get_position ().first  +. ball#get_size ().first  >  right_paddle#get_position ().first) &&
-				(ball#get_position ().first  +. ball#get_size ().first  <  right_paddle#get_position ().first +. (right_paddle#get_size().first /. 2.0)) &&
-				(ball#get_position ().second +. ball#get_size ().second >= right_paddle#get_position ().second) &&
-                (ball#get_position ().second 						    <= right_paddle#get_position ().second +. right_paddle#get_size().second)
+			if 	(fst (ball#get_position ())  +. fst (ball#get_size ())  >  fst(right_paddle#get_position ())) &&
+				(fst (ball#get_position ())  +. fst (ball#get_size ())  <  fst(right_paddle#get_position ()) +. (fst (right_paddle#get_size()) /. 2.0)) &&
+				(snd (ball#get_position ())  +. snd (ball#get_size ())  >= snd (right_paddle#get_position ())) &&
+                (snd (ball#get_position ()) 							<= snd (right_paddle#get_position ()) +. snd (right_paddle#get_size()))
 			then begin
 				ball_sound#play ();
-				ballAngle := pi -. !ballAngle;
-				ball#set_y  right_paddle#get_position ().first -. ball#get_size ().first -. 0.1
+				ball_angle := pi -. !ball_angle;
+				ball#set_y  fst(right_paddle#get_position ()) -. fst(ball#get_size ()) -. 0.1
 			end
 		end
 		
 	in			
 	
-	let draw =
+	let draw () =
 		app#draw background ;
 		app#draw leftPaddle ;
 		app#draw rightPaddle ;
@@ -177,7 +168,7 @@ let _ =
 		then app#draw endText
 	in
 
-	let rec main_loop =
+	let rec main_loop () =
 		event_loop ();
 		update ();
 		draw ();
@@ -188,8 +179,19 @@ let _ =
 	main_loop ();
 	ai_timer#destroy ();
 	ball_sound#destroy ();
+	ball#destroy ();
 	right_paddle#destroy ();
 	left_paddle#destroy ();
 	background#destroy ();
 	endText#destroy ();
-	free_resources () ;;
+	ball_sound_buffer#destroy ();
+	background_texture#destroy ();
+	left_paddle_texture#destroy ();
+	right_paddle_texture#destroy ();
+	ball_texture#destroy ();
+	font#destroy ()
+end
+
+let _ = test_pong ()
+
+
