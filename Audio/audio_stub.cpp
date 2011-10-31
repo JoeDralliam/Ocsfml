@@ -120,7 +120,6 @@ void sound_recorder_start_helper( sf::SoundRecorder* rec, Optional< unsigned int
 typedef sf::SoundRecorder sf_SoundRecorder;
 #define CAMLPP__CLASS_NAME() sf_SoundRecorder
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method2( Start, &sound_recorder_start_helper)
 	camlpp__register_method0( Stop, &sf::SoundRecorder::Stop )
 	camlpp__register_method0( GetSampleRate, &sf::SoundRecorder::GetSampleRate ) 
@@ -138,6 +137,7 @@ typedef sf::SoundBufferRecorder sf_SoundBufferRecorder;
 #define CAMLPP__CLASS_NAME() sf_SoundBufferRecorder
 camlpp__register_custom_class()
 	camlpp__register_inheritance_relationship( sf_SoundRecorder )
+        camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetBuffer, &sf::SoundBufferRecorder::GetBuffer );
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
