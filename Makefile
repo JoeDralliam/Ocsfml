@@ -52,6 +52,10 @@ test_graphics:
 test_audio:
 	ocamlbuild -use-ocamlfind Test/test_audio.native
 
+test_pong:
+        ocamlbuild -use-ocamlfind Test/test_pong.native
+
+
 doc:
 	ocamlbuild -use-ocamlfind sfml.docdir/index.html
 
