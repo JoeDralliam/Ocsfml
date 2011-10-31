@@ -1,3 +1,5 @@
+open System
+
 module Listener =
 struct
 
@@ -35,6 +37,12 @@ object auto (_:'a)
 end
 
 let mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (t: #soun_source) =
+  do_if t#set_pitch pitch ;
+  do_if t#set_volume volume ;
+  do_if t#set_position position;
+  do_if t#set_relative_to_listener relative_to_listener;
+  do_if t#set_min_distance min_distance;
+  do_if t#set_attenuation attenuation
 
 
 external class virtual sound_stream : "sf_SoundStream" =
@@ -52,6 +60,10 @@ object
   external method get_loop : unit -> bool = "GetLoop"
 end
 
+let mk_sound_stream ?playing_offset ?loop (t: #sound_stream) =
+  do_if t#set_playing_offset playing_offset ;
+  do_if t#set_loop loop
+
 external class musicCpp (Music) : "sf_Music" =
 object
   external inherit sound_stream : "sf_SoundStream"
@@ -63,6 +75,12 @@ end
 class music = 
   let t = Music.default () in 
     musicCpp t
+
+let mk_music ?playing_offset ?loop ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation () =
+  let t = new music in
+    mk_sound_stream t ;
+    mk_sound_source t ;
+    t
 
 type samples_type = (int, Bigarray.int16_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
 

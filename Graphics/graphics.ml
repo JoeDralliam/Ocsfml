@@ -1,3 +1,4 @@
+open System
 open Window
 
 type 'a rect =
@@ -111,12 +112,12 @@ object
   external method transform_to_global : float * float -> float * float = "TransformToGlobal"
 end
 
-let mk_drawable ?position ?scale ?origin ?rotation ?color ?blend_mode (t: #drawable) =
+let mk_drawable ?position ?scale ?origin ?rotation ?color ?blendMode (t: #drawable) =
   do_if t#set_position_v position ;
   do_if t#set_scale_v scale ;
   do_if t#set_origin_v origin ;
   do_if t#set_rotation rotation ;
-  do_if t#set_blend_mode blend_mode
+  do_if t#set_blend_mode blendMode
 
 external class imageCpp (Image) : "sf_Image" =
 object auto (self:'a)
@@ -125,7 +126,7 @@ object auto (self:'a)
   (* external method create_from_pixels : int -> int -> string (* should it be a bigarray ? *) -> unit = "CreateFromPixels" *)
   external method load_from_file : string -> bool = "LoadFromFile"
 (*  external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : System.input_stream -> bool = "LoadFromStream"
+  external method load_from_stream : input_stream -> bool = "LoadFromStream"
   external method save_to_file : string -> bool = "SaveToFile"
   external method get_height : unit -> int = "GetWidth"
   external method get_width : unit -> int = "GetHeight"
@@ -150,7 +151,7 @@ let mk_image tag =
       | `File filename -> img#load_from_file filename
       | `Stream inputstream -> img#load_from_stream inputstream
     then img
-    else raise System.LoadFailure
+    else raise LoadFailure
 
 external cpp get_maximum_size : unit -> int = "Texture_GetMaximumSize"
 
@@ -160,7 +161,7 @@ object
   external method create : int -> int -> unit = "Create"
   external method load_from_file : ?rect: int rect -> string -> bool = "LoadFromFile" 
 (*external method load_from_memory : ?rect: int rect -> string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : ?rect: int rect -> System.input_stream -> bool = "LoadFromStream"
+  external method load_from_stream : ?rect: int rect -> input_stream -> bool = "LoadFromStream"
   external method load_from_image : ?rect: int rect -> image -> bool = "LoadFromImage"
   external method get_width : unit -> int = "GetWidth"
   external method get_height : unit -> int = "GetHeight"
@@ -186,7 +187,7 @@ let mk_texture tag =
       | `File filename -> tex#load_from_file filename
       | `Stream inputstream -> tex#load_from_stream inputstream
     then tex
-    else raise System.LoadFailure
+    else raise LoadFailure
 
 type glyph =
     {
@@ -201,7 +202,7 @@ object (_:'b)
   (*  constructor copy : 'b ---> pas possible ya un prob sur le type *)
   external method load_from_file : string -> bool = "LoadFromFile"
   (*external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = "LoadFromStream"
+  external method load_from_stream : 'a. (#input_stream as 'a) -> bool = "LoadFromStream"
   external method get_glyph : int -> int -> bool -> glyph = "GetGlyph"
   external method get_kerning : int -> int -> int -> int = "GetKerning"
   external method get_line_spacing : int -> int = "GetLineSpacing"
@@ -216,7 +217,7 @@ let mk_font tag =
       | `File s -> f#load_from_file s
       | `Stream s -> f#load_from_stream s
   then f
-  else raise System.LoadFailure
+  else raise LoadFailure
 
 (* shader *)
 external class shaderCpp (Shader) : "sf_Shader" =
@@ -224,7 +225,7 @@ object (self)
   constructor default : unit = "default_constructor"
   external method load_from_file : string -> bool = "LoadFromFile"
 (* external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : 'a. (#System.input_stream as 'a) -> bool = "LoadFromStream"
+  external method load_from_stream : 'a. (#input_stream as 'a) -> bool = "LoadFromStream"
   method set_parameter name ?x ?y ?z w =
     let count = ref 0 in
     let vars = Array.make 4 0.0 in
@@ -262,7 +263,7 @@ let mk_shader tag =
       | `File s -> sh#load_from_file s
       | `Stream s -> sh#load_from_stream s
   then sh
-  else raise System.LoadFailure
+  else raise LoadFailure
 
 (* view *)
 external class viewCpp (View) : "sf_View" =
