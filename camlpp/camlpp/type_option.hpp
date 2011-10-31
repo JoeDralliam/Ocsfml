@@ -24,11 +24,11 @@
 #include <memory>
 
 template< class T >
-struct Optional
+class Optional
 {
 	std::unique_ptr<T> val_;
 	ConversionManagement<T> cm_;
-
+public:
 	Optional( value const& v ) : val_()
 	{
 		if( Is_block( v ) )
@@ -44,29 +44,38 @@ struct Optional
 	Optional( std::unique_ptr< T > ptr ) : val_( std::move( ptr ) )
 	{}
 
-  Optional( Optional const& other) : val_( other.val_ ? new T(*other.val_) : 0)
+  	Optional( Optional const& other) : val_( other.val_ ? new T(*other.val_) : 0)
 	{}
 
-	bool isNone() const
+	bool is_none() const
 	{
 		return !val_;
 	}
 
-	bool isSome() const
+	bool is_some() const
 	{
 		return (bool)val_;
 	}
 
 	T& get_value()
 	{
-		assert( isSome() );
+		assert( is_some() );
 		return *val_;
 	}
 
 	T const& get_value() const
 	{
-		assert( isSome() );
+		assert( is_some() );
 		return *val_;
+	}
+	
+	T const& get_value_no_fail( T const& t) const
+	{
+		if(is_some())
+		{
+			return *val_;
+		}
+		return t;
 	}
 };
 
@@ -96,7 +105,7 @@ struct AffectationManagement< Optional< T > >
 {
 	static void affect( value& v, Optional< T > const& opt )
 	{
-		if( opt.isNone() )
+		if( opt.is_none() )
 		{
 			v = Val_int( 0 );
 		}

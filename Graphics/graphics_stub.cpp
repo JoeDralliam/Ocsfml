@@ -143,19 +143,19 @@ extern "C"
 
 void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
 {
-	image->Create(w, h, color.isSome() ? color.get_value() : sf::Color(0, 0, 0));
+	image->Create(w, h, color.get_value_no_fail( sf::Color(0, 0, 0) ) );
 }
 
 void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> alpha, sf::Color color)
 {
-	image->CreateMaskFromColor( color, alpha.isSome() ? alpha.get_value() : 0 );
+	image->CreateMaskFromColor( color, alpha.get_value_no_fail( 0 ) );
 }
 
 void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
 {
 	img->Copy( 	src, destX, destY, 
-			srcRect.isSome() ? srcRect.get_value() : sf::IntRect(0,0,0,0),
-			applyAlpha.isSome() ? applyAlpha.get_value() : false );
+			srcRect.get_value_no_fail( sf::IntRect(0,0,0,0) ),
+			applyAlpha.get_value_no_fail( false ) );
 }
 
 typedef sf::Image sf_Image;
@@ -225,15 +225,15 @@ camlpp__custom_class_registered()
 void shape_add_point_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, float x, float y)
 {
 	shape->AddPoint(x, y, 
-			col.isSome() ? col.get_value() : sf::Color(255, 255, 255),
-			outline.isSome() ? outline.get_value() : sf::Color(0, 0, 0) );
+			col.get_value_no_fail( sf::Color(255, 255, 255) ),
+			outline.get_value_no_fail( sf::Color(0, 0, 0) ) );
 }
 
 void shape_add_pointV_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, sf::Vector2f vec)
 {
 	shape->AddPoint( vec,
-			col.isSome() ? col.get_value() : sf::Color(255, 255, 255),
-			outline.isSome() ? outline.get_value() : sf::Color(0, 0, 0) );
+			col.get_value_no_fail( sf::Color(255, 255, 255) ),
+			outline.get_value_no_fail( sf::Color(0, 0, 0) ) );
 }
 
 typedef sf::Shape sf_Shape;
@@ -271,8 +271,8 @@ sf::Shape* shape_line_helper(Optional<float> outline, Optional<sf::Color> outlin
 				(
 			    		p1x, p1y, p2x, p2y,
 			    		thickness, color,
-			    		outline.isSome() ? outline.get_value() : 0.f,
-			    		outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+			    		outline.get_value_no_fail( 0.f ),
+			    		outlineColor.get_value_no_fail( sf::Color(0,0,0) )
 				)
 			);
 }
@@ -287,8 +287,8 @@ sf::Shape* shape_lineV_helper(Optional<float> outline, Optional<sf::Color> outli
 				(
 					start, end,
 					thickness, color,
-					outline.isSome() ? outline.get_value() : 0.f,
-					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+					outline.get_value_no_fail( 0.f ),
+					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
 				)
 			);
 }
@@ -304,8 +304,8 @@ sf::Shape* shape_rectangle_helper(Optional<float> outline, Optional<sf::Color> o
 				(
 					left, top, width, height,
 					color,
-					outline.isSome() ? outline.get_value() : 0.f,
-					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+					outline.get_value_no_fail( 0.f ),
+					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
 				)
 			);
 }
@@ -321,8 +321,8 @@ sf::Shape* shape_rectangleR_helper( Optional<float> outline, Optional<sf::Color>
 				(
 					rectangle,
 			 		color,
-					outline.isSome() ? outline.get_value() : 0.f,
-					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+					outline.get_value_no_fail( 0.f),
+					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
 				)
 			);
 }
@@ -338,8 +338,8 @@ sf::Shape* shape_circle_helper( Optional<float> outline, Optional<sf::Color> out
 				(
 					x, y,
 					radius, color,
-					outline.isSome() ? outline.get_value() : 0.f,
-					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+					outline.get_value_no_fail( 0.f),
+					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
 				)
 			);
 }
@@ -354,8 +354,8 @@ sf::Shape* shape_circleV_helper( Optional<float> outline, Optional<sf::Color> ou
 				(
 					center,
 					radius, color,
-					outline.isSome() ? outline.get_value() : 0.f,
-					outlineColor.isSome() ? outlineColor.get_value() : sf::Color(0,0,0)
+					outline.get_value_no_fail( 0.f),
+					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
 				)
 			);
 }
@@ -373,22 +373,22 @@ extern "C"
 
 bool texture_load_from_file_helper( sf::Texture* text, Optional<sf::IntRect> area, std::string filename )
 {
-	return text->LoadFromFile( filename, area.isSome() ? area.get_value() : sf::IntRect() );
+	return text->LoadFromFile( filename, area.get_value_no_fail( sf::IntRect() ) );
 }
 
 bool texture_load_from_stream_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::InputStream& stream )
 {
-	return text->LoadFromStream( stream, area.isSome() ? area.get_value() : sf::IntRect() );
+	return text->LoadFromStream( stream, area.get_value_no_fail( sf::IntRect() ) );
 }
 
 bool texture_load_from_image_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::Image const& image)
 {
-	return text->LoadFromImage( image , area.isSome() ? area.get_value() : sf::IntRect() );
+	return text->LoadFromImage( image , area.get_value_no_fail( sf::IntRect() ) );
 }
 
 void texture_update_from_image_helper( sf::Texture* tex, sf::Image const& img, Optional<sf::Vector2<unsigned int> > p)
 {
-	if(p.isSome())
+	if(p.is_some())
 	{
 		tex->Update( img, p.get_value().x, p.get_value().y );
 	}
@@ -400,7 +400,7 @@ void texture_update_from_image_helper( sf::Texture* tex, sf::Image const& img, O
 
 void texture_update_from_window_helper( sf::Texture* tex, sf::Window const& img, Optional<sf::Vector2<unsigned int> > p)
 {
-	if(p.isSome())
+	if(p.is_some())
 	{
 		tex->Update( img, p.get_value().x, p.get_value().y );
 	}
@@ -440,7 +440,7 @@ extern "C"
 
 void sprite_set_texture_helper( sf::Sprite* spr, Optional<bool> resize, sf::Texture const& texture)
 {
-	spr->SetTexture( texture, resize.isSome() ? resize.get_value() : false );
+	spr->SetTexture( texture, resize.get_value_no_fail( false ) );
 }
 
 typedef sf::Sprite sf_Sprite;
@@ -502,8 +502,8 @@ custom_enum_conversion( sf::Text::Style );
 sf::Text* text_constructor_helper( Optional<sf::Font const*> font, Optional<unsigned> characterSize, char* str)
 {
 	return new sf::Text( 	sf::String(str),
-				font.isSome() ? *font.get_value() : sf::Font::GetDefaultFont(), 
-				characterSize.isSome() ? characterSize.get_value() : 30);
+				font.is_some() ? *font.get_value() : sf::Font::GetDefaultFont(), 
+				characterSize.get_value_no_fail( 30 ) );
 }
 
 void text_set_string_helper( sf::Text* txt, char* str)
@@ -629,12 +629,12 @@ camlpp__custom_class_registered()
 
 void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color, UnitTypeHolder )
 {
-	return target->Clear( color.isSome() ? color.get_value() : sf::Color(0, 0, 0, 255) );
+	return target->Clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
 }
 
 sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Optional<sf::View const*> opt, unsigned int x, unsigned int y)
 {
-	if( opt.isSome() )
+	if( opt.is_some() )
 	{
 		return target->ConvertCoords(x, y, *opt.get_value() );
 	}
@@ -689,12 +689,12 @@ camlpp__custom_class_registered()
 
 bool render_texture_create_helper( sf::RenderTexture* rI, Optional<bool> depthBfr, unsigned w, unsigned h)
 {
-	return rI->Create( w, h, depthBfr.isSome() ? depthBfr.get_value() : false);
+	return rI->Create( w, h, depthBfr.get_value_no_fail( false ) );
 }
 
 bool render_texture_set_active_helper( sf::RenderTexture* rI, Optional<bool> active )
 {
-	return rI->SetActive( active.isSome() ? active.get_value() : true );
+	return rI->SetActive( active.get_value_no_fail( true ) );
 }
 
 
@@ -714,9 +714,9 @@ camlpp__custom_class_registered()
 
 sf::RenderWindow* render_window_constructor_helper(Optional<std::list<unsigned long> > style , Optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
 {
-	unsigned long actualStyle =  style.isSome() ? style_of_list_unsigned( style.get_value() )
+	unsigned long actualStyle =  style.is_some() ? style_of_list_unsigned( style.get_value() )
 						    : sf::Style::Default;
-	sf::ContextSettings actualSettings = cs.isSome() ? cs.get_value() : sf::ContextSettings();
+	sf::ContextSettings actualSettings = cs.get_value_no_fail( sf::ContextSettings() );
 	return new sf::RenderWindow( vm, title, actualStyle, actualSettings );
 }
 
