@@ -12,14 +12,13 @@ struct
 
 end
 
-module SoundSource =
-struct
-  type status = Stopped | Paused | playing
-end
+
+type status = Stopped | Paused | Playing
+
 
 external class virtual sound_source : "sf_SoundSource" =
 object auto (_:'a)
-  constructor copy : 'a -> 'a = "copy_constructor"
+  (* constructor copy : 'a -> 'a = "copy_constructor" *)
   external method set_pitch : float -> unit = "SetPitch"
   external method set_volume : float -> unit = "SetVolume"
   external method set_position : float -> float -> float -> unit = "SetPosition"
@@ -44,7 +43,7 @@ object
   external method stop : unit -> unit = "Stop"
   external method get_channel_count : unit -> int = "GetChannelCount"
   external method get_sample_rate : unit -> int = "GetSampleRate"
-  external method get_status : unit -> SoundSource.status = "GetStatus"	     
+  external method get_status : unit -> status = "GetStatus"	     
   external method set_playing_offset : int -> unit = "SetPlayingOffset"
   external method get_playing_offset : unit -> int = "GetPlayingOffset"
   external method set_loop : bool -> unit = "SetLoop"
@@ -59,26 +58,30 @@ object
   external method get_duration : unit -> int = "GetDuration"
 end
 
-class music = let t = Music.default () in musicCpp t
+class music = 
+  let t = Music.default () in 
+    musicCpp t
 
-type samples_type = (int, int_16_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
+type samples_type = (int, Bigarray.int16_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
 
 external class  sound_bufferCpp (SoundBuffer) : "sf_SoundBuffer" =
 object auto (_ : 'a)
   constructor default : unit = "default_constructor"
-  constructor copy : 'a -> 'a = "copy_constructor"
+  (* constructor copy : 'a -> 'a = "copy_constructor" *)
   external method load_from_file : string -> bool = "LoadFromFile"
   external method load_from_stream : System.input_stream -> bool = "LoadFromStream"
   external method load_from_samples :  samples_type -> int -> int -> bool = "LoadFromSamples"
   external method save_to_file : string -> bool = "SaveToFile"
-  external method get_samples : unit -> samlpes_type = "GetSamples" 
-  external method get_samples_count : unit -> count = "GetSamplesCount"
+  external method get_samples : unit -> samples_type = "GetSamples" 
+  external method get_samples_count : unit -> int = "GetSamplesCount"
   external method get_sample_rate : unit -> int = "GetSampleRate"
   external method get_channels_count : unit -> int = "GetChannelsCount"
   external method get_duration : unit -> int = "GetDuration"
 end
 
-class sound_buffer = let t = SoundBuffer.default () in sound_bufferCpp t
+class sound_buffer = 
+  let t = SoundBuffer.default () in 
+    sound_bufferCpp t
 
 external class virtual sound_recorder : "sf_SoundRecorder" =
 object
@@ -95,6 +98,7 @@ end
 external class sound_buffer_recorderCpp (SoundBufferRecorder) : "sf_SoundBufferRecorder" =
 object 
   external inherit sound_recorder : "sf_SoundRecorder"
+  constructor default : unit = "default_constructor"
   external method get_buffer : unit -> sound_buffer = "GetBuffer"
 end
 
@@ -105,6 +109,22 @@ class sound_buffer_recorder =
 
 external class soundCpp (Sound) : "sf_Sound" =
 object
-  external inherit 
-
+  external inherit sound_source : "sf_SoundSource"
+  constructor default : unit = "default_constructor"
+  constructor create_from_buffer : sound_buffer = "buffer_constructor"
+   (* constructor copy *)
+  external method play : unit -> unit = "Play"
+  external method pause : unit -> unit = "Pause" 
+  external method stop : unit -> unit = "Stop"
+  external method set_buffer : sound_buffer -> unit = "SetBuffer"
+  external method set_loop : bool -> unit = "SetLoop"
+  external method set_playing_offset : int -> unit = "SetPlayingOffset"	     
+  external method get_buffer : unit -> sound_buffer = "GetBuffer"
+  external method get_loop : unit -> bool = "GetLoop"
+  external method get_playing_offset : unit -> int = "GetPlayingOffset"
+  external method get_status : unit -> status = "GetStatus"
 end
+
+class sound = 
+  let t = Sound.default () in
+    soundCpp t
