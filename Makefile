@@ -49,6 +49,9 @@ test_window:
 test_graphics:
 	ocamlbuild -use-ocamlfind Test/test_graphics.native
 
+test_audio:
+	ocamlbuild -use-ocamlfind Test/test_audio.native
+
 doc:
 	ocamlbuild -use-ocamlfind sfml.docdir/index.html
 

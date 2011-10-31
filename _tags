@@ -34,5 +34,5 @@
 <Test/test_graphics.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
 <Test/test_object.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem, profile
 <Test/test_pong.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
-<Test/test_sound.{byte,native}> : use_ocsfmlaudio, use_ocsfmlsystem
+<Test/test_audio.{byte,native}> : use_ocsfmlaudio, use_ocsfmlsystem
 <Test/test_pong_objects.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem

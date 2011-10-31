@@ -69,7 +69,7 @@ object auto (_ : 'a)
   constructor default : unit = "default_constructor"
   (* constructor copy : 'a -> 'a = "copy_constructor" *)
   external method load_from_file : string -> bool = "LoadFromFile"
-  external method load_from_stream : System.input_stream -> bool = "LoadFromStream"
+  external method load_from_stream : System.input_stream -> bool = "LoadFromStream" 
   external method load_from_samples :  samples_type -> int -> int -> bool = "LoadFromSamples"
   external method save_to_file : string -> bool = "SaveToFile"
   external method get_samples : unit -> samples_type = "GetSamples" 
@@ -111,7 +111,7 @@ external class soundCpp (Sound) : "sf_Sound" =
 object
   external inherit sound_source : "sf_SoundSource"
   constructor default : unit = "default_constructor"
-  constructor create_from_buffer : sound_buffer = "buffer_constructor"
+  constructor create_from_sound_buffer : sound_buffer = "buffer_constructor"
    (* constructor copy *)
   external method play : unit -> unit = "Play"
   external method pause : unit -> unit = "Pause" 
