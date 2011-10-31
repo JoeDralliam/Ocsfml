@@ -23,7 +23,7 @@ let play_sound () =
 
 let play_music () =
   let music = new music in
-    music#load_from_file "resources/orchestral.ogg" ;
+    music#open_from_file "resources/orchestral.ogg" ;
     Printf.printf "orchestral.ogg :\n %f seconds\n %i samples / sec \n %i channels\n"
       ((float_of_int (music#get_duration ()))/.1000.) 
       (music#get_sample_rate ())

@@ -1,3 +1,6 @@
+exception LoadFailure
+
+
 external class clockCpp (Clock): "sf_Clock" =
 object
   constructor create : unit = "default_constructor"

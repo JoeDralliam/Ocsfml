@@ -86,8 +86,9 @@ object
   external method set_position : float -> float -> unit = "SetPosition"
   external method set_position_v : float*float -> unit = "SetPositionV"
   external method set_x : float -> unit = "SetX"
+  external method set_y : float -> unit = "SetY"
   external method set_scale : float -> float -> unit = "SetScale"
-  external method set_scale_v : float*float -> unit = "SetScaleV"
+  external method set_scale_v : float*float -> unit = "SetScaleV" 
   external method set_scale_x : float -> unit = "SetScaleX"
   external method set_scale_y : float -> unit = "SetScaleY"
   external method set_origin : float -> float -> unit = "SetOrigin"
@@ -122,7 +123,7 @@ object auto (self:'a)
   external method save_to_file : string -> bool = "SaveToFile"
   external method get_height : unit -> int = "GetWidth"
   external method get_width : unit -> int = "GetHeight"
-  external method create_mask_from_color : ?alpha:int -> Color.t = "CreateMaskFromColor"
+  external method create_mask_from_color : ?alpha:int -> Color.t -> unit = "CreateMaskFromColor"
   external method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit = "Copy" (* à mettre private *)
   external method set_pixel : int -> int -> Color.t -> unit = "SetPixel"
   external method get_pixel : int -> int -> Color.t = "GetPixel" 
@@ -131,7 +132,19 @@ object auto (self:'a)
   external method flip_vertically : unit -> unit = "FlipVertically"
 end
 
-class image = let t = Image.default () in imageCpp t
+class image =
+  let t = Image.default () 
+  in imageCpp t
+
+let mk_image tag = 
+  let img = new image in
+    if match tag with
+      | `Create (w,h) -> (img#create_from_color w h ; true)
+      | `Color (color,w,h) -> (img#create_from_color ~color w h ; true)
+      | `File filename -> img#load_from_file filename
+      | `Stream inputstream -> img#load_from_stream inputstream
+    then img
+    else raise System.LoadFailure
 
 external cpp get_maximum_size : unit -> int = "Texture_GetMaximumSize"
 
@@ -152,21 +165,22 @@ object
   external method bind : unit -> unit = "Bind"
  (* external method unbind : unit -> unit = "Unbind" Removed *)
   external method set_smooth : bool -> unit = "SetSmooth"
-  external method is_smooth : bool -> unit = "IsSmooth"
+  external method is_smooth : bool -> unit = "IsSmooth" 
   external method get_tex_coords : int rect -> float rect = "GetTexCoords"
 end
 
-class texture = let t = Texture.default () in textureCpp t	 
+class texture = 
+  let t = Texture.default () in 
+    textureCpp t	 
 
-let create_texture init = 
-  let t = new texture in
-    if (match init with
-      | `File f -> t#load_from_file f
-      | `Stream s -> t#load_from_stream s
-     (*  | `Memory m -> t#load_from_memory m *)
-      | `Image img -> t#load_from_image img)
-    then t 
-    else failwith "unable to create the texture from this source" 
+let mk_texture tag =
+  let tex = new texture in
+    if match tag with
+      | `Image (rect,img) -> tex#load_from_image ~rect img
+      | `File filename -> tex#load_from_file filename
+      | `Stream inputstream -> tex#load_from_stream inputstream
+    then tex
+    else raise System.LoadFailure
 
 type glyph =
     {
@@ -190,14 +204,13 @@ end
 
 class font = let t = Font.default () in fontCpp t
 
-let create_font init = 
+let mk_font tag = 
   let f = new font in
-  if (match init with
-	| `File s -> f#load_from_file s
-(*	| `Memory m -> f#load_from_memory m *)
-	| `Stream s -> f#load_from_stream s)
+    if match tag with
+      | `File s -> f#load_from_file s
+      | `Stream s -> f#load_from_stream s
   then f
-  else failwith "unable to initialise font from this source"
+  else raise System.LoadFailure
 
 (* shader *)
 external class shaderCpp (Shader) : "sf_Shader" =
@@ -231,11 +244,19 @@ object (self)
   external method unbind : unit -> unit = "Unbind"
 end
 
-external cpp is_available : unit -> unit = "Shader_IsAvailable"
+external cpp shader_is_available : unit -> unit = "Shader_IsAvailable"
 
 class shader = 
   let t = Shader.default () in 
     shaderCpp t
+
+let mk_shader tag = 
+  let sh = new shader in
+    if match tag with
+      | `File s -> sh#load_from_file s
+      | `Stream s -> sh#load_from_stream s
+  then sh
+  else raise System.LoadFailure
 
 (* view *)
 external class viewCpp (View) : "sf_View" =
@@ -268,12 +289,9 @@ class view ?rect ?center ?size () =
     match rect with
       | Some r -> View.create_from_rect r
       | None -> View.default ()
-	  (*match center with
-	     | Some c ->
-		 (match size with
-		    | Some s -> View.create_from_vectors c s
-		    | None -> View.default ())
-	     | None -> View.default ()*)
+	  (*match (center, size) with
+	     | ((Some c), (Some s)) -> View.create_from_vectors c s
+	     | _ -> View.default ()*)
   in viewCpp t
 
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
@@ -293,22 +311,6 @@ object
 end 
 
 
-(** DEPRECATED. Do not use.  
-external class render_imageCpp (RenderImage) : "sf_RenderImage" =
-object
-  external inherit render_target (RenderTarget) : "sf_RenderTarget"
-  constructor default : unit = "default_constructor"
-  external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
-  external method set_smooth : bool -> unit = "SetSmooth"
-  external method is_smooth : unit -> bool = "IsSmooth"
-  external method set_active : bool -> unit = "SetActive"
-  external method display : unit -> unit = "Display"
-  external method get_image : unit -> image = "GetImage"
-end
- 
-
-class render_image = let t = RenderImage.default () in render_imageCpp t
-*)
 external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
   external inherit render_target (RenderTarget) : "sf_RenderTarget"
@@ -358,6 +360,23 @@ end
 
 class shape = let t = Shape.default () in shapeCpp t
 
+let mk_shape ?points ?position ?scale ?rotation ?origin ?color ?blendMode ?fill ?outline ?outline_thickness () =
+  let do_if f = function
+    | Some x -> f x
+    | None -> ()
+  in
+  let t = new shape in
+    do_if (fun l -> List.iter (fun (x,y,c1,c2) -> t#add_point ~color:c1 ~outline:c2 x y) l) points ;
+    do_if t#set_position_v position ;
+    do_if t#set_scale_v scale ;
+    do_if t#set_rotation rotation ;
+    do_if t#set_origin_v origin ;
+    do_if t#set_color color ;
+    do_if t#set_blend_mode blendMode ;
+    do_if t#enable_fill fill ;
+    do_if t#enable_outline outline;
+    do_if t#set_outline_thickness outline_thickness;
+    t
 
 module ShapeObjects =
 struct 
@@ -390,12 +409,29 @@ end
 
 class text = let t = Text.default () in textCpp t
 
+let mk_text ?string ?string ?position ?scale ?rotation ?origin ?color ?font ?character_size ?style () =
+  let do_if f = function
+    | Some x -> f x
+    | None -> ()
+  in
+  let t = new text in
+    do_if t#set_string string ;
+    do_if t#set_position_v position ;
+    do_if t#set_scale_v scale ;
+    do_if t#set_rotation rotation ;
+    do_if t#set_origin_v origin ;
+    do_if t#set_color color ;
+    do_if t#set_font font ;
+    do_if t#set_character_size character_size ;
+    do_if t#set_style style ;
+    t
+
 external class spriteCpp (Sprite) : "sf_Sprite" =
 object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   constructor create_from_texture : texture = "texture_constructor"
-  external method set_texture : texture -> unit = "SetTexture"
+  external method set_texture : ?resize:bool -> texture -> unit = "SetTexture"
   external method set_sub_rect : int rect -> unit = "SetSubRect"
   external method resize : float -> float -> unit = "Resize"
   external method resize_v : float * float -> unit = "ResizeV"
@@ -407,3 +443,19 @@ object
 end
 
 class sprite = let t = Sprite.default () in spriteCpp t
+
+let mk_sprite ?texture ?position ?scale ?rotation ?origin ?color ?blendMode ?sub_rect () =
+  let do_if f = function
+    | Some x -> f x
+    | None -> ()
+  in
+  let t = new sprite in
+    do_if t#set_texture texture ;
+    do_if t#set_position_v position ;
+    do_if t#set_scale_v scale ;
+    do_if t#set_rotation rotation ;
+    do_if t#set_origin_v origin ;
+    do_if t#set_color color ;
+    do_if t#set_blend_mode blendMode ;
+    do_if t#set_sub_rect sub_rect ;
+    t
