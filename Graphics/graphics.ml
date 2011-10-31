@@ -115,7 +115,8 @@ let mk_drawable ?position ?scale ?origin ?rotation ?color ?blend_mode (t: #drawa
   do_if t#set_position_v position ;
   do_if t#set_scale_v scale ;
   do_if t#set_origin_v origin ;
-do_if
+  do_if t#set_rotation rotation ;
+  do_if t#set_blend_mode blend_mode
 
 external class imageCpp (Image) : "sf_Image" =
 object auto (self:'a)
@@ -372,12 +373,7 @@ let mk_shape ?points ?position ?scale ?rotation ?origin ?color ?blendMode ?fill 
   in
   let t = new shape in
     do_if (fun l -> List.iter (fun (x,y,c1,c2) -> t#add_point ~color:c1 ~outline:c2 x y) l) points ;
-    do_if t#set_position_v position ;
-    do_if t#set_scale_v scale ;
-    do_if t#set_rotation rotation ;
-    do_if t#set_origin_v origin ;
-    do_if t#set_color color ;
-    do_if t#set_blend_mode blendMode ;
+    mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
     do_if t#enable_fill fill ;
     do_if t#enable_outline outline;
     do_if t#set_outline_thickness outline_thickness;
@@ -414,18 +410,14 @@ end
 
 class text = let t = Text.default () in textCpp t
 
-let mk_text ?string ?string ?position ?scale ?rotation ?origin ?color ?font ?character_size ?style () =
+let mk_text ?string ?string ?position ?scale ?rotation ?origin ?color ?blendMode ?font ?character_size ?style () =
   let do_if f = function
     | Some x -> f x
     | None -> ()
   in
   let t = new text in
     do_if t#set_string string ;
-    do_if t#set_position_v position ;
-    do_if t#set_scale_v scale ;
-    do_if t#set_rotation rotation ;
-    do_if t#set_origin_v origin ;
-    do_if t#set_color color ;
+    mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
     do_if t#set_font font ;
     do_if t#set_character_size character_size ;
     do_if t#set_style style ;
@@ -452,11 +444,6 @@ class sprite = let t = Sprite.default () in spriteCpp t
 let mk_sprite ?texture ?position ?scale ?rotation ?origin ?color ?blendMode ?sub_rect () =
   let t = new sprite in
     do_if t#set_texture texture ;
-    do_if t#set_position_v position ;
-    do_if t#set_scale_v scale ;
-    do_if t#set_rotation rotation ;
-    do_if t#set_origin_v origin ;
-    do_if t#set_color color ;
-    do_if t#set_blend_mode blendMode ;
+    mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
     do_if t#set_sub_rect sub_rect ;
     t
