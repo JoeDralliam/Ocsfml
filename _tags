@@ -1,32 +1,32 @@
 <camlpp/ExternalCpp> : include
 <camlpp/ExternalCpp/*.ml> : syntax(camlp4o), package(camlp4.quotations), package(camlp4.extend)
 
-<System> or <Window> or <Graphics> or <Audio> or <Network> or <Test>: include
+<OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <Network> or <Test>: include
 
-<System/*.{h,c}pp> : include_sfml_system
-"System/libocsfmlsystem.a" : use_sfml_system
-<System/*.cm{x,}a> : use_sfml_system, use_libocsfmlsystem
-<System/*.ml> : package(external_cpp), use_cpp_external
+<OcsfmlSystem/*.{h,c}pp> : include_sfml_system
+"OcsfmlSystem/libocsfmlsystem.a" : use_sfml_system
+<OcsfmlSystem/*.cm{x,}a> : use_sfml_system, use_libocsfmlsystem
+<OcsfmlSystem/*.ml> : syntax(camlp4o), package(external_cpp)
 
-<Window/*.{h,c}pp> : include_sfml_window
-"Window/libocsfmlwindow.a" : use_sfml_window
-<Window/*.cm{x,}a> : use_sfml_window, use_libocsfmlwindow
-<Window/*.ml> : package(external_cpp), use_cpp_external
+<OcsfmlWindow/*.{h,c}pp> : include_sfml_window
+"OcsfmlWindow/libocsfmlwindow.a" : use_sfml_window
+<OcsfmlWindow/*.cm{x,}a> : use_sfml_window, use_libocsfmlwindow
+<OcsfmlWindow/*.ml> : syntax(camlp4o), package(external_cpp)
 
-<Graphics/*.{h,c}pp> : include_sfml_graphics
-"Graphics/libocsfmlgraphics.a" : use_sfml_graphics
-<Graphics/*.cm{x,}a> : use_sfml_graphics, use_libocsfmlgraphics
-<Graphics/*.ml> : package(external_cpp), use_cpp_external
+<OcsfmlGraphics/*.{h,c}pp> : include_sfml_graphics
+"OcsfmlGraphics/libocsfmlgraphics.a" : use_sfml_graphics
+<OcsfmlGraphics/*.cm{x,}a> : use_sfml_graphics, use_libocsfmlgraphics
+<OcsfmlGraphics/*.ml> : syntax(camlp4o), package(external_cpp)
 
-<Audio/*.{h,c}pp> : include_sfml_audio
-"Audio/libocsfmlaudio.a" : use_sfml_audio
-<Audio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
-<Audio/*.ml> : package(external_cpp), use_cpp_external
+<OcsfmlAudio/*.{h,c}pp> : include_sfml_audio
+"OcsfmlAudio/libocsfmlaudio.a" : use_sfml_audio
+<OcsfmlAudio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
+<OcsfmlAudio/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <Network/*.{h,c}pp> : include_sfml_network
 "Network/libocsfmlnetwork.a" : use_sfml_network
 <Network/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork
-<Network/*.ml> : package(external_cpp), use_cpp_external
+<Network/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <Test/test_clock.{byte,native}> : use_ocsfmlsystem
 <Test/test_thread.{byte,native}> : use_ocsfmlsystem

@@ -1,4 +1,4 @@
-open System
+open OcsfmlSystem
 
 let _ =
   let ck = new clock in

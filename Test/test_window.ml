@@ -1,4 +1,4 @@
-open Window
+open OcsfmlWindow
 
 let rec boucle_evenement app =
   match app#poll_event () with

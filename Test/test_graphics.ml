@@ -1,5 +1,5 @@
-open Window
-open Graphics
+open OcsfmlWindow
+open OcsfmlGraphics
 
 
 let rec event_loop app = 
