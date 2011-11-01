@@ -139,12 +139,16 @@ object auto (self:'a)
   external method flip_vertically : unit -> unit = "FlipVertically"
 end
 
-let image () =
+class image_bis () = 
   let t = Image.default () 
-  in new imageCpp t
+  in imageCpp t
+
+class image =
+  image_bis ()
+ 
 
 let mk_image tag = 
-  let img = image () in
+  let img = new image in
     if match tag with
       | `Create (w,h) -> (img#create_from_color w h ; true)
       | `Color (color,w,h) -> (img#create_from_color ~color w h ; true)
@@ -176,12 +180,15 @@ object
   external method get_tex_coords : int rect -> float rect = "GetTexCoords"
 end
 
-let texture () = 
+class texture_bis () = 
   let t = Texture.default () in 
-    new textureCpp t	 
+    textureCpp t
+
+class texture =
+  texture_bis ()
 
 let mk_texture tag =
-  let tex = texture () in
+  let tex = new texture in
     if match tag with
       | `Image (rect,img) -> tex#load_from_image ~rect img
       | `File filename -> tex#load_from_file filename
@@ -209,12 +216,15 @@ object (_:'b)
   external method get_texture : int -> texture = "GetTexture"
 end
 
-let font () = 
+class font_bis () = 
   let t = Font.default () in 
-    new fontCpp t
+    fontCpp t
+
+class font =
+  font_bis ()
 
 let mk_font tag = 
-  let f = font () in
+  let f = new font in
     if match tag with
       | `File s -> f#load_from_file s
       | `Stream s -> f#load_from_stream s
@@ -255,12 +265,15 @@ end
 
 external cpp shader_is_available : unit -> unit = "Shader_IsAvailable"
 
-let shader () = 
+class shader_bis () = 
   let t = Shader.default () in 
-    new shaderCpp t
+    shaderCpp t
+
+class shader =
+  shader_bis ()
 
 let mk_shader tag = 
-  let sh = shader () in
+  let sh = new shader in
     if match tag with
       | `File s -> sh#load_from_file s
       | `Stream s -> sh#load_from_stream s
@@ -293,7 +306,7 @@ object
 end
 
 (** must be called either with param rect, either with both center and size*)
-let view ?rect ?center ?size () =
+class view ?rect ?center ?size () =
   let t = 
     match rect with
       | Some r -> View.create_from_rect r
@@ -301,7 +314,7 @@ let view ?rect ?center ?size () =
 	  (*match (center, size) with
 	     | ((Some c), (Some s)) -> View.create_from_vectors c s
 	     | _ -> View.default ()*)
-  in new viewCpp t
+  in viewCpp t
 
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
 object
@@ -332,9 +345,7 @@ object
   external method get_texture : unit -> texture = "GetTexture"
 end
 
-let render_texture () = 
-  let t = RenderTexture.default () in 
-    new render_textureCpp t
+class render_texture = let t = RenderTexture.default () in render_textureCpp t
 
 external class render_windowCpp (RenderWindow) : "sf_RenderWindow" =
 object
@@ -345,9 +356,9 @@ object
   external method capture : unit -> image = "Capture"
 end
 
-let render_window ?style ?context vm name = 
+class render_window ?style ?context vm name = 
   let t = RenderWindow.create ?style ?context vm name in 
-    new render_windowCpp t
+    render_windowCpp t
 
 external class shapeCpp (Shape) : "sf_Shape" =
 object
@@ -369,12 +380,15 @@ object
   external method get_outline_thickness : unit -> float = "GetOutlineThickness"
 end
 
-let shape () = 
+class shape_bis () = 
   let t = Shape.default () in 
-    new shapeCpp t
+    shapeCpp t
+
+class shape =
+  shape_bis ()
 
 let mk_shape ?points ?position ?scale ?rotation ?origin ?color ?blendMode ?fill ?outline ?outline_thickness () =
-  let t = shape () in
+  let t = new shape in
     do_if (fun l -> List.iter (fun (x,y,c1,c2) -> t#add_point ~color:c1 ~outline:c2 x y) l) points ;
     mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
     do_if t#enable_fill fill ;
@@ -411,12 +425,15 @@ object
   external method get_rect : unit -> float rect = "GetRect"
 end
 
-let text () = 
+class text_bis () = 
   let t = Text.default () in 
-    new textCpp t
+    textCpp t
+
+class text =
+  text_bis ()
 
 let mk_text ?string ?string ?position ?scale ?rotation ?origin ?color ?blendMode ?font ?character_size ?style () =
-  let t = text () in
+  let t = new text in
     do_if t#set_string string ;
     mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
     do_if t#set_font font ;
@@ -440,12 +457,15 @@ object
   external method get_size : unit -> float * float = "GetSize"
 end
 
-let sprite () = 
+class sprite_bis () = 
   let t = Sprite.default () in 
-    new spriteCpp t
+    spriteCpp t
+
+class sprite =
+  sprite_bis ()
 
 let mk_sprite ?texture ?position ?scale ?rotation ?origin ?color ?blendMode ?sub_rect () =
-  let t = sprite () in
+  let t = new sprite in
     do_if t#set_texture texture ;
     mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
     do_if t#set_sub_rect sub_rect ;

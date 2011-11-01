@@ -72,12 +72,15 @@ object
   external method get_duration : unit -> int = "GetDuration"
 end
 
-let music () = 
+class music_bis () = 
   let t = Music.default () in 
-    new musicCpp t
+    musicCpp t
+
+class music =
+  music_bis ()
 
 let mk_music ?playing_offset ?loop ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation () =
-  let t = music () in
+  let t = new music in
     mk_sound_stream t ;
     mk_sound_source t ;
     t
@@ -99,9 +102,12 @@ object auto (_ : 'a)
   external method get_duration : unit -> int = "GetDuration"
 end
 
-let sound_buffer () = 
+class sound_buffer_bis () = 
   let t = SoundBuffer.default () in 
-    new sound_bufferCpp t
+    sound_bufferCpp t
+
+class sound_buffer =
+  sound_buffer_bis ()
 
 external class virtual sound_recorder : "sf_SoundRecorder" =
 object
@@ -122,10 +128,12 @@ object
   external method get_buffer : unit -> sound_buffer = "GetBuffer"
 end
 
-let sound_buffer_recorder () = 
+class sound_buffer_recorder_bis () = 
   let t = SoundBufferRecorder.default () in
-    new sound_buffer_recorderCpp t
+    sound_buffer_recorderCpp t
 
+class sound_buffer_recorder =
+  sound_buffer_recorder_bis ()
 
 external class soundCpp (Sound) : "sf_Sound" =
 object
@@ -145,12 +153,15 @@ object
   external method get_status : unit -> status = "GetStatus"
 end
 
-let sound () = 
+class sound_bis () = 
   let t = Sound.default () in
-    new soundCpp t
+    soundCpp t
+
+class sound =
+  sound_bis ()
 
 let mk_sound ?loop ?buffer ?playing_offset ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation () =
-  let t = sound () in
+  let t = new sound in
     mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation t;
     do_if t#set_loop loop;
     do_if t#set_buffer buffer ;
