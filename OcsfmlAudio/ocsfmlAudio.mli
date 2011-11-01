@@ -193,7 +193,7 @@ class musicCpp :
     method set_volume : float -> unit
     method stop : unit -> unit
   end
-class music : musicCpp
+class music : unit -> musicCpp
 val mk_music :
   ?playing_offset:'a ->
   ?loop:'b ->
@@ -258,7 +258,7 @@ class sound_bufferCpp :
     method rep__sf_SoundBuffer : SoundBuffer.t
     method save_to_file : string -> bool
   end
-class sound_buffer : sound_bufferCpp
+class sound_buffer : unit -> sound_bufferCpp
 module Sound_recorder :
   sig
     type t
@@ -307,7 +307,7 @@ class sound_buffer_recorderCpp :
     method start : ?sampleRate:int -> unit -> unit
     method stop : unit -> unit
   end
-class sound_buffer_recorder : sound_buffer_recorderCpp
+class sound_buffer_recorder : unit -> sound_buffer_recorderCpp
 module Sound :
   sig
     type t
@@ -363,7 +363,7 @@ class soundCpp :
     method set_volume : float -> unit
     method stop : unit -> unit
   end
-class sound : soundCpp
+class sound : unit -> soundCpp
 val mk_sound :
   ?loop:bool ->
   ?buffer:sound_buffer ->
