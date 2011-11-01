@@ -32,6 +32,7 @@
 <Test/test_thread.{byte,native}> : use_ocsfmlsystem
 <Test/test_window.{byte,native}> : use_ocsfmlwindow
 <Test/test_graphics.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
+<Test/test_graphics2.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
 <Test/test_object.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem, profile
 <Test/test_pong.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
 <Test/test_audio.{byte,native}> : use_ocsfmlaudio, use_ocsfmlsystem, package( bigarray )

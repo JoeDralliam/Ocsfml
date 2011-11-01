@@ -75,8 +75,9 @@ struct AffectationManagement<T*, false>
 
 	static void affect_field(value& v, int field, T* t)
 	{
-		value tmp = caml_alloc(1, Abstract_tag);
-		Store_field(tmp, 0, reinterpret_cast<value>(t));
+		CAMLparam0();
+		CAMLlocal1( tmp );
+		affect( tmp, t );
 		Store_field(v, field, tmp);
 	}
 };
