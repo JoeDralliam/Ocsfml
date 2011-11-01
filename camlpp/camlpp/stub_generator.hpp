@@ -35,10 +35,11 @@
 		typedef boost::function_traits< FuncType > FuncTraits; \
 		MemoryManagement< FuncTraits::arity > mm(unit); \
 		ResManagement< FuncTraits::result_type > rm; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func \
 		); \
+		return res; \
 	}
 
 #define camlpp__register_overloaded_free_function1( func_name, func ) \
@@ -49,11 +50,12 @@
 		MemoryManagement< FuncTraits::arity > mm(param1); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type> cm1; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ) \
 		); \
+		return res; \
 	}
 
 
@@ -68,12 +70,13 @@
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ) \
 		); \
+		return res; \
 	}
 
 #define camlpp__register_overloaded_free_function3( func_name, func ) \
@@ -86,13 +89,14 @@
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
 			cm3.from_value( param3 ) \
 		); \
+		return res; \
 	}
 
 #define camlpp__register_overloaded_free_function4( func_name, func ) \
@@ -106,7 +110,7 @@
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
@@ -114,6 +118,7 @@
 			cm3.from_value( param3 ), \
 			cm4.from_value( param4 ) \
 		); \
+		return res; \
 	}
 
 #define camlpp__register_overloaded_free_function5( func_name, func ) \
@@ -128,7 +133,7 @@
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
@@ -137,6 +142,7 @@
 			cm4.from_value( param4 ), \
 			cm5.from_value( param5 ) \
 		); \
+		return res; \
 	}
 
 #define camlpp__register_overloaded_free_function6( func_name, func ) \
@@ -152,7 +158,7 @@
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
@@ -162,6 +168,7 @@
 			cm5.from_value( param5 ), \
 			cm6.from_value( param6 )  \
 		); \
+		return res; \
 	} \
 	CAMLprim value func_name##__byte( value* v, int count ) \
 	{ \
@@ -183,7 +190,7 @@
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
@@ -194,6 +201,7 @@
 			cm6.from_value( param6 ),  \
 			cm7.from_value( param7 )  \
 		); \
+		return res; \
 	} \
 	CAMLprim value func_name##__byte( value* v, int count ) \
 	{ \
@@ -216,7 +224,7 @@
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
 		ConversionManagement< FuncTraits::arg8_type > cm8; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
@@ -228,6 +236,7 @@
 			cm7.from_value( param7 ), \
 			cm8.from_value( param8 )  \
 		); \
+		return res; \
 	} \
 	CAMLprim value func_name##__byte( value* v, int count ) \
 	{ \
@@ -251,7 +260,7 @@
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
 		ConversionManagement< FuncTraits::arg8_type > cm8; \
 		ConversionManagement< FuncTraits::arg9_type > cm9; \
-		return rm.call \
+		value res = rm.call \
 		( \
 			func, \
 			cm1.from_value( param1 ), \
@@ -264,6 +273,7 @@
 			cm8.from_value( param8 ), \
 			cm9.from_value( param9 )  \
 		); \
+		return res; \
 	} \
 	CAMLprim value func_name##__byte( value* v, int count ) \
 	{ \
