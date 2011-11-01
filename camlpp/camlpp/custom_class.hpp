@@ -84,15 +84,17 @@ struct copy_instance_helper< T, true >
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj); \
+		CAMLparam1(obj); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
+			res, \
 			std::bind(func, std::placeholders::_1), \
 			cm1.from_value( obj ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	}
 
 
@@ -101,17 +103,19 @@ struct copy_instance_helper< T, true >
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj, param1); \
+		CAMLparam2(obj, param1); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
+			res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	}
 
 #define camlpp__register_method2( method_name, func ) \
@@ -119,19 +123,21 @@ struct copy_instance_helper< T, true >
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2); \
+		CAMLparam3(obj, param1, param2); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
+			res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ),	\
 			cm3.from_value( param2 ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	}
 
 #define camlpp__register_method3( method_name, func ) \
@@ -139,21 +145,23 @@ struct copy_instance_helper< T, true >
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2, param3); \
+		CAMLparam4(obj, param1, param2, param3); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
+			res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
 			cm3.from_value( param2 ), \
 			cm4.from_value( param3 ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	}
 
 
@@ -162,23 +170,25 @@ struct copy_instance_helper< T, true >
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2, param3, param4); \
+		CAMLparam5(obj, param1, param2, param3, param4); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
-		 std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), \
+			res, \
+			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
 			cm3.from_value( param2 ), \
 			cm4.from_value( param3 ), \
 			cm5.from_value( param4 ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	}
 
 #define camlpp__register_method5( method_name, func ) \
@@ -186,7 +196,8 @@ struct copy_instance_helper< T, true >
 	{ \
 		typedef method_traits< decltype( func ) >::type FuncType; \
 		typedef boost::function_traits< FuncType > FuncTraits; \
-		MemoryManagement< FuncTraits::arity > mm(obj, param1, param2, param3, param4, param5); \
+		CAMLparam5(obj, param1, param2, param3, param4); \
+		CAMLxparam1(param5); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
@@ -194,9 +205,11 @@ struct copy_instance_helper< T, true >
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
-		 std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6), \
+			res, \
+			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
 			cm3.from_value( param2 ), \
@@ -204,7 +217,7 @@ struct copy_instance_helper< T, true >
 			cm5.from_value( param4 ), \
 			cm6.from_value( param5 ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	} \
 	CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
 	{ \
@@ -218,13 +231,15 @@ struct copy_instance_helper< T, true >
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
-			MemoryManagement< FuncTraits::arity > mm( param1 ); \
+			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				func \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_external_constructor1( constructor_name, func) \
@@ -232,15 +247,17 @@ struct copy_instance_helper< T, true >
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
-			MemoryManagement< FuncTraits::arity > mm( param1 ); \
+			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				func, \
 				cm1.from_value( param1 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_external_constructor2( constructor_name, func ) \
@@ -248,17 +265,19 @@ struct copy_instance_helper< T, true >
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
-			MemoryManagement< FuncTraits::arity > mm( param1, param2 ); \
+			CAMLparam2( param1, param2 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_external_constructor3( constructor_name, func ) \
@@ -266,19 +285,21 @@ struct copy_instance_helper< T, true >
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
-			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3 ); \
+			CAMLparam3( param1, param2, param3 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
 				cm3.from_value( param3 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_external_constructor4( constructor_name, func ) \
@@ -286,21 +307,23 @@ struct copy_instance_helper< T, true >
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
-			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3, param4 ); \
+			CAMLparam4( param1, param2, param3, param4 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
 			ConversionManagement< FuncTraits::arg4_type > cm4; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res,\
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
 				cm3.from_value( param3 ), \
 				cm4.from_value( param4 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_external_constructor5( constructor_name, func) \
@@ -308,15 +331,17 @@ struct copy_instance_helper< T, true >
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
 			typedef boost::function_traits< FuncType > FuncTraits; \
-			MemoryManagement< FuncTraits::arity > mm( param1, param2, param3, param4, param5 ); \
+			CAMLparam5( param1, param2, param3, param4, param5 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
 			ConversionManagement< FuncTraits::arg4_type > cm4; \
 			ConversionManagement< FuncTraits::arg5_type > cm5; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
@@ -324,7 +349,7 @@ struct copy_instance_helper< T, true >
 				cm4.from_value( param4 ), \
 				cm5.from_value( param5 )  \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 
@@ -332,95 +357,107 @@ struct copy_instance_helper< T, true >
 #define camlpp__register_constructor0( constructor_name) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
 		{ \
-			MemoryManagement< 0 > mm( unit ); \
+			CAMLparam1( unit ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >() \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_constructor1( constructor_name, param1_type) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
 		{ \
-			MemoryManagement< 1 > mm( param1 ); \
+			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				cm1.from_value( param1 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_constructor2( constructor_name, param1_type, param2_type) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
 		{ \
-			MemoryManagement< 2 > mm( param1, param2 ); \
+			CAMLparam2( param1, param2 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_constructor3( constructor_name, param1_type, param2_type, param3_type) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
 		{ \
-			MemoryManagement< 3 > mm( param1, param2, param3 ); \
+			CAMLparam3( param1, param2, param3 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
 				cm3.from_value( param3 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_constructor4( constructor_name, param1_type, param2_type, param3_type, param4_type) \
 		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
 		{ \
-			MemoryManagement< 4 > mm( param1, param2, param3, param4 ); \
+			CAMLparam4( param1, param2, param3, param4 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
 			ConversionManagement< param4_type > cm4; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
 				cm3.from_value( param3 ), \
 				cm4.from_value( param4 ) \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 #define camlpp__register_constructor5( constructor_name, param1_type, param2_type, param3_type, param4_type, param5_type) \
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
 		{ \
-			MemoryManagement< 5 > mm( param1, param2, param3, param4, param5 ); \
+			CAMLparam5( param1, param2, param3, param4, param5 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
 			ConversionManagement< param4_type > cm4; \
 			ConversionManagement< param5_type > cm5; \
-			value res = rm.call \
+			CAMLlocal1(res);\
+			rm.call \
 			( \
+				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
@@ -428,7 +465,7 @@ struct copy_instance_helper< T, true >
 				cm4.from_value( param4 ), \
 				cm5.from_value( param5 )  \
 			); \
-			return res; \
+			CAMLreturn( res ); \
 		}
 
 
@@ -442,15 +479,17 @@ struct copy_instance_helper< T, true >
 	} \
 	CAMLprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
 	{ \
-		MemoryManagement< 1 > mm( param1 ); \
+		CAMLparam1( param1 ); \
 		ResManagement< superclass_name *, false> rm; \
 		ConversionManagement< CAMLPP__CLASS_NAME() * > cm1;\
-		value res = rm.call \
+		CAMLlocal1(res);\
+		rm.call \
 		( \
+			res, \
 			BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), \
 			cm1.from_value( param1 ) \
 		); \
-		return res; \
+		CAMLreturn( res ); \
 	}
 
 

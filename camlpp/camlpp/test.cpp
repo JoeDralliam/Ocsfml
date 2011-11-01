@@ -18,7 +18,7 @@
 #include <iostream>
 #include "stub_generator.hpp"
 #include "channel_streambuf_interface.hpp"
-
+#include "memory_management.hpp"
 
 extern "C"
 {
@@ -28,7 +28,7 @@ extern "C"
 }
 
 #undef flush
-
+//*   
 std::pair<double, double> test1()
 {
 	return { 5.0, 12.0 };
@@ -37,27 +37,54 @@ extern "C"
 {
 	camlpp__register_free_function0( test1 );
 }
+//*/
 /*  
+void affect_double_to_field( value& v, int field, double val)
+{
+	CAMLparam0();
+	AffectationManagement<double>::affect_field(v, field, val);
+	CAMLreturn0;
+ 
+	CAMLparam0();
+	CAMLlocal1( p );
+	p = caml_copy_double( val );
+	Field(v, field) = p;
+	CAMLreturn0;
+
+  
+}
+
 extern "C"
 {
 CAMLprim value test1__impl( value unit )
 {
-	CAMLparam1( unit );
-	CAMLlocal3( res, p1, p2 );
+//	MemoryManagement<1> mm(unit);
+	CAMLparam1(unit);
+	value res = 0;
+	CAMLxparam1( res );
 	double a = 5.0, b = 12.0;
-	CAMLlocal1(pair);
-	pair = caml_alloc( 2 * Double_wosize, Double_array_tag );
-	Store_double_field( pair, 0, a);
-	Store_double_field( pair, 1, b);
-	CAMLreturn( pair ); 
-	p1 = caml_copy_double( a );
-	p2 = caml_copy_double( b );
+
+// 	CAMLlocal1(pair);
+//	pair = caml_alloc( 2 * Double_wosize, Double_array_tag );
+//	Store_double_field( pair, 0, a);
+//	Store_double_field( pair, 1, b);
+//	CAMLreturn( pair ); 
+
+
+//	res = caml_alloc_tuple( 2 );
+
+//	AffectationManagement<std::pair<double, double> >::affect(res, std::make_pair(a,b));
+//	AffectationManagement<double>::affect_field(res, 0, b);
+//	AffectationManagement<double>::affect_field(res, 1, a);
+
+//	affect_double_to_field( res, 0, a);
+//	affect_double_to_field( res, 1, b);
+ 
 	res = caml_alloc_tuple( 2 );
-	Field( res, 0 ) = p1;
-	Field( res, 1 ) = p2;
-	CAMLreturn( res );
+	caml_cpp__affect_field( res, 0, a );
+	caml_cpp__affect_field( res, 1, b );
+	CAMLreturn(res);
 } 
 }
 
 */
-

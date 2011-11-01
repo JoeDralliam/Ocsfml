@@ -418,15 +418,17 @@ struct AffectationManagement< std::list< T > >
 };
 
 template<bool shouldReturnObject, class T>
-void caml_cpp__affect(value& v, T const& t)
+inline void caml_cpp__affect(value& v, T const& t)
 {
-	AffectationManagement<T, shouldReturnObject>::affect(v, t);
+	AffectationManagement< T, shouldReturnObject >::affect(v,t);
 }
 
 template<class T>
-void caml_cpp__affect_field(value& v, int field, T const& t)
+inline void caml_cpp__affect_field(value& v, int field, T&& t)
 {
-	AffectationManagement<T, true>::affect_field(v, field, t);
+//	CAMLparam0();
+	AffectationManagement< T >::affect_field(v, field,t);
+//	CAMLreturn0;
 }
 
 #endif

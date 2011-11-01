@@ -23,17 +23,11 @@
 
 template<class T, bool shouldReturnObject = true>
 struct ResManagement {
-	value res;
-	ResManagement( ) : res(0)
-	{
-		CAMLxparam1( res );
-	}
 
 	template<class Func,class... Args>
-	value& call(Func&& f, Args&&... args)
+	void call(value& res, Func&& f, Args&&... args)
 	{
 		caml_cpp__affect<shouldReturnObject>(res, f(std::forward<Args>(args)...));
-		return res;
 	}
 };
 
@@ -41,9 +35,9 @@ struct ResManagement {
 struct ResManagementIntegerBase
 {
 	template<class Func, class... Args>
-	value call(Func&& f, Args&&... args)
+	void call(value& res, Func&& f, Args&&... args)
 	{
-		return Val_int(f(std::forward<Args>(args)...));
+		res = Val_int(f(std::forward<Args>(args)...));
 	}
 };
 
@@ -86,10 +80,10 @@ template<>
 struct ResManagement<void>
 {
 	template<class Func, class... Args>
-	value call(Func&& f, Args&&... args)
+	void call(value& res, Func&& f, Args&&... args)
 	{
 		f(std::forward<Args>(args)...);
-		return Val_unit;
+		res = Val_unit;
 	}
 };
 
