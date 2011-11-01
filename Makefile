@@ -22,6 +22,19 @@ network:
 	ocamlbuild -use-ocamlfind ocsfmlnetwork.cma && \
 	ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
 
+infer:
+	ocamlbuild -use-ocamlfind ocsfmlSystem.inferred.mli && \
+	mv _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli && \
+	ocamlbuild -use-ocamlfind ocsfmlWindow.inferred.mli && \
+	mv _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli && \
+	ocamlbuild -use-ocamlfind ocsfmlGraphics.inferred.mli && \
+	mv _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli && \
+	ocamlbuild -use-ocamlfind ocsfmlAudio.inferred.mli && \
+	mv _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli && \
+	ocamlbuild -use-ocamlfind ocsfmlNetwork.inferred.mli && \
+	mv _build/OcsfmlNetwork/ocsfmlNetwork.inferred.mli OcsfmlNetwork/ocsfmlNetwork.mli
+
+
 camlpp:
 	ocamlbuild -use-ocamlfind ./camlpp/ExternalCpp/pa_cpp_external.cma
 
