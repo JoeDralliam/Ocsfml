@@ -2,6 +2,9 @@ open OcsfmlWindow
 open OcsfmlGraphics
 
 
+let vm = VideoMode.( { width=600; height=400; bits_per_pixel=32 } ) 
+let app = new render_window vm "OCSFML2" 
+
 let rec event_loop app = 
   match app#poll_event () with
     | Some e -> (
@@ -23,21 +26,12 @@ let hello_world =
 
 let shape = ShapeObjects.circle ~outline:20.0 ~outlineColor:Color.red 400.0 300.0 100.0 Color.yellow   
 
-let texture1 = 
-	let t = new textureCpp (Texture.default ()) in
-		if t#load_from_file "resources/paddle_right.png"
-		then t
-		else failwith "Could not load texture 1"
-let texture2 = 
-	let t = new textureCpp (Texture.default ()) in
-		if t#load_from_file "resources/paddle_left.png"
-		then t
-		else failwith "Could not load texture 2" 
-
+let texture1 = mk_texture (`File "Resources/paddle_right.png")
+let texture2 = mk_texture (`File "Resources/paddle_left.png")
 
 let draw (app:#render_window) = 
-  let sprite1 = new spriteCpp (Sprite.create_from_texture texture1) in
-  let sprite2 = new spriteCpp (Sprite.create_from_texture texture2) in
+  let sprite1 = mk_sprite ~texture:texture1 () in
+  let sprite2 = mk_sprite ~texture:texture2 ~position:(80.0,160.0) () in
   app#clear () ;   
   app#draw hello_world ;
   app#draw shape ;
@@ -58,8 +52,6 @@ let rec main_loop app =
 
 
 let graphics_test () =
-  let vm = VideoMode.( { width=600; height=400; bits_per_pixel=32 } ) in
-  let app = new render_window vm "OCSFML2" in
     main_loop app ;
     app#destroy ()
 

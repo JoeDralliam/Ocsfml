@@ -6,7 +6,6 @@ open OcsfmlAudio
 let pi = 4.0 *. atan 1.0
 
 let load_sound_buffer file_name =
-<<<<<<< HEAD
 	let sound_buffer = new sound_bufferCpp (SoundBuffer.default ()) in
 		if sound_buffer#load_from_file file_name
 		then sound_buffer
@@ -15,27 +14,13 @@ let load_sound_buffer file_name =
 
 let load_texture file_name =
 	let texture = new textureCpp (Texture.default ()) in
-=======
-  let sound_buffer = new sound_buffer () in
-    if sound_buffer#load_from_file file_name
-    then sound_buffer
-    else failwith ("Could not load sound buffer " ^ file_name)
-      
-
-let load_texture file_name =
-	let texture = new texture () in
->>>>>>> Revert b01f96413479b40426f95b854580b71a87de937f^..HEAD
 		if texture#load_from_file file_name
 		then texture
 		else failwith ("Could not load texture " ^ file_name)
 
 
 let load_font file_name  =
-<<<<<<< HEAD
 	let font = new fontCpp (Font.default ()) in
-=======
-	let font = new font () in
->>>>>>> Revert b01f96413479b40426f95b854580b71a87de937f^..HEAD
 		if font#load_from_file file_name
 		then font
 		else failwith ("Could not load font " ^ file_name)
@@ -57,7 +42,7 @@ begin
 
 
 	
-	let endText = new text () in
+	let endText = new text in
 		endText#set_font font;
 		endText#set_character_size 50;
 		endText#move 150.0 200.0;
