@@ -188,7 +188,8 @@ class imageCpp :
     method save_to_file : string -> bool
     method set_pixel : int -> int -> Color.t -> unit
   end
-class image : imageCpp
+class image_bis : unit -> imageCpp
+class image : image_bis
 val mk_image :
   [< `Color of Color.t * int * int
    | `Create of int * int
@@ -245,7 +246,8 @@ class textureCpp :
     method update_from_window :
       ?coords:int * int -> #OcsfmlWindow.window -> unit
   end
-class texture : textureCpp
+class texture_bis : unit -> textureCpp
+class texture : texture_bis
 val mk_texture :
   [< `File of string
    | `Image of int rect * image
@@ -282,7 +284,8 @@ class fontCpp :
     method load_from_stream : #OcsfmlSystem.input_stream -> bool
     method rep__sf_Font : Font.t
   end
-class font : fontCpp
+class font_bis : unit -> fontCpp
+class font : font_bis
 val mk_font :
   [< `File of string | `Stream of #OcsfmlSystem.input_stream ] -> font
 module Shader :
@@ -337,7 +340,8 @@ class shaderCpp :
     method unbind : unit -> unit
   end
 external shader_is_available : unit -> unit = "Shader_IsAvailable__impl"
-class shader : shaderCpp
+class shader_bis : unit -> shaderCpp
+class shader : shader_bis
 val mk_shader :
   [< `File of string | `Stream of #OcsfmlSystem.input_stream ] -> shader
 module View :
@@ -635,7 +639,8 @@ class shapeCpp :
     method transform_to_global : float * float -> float * float
     method transform_to_local : float * float -> float * float
   end
-class shape : shapeCpp
+class shape_bis : unit -> shapeCpp
+class shape : shape_bis
 val mk_shape :
   ?points:(float * float * Color.t * Color.t) list ->
   ?position:float * float ->
@@ -743,7 +748,8 @@ class textCpp :
     method transform_to_global : float * float -> float * float
     method transform_to_local : float * float -> float * float
   end
-class text : textCpp
+class text_bis : unit -> textCpp
+class text : text_bis
 val mk_text :
   ?string:'a ->
   ?string:string ->
@@ -820,7 +826,8 @@ class spriteCpp :
     method transform_to_global : float * float -> float * float
     method transform_to_local : float * float -> float * float
   end
-class sprite : spriteCpp
+class sprite_bis : unit -> spriteCpp
+class sprite : sprite_bis
 val mk_sprite :
   ?texture:texture ->
   ?position:float * float ->

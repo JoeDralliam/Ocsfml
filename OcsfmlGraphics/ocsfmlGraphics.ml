@@ -139,9 +139,13 @@ object auto (self:'a)
   external method flip_vertically : unit -> unit = "FlipVertically"
 end
 
-class image =
+class image_bis () = 
   let t = Image.default () 
   in imageCpp t
+
+class image =
+  image_bis ()
+ 
 
 let mk_image tag = 
   let img = new image in
@@ -176,9 +180,12 @@ object
   external method get_tex_coords : int rect -> float rect = "GetTexCoords"
 end
 
-class texture = 
+class texture_bis () = 
   let t = Texture.default () in 
-    textureCpp t	 
+    textureCpp t
+
+class texture =
+  texture_bis ()
 
 let mk_texture tag =
   let tex = new texture in
@@ -209,7 +216,12 @@ object (_:'b)
   external method get_texture : int -> texture = "GetTexture"
 end
 
-class font = let t = Font.default () in fontCpp t
+class font_bis () = 
+  let t = Font.default () in 
+    fontCpp t
+
+class font =
+  font_bis ()
 
 let mk_font tag = 
   let f = new font in
@@ -253,9 +265,12 @@ end
 
 external cpp shader_is_available : unit -> unit = "Shader_IsAvailable"
 
-class shader = 
+class shader_bis () = 
   let t = Shader.default () in 
     shaderCpp t
+
+class shader =
+  shader_bis ()
 
 let mk_shader tag = 
   let sh = new shader in
@@ -365,13 +380,14 @@ object
   external method get_outline_thickness : unit -> float = "GetOutlineThickness"
 end
 
-class shape = let t = Shape.default () in shapeCpp t
+class shape_bis () = 
+  let t = Shape.default () in 
+    shapeCpp t
+
+class shape =
+  shape_bis ()
 
 let mk_shape ?points ?position ?scale ?rotation ?origin ?color ?blendMode ?fill ?outline ?outline_thickness () =
-  let do_if f = function
-    | Some x -> f x
-    | None -> ()
-  in
   let t = new shape in
     do_if (fun l -> List.iter (fun (x,y,c1,c2) -> t#add_point ~color:c1 ~outline:c2 x y) l) points ;
     mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
@@ -409,13 +425,14 @@ object
   external method get_rect : unit -> float rect = "GetRect"
 end
 
-class text = let t = Text.default () in textCpp t
+class text_bis () = 
+  let t = Text.default () in 
+    textCpp t
+
+class text =
+  text_bis ()
 
 let mk_text ?string ?string ?position ?scale ?rotation ?origin ?color ?blendMode ?font ?character_size ?style () =
-  let do_if f = function
-    | Some x -> f x
-    | None -> ()
-  in
   let t = new text in
     do_if t#set_string string ;
     mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
@@ -440,7 +457,12 @@ object
   external method get_size : unit -> float * float = "GetSize"
 end
 
-class sprite = let t = Sprite.default () in spriteCpp t
+class sprite_bis () = 
+  let t = Sprite.default () in 
+    spriteCpp t
+
+class sprite =
+  sprite_bis ()
 
 let mk_sprite ?texture ?position ?scale ?rotation ?origin ?color ?blendMode ?sub_rect () =
   let t = new sprite in
