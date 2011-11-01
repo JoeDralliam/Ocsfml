@@ -38,13 +38,13 @@ struct ShouldUseRegularTag;
 template<class T, class... ArgsToScan>
 struct ShouldUseRegularTag<T, ArgsToScan...>
 {
-	enum { value = ((!std::is_same<T, double>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
+	enum { value = ((!std::is_floating_point<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
 };
 
 template<class T>
 struct ShouldUseRegularTag<T>
 {
-	enum { value = !std::is_same<T, double>::value };
+	enum { value = !std::is_floating_point<T>::value };
 };
 
 
@@ -52,9 +52,15 @@ template<class... Args>
 class RegularOrDoubleArrayTag
 {
 public:
-	enum { value = ShouldUseRegularTag<Args...>::value ? 0 : Double_array_tag };
+	enum { result_value = ShouldUseRegularTag<Args...>::value ? 0 : Double_array_tag };
 };
 
+template<class... Args>
+class LengthDoubleFactor
+{
+public:
+        enum { result_value = ShouldUseRegularTag<Args...>::value ? 1 : Double_wosize };
+};
 template< class T, bool shouldReturnObject = true>
 class AffectationManagement;
 
@@ -124,7 +130,11 @@ struct AffectationManagement<double>
 		}
 		else
 		{
-			Store_field(v, field, d);
+			CAMLparam0();
+			CAMLlocal1( double_val );
+			affect(double_val, d);
+			Field(v, field) = double_val;
+			CAMLreturn0;
 		}
 	}
 };
@@ -145,7 +155,11 @@ struct AffectationManagement<float>
 		}
 		else
 		{
-			Store_field(v, field, d);
+			CAMLparam0();
+			CAMLlocal1( double_val );
+			affect(double_val, d);
+			Field(v, field) = double_val;
+			CAMLreturn0;
 		}
 	}
 };
@@ -306,7 +320,7 @@ struct AffectationManagement< std::tuple< Args... > >
 {
 	static void affect(value& v, std::tuple< Args... > const& tup)
 	{
-		v = caml_alloc( sizeof...( Args ), RegularOrDoubleArrayTag<Args...>::value );
+		v = caml_alloc_tuple( sizeof...( Args ) );
 		affect_helper( v, tup, std::integral_constant<size_t, sizeof...(Args) - 1>() );
 	}
 
@@ -335,8 +349,7 @@ struct AffectationManagement< std::pair< T1, T2 > >
 {
 	static void affect(value& v, std::pair< T1, T2 > const& p)
 	{
-		v = caml_alloc( 2, RegularOrDoubleArrayTag<T1, T2>::value  );
-		if (RegularOrDoubleArrayTag<T1, T2>::value) std::cout << "Use a double array" << std::endl; 
+		v = caml_alloc_tuple( 2 );
 		AffectationManagement< T1 >::affect_field(v, 0, p.first);
 		AffectationManagement< T2 >::affect_field(v, 1, p.second);
 	}
@@ -356,7 +369,7 @@ struct AffectationManagement< std::vector< T > >
 {
 	static void affect(value& v, std::vector<T> const& vec)
 	{
-		v = caml_alloc( vec.size(), RegularOrDoubleArrayTag<T>::value );
+		v = caml_alloc( vec.size() * LengthDoubleFactor<T>::result_value , RegularOrDoubleArrayTag<T>::result_value );
 		for(int i = 0; i < vec.size(); ++i)
 		{
 			AffectationManagement< T >::affect_field(v, i, vec[i]);
@@ -380,14 +393,14 @@ struct AffectationManagement< std::list< T > >
 	{
 		CAMLparam0();
 		CAMLlocal1( tmp );
-		tmp = caml_alloc( 2 , RegularOrDoubleArrayTag<T>::value );
+		tmp = caml_alloc( 2 * LengthDoubleFactor<T>::result_value , RegularOrDoubleArrayTag<T>::result_value );
 		AffectationManagement<T>::affect_field( tmp, 1, Val_int(0) );
 		for( auto it = lst.begin(); it != lst.end(); ++it)
 		{
 			T const& val = *it;
 			AffectationManagement< T >::affect_field(tmp, 0, val);
 			v = tmp;
-			tmp = caml_alloc_tuple( 2 );
+			tmp = caml_alloc( 2 * LengthDoubleFactor<T>::result_value , RegularOrDoubleArrayTag<T>::result_value );
 			Store_field(tmp, 1, v);
 		}
 		CAMLreturn0;

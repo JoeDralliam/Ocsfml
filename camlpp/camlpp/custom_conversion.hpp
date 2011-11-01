@@ -66,7 +66,7 @@ protected:
 	template<class... Args>
 	static void affect_impl(value& v, T const& t, Args... args)
 	{
-		v = caml_alloc( sizeof...(Args), RegularOrDoubleArrayTag<Args...>::value );
+		v = caml_alloc( sizeof...(Args) * LengthDoubleFactor<Args...>::result_value , RegularOrDoubleArrayTag<Args...>::result_value );
 		affect_impl_helper(v, 0, t, args...);
 	}
 
@@ -75,7 +75,7 @@ protected:
 	{
 		CAMLparam0();
 		CAMLlocal1(tmp);
-		tmp = caml_alloc( sizeof...(Args), RegularOrDoubleArrayTag<Args...>::value );
+		tmp = caml_alloc( sizeof...(Args) * LengthDoubleFactor<Args...>::result_value, RegularOrDoubleArrayTag<Args...>::result_value );
 		affect_impl_helper(tmp, 0, t, args...);
 		Store_field(v, field, tmp);
 		CAMLreturn0;

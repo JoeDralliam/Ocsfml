@@ -1,7 +1,7 @@
-open System
-open Window
-open Graphics
-open Audio
+open OcsfmlSystem
+open OcsfmlWindow
+open OcsfmlGraphics
+open OcsfmlAudio
 
 let pi = 4.0 *. atan 1.0
 
@@ -52,19 +52,18 @@ begin
 	let right_paddle = new spriteCpp (Sprite.create_from_texture right_paddle_texture) in
 	let ball = new spriteCpp (Sprite.create_from_texture ball_texture) in
 	let ball_sound = new soundCpp (Sound.create_from_sound_buffer ball_sound_buffer) in
-	
+
 	let view = app#get_view () in
 	let app_size = view#get_size () in
 	let lft_size = left_paddle#get_size () in
 	let rgt_size = right_paddle#get_size () in
 	let ball_size = ball#get_size () in
-	let test = fst app_size -. fst lft_size in
 
-	(*left_paddle#move 10.0 (() /. 2.0) ;
+	left_paddle#move 10.0 ((fst app_size -. fst lft_size) /. 2.0) ;
 	right_paddle#move 	((fst ((app#get_view ())#get_size ())) -. (fst (right_paddle#get_size ())) -. 10.0) 
 						(((snd ((app#get_view ())#get_size ())) -. (snd (right_paddle#get_size ())) ) /. 2.0) ;
 	ball#move 	(((fst  ((app#get_view ())#get_size ())) -. (fst  (ball#get_size ()))) /. 2.0)
-				(((snd ((app#get_view ())#get_size ())) -. (snd (ball#get_size ()))) /. 2.0) ; *)
+				(((snd ((app#get_view ())#get_size ())) -. (snd (ball#get_size ()))) /. 2.0) ; 
 	
 	let ai_timer = new clock in
 	let ai_time = 100 in
@@ -123,11 +122,11 @@ begin
 			if (fst (ball#get_position ()) +. fst (ball#get_size ())) > fst ((app#get_view ())#get_size ())
 			then begin
 				is_playing := false;
-				endText#set_string "You lost!\n(press escape to exit)"
+				endText#set_string "You won!\n(press escape to exit)"
 			end;
 			if snd(ball#get_position ()) < 0.0
 			then begin
-				ball_sound#play ();
+				ball_sound#play (); 
 				ball_angle := -. !ball_angle;
 				ball#set_y 0.1
 			end;
@@ -144,7 +143,7 @@ begin
 				(snd (ball#get_position ()) +. snd(ball#get_size ()) >= snd (left_paddle#get_position ())) &&
                 (snd (ball#get_position ())							  <= snd (left_paddle#get_position ()) +. snd (left_paddle#get_size()))
 			then begin
-				ball_sound#play ();
+			(*	ball_sound#play (); *)
 				ball_angle := pi -. !ball_angle;
 				ball#set_y  (fst (left_paddle#get_position ()) +. fst (ball#get_size ()) +. 0.1)
 			end ;
@@ -154,7 +153,7 @@ begin
 				(snd (ball#get_position ())  +. snd (ball#get_size ())  >= snd (right_paddle#get_position ())) &&
 				(snd (ball#get_position ()) 							<= snd (right_paddle#get_position ()) +. snd (right_paddle#get_size()))
 			then begin
-				ball_sound#play ();
+			(*	ball_sound#play (); *)
 				ball_angle := pi -. !ball_angle;
 				ball#set_y  (fst(right_paddle#get_position ()) -. fst(ball#get_size ()) -. 0.1)
 			end
@@ -163,6 +162,7 @@ begin
 	in			
 	
 	let draw () =
+		app#clear () ;
 		app#draw background ;
 		app#draw left_paddle ;
 		app#draw right_paddle ;
@@ -175,7 +175,7 @@ begin
 		if app#is_opened()
 		then begin
 			event_loop ();
-		(*	update (); *)
+			update ();
 			draw ();
 			app#display ();
 			main_loop ()
