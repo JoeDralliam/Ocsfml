@@ -62,6 +62,16 @@ struct ConversionManagement<T&>
 	}
 };
 
+template<>
+struct ConversionManagement<char>
+{
+	char from_value(value& v)
+	{
+		assert( Is_long( v ) );
+		return Int_val(v);
+	}
+};
+
 
 template<>
 struct ConversionManagement<short>
@@ -103,6 +113,16 @@ struct ConversionManagement<long long>
 };
 
 template<>
+struct ConversionManagement<unsigned char>
+{
+	char from_value(value& v)
+	{
+		assert( Is_long( v ) );
+		return Int_val(v);
+	}
+};
+
+template<>
 struct ConversionManagement<unsigned short>
 {
 	unsigned short from_value(value& v)
@@ -134,26 +154,6 @@ template<>
 struct ConversionManagement<unsigned long long>
 {
         unsigned long long from_value(value& v)
-	{
-		assert( Is_long( v ) );
-		return Int_val(v);
-	}
-};
-
-template<>
-struct ConversionManagement<signed char>
-{
-	int from_value(value& v)
-	{
-		assert( Is_long( v ) );
-		return Int_val(v);
-	}
-};
-
-template<>
-struct ConversionManagement<unsigned char>
-{
-	int from_value(value& v)
 	{
 		assert( Is_long( v ) );
 		return Int_val(v);

@@ -374,12 +374,13 @@ struct copy_instance_helper< T, true >
 			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
+			auto p1 = cm1.from_value( param1 ); \
 			CAMLlocal1(res);\
 			rm.call \
 			( \
 				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
-				cm1.from_value( param1 ) \
+				p1 \
 			); \
 			CAMLreturn( res ); \
 		}
@@ -391,13 +392,15 @@ struct copy_instance_helper< T, true >
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
+			auto p1 = cm1.from_value( param1 ); \
+			auto p2 = cm2.from_value( param2 ); \
 			CAMLlocal1(res);\
 			rm.call \
 			( \
 				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
-				cm1.from_value( param1 ), \
-				cm2.from_value( param2 ) \
+				p1, \
+				p2 \
 			); \
 			CAMLreturn( res ); \
 		}
@@ -410,14 +413,17 @@ struct copy_instance_helper< T, true >
 			ConversionManagement< param1_type > cm1; \
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
+			auto p1 = cm1.from_value( param1 ); \
+			auto p2 = cm2.from_value( param2 ); \
+			auto p3 = cm3.from_value( param3 ); \
 			CAMLlocal1(res);\
 			rm.call \
 			( \
 				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
-				cm1.from_value( param1 ), \
-				cm2.from_value( param2 ), \
-				cm3.from_value( param3 ) \
+				p1, \
+				p2, \
+				p3 \
 			); \
 			CAMLreturn( res ); \
 		}
@@ -431,15 +437,19 @@ struct copy_instance_helper< T, true >
 			ConversionManagement< param2_type > cm2; \
 			ConversionManagement< param3_type > cm3; \
 			ConversionManagement< param4_type > cm4; \
+			auto p1 = cm1.from_value( param1 ); \
+			auto p2 = cm2.from_value( param2 ); \
+			auto p3 = cm3.from_value( param3 ); \
+			auto p4 = cm4.from_value( param4 ); \
 			CAMLlocal1(res);\
 			rm.call \
 			( \
 				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
-				cm1.from_value( param1 ), \
-				cm2.from_value( param2 ), \
-				cm3.from_value( param3 ), \
-				cm4.from_value( param4 ) \
+				p1, \
+				p2, \
+				p3, \
+				p4 \
 			); \
 			CAMLreturn( res ); \
 		}
@@ -454,16 +464,21 @@ struct copy_instance_helper< T, true >
 			ConversionManagement< param3_type > cm3; \
 			ConversionManagement< param4_type > cm4; \
 			ConversionManagement< param5_type > cm5; \
+			auto p1 = cm1.from_value( param1 ); \
+			auto p2 = cm2.from_value( param2 ); \
+			auto p3 = cm3.from_value( param3 ); \
+			auto p4 = cm4.from_value( param4 ); \
+			auto p5 = cm5.from_value( param5 ); \
 			CAMLlocal1(res);\
 			rm.call \
 			( \
 				res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
-				cm1.from_value( param1 ), \
-				cm2.from_value( param2 ), \
-				cm3.from_value( param3 ), \
-				cm4.from_value( param4 ), \
-				cm5.from_value( param5 )  \
+				p1, \
+				p2, \
+				p3, \
+				p4, \
+				p5  \
 			); \
 			CAMLreturn( res ); \
 		}
