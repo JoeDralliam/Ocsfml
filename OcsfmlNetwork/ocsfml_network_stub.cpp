@@ -251,8 +251,8 @@ camlpp__register_custom_class()
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
-custom_enum_conversion( sf::Socket::Status )
-custom_enum_affectation( sf::Socket::Status )
+custom_enum_conversion( sf::Socket::Status );
+custom_enum_affectation( sf::Socket::Status );
 
 // Dont forget the Socket::AnyPort constant ( 0 )
 
@@ -287,16 +287,77 @@ camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
 
+sf::Socket::Status tcpsocket_connect_helper( 	sf::TcpSocket* obj,
+						Optional<sf::Uint32> timeout,
+						sf::IpAddress const& remoteAddress,
+						unsigned short remotePort )
+{
+	return obj->Connect( 	remoteAddress, remotePort,
+				timeout.get_value_no_fail( 0 ) );
+}
+
+typedef sf::TcpSocket sf_TcpSocket;
+
+
+typedef sf::Socket::Status (sf::TcpSocket::*TransferPacketTcp)(sf::Packet&);
+
+#define CAMLPP__CLASS_NAME() sf_TcpSocket
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method0( GetLocalPort, &sf::TcpSocket::GetLocalPort )
+	camlpp__register_method0( GetRemotePort, &sf::TcpSocket::GetRemotePort )
+	camlpp__register_method3( Connect, &tcpsocket_connect_helper )
+	camlpp__register_method0( Disconnect, &sf::TcpSocket::Disconnect )
+//	camlpp__register_method2( SendData
+//	camlpp__register_method2( ReceiveData                 // third param should be returned
+	camlpp__register_method1( SendPacket, ((TransferPacketTcp)&sf::TcpSocket::Send) )
+	camlpp__register_method1( ReceivePacket,((TransferPacketTcp)&sf::TcpSocket::Receive) )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
+typedef sf::TcpListener sf_TcpListener;
+#define CAMLPP__CLASS_NAME() sf_TcpListener
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method0( GetLocalPort, &sf::TcpListener::GetLocalPort )
+	camlpp__register_method1( Listen, &sf::TcpListener::Listen )
+	camlpp__register_method0( Close, &sf::TcpListener::Close )
+	camlpp__register_method1( Accept, &sf::TcpListener::Accept )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
 
 
 
 
+// Dont forget UdpSocket::MaxDatagramSize constant !
 
 
+typedef sf::Socket::Status (sf::UdpSocket::*TransferPacketUdp)(	sf::Packet&, 
+								sf::IpAddress const&,
+								unsigned short);
 
 
+std::tuple< sf::Socket::Status, unsigned short /*  remote port */ >
+udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpAddress& remoteIp)
+{
+	unsigned short remotePort;
+	sf::Socket::Status status( obj->Receive( packet, remoteIp, remotePort ) );
+	return std::make_tuple( status, remotePort );
+}
 
-
+typedef sf::UdpSocket sf_UdpSocket;
+#define CAMLPP__CLASS_NAME() sf_UdpSocket
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_method0( GetLocalPort, &sf::UdpSocket::GetLocalPort )
+	camlpp__register_method1( Bind, &sf::UdpSocket::Bind )
+	camlpp__register_method0( Unbind, &sf::UdpSocket::Unbind )
+//	camlpp__register_method4( SendData
+//	camlpp__register_method?( ReceiveData
+	camlpp__register_method3( SendPacket, ((TransferPacketUdp)&sf::UdpSocket::Send) )
+	camlpp__register_method2( ReceivePacket, &udpsocket_receive_packet_helper )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
 
 
 

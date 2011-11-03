@@ -72,6 +72,16 @@ struct ConversionManagement<char>
 	}
 };
 
+template<>
+struct ConversionManagement<signed char>
+{
+	char from_value(value& v)
+	{
+		assert( Is_long( v ) );
+		return Int_val(v);
+	}
+};
+
 
 template<>
 struct ConversionManagement<short>
