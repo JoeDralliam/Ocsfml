@@ -11,7 +11,12 @@ object
   external method reset : unit -> unit = "Reset"
 end
 
-class clock = let ck = Clock.create () in clockCpp ck
+class clock_bis () = 
+  let ck = Clock.create () in 
+    clockCpp ck
+
+class clock =
+  clock_bis ()
 
 external cpp sleep : int -> unit = "sf_Sleep"
 
@@ -25,7 +30,9 @@ object
   external method terminate : unit -> unit = "Terminate"
 end
 
-class thread f = let th = Thread.create f in threadCpp th
+class thread f = 
+  let th = Thread.create f in 
+    threadCpp th
 
 external class mutexCpp (Mutex) : "sf_Mutex" =
 object
@@ -34,7 +41,13 @@ object
   external method unlock : unit -> unit = "Unlock"
 end
 
-class mutex = let mu = Mutex.create () in mutexCpp mu
+class mutex_bis () = 
+  let mu = Mutex.create () in 
+    mutexCpp mu
+
+class mutex =
+  mutex_bis ()
+
 
 class virtual input_stream =
 object
