@@ -67,7 +67,7 @@ let add_gcc_rules () =
 		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
 	  build_transitive_deps [([],[cpp])];
-	  Cmd (S[A gcc_cpp ; A"-std=c++0x" ; T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
+	  Cmd (S[A gcc_cpp ; A"-O3" ; A"-std=c++0x" ; T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
     end;
 
     rule "g++ : cpplib -> a" ~dep:"%.cpplib" ~prod:"%.a" begin
