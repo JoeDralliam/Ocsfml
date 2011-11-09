@@ -74,14 +74,14 @@ struct
     
   external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse"
   object
-    external inherit response
+    external inherit response : "sf_Ftp_Response"
     constructor default : response = "default_constructor"
     external method get_directory : unit -> string = "GetDirectory"
   end
 
   external class listing_response (ListingResponse) : "sf_Ftp_ListingResponse"
   object
-    external inherit response
+    external inherit response : "sf_Ftp_Response"
     constructor default : response -> char list (* ou char array ? *) = "default_constructor"
     external method get_filenames : unit -> string list (* ou string array ? *) = "GetFilenames"
   end
@@ -105,4 +105,66 @@ struct
     external method upload : ?mode:transfer_mode -> string -> string = "Upload"
   end
     
+end
+
+module HTTP =
+struct
+
+  type request_method = Get | Post | Head
+
+  type status =
+      Ok
+    | Created
+    | Accepted
+    | NoContent
+    | ResetContent
+    | PartialContent
+    | MultipleChoices
+    | MovedPermanently
+    | MovedTemporarily
+    | NotModified
+    | BadRequest
+    | Unauthorized
+    | Forbidden
+    | NotFound
+    | RangeNotSatisfiable
+    | InternalServerError
+    | NotImplemented
+    | BadGateway
+    | ServiceNotAvailable
+    | GatewayTimeout
+    | VersionNotSupported
+    | InvalidResponse
+    | ConnectionFailed
+
+
+  external class request : "sf_Http_Request" =
+  object
+    constructor default : ?uri:string -> ?method:request_method -> ?body:string -> unit = "default_constructor"
+    external method set_field : string -> string -> unit = "SetField"
+    external method set_method : request_method -> unit = "SetMethod"
+    external method set_uri : string -> unit = "SetUri"
+    external method set_http_version : int -> int -> unit = "SetHttpVersion"
+    external method set_body : string -> unit = "SetBody"
+  end
+
+  external class response : "sf_Http_Response" =
+  object
+    constructor default : unit = "default_constructor"
+    external method get_field : string -> string = "GetField"
+    external method get_status : unit -> status = "GetStatus"
+    external method get_major_http_version : unit -> int = "GetMajorHttpVersion"
+    external method get_minor_http_version : unit -> int = "GetMinorHttpVersion"
+    external method get_body : unit -> string = "GetBody"
+  end
+
+  external class http : "sf_Http" =
+  object
+    constructor default : unit = "default_constructor"
+    constructor from_host : string = "host_constructor"
+    constructor from_host_and_port : string -> int = "host_and_port_constructor"
+    external method set_host : ?port:int -> string -> unit = "SetHost"
+    external method send_request : ?timeout:int -> request -> response = "SendRequest"
+  end
+
 end
