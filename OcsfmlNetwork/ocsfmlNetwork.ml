@@ -89,7 +89,20 @@ struct
   external class ftp (Ftp) : "sf_Ftp"
   object
     constructor default : unit = "default_constructor"
-    external method connect 
+    external method connect : ?port:int -> ?timeout:int -> ip_address -> response = "Connect"
+    external method disconnect : unit -> response = "Disconnect"
+    external method login : ?log:string*string -> unit -> response = "Login"
+    external method keep_alive : unit -> response = "KeepAlive"
+    external method get_working_directory : unit -> directory_response = "GetWorkingDirectory"
+    external method get_directory_listing : ?dir:string -> unit -> listing_response = "GetDirectoryListing"
+    external method change_directory : string -> response = "ChangeDirectory"
+    external method parent_directory : unit -> response = "ParentDirectory"
+    external method create_directory : string -> response = "CreateDirectory"
+    external method delete_directory : string -> response = "DeleteDirectory"
+    external method rename_file : string -> string -> response = "RenameFile"
+    external method delete_file : string -> response = "DeleteFile"
+    external method download : ?mode:transfer_mode -> string -> string = "Download"
+    external method upload : ?mode:transfer_mode -> string -> string = "Upload"
   end
     
 end

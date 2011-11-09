@@ -118,6 +118,7 @@ camlpp__register_custom_class()
 	camlpp__register_method2( Login, &ftp_login_helper )
 	camlpp__register_method0( KeepAlive, &sf::Ftp::KeepAlive )
 	camlpp__register_method0( GetWorkingDirectory, &sf::Ftp::GetWorkingDirectory )
+// la méthode ci dessous devrait avoir son premier param optionnel et donc rajouter unit à la fin
 	camlpp__register_method1( GetDirectoryListing, &sf::Ftp::GetDirectoryListing )
 	camlpp__register_method1( ChangeDirectory, &sf::Ftp::ChangeDirectory )
 	camlpp__register_method0( ParentDirectory, &sf::Ftp::ParentDirectory )
