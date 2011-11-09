@@ -45,6 +45,7 @@ custom_enum_affectation( sf::Ftp::Response::Status );
 typedef sf::Ftp::Response sf_Ftp_Response;
 #define CAMLPP__CLASS_NAME() sf_Ftp_Response
 camlpp__register_custom_class()
+/* les deux derniers paramètres devraient être optionnels non ? (donc rajouter unit derrière) */
 	camlpp__register_constructor2( default_constructor, sf::Ftp::Response::Status, std::string )
 	camlpp__register_method0( GetStatus, &sf::Ftp::Response::GetStatus )
 	camlpp__register_method0( GetMessage, &sf::Ftp::Response::GetMessage )
