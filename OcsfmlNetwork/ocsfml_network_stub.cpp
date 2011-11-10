@@ -230,6 +230,8 @@ camlpp__register_custom_class()
 	camlpp__register_method0( IsValid, &packet_is_valid_helper )
 
 // Note : these method should not return an sf::Packet in caml
+// Pourquoi ne pas rajouter read_X_ref : X ref -> packet (ce qui permettrait d'enchainer les appels)
+// aprés réflexion on peut déja le faire (cf: ocsfmlNetwork.ml)
 	camlpp__register_method0( ReadBool, &packet_read_helper<bool>) 
 	camlpp__register_method0( ReadInt8, &packet_read_helper<sf::Int8>)
 	camlpp__register_method0( ReadUint8, &packet_read_helper<sf::Uint8> )
@@ -305,6 +307,7 @@ typedef sf::Socket::Status (sf::TcpSocket::*TransferPacketTcp)(sf::Packet&);
 
 #define CAMLPP__CLASS_NAME() sf_TcpSocket
 camlpp__register_custom_class()
+// FIXME: hérite de sf_Socket
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetLocalPort, &sf::TcpSocket::GetLocalPort )
 	camlpp__register_method0( GetRemotePort, &sf::TcpSocket::GetRemotePort )
@@ -320,6 +323,7 @@ camlpp__custom_class_registered()
 typedef sf::TcpListener sf_TcpListener;
 #define CAMLPP__CLASS_NAME() sf_TcpListener
 camlpp__register_custom_class()
+// FIXME: hérite de sf_Socket
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetLocalPort, &sf::TcpListener::GetLocalPort )
 	camlpp__register_method1( Listen, &sf::TcpListener::Listen )
@@ -350,6 +354,7 @@ udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpA
 typedef sf::UdpSocket sf_UdpSocket;
 #define CAMLPP__CLASS_NAME() sf_UdpSocket
 camlpp__register_custom_class()
+// FIXME: hérite de sf_Socket
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetLocalPort, &sf::UdpSocket::GetLocalPort )
 	camlpp__register_method1( Bind, &sf::UdpSocket::Bind )
