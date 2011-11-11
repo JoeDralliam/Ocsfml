@@ -140,7 +140,11 @@ struct
 
   external class request : "sf_Http_Request" =
   object
+<<<<<<< HEAD
     constructor default : ?uri:string -> ?meth:request_method -> ?body:string -> unit = "default_constructor"
+=======
+    constructor default : ?uri:string -> ?method_name:request_method -> ?body:string -> unit = "default_constructor"
+>>>>>>> 446ae71171ca304cf2df5c30c158203fcfb068a5
     external method set_field : string -> string -> unit = "SetField"
     external method set_method : request_method -> unit = "SetMethod"
     external method set_uri : string -> unit = "SetUri"
@@ -261,7 +265,11 @@ object
 end
 
 external class socket_selector (SocketSelector) : "sf_SocketSelector" =
+<<<<<<< HEAD
 object auto (_:'self)
+=======
+object auto (self:'a)
+>>>>>>> 446ae71171ca304cf2df5c30c158203fcfb068a5
   constructor default : unit = "default_constructor"
   (* constructor copy : 'self = "copy_constructor" *)
   external method add : 'a. (#socket as 'a) -> unit = "Add"
@@ -269,7 +277,11 @@ object auto (_:'self)
   external method clear : unit -> unit = "Clear"
   external method wait : ?timeout:int -> unit -> unit = "Wait"
   external method is_ready : 'a. (#socket as 'a) -> bool = "IsReady"
+<<<<<<< HEAD
   external method set : 'self -> 'self = "Affect"
+=======
+ (* external method set : self -> self = "Affect" *)
+>>>>>>> 446ae71171ca304cf2df5c30c158203fcfb068a5
 end
 
 external class tcp_socket (TcpSocket) : "sf_TcpSocket" =
