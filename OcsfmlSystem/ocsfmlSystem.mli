@@ -17,7 +17,8 @@ class clockCpp :
     method rep__sf_Clock : Clock.t
     method reset : unit -> unit
   end
-class clock : clockCpp
+class clock_bis : unit -> clockCpp
+class clock : clock_bis
 external sleep : int -> unit = "sf_Sleep__impl"
 type func0 = unit -> unit
 module Thread :
@@ -57,7 +58,8 @@ class mutexCpp :
     method rep__sf_Mutex : Mutex.t
     method unlock : unit -> unit
   end
-class mutex : mutexCpp
+class mutex_bis : unit -> mutexCpp
+class mutex : mutex_bis
 class virtual input_stream :
   object
     method virtual get_size : unit -> int

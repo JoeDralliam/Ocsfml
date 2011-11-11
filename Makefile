@@ -1,12 +1,12 @@
-.PHONY: all system window graphics audio network camlpp install_camlpp uninstall_camlpp test_clock test_window clean doc
+.PHONY: all system window graphics audio network camlpp install_camlpp uninstall_camlpp test_clock test_window clean doc infer_system infer_window infer_graphics infer_audio infer_network infer
 
-all: system # window graphics audio network
+all: infer system window graphics audio network
 
-system:
+system: 
 	ocamlbuild -use-ocamlfind ocsfmlsystem.cma && \
 	ocamlbuild -use-ocamlfind ocsfmlsystem.cmxa
 
-window:
+window: 
 	ocamlbuild -use-ocamlfind ocsfmlwindow.cma && \
 	ocamlbuild -use-ocamlfind ocsfmlwindow.cmxa
 
@@ -22,15 +22,25 @@ network:
 	ocamlbuild -use-ocamlfind ocsfmlnetwork.cma && \
 	ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
 
-infer:
+infer: infer_system infer_window infer_graphics infer_audio infer_network
+
+infer_system:
 	ocamlbuild -use-ocamlfind ocsfmlSystem.inferred.mli && \
-	mv _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli && \
+	mv _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli
+
+infer_window:
 	ocamlbuild -use-ocamlfind ocsfmlWindow.inferred.mli && \
-	mv _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli && \
+	mv _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli
+
+infer_graphics:
 	ocamlbuild -use-ocamlfind ocsfmlGraphics.inferred.mli && \
-	mv _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli && \
+	mv _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli
+
+infer_audio:
 	ocamlbuild -use-ocamlfind ocsfmlAudio.inferred.mli && \
-	mv _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli && \
+	mv _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli
+
+infer_network:
 	ocamlbuild -use-ocamlfind ocsfmlNetwork.inferred.mli && \
 	mv _build/OcsfmlNetwork/ocsfmlNetwork.inferred.mli OcsfmlNetwork/ocsfmlNetwork.mli
 
