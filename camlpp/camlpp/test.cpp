@@ -37,6 +37,7 @@ extern "C"
 {
 	camlpp__register_free_function0( test1 );
 }
+
 //*/
 /*  
 void affect_double_to_field( value& v, int field, double val)

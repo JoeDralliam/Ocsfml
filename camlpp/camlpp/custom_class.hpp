@@ -29,6 +29,11 @@
 #include "memory_management.hpp"
 #include "stub_generator.hpp"
 
+extern "C"
+{
+	#include <caml/custom.h>
+}
+
 template<class MemFunc>
 struct method_traits;
 
@@ -50,33 +55,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 	typedef Ret type (C*, Args...);
 };
 
-template<class T, bool cpConstructor>
-struct copy_instance_helper2
-{
-	template< class T2 >
-	static void affect( value& v, T2&& obj )
-	{
-		AffectationManagement< T const*, true >::affect( v, new T( std::forward<T2>(obj) ) );
-	}
-	
-	template<class T2>
-	static void affect_field( value& v, int field, T2&& obj)
-	{
-		AffectationManagement< T const*, true>::affect_field(v, field, new T( std::forward<T2>(obj) ));
-	}
-};
 
-template<class T>
-struct copy_instance_helper2< T, false >
-{};
-
-template<class T, bool abstract>
-struct copy_instance_helper : public copy_instance_helper2<T, std::is_constructible<T, T&&>::value>
-{};
-
-template<class T>
-struct copy_instance_helper< T, true >
-{};
 //#define CAMLPP__CLASS_NAME() CAMLPP__CLASS_NAME()
 
 #define camlpp__register_method0( method_name, func ) \
@@ -546,27 +525,7 @@ struct copy_instance_helper< T, true >
 			return ConversionManagement< class_name * >::from_value( v ); \
 		} \
 	}; \
-	template<> \
-	struct AffectationManagement< class_name const*, true > \
-	{ \
-		static void affect( value& v, class_name const* obj ) \
-		{ \
-			CAMLparam0(); \
-			CAMLlocal1( objPtrVal ); \
-			AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-			v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name) ) ),  objPtrVal ); \
-			CAMLreturn0; \
-		} \
-		static void affect_field( value& v, int field, class_name const* obj) \
-		{ \
-			CAMLparam0(); \
-			CAMLlocal1( objVal ); \
-			affect( objVal, obj ); \
-			Store_field(v, 0, objVal); \
-			CAMLreturn0; \
-		} \
-	}; \
-	template<> \
+	template<>  \
 	struct AffectationManagement< class_name const&, true > \
 	{ \
 		static void affect( value& v, class_name const& obj ) \
@@ -575,49 +534,21 @@ struct copy_instance_helper< T, true >
 		} \
 		static void affect_field( value& v, int field, class_name const& obj) \
 		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
+			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj); \
 		} \
-	}; \
-	template<> \
-	struct AffectationManagement< class_name*, true > \
-	{ \
-		static void affect( value& v, class_name* obj ) \
-		{ \
-			AffectationManagement< class_name const*, true >::affect( v, obj ); \
-		} \
-		static void affect_field( value& v, int field, class_name* obj) \
-		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, obj);\
-		} \
-	}; \
-	template<> \
-	struct AffectationManagement< class_name&, true > \
-	{ \
-		static void affect( value& v, class_name& obj ) \
-		{ \
-			AffectationManagement< class_name const*, true >::affect( v, &obj ); \
-		} \
-		static void affect_field( value& v, int field, class_name& obj) \
-		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
-		} \
-	}; \
-	template<> \
-	struct AffectationManagement< class_name, true > : public copy_instance_helper< class_name, std::is_abstract<class_name>::value > \
-	{ \
-	};  
+	}; 
 
 
 #define camlpp__preregister_custom_class_and_ops( class_name, finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
 	extern "C" \
 	{ \
-		static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) { \
-			identifier: BOOST_PP_STRINGIZE( BOOST_PP_CAT( org.camlpp., CAMLPP__CLASS_NAME() ), \
-			finalize; finalize_func, \
+		static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
+			identifier: BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() ), \
+			finalize: finalize_func, \
 			compare: compare_func, \
 			hash: hash_func, \
 			serialize: serialize_func, \
-			deserialize: deserialize_func
+			deserialize: deserialize_func \
 		}; \
 	} \
 	template<> \
@@ -627,10 +558,24 @@ struct copy_instance_helper< T, true >
 		{ \
 			if( Tag_val( v ) == Object_tag ) \
 			{ \
-				return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v, hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ), v), 0)); \
+				return *reinterpret_cast< class_name**> \
+					( \
+						Data_custom_val \
+						( \
+							callback \
+							( \
+								caml_get_public_method \
+								( \
+									 v, \
+									 hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) \
+								), \
+								v \
+							) \
+						) \
+					); \
 			} \
-			assert( Tag_val( v ) == Abstract_tag ); \
-			return reinterpret_cast< class_name *>( Field(v, 0) ); \
+			assert( Tag_val( v ) == Custom_tag ); \
+			return *reinterpret_cast< class_name **>( Data_custom_val(v) ); \
 		} \
 	}; \
 	template<> \
@@ -658,26 +603,28 @@ struct copy_instance_helper< T, true >
 		} \
 	}; \
 	template<> \
-	struct AffectationManagement< class_name const*, true > \
+	struct AffectationManagement< class_name*, false > \
 	{ \
-		static void affect( value& v, class_name const* obj ) \
+		static void affect( value& v, class_name* objPtr ) \
 		{ \
-			CAMLparam0(); \
-			CAMLlocal1( objPtrVal ); \
-			AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-			v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name) ) ),  objPtrVal ); \
-			CAMLreturn0; \
+			v = caml_alloc_custom \
+				( \
+					&BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
+					sizeof( class_name * ), \
+					0, 1 \
+				); \
+			std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) ); \
 		} \
-		static void affect_field( value& v, int field, class_name const* obj) \
+		static void affect_field( value& v, int field, class_name* objPtr ) \
 		{ \
 			CAMLparam0(); \
-			CAMLlocal1( objVal ); \
-			affect( objVal, obj ); \
-			Store_field(v, 0, objVal); \
+			CAMLlocal1( tmp ); \
+			affect( tmp, objPtr ); \
+			Store_field(v, field, tmp); \
 			CAMLreturn0; \
 		} \
 	}; \
-	template<> \
+	template<>  \
 	struct AffectationManagement< class_name const&, true > \
 	{ \
 		static void affect( value& v, class_name const& obj ) \
@@ -686,37 +633,10 @@ struct copy_instance_helper< T, true >
 		} \
 		static void affect_field( value& v, int field, class_name const& obj) \
 		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
+			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj); \
 		} \
-	}; \
-	template<> \
-	struct AffectationManagement< class_name*, true > \
-	{ \
-		static void affect( value& v, class_name* obj ) \
-		{ \
-			AffectationManagement< class_name const*, true >::affect( v, obj ); \
-		} \
-		static void affect_field( value& v, int field, class_name* obj) \
-		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, obj);\
-		} \
-	}; \
-	template<> \
-	struct AffectationManagement< class_name&, true > \
-	{ \
-		static void affect( value& v, class_name& obj ) \
-		{ \
-			AffectationManagement< class_name const*, true >::affect( v, &obj ); \
-		} \
-		static void affect_field( value& v, int field, class_name& obj) \
-		{ \
-			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj);\
-		} \
-	}; \
-	template<> \
-	struct AffectationManagement< class_name, true > : public copy_instance_helper< class_name, std::is_abstract<class_name>::value > \
-	{ \
-	};  
+	};
+
 
 
 
@@ -733,6 +653,12 @@ struct copy_instance_helper< T, true >
 #define camlpp__register_custom_class( ) \
 	camlpp__preregister_custom_class( CAMLPP__CLASS_NAME() ) \
 	camlpp__register_preregistered_custom_class()
+
+
+#define camlpp__register_custom_class_and_ops( finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
+	camlpp__preregister_custom_class_and_ops( CAMLPP__CLASS_NAME() , finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
+	camlpp__register_preregistered_custom_class()
+
 
 
 // 	template<> \

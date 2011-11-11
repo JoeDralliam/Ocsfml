@@ -32,6 +32,38 @@ extern "C"
 #include <vector>
 #include <list>
 
+
+template< class T, bool shouldReturnObject = true>
+class AffectationManagement;
+
+template<class T, bool cpConstructor>
+struct copy_instance_helper2
+{
+	template< class T2 >
+	static void affect( value& v, T2&& obj )
+	{
+		AffectationManagement< T const*, true >::affect( v, new T( std::forward<T2>(obj) ) );
+	}
+	
+	template<class T2>
+	static void affect_field( value& v, int field, T2&& obj)
+	{
+		AffectationManagement< T const*, true>::affect_field(v, field, new T( std::forward<T2>(obj) ));
+	}
+};
+
+template<class T>
+struct copy_instance_helper2< T, false >
+{};
+
+template<class T, bool abstract>
+struct copy_instance_helper : public copy_instance_helper2<T, std::is_constructible<T, T&&>::value>
+{};
+
+template<class T>
+struct copy_instance_helper< T, true >
+{};
+
 template<class... ArgsToScan>
 struct ShouldUseRegularTag;
 
@@ -61,8 +93,6 @@ class LengthDoubleFactor
 public:
         enum { result_value = ShouldUseRegularTag<Args...>::value ? 1 : Double_wosize };
 };
-template< class T, bool shouldReturnObject = true>
-class AffectationManagement;
 
 template< class T >
 struct AffectationManagement<T*, false>
@@ -81,6 +111,60 @@ struct AffectationManagement<T*, false>
 		Store_field(v, field, tmp);
 	}
 };
+
+template<class T>
+struct AffectationManagement< T const*, true > 
+{ 
+	static void affect( value& v, T const* obj ) 
+	{ 
+		CAMLparam0(); 
+		CAMLlocal1( objPtrVal ); 
+		AffectationManagement< T const*, false >::affect(objPtrVal, obj); 
+		v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, T) ) ),  objPtrVal ); 
+		CAMLreturn0; 
+	} 
+	static void affect_field( value& v, int field, T const* obj) 
+	{ 
+		CAMLparam0(); 
+		CAMLlocal1( objVal ); 
+		affect( objVal, obj ); 
+		Store_field(v, 0, objVal); 
+		CAMLreturn0; 
+	} 
+}; 
+
+
+
+template<class T>
+struct AffectationManagement< T*, true > 
+{ 
+	static void affect( value& v, T* obj ) 
+	{ 
+		AffectationManagement< T const*, true >::affect( v, obj ); 
+	} 
+	static void affect_field( value& v, int field, T* obj) 
+	{ 
+		AffectationManagement< T const*, true>::affect_field(v, field, obj);
+	} 
+}; 
+
+template<class T>
+struct AffectationManagement< T&, true > 
+{ 
+	static void affect( value& v, T& obj ) 
+	{ 
+		AffectationManagement< T const*, true >::affect( v, &obj ); 
+	} 
+	static void affect_field( value& v, int field, T& obj) 
+	{ 
+		AffectationManagement< T const*, true>::affect_field(v, field, &obj);
+	} 
+}; 
+
+template<class T> 
+struct AffectationManagement< T, true > : public copy_instance_helper< T, std::is_abstract<T>::value > 
+{ 
+};  
 
 template< class T >
 struct AffectationManagement<T const&> : AffectationManagement<T>

@@ -43,7 +43,9 @@ let graphics_test () =
   let vm = VideoMode.( { width=600; height=400; bits_per_pixel=32 } ) in
   let app = new render_window vm "OCSFML2" in
     main_loop app ;
+    hello_world#destroy () ; 
+    shape#destroy () ;
     app#destroy ()
 
 
-let _ = graphics_test (); hello_world#destroy ()
+let _ = graphics_test () 

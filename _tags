@@ -1,7 +1,7 @@
 <camlpp/ExternalCpp> : include
 <camlpp/ExternalCpp/*.ml> : syntax(camlp4o), package(camlp4.quotations), package(camlp4.extend)
 
-<OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <Network> or <Test>: include
+<OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <OcsfmlNetwork> or <Test>: include
 
 <OcsfmlSystem/*.{h,c}pp> : include_sfml_system
 "OcsfmlSystem/libocsfmlsystem.a" : use_sfml_system
@@ -23,10 +23,10 @@
 <OcsfmlAudio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
 <OcsfmlAudio/*.ml> : syntax(camlp4o), package(external_cpp)
 
-<Network/*.{h,c}pp> : include_sfml_network
-"Network/libocsfmlnetwork.a" : use_sfml_network
-<Network/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork
-<Network/*.ml> : syntax(camlp4o), package(external_cpp)
+<OcsfmlNetwork/*.{h,c}pp> : include_sfml_network
+"OcsfmlNetwork/libocsfmlnetwork.a" : use_sfml_network
+<OcsfmlNetwork/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork
+<OcsfmlNetwork/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <Test/test_clock.{byte,native}> : use_ocsfmlsystem
 <Test/test_thread.{byte,native}> : use_ocsfmlsystem

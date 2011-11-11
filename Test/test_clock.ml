@@ -9,4 +9,6 @@ let _ =
     print_newline ();
     print_int (ck#get_elapsed_time ()) ;
     print_newline () ;
-    ck#destroy ()
+    (* ck#destroy ()*)
+    Gc.full_major ()
+

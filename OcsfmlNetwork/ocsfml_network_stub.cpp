@@ -41,12 +41,18 @@ custom_enum_affectation( sf::Ftp::TransferMode );
 custom_enum_conversion( sf::Ftp::Response::Status );
 custom_enum_affectation( sf::Ftp::Response::Status );
 
+sf::Ftp::Response* ftp_response_default_constructor_helper( Optional<sf::Ftp::Response::Status> a1,
+							  Optional<std::string> a2, UnitTypeHolder )
+{
+	return new sf::Ftp::Response( 	a1.get_value_no_fail( sf::Ftp::Response::InvalidResponse ),
+					a2.get_value_no_fail( "" ) );
+}
 
 typedef sf::Ftp::Response sf_Ftp_Response;
 #define CAMLPP__CLASS_NAME() sf_Ftp_Response
 camlpp__register_custom_class()
 /* les deux derniers paramètres devraient être optionnels non ? (donc rajouter unit derrière) */
-	camlpp__register_constructor2( default_constructor, sf::Ftp::Response::Status, std::string )
+	camlpp__register_external_constructor3( default_constructor, ftp_response_default_constructor_helper )
 	camlpp__register_method0( GetStatus, &sf::Ftp::Response::GetStatus )
 	camlpp__register_method0( GetMessage, &sf::Ftp::Response::GetMessage )
 camlpp__custom_class_registered()
@@ -307,7 +313,7 @@ typedef sf::Socket::Status (sf::TcpSocket::*TransferPacketTcp)(sf::Packet&);
 
 #define CAMLPP__CLASS_NAME() sf_TcpSocket
 camlpp__register_custom_class()
-// FIXME: hérite de sf_Socket
+	camlpp__register_inheritance_relationship( sf_Socket )
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetLocalPort, &sf::TcpSocket::GetLocalPort )
 	camlpp__register_method0( GetRemotePort, &sf::TcpSocket::GetRemotePort )
@@ -323,7 +329,7 @@ camlpp__custom_class_registered()
 typedef sf::TcpListener sf_TcpListener;
 #define CAMLPP__CLASS_NAME() sf_TcpListener
 camlpp__register_custom_class()
-// FIXME: hérite de sf_Socket
+	camlpp__register_inheritance_relationship( sf_Socket )
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetLocalPort, &sf::TcpListener::GetLocalPort )
 	camlpp__register_method1( Listen, &sf::TcpListener::Listen )
@@ -354,7 +360,7 @@ udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpA
 typedef sf::UdpSocket sf_UdpSocket;
 #define CAMLPP__CLASS_NAME() sf_UdpSocket
 camlpp__register_custom_class()
-// FIXME: hérite de sf_Socket
+	camlpp__register_inheritance_relationship( sf_Socket )
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetLocalPort, &sf::UdpSocket::GetLocalPort )
 	camlpp__register_method1( Bind, &sf::UdpSocket::Bind )

@@ -18,6 +18,7 @@
 
 
 #include "ocsfml_system_stub.hpp"
+#include <camlpp/custom_ops.hpp>
 #include <SFML/System/Clock.hpp>
 
 extern "C"
@@ -28,7 +29,7 @@ extern "C"
 typedef sf::Clock sf_Clock;
 
 #define CAMLPP__CLASS_NAME() sf_Clock
-camlpp__register_custom_class()
+camlpp__register_custom_class_and_ops( CAMLPP__DEFAULT_FINALIZE() , custom_compare_default , custom_hash_default , custom_serialize_default, custom_deserialize_default)
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetElapsedTime, &sf::Clock::GetElapsedTime )
 	camlpp__register_method0( Reset, &sf::Clock::Reset )

@@ -342,6 +342,10 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 			AffectationManagement<T>::affect(pN[ I-sizeof...(Args)-1 ], tN);
 			return call_helper( pN, args...);
 		}
+		
+		CamlCallback( CamlCallback const& ) /* = delete */;
+		CamlCallback& operator=( CamlCallback const& ) /*= delete*/ ;
+
 
 	public:
 		CamlCallback( value const& v ) : callback_(new value(v))
@@ -357,10 +361,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 			}
 		}
 	
-		CamlCallback( CamlCallback const& ) = delete;
-		CamlCallback& operator=( CamlCallback const& ) = delete;
-
-		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
+				CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
 		{}
 	
 		template<class... OArgs>
@@ -442,7 +443,8 @@ struct ConversionManagement< std::function< void(Args...) > >
 			AffectationManagement<T>::affect(pN[ I-sizeof...(Args)-1 ], tN);
 			return call_helper( pN, args...);
 		}
-
+		
+		CamlCallback& operator=( CamlCallback const& );
 	public:
 		CamlCallback( value const& v ) : callback_(new value(v))
 		{
@@ -457,9 +459,8 @@ struct ConversionManagement< std::function< void(Args...) > >
 			}
 		}
 
-		CamlCallback( CamlCallback const& other) = default;
+		CamlCallback( CamlCallback const& other) {}
 
-		CamlCallback& operator=( CamlCallback const& ) = delete;
 
 		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
 		{}
