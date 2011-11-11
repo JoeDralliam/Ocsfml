@@ -1,6 +1,6 @@
 
 
-external class ip_address (IPAddress) : sf_IpAddress =
+external class ip_address (IPAddress) : "sf_IpAddress" =
 object
   constructor default : unit = "default_constructor"
   constructor from_string : string = "string_constructor"
@@ -72,21 +72,21 @@ struct
     external method get_message : unit -> string = "GetMessage"
   end
     
-  external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse"
+  external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse" =
   object
     external inherit response : "sf_Ftp_Response"
     constructor default : response = "default_constructor"
     external method get_directory : unit -> string = "GetDirectory"
   end
 
-  external class listing_response (ListingResponse) : "sf_Ftp_ListingResponse"
+  external class listing_response (ListingResponse) : "sf_Ftp_ListingResponse" =
   object
     external inherit response : "sf_Ftp_Response"
     constructor default : response -> char list (* ou char array ? *) = "default_constructor"
     external method get_filenames : unit -> string list (* ou string array ? *) = "GetFilenames"
   end
 
-  external class ftp (Ftp) : "sf_Ftp"
+  external class ftp (Ftp) : "sf_Ftp" =
   object
     constructor default : unit = "default_constructor"
     external method connect : ?port:int -> ?timeout:int -> ip_address -> response = "Connect"
@@ -140,7 +140,7 @@ struct
 
   external class request : "sf_Http_Request" =
   object
-    constructor default : ?uri:string -> ?method:request_method -> ?body:string -> unit = "default_constructor"
+    constructor default : ?uri:string -> ?meth:request_method -> ?body:string -> unit = "default_constructor"
     external method set_field : string -> string -> unit = "SetField"
     external method set_method : request_method -> unit = "SetMethod"
     external method set_uri : string -> unit = "SetUri"
@@ -170,7 +170,7 @@ struct
 end
 
 
-external class packet : sf_Packet =
+external class packet : "sf_Packet" =
 object
   constructor default : unit = "default_constructor"
   external method clear : unit -> unit = "Clear"
@@ -261,15 +261,15 @@ object
 end
 
 external class socket_selector (SocketSelector) : "sf_SocketSelector" =
-object auto (_,self)
+object auto (_:'self)
   constructor default : unit = "default_constructor"
-  (* constructor copy : self = "copy_constructor" *)
+  (* constructor copy : 'self = "copy_constructor" *)
   external method add : 'a. (#socket as 'a) -> unit = "Add"
   external method remove : 'a. (#socket as 'a) -> unit = "Remove"
   external method clear : unit -> unit = "Clear"
   external method wait : ?timeout:int -> unit -> unit = "Wait"
   external method is_ready : 'a. (#socket as 'a) -> bool = "IsReady"
-  external method set : self -> self = "Affect"
+  external method set : 'self -> 'self = "Affect"
 end
 
 external class tcp_socket (TcpSocket) : "sf_TcpSocket" =

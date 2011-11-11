@@ -109,6 +109,15 @@ class sound_buffer_bis () =
 class sound_buffer =
   sound_buffer_bis ()
 
+let mk_sound_buffer tag =
+  let sb = new sound_buffer in
+    if match tag with
+      | `File s -> sb#load_from_file s
+      | `Stream s -> sb#load_from_stream s
+      | `Samples (s,i,j) -> sb#load_from_samples s i j
+    then sb
+    else raise LoadFailure
+
 external class virtual sound_recorder : "sf_SoundRecorder" =
 object
   external method start : ?sampleRate:int -> unit -> unit = "Start"

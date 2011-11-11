@@ -261,6 +261,11 @@ class sound_bufferCpp :
   end
 class sound_buffer_bis : unit -> sound_bufferCpp
 class sound_buffer : sound_buffer_bis
+val mk_sound_buffer :
+  [< `File of string
+   | `Samples of samples_type * int * int
+   | `Stream of OcsfmlSystem.input_stream ] ->
+  sound_buffer
 module Sound_recorder :
   sig
     type t
