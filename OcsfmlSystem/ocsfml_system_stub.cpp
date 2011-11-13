@@ -36,7 +36,7 @@ camlpp__register_custom_class_and_ops( CAMLPP__DEFAULT_FINALIZE() , custom_compa
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
-
+/*  
 #include <SFML/System/Sleep.hpp>
 
 
@@ -53,7 +53,7 @@ void thread_function( std::function<void()> const& f )
 {
 	assert(	caml_c_thread_register() );
 	f();
-	/*  assert(*/ caml_c_thread_unregister() ;
+	  assert( caml_c_thread_unregister() ;
 }
 
 
@@ -83,6 +83,8 @@ camlpp__register_custom_class()
 	camlpp__register_method0( Unlock, &sf::Mutex::Unlock )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
+*/
+
 /* lock ? */
 /* thread local ? */
 /* thread local ptr ? */

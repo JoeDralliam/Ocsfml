@@ -67,9 +67,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			std::bind(func, std::placeholders::_1), \
 			cm1.from_value( obj ) \
 		); \
@@ -87,9 +87,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ) \
@@ -108,9 +108,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ),	\
@@ -131,9 +131,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
@@ -157,9 +157,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
@@ -185,9 +185,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6), \
 			cm1.from_value( obj ), \
 			cm2.from_value( param1 ), \
@@ -213,9 +213,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				func \
 			); \
 			CAMLreturn( res ); \
@@ -230,9 +230,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				func, \
 				cm1.from_value( param1 ) \
 			); \
@@ -249,9 +249,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			ConversionManagement< FuncTraits::arg1_type > cm1; \
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ) \
@@ -270,9 +270,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			ConversionManagement< FuncTraits::arg2_type > cm2; \
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
@@ -293,9 +293,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			ConversionManagement< FuncTraits::arg3_type > cm3; \
 			ConversionManagement< FuncTraits::arg4_type > cm4; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res,\
+				rm, res,\
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
@@ -318,9 +318,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			ConversionManagement< FuncTraits::arg4_type > cm4; \
 			ConversionManagement< FuncTraits::arg5_type > cm5; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				func, \
 				cm1.from_value( param1 ), \
 				cm2.from_value( param2 ), \
@@ -339,9 +339,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			CAMLparam1( unit ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >() \
 			); \
 			CAMLreturn( res ); \
@@ -355,9 +355,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			ConversionManagement< param1_type > cm1; \
 			auto p1 = cm1.from_value( param1 ); \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				p1 \
 			); \
@@ -374,9 +374,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			auto p1 = cm1.from_value( param1 ); \
 			auto p2 = cm2.from_value( param2 ); \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				p1, \
 				p2 \
@@ -396,9 +396,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			auto p2 = cm2.from_value( param2 ); \
 			auto p3 = cm3.from_value( param3 ); \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				p1, \
 				p2, \
@@ -421,9 +421,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			auto p3 = cm3.from_value( param3 ); \
 			auto p4 = cm4.from_value( param4 ); \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				p1, \
 				p2, \
@@ -449,9 +449,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 			auto p4 = cm4.from_value( param4 ); \
 			auto p5 = cm5.from_value( param5 ); \
 			CAMLlocal1(res);\
-			rm.call \
+			CAMLPP__INVOKE \
 			( \
-				res, \
+				rm, res, \
 				boost::factory< CAMLPP__CLASS_NAME() * >(), \
 				p1, \
 				p2, \
@@ -477,9 +477,9 @@ struct method_traits< Ret (*)(C*, Args...)>
 		ResManagement< superclass_name *, false> rm; \
 		ConversionManagement< CAMLPP__CLASS_NAME() * > cm1;\
 		CAMLlocal1(res);\
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), \
 			cm1.from_value( param1 ) \
 		); \
@@ -523,6 +523,26 @@ struct method_traits< Ret (*)(C*, Args...)>
 	        class_name const* from_value( value const& v)		\
 		{ \
 			return ConversionManagement< class_name * >::from_value( v ); \
+		} \
+	}; \
+	template<> \
+	struct AffectationManagement< class_name const*, true > \
+	{ \
+		static void affect( value& v, class_name const* obj ) \
+		{  \
+			CAMLparam0(); \
+			CAMLlocal1( objPtrVal ); \
+			AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
+			v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ),  objPtrVal ); \
+			CAMLreturn0; \
+		} \
+		static void affect_field( value& v, int field, class_name const* obj) \
+		{ \
+			CAMLparam0(); \
+			CAMLlocal1( objVal ); \
+			affect( objVal, obj ); \
+			Store_field(v, 0, objVal); \
+			CAMLreturn0; \
 		} \
 	}; \
 	template<>  \
@@ -621,6 +641,26 @@ struct method_traits< Ret (*)(C*, Args...)>
 			CAMLlocal1( tmp ); \
 			affect( tmp, objPtr ); \
 			Store_field(v, field, tmp); \
+			CAMLreturn0; \
+		} \
+	}; \
+	template<> \
+	struct AffectationManagement< class_name const*, true > \
+	{ \
+		static void affect( value& v, class_name const* obj ) \
+		{  \
+			CAMLparam0(); \
+			CAMLlocal1( objPtrVal ); \
+			AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
+			v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ),  objPtrVal ); \
+			CAMLreturn0; \
+		} \
+		static void affect_field( value& v, int field, class_name const* obj) \
+		{ \
+			CAMLparam0(); \
+			CAMLlocal1( objVal ); \
+			affect( objVal, obj ); \
+			Store_field(v, 0, objVal); \
 			CAMLreturn0; \
 		} \
 	}; \

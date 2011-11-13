@@ -36,9 +36,9 @@
 		CAMLparam1(unit); \
 		ResManagement< FuncTraits::result_type > rm; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func \
 		); \
 		CAMLreturn(res); \
@@ -53,9 +53,9 @@
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type> cm1; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ) \
 		); \
@@ -75,9 +75,9 @@
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ) \
@@ -96,9 +96,9 @@
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
@@ -119,9 +119,9 @@
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
@@ -144,9 +144,9 @@
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
@@ -172,9 +172,9 @@
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
@@ -207,9 +207,9 @@
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
@@ -244,9 +244,9 @@
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
 		ConversionManagement< FuncTraits::arg8_type > cm8; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \
@@ -283,9 +283,9 @@
 		ConversionManagement< FuncTraits::arg8_type > cm8; \
 		ConversionManagement< FuncTraits::arg9_type > cm9; \
 		CAMLlocal1(res); \
-		rm.call \
+		CAMLPP__INVOKE \
 		( \
-			res, \
+			rm, res, \
 			func, \
 			cm1.from_value( param1 ), \
 			cm2.from_value( param2 ), \

@@ -60,7 +60,7 @@ let test_pong () =
     ball#move (middle fst app_size ball_size) (middle snd app_size ball_size) ; 
 	
     let ai_timer = new clock in
-    let ai_time = 10 in
+    let ai_time = 100 in
     let left_paddle_speed = ref 400.0 in
     let right_paddle_speed = ref 400.0 in
 	

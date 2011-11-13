@@ -3,7 +3,7 @@ open OcsfmlSystem
 let _ =
   let ck = new clock in
     ck#reset () ;
-    sleep 500 ;
+(*    sleep 500 ; *)
     print_int (ck#get_elapsed_time ()) ;
     ck#reset ();
     print_newline ();

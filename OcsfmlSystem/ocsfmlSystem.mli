@@ -19,7 +19,7 @@ class clockCpp :
   end
 class clock_bis : unit -> clockCpp
 class clock : clock_bis
-external sleep : int -> unit = "sf_Sleep__impl"
+(*external sleep : int -> unit = "sf_Sleep__impl"
 type func0 = unit -> unit
 module Thread :
   sig
@@ -59,7 +59,7 @@ class mutexCpp :
     method unlock : unit -> unit
   end
 class mutex_bis : unit -> mutexCpp
-class mutex : mutex_bis
+class mutex : mutex_bis*)
 class virtual input_stream :
   object
     method virtual get_size : unit -> int

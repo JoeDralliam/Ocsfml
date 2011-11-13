@@ -31,7 +31,7 @@ extern "C"
 //*   
 std::pair<double, double> test1()
 {
-	return { 5.0, 12.0 };
+	return std::make_pair( 5.0, 12.0 );
 }
 extern "C"
 {

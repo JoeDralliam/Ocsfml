@@ -18,7 +18,7 @@ class clock_bis () =
 class clock =
   clock_bis ()
 
-external cpp sleep : int -> unit = "sf_Sleep"
+(*external cpp sleep : int -> unit = "sf_Sleep"
 
 type func0 = unit -> unit
 
@@ -47,7 +47,8 @@ class mutex_bis () =
 
 class mutex =
   mutex_bis ()
-
+*)
+(* Note : New cpp workaround does implement thread *)
 
 class virtual input_stream =
 object

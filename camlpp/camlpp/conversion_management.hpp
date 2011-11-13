@@ -237,7 +237,7 @@ struct TupleHelper<Tuple, -1>
 {};
 
 
-
+#ifdef _MSC_VER
 template<class... Args>
 struct ConversionManagement< std::tuple< Args...> > : private TupleHelper< std::tuple<Args...>, sizeof...( Args ) - 1 >
 {
@@ -261,6 +261,7 @@ private:
 		from_value_helper( v, res, std::integral_constant<size_t, I-1>() );
 	}
 };
+#endif
 
 template< class T1, class T2>
 class ConversionManagement< std::pair< T1, T2 > >
@@ -277,6 +278,8 @@ public:
 					cm2.from_value( Field(v, 1 ) ) );
 	}
 };
+
+#ifdef _MSC_VER
 
 template<class Ret, class... Args>
 struct ConversionManagement< std::function< Ret(Args...) > >
@@ -478,6 +481,8 @@ struct ConversionManagement< std::function< void(Args...) > >
 		return CamlCallback( v );
 	}
 };
+
+#endif
 
 template<class T>
 struct ConversionManagement< T const& >: public ConversionManagement< T >

@@ -64,19 +64,21 @@ template<class T>
 struct copy_instance_helper< T, true >
 {};
 
+#ifdef _MSC_VER
+
 template<class... ArgsToScan>
 struct ShouldUseRegularTag;
 
 template<class T, class... ArgsToScan>
 struct ShouldUseRegularTag<T, ArgsToScan...>
 {
-	enum { value = ((!std::is_floating_point<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
+        enum { value = ((!std::is_floating_point<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
 };
 
 template<class T>
 struct ShouldUseRegularTag<T>
 {
-	enum { value = !std::is_floating_point<T>::value };
+        enum { value = !std::is_floating_point<T>::value };
 };
 
 
@@ -84,7 +86,7 @@ template<class... Args>
 class RegularOrDoubleArrayTag
 {
 public:
-	enum { result_value = ShouldUseRegularTag<Args...>::value ? 0 : Double_array_tag };
+        enum { result_value = ShouldUseRegularTag<Args...>::value ? 0 : Double_array_tag };
 };
 
 template<class... Args>
@@ -93,6 +95,43 @@ class LengthDoubleFactor
 public:
         enum { result_value = ShouldUseRegularTag<Args...>::value ? 1 : Double_wosize };
 };
+
+#else
+
+template<class Args, size_t I>
+struct ShouldUseRegularTag;
+
+template<class Args>
+struct ShouldUseRegularTag<Args, 0>
+{
+        enum { value = !std::is_floating_point<typename std::tuple_element<0, Args>::type >::value };
+};
+
+template<class Args, size_t I>
+struct ShouldUseRegularTag
+{
+        enum { value = ((!std::is_floating_point<typename std::tuple_element<I, Args>::type>::value)
+                                || (ShouldUseRegularTag<Args, I-1>::value)) };
+};
+
+
+
+
+template<class Args>
+class RegularOrDoubleArrayTag
+{
+public:
+        enum { result_value = ShouldUseRegularTag<Args, std::tuple_size<Args>::value - 1 >::value ? 0 : Double_array_tag };
+};
+
+template<class Args>
+class LengthDoubleFactor
+{
+public:
+        enum { result_value = ShouldUseRegularTag<Args, std::tuple_size<Args>::value - 1 >::value ? 1 : Double_wosize };
+};
+
+#endif
 
 template< class T >
 struct AffectationManagement<T*, false>
@@ -111,27 +150,6 @@ struct AffectationManagement<T*, false>
 		Store_field(v, field, tmp);
 	}
 };
-
-template<class T>
-struct AffectationManagement< T const*, true > 
-{ 
-	static void affect( value& v, T const* obj ) 
-	{ 
-		CAMLparam0(); 
-		CAMLlocal1( objPtrVal ); 
-		AffectationManagement< T const*, false >::affect(objPtrVal, obj); 
-		v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, T) ) ),  objPtrVal ); 
-		CAMLreturn0; 
-	} 
-	static void affect_field( value& v, int field, T const* obj) 
-	{ 
-		CAMLparam0(); 
-		CAMLlocal1( objVal ); 
-		affect( objVal, obj ); 
-		Store_field(v, 0, objVal); 
-		CAMLreturn0; 
-	} 
-}; 
 
 
 
@@ -400,34 +418,36 @@ struct AffectationManagement<unsigned char>
 };
 
 
+#ifdef _MSC_VER
 template<class... Args>
 struct AffectationManagement< std::tuple< Args... > >
 {
-	static void affect(value& v, std::tuple< Args... > const& tup)
-	{
-		v = caml_alloc_tuple( sizeof...( Args ) );
-		affect_helper( v, tup, std::integral_constant<size_t, sizeof...(Args) - 1>() );
-	}
+        static void affect(value& v, std::tuple< Args... > const& tup)
+        {
+                v = caml_alloc_tuple( sizeof...( Args ) );
+                affect_helper( v, tup, std::integral_constant<size_t, sizeof...(Args) - 1>() );
+        }
 
-	static void affect_field(value& v, int field, std::tuple< Args... > const& p)
-	{
-		CAMLparam0();
-		CAMLlocal1( tupleVal );
-		affect( tupleVal, p );
-		Store_field(v, field, tupleVal);
-		CAMLreturn0;
-	}
+        static void affect_field(value& v, int field, std::tuple< Args... > const& p)
+        {
+                CAMLparam0();
+                CAMLlocal1( tupleVal );
+                affect( tupleVal, p );
+                Store_field(v, field, tupleVal);
+                CAMLreturn0;
+        }
 private:
-	static void affect_helper( value&, std::tuple< Args... > const&, std::integral_constant<size_t, -1>)
-	{}
+        static void affect_helper( value&, std::tuple< Args... > const&, std::integral_constant<size_t, -1>)
+        {}
 
-	template<size_t I>
-	static void affect_helper( value& v, std::tuple< Args... > const& tup, std::integral_constant<size_t, I>)
-	{
-		AffectationManagement< typename std::tuple_element< I, std::tuple< Args... >>::type >::affect_field( v, I, std::move( std::get<I>(tup) ) );
-		affect_helper( v, tup, std::integral_constant<size_t, I-1>() );
-	}
+        template<size_t I>
+        static void affect_helper( value& v, std::tuple< Args... > const& tup, std::integral_constant<size_t, I>)
+        {
+                AffectationManagement< typename std::tuple_element< I, std::tuple< Args... >>::type >::affect_field( v, I, std::move( std::get<I>(tup) ) );
+                affect_helper( v, tup, std::integral_constant<size_t, I-1>() );
+        }
 };
+#endif
 
 template<class T1, class T2>
 struct AffectationManagement< std::pair< T1, T2 > >
@@ -454,7 +474,7 @@ struct AffectationManagement< std::vector< T > >
 {
 	static void affect(value& v, std::vector<T> const& vec)
 	{
-		v = caml_alloc( vec.size() * LengthDoubleFactor<T>::result_value , RegularOrDoubleArrayTag<T>::result_value );
+		v = caml_alloc( vec.size() * LengthDoubleFactor<std::tuple<T> >::result_value , RegularOrDoubleArrayTag<std::tuple<T>>::result_value );
 		for(int i = 0; i < vec.size(); ++i)
 		{
 			AffectationManagement< T >::affect_field(v, i, vec[i]);
@@ -478,14 +498,14 @@ struct AffectationManagement< std::list< T > >
 	{
 		CAMLparam0();
 		CAMLlocal1( tmp );
-		tmp = caml_alloc( 2 * LengthDoubleFactor<T>::result_value , RegularOrDoubleArrayTag<T>::result_value );
+		tmp = caml_alloc( 2, 0 );
 		AffectationManagement<T>::affect_field( tmp, 1, Val_int(0) );
 		for( auto it = lst.begin(); it != lst.end(); ++it)
 		{
 			T const& val = *it;
 			AffectationManagement< T >::affect_field(tmp, 0, val);
 			v = tmp;
-			tmp = caml_alloc( 2 * LengthDoubleFactor<T>::result_value , RegularOrDoubleArrayTag<T>::result_value );
+			tmp = caml_alloc( 2 , 0 );
 			Store_field(tmp, 1, v);
 		}
 		CAMLreturn0;
