@@ -31,7 +31,7 @@ struct remove_qualifiers
 	typedef typename std::remove_cv<typename std::remove_reference<T>::type >::type type;
 };
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 
 template<class T>
 struct CustomStructConversion

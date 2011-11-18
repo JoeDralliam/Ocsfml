@@ -22,7 +22,7 @@
 #include "affectation_management.hpp"
 #include <functional>
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 
 template<class T, bool shouldReturnObject = true>
 struct ResManagement {

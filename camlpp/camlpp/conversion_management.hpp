@@ -237,7 +237,7 @@ struct TupleHelper<Tuple, -1>
 {};
 
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 template<class... Args>
 struct ConversionManagement< std::tuple< Args...> > : private TupleHelper< std::tuple<Args...>, sizeof...( Args ) - 1 >
 {
@@ -279,7 +279,7 @@ public:
 	}
 };
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 
 template<class Ret, class... Args>
 struct ConversionManagement< std::function< Ret(Args...) > >

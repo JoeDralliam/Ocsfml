@@ -563,12 +563,12 @@ struct method_traits< Ret (*)(C*, Args...)>
 	extern "C" \
 	{ \
 		static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
-			identifier: BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() ), \
-			finalize: finalize_func, \
-			compare: compare_func, \
-			hash: hash_func, \
-			serialize: serialize_func, \
-			deserialize: deserialize_func \
+			BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() ), \
+			finalize_func, \
+			compare_func, \
+			hash_func, \
+			serialize_func, \
+			deserialize_func \
 		}; \
 	} \
 	template<> \

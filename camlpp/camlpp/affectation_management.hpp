@@ -64,7 +64,7 @@ template<class T>
 struct copy_instance_helper< T, true >
 {};
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 
 template<class... ArgsToScan>
 struct ShouldUseRegularTag;
@@ -418,7 +418,7 @@ struct AffectationManagement<unsigned char>
 };
 
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 template<class... Args>
 struct AffectationManagement< std::tuple< Args... > >
 {

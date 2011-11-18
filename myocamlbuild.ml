@@ -67,7 +67,7 @@ let add_gcc_rules () =
 		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
 	  build_transitive_deps [([],[cpp])];
-	  Cmd (S[A gcc_cpp ; A"-g" ; A"-std=c++0x" ; A"-fpermissive"; T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
+	  Cmd (S[A"clang++" ; A"-O3" ; A"-std=c++0x" ; A"-stdlib=libc++" ; A"-fpermissive"; T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
     end;
 
     rule "g++ : cpplib -> a" ~dep:"%.cpplib" ~prod:"%.a" begin
@@ -119,11 +119,11 @@ let _ = dispatch begin function
 
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
-            S[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"; A"-cclib"; A"-lstdc++"];  
+            S[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"; A"-cclib"; A"-lc++"];  
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	  flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
-	    S(verbose@[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A "-cclib";A "-lthreadsnat";A "-cclib"; A "-lpthread"; A "-cclib"; A "-lunix";  A"-cclib"; A"-lstdc++"]); 
+	    S(verbose@[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A "-cclib";A "-lthreadsnat";A "-cclib"; A "-lpthread"; A "-cclib"; A "-lunix";  A"-cclib"; A"-lc++"]); 
 
 	  (* when we link an ocaml file against the sfml "s" module *)
 	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
