@@ -37,8 +37,8 @@ public:
         CamlInputStream( CamlInputStream&& other ) : inputStreamInst_( std::move( other.inputStreamInst_ ) )
         {}				 
 
-	CamlInputStream( CamlInputStream const& ) = delete;
-	CamlInputStream& operator=( CamlInputStream const& ) = delete;
+	/*CamlInputStream( CamlInputStream const& ) = delete;
+	CamlInputStream& operator=( CamlInputStream const& ) = delete;*/
 	
 	virtual ~CamlInputStream()
 	{

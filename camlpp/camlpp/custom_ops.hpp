@@ -25,8 +25,6 @@
 template<class T>
 void camlpp__default_finalize( value v )
 {
-	std::ofstream fout("log.txt");
-	fout << "TRACE : in function " << __PRETTY_FUNCTION__ << std::endl;
 	ConversionManagement<T*> cm;
 	delete cm.from_value( v );
 }

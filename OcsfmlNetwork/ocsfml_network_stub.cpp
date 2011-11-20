@@ -224,6 +224,29 @@ void packet_write_helper(sf::Packet* obj, T data)
 	*obj << data;
 }
 
+typedef sf::Int8 sf_Int8;
+typedef sf::Int16 sf_Int16;
+typedef sf::Int32 sf_Int32;
+typedef sf::Uint8 sf_Uint8;
+typedef sf::Uint16 sf_Uint16;
+typedef sf::Uint32 sf_Uint32;
+typedef std::string std_string;
+
+#define STORE_FUNCTION_ACCESS_ADDRESS( type ) \
+	auto packet_write_ ## type ## _helper = &packet_write_helper< type >; \
+	auto packet_read_ ## type ## _helper = &packet_read_helper< type >;
+
+STORE_FUNCTION_ACCESS_ADDRESS(bool) 
+STORE_FUNCTION_ACCESS_ADDRESS(sf_Int8 )
+STORE_FUNCTION_ACCESS_ADDRESS(sf_Uint8 )
+STORE_FUNCTION_ACCESS_ADDRESS(sf_Int16 )
+STORE_FUNCTION_ACCESS_ADDRESS(sf_Uint16 )
+STORE_FUNCTION_ACCESS_ADDRESS(sf_Int32 )
+STORE_FUNCTION_ACCESS_ADDRESS(sf_Uint32 )
+STORE_FUNCTION_ACCESS_ADDRESS(double ) // Caml floats are doubles
+STORE_FUNCTION_ACCESS_ADDRESS(std_string )
+
+
 typedef sf::Packet sf_Packet;
 #define CAMLPP__CLASS_NAME() sf_Packet
 camlpp__register_custom_class()
@@ -238,25 +261,25 @@ camlpp__register_custom_class()
 // Note : these method should not return an sf::Packet in caml
 // Pourquoi ne pas rajouter read_X_ref : X ref -> packet (ce qui permettrait d'enchainer les appels)
 // aprés réflexion on peut déja le faire (cf: ocsfmlNetwork.ml)
-	camlpp__register_method0( ReadBool, &packet_read_helper<bool>) 
-	camlpp__register_method0( ReadInt8, &packet_read_helper<sf::Int8>)
-	camlpp__register_method0( ReadUint8, &packet_read_helper<sf::Uint8> )
-	camlpp__register_method0( ReadInt16, &packet_read_helper<sf::Int16>)
-	camlpp__register_method0( ReadUint16, &packet_read_helper<sf::Uint16> )
-	camlpp__register_method0( ReadInt32, &packet_read_helper<sf::Int32>)
-	camlpp__register_method0( ReadUint32, &packet_read_helper<sf::Uint32> )
-	camlpp__register_method0( ReadFloat, &packet_read_helper<double> ) // Caml floats are doubles
-	camlpp__register_method0( ReadString, &packet_read_helper<std::string> )
+	camlpp__register_method0( ReadBool, packet_read_bool_helper) 
+	camlpp__register_method0( ReadInt8, packet_read_sf_Int8_helper)
+	camlpp__register_method0( ReadUint8, packet_read_sf_Uint8_helper )
+	camlpp__register_method0( ReadInt16, packet_read_sf_Int16_helper )
+	camlpp__register_method0( ReadUint16, packet_read_sf_Uint16_helper )
+	camlpp__register_method0( ReadInt32, packet_read_sf_Int32_helper )
+	camlpp__register_method0( ReadUint32, packet_read_sf_Uint32_helper )
+	camlpp__register_method0( ReadFloat, packet_read_double_helper ) // Caml floats are doubles
+	camlpp__register_method0( ReadString, packet_read_std_string_helper )
 
-	camlpp__register_method1( WriteBool, &packet_write_helper<bool>) 
-	camlpp__register_method1( WriteInt8, &packet_write_helper<sf::Int8>)
-	camlpp__register_method1( WriteUint8, &packet_write_helper<sf::Uint8> )
-	camlpp__register_method1( WriteInt16, &packet_write_helper<sf::Int16>)
-	camlpp__register_method1( WriteUint16, &packet_write_helper<sf::Uint16> )
-	camlpp__register_method1( WriteInt32, &packet_write_helper<sf::Int32>)
-	camlpp__register_method1( WriteUint32, &packet_write_helper<sf::Uint32> )
-	camlpp__register_method1( WriteFloat, &packet_write_helper<double> ) // Caml floats are doubles
-	camlpp__register_method1( WriteString, &packet_write_helper<std::string> )
+	camlpp__register_method1( WriteBool, packet_write_bool_helper ) 
+	camlpp__register_method1( WriteInt8, packet_write_sf_Int8_helper)
+	camlpp__register_method1( WriteUint8, packet_write_sf_Uint8_helper )
+	camlpp__register_method1( WriteInt16, packet_write_sf_Int16_helper)
+	camlpp__register_method1( WriteUint16, packet_write_sf_Uint16_helper )
+	camlpp__register_method1( WriteInt32, packet_write_sf_Int32_helper )
+	camlpp__register_method1( WriteUint32, packet_write_sf_Uint32_helper )
+	camlpp__register_method1( WriteFloat, packet_write_double_helper ) // Caml floats are doubles
+	camlpp__register_method1( WriteString, packet_write_std_string_helper )
 
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
@@ -349,12 +372,12 @@ typedef sf::Socket::Status (sf::UdpSocket::*TransferPacketUdp)(	sf::Packet&,
 								unsigned short);
 
 
-std::tuple< sf::Socket::Status, unsigned short /*  remote port */ >
+std::pair< sf::Socket::Status, unsigned short /*  remote port */ >
 udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpAddress& remoteIp)
 {
 	unsigned short remotePort;
 	sf::Socket::Status status( obj->Receive( packet, remoteIp, remotePort ) );
-	return std::make_tuple( status, remotePort );
+	return std::make_pair( status, remotePort );
 }
 
 typedef sf::UdpSocket sf_UdpSocket;
