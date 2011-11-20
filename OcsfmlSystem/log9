@@ -1,0 +1,100 @@
+ocsfml_system_stub.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE\xlocale(323) : warning C4530: Gestionnaire d'exceptions C++ utilis‚, mais les s‚mantiques de d‚roulement n'ont pas ‚t‚ activ‚es. Sp‚cifiez /EHsc
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(693) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(694) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(695) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(696) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(697) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(698) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(699) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(700) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(701) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(702) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(703) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(704) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(705) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(706) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(707) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(708) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(709) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(710) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(711) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(712) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(713) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(714) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(715) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(716) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(717) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(718) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(719) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+ocsfml_system_stub.cpp(34) : error C2065: 'int_'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(34) : error C3203: 'at'ÿ: la classe non sp‚cialis‚e modŠle ne peut pas ˆtre utilis‚e comme argument modŠle pour le paramŠtre modŠle 'T'ÿ; type r‚el attendu
+ocsfml_system_stub.cpp(34) : error C2955: 'boost::mpl::at'ÿ: l'utilisation d'une classe modŠle requiert une liste d'arguments modŠle
+        C:\cygwin\usr\local\include\boost/mpl/at.hpp(32)ÿ: voir la d‚claration de 'boost::mpl::at'
+ocsfml_system_stub.cpp(34) : error C2955: 'ConversionManagement'ÿ: l'utilisation d'une classe modŠle requiert une liste d'arguments modŠle
+        c:\cygwin\usr\local\include\camlpp\conversion_management.hpp(40)ÿ: voir la d‚claration de 'ConversionManagement'
+ocsfml_system_stub.cpp(34) : error C2027: utilisation du type non d‚fini 'ConversionManagement'
+        c:\cygwin\usr\local\include\camlpp\conversion_management.hpp(40)ÿ: voir la d‚claration de 'ConversionManagement'
+ocsfml_system_stub.cpp(34) : error C2065: 'type'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(34) : error C2065: 'cm1'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(34) : error C2065: 'cm1'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(34) : error C2228: la partie gauche de '.from_value' doit avoir un class/struct/union
+        le type est ''unknown-type''
+ocsfml_system_stub.cpp(34) : error C2064: le terme ne correspond pas … une fonction qui prend 1 arguments
+        la classe ne d‚finit pas un 'operator()' ou un op‚rateur de conversion d‚fini par l'utilisateur en pointeur de fonction ou r‚f‚rence de fonction qui accepte le nombre d'arguments appropri‚
+ocsfml_system_stub.cpp(34) : error C2065: 'cm1'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(34) : error C2228: la partie gauche de '.from_value' doit avoir un class/struct/union
+        le type est ''unknown-type''
+ocsfml_system_stub.cpp(34) : error C2064: le terme ne correspond pas … une fonction qui prend 1 arguments
+        la classe ne d‚finit pas un 'operator()' ou un op‚rateur de conversion d‚fini par l'utilisateur en pointeur de fonction ou r‚f‚rence de fonction qui accepte le nombre d'arguments appropri‚
+ocsfml_system_stub.cpp(35) : error C2065: 'int_'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(35) : error C3203: 'at'ÿ: la classe non sp‚cialis‚e modŠle ne peut pas ˆtre utilis‚e comme argument modŠle pour le paramŠtre modŠle 'T'ÿ; type r‚el attendu
+ocsfml_system_stub.cpp(35) : error C2955: 'boost::mpl::at'ÿ: l'utilisation d'une classe modŠle requiert une liste d'arguments modŠle
+        C:\cygwin\usr\local\include\boost/mpl/at.hpp(32)ÿ: voir la d‚claration de 'boost::mpl::at'
+ocsfml_system_stub.cpp(35) : error C2955: 'ConversionManagement'ÿ: l'utilisation d'une classe modŠle requiert une liste d'arguments modŠle
+        c:\cygwin\usr\local\include\camlpp\conversion_management.hpp(40)ÿ: voir la d‚claration de 'ConversionManagement'
+ocsfml_system_stub.cpp(35) : error C2027: utilisation du type non d‚fini 'ConversionManagement'
+        c:\cygwin\usr\local\include\camlpp\conversion_management.hpp(40)ÿ: voir la d‚claration de 'ConversionManagement'
+ocsfml_system_stub.cpp(35) : error C2065: 'type'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(35) : error C2065: 'cm1'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(35) : error C2065: 'cm1'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(35) : error C2228: la partie gauche de '.from_value' doit avoir un class/struct/union
+        le type est ''unknown-type''
+ocsfml_system_stub.cpp(35) : error C2064: le terme ne correspond pas … une fonction qui prend 1 arguments
+        la classe ne d‚finit pas un 'operator()' ou un op‚rateur de conversion d‚fini par l'utilisateur en pointeur de fonction ou r‚f‚rence de fonction qui accepte le nombre d'arguments appropri‚
+ocsfml_system_stub.cpp(35) : error C2065: 'cm1'ÿ: identificateur non d‚clar‚
+ocsfml_system_stub.cpp(35) : error C2228: la partie gauche de '.from_value' doit avoir un class/struct/union
+        le type est ''unknown-type''
+ocsfml_system_stub.cpp(35) : error C2064: le terme ne correspond pas … une fonction qui prend 1 arguments
+        la classe ne d‚finit pas un 'operator()' ou un op‚rateur de conversion d‚fini par l'utilisateur en pointeur de fonction ou r‚f‚rence de fonction qui accepte le nombre d'arguments appropri‚
+ocsfml_system_stub.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE\xlocale(323) : warning C4530: Gestionnaire d'exceptions C++ utilis‚, mais les s‚mantiques de d‚roulement n'ont pas ‚t‚ activ‚es. Sp‚cifiez /EHsc
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(693) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(694) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(695) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(696) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(697) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(698) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(699) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(700) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(701) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(702) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(703) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(704) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(705) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(706) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(707) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(708) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(709) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(710) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(711) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(712) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(713) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(714) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(715) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(716) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(717) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(718) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(719) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_ops.hpp(29) : error C2065: '__PRETTY_FUNCTION__'ÿ: identificateur non d‚clar‚
+        ocsfml_system_stub.cpp(32)ÿ: voir la r‚f‚rence … l'instanciation de la fonction modŠle 'void camlpp__default_finalize<sf_Clock>(value)' en cours de compilation

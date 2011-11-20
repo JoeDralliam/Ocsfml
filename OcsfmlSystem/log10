@@ -1,0 +1,44 @@
+ocsfml_system_stub.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE\xlocale(323) : warning C4530: Gestionnaire d'exceptions C++ utilis‚, mais les s‚mantiques de d‚roulement n'ont pas ‚t‚ activ‚es. Sp‚cifiez /EHsc
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(693) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(694) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(695) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(696) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(697) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(698) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(699) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(700) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(701) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(702) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(703) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(704) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(705) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(706) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(707) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(708) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(709) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(710) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(711) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(712) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(713) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(714) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(715) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(716) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(717) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(718) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+C:\cygwin\usr\local\include\camlpp/custom_class.hpp(719) : warning C4010: un commentaire sur une seule ligne comporte un caractŠre de continuation de ligne
+Microsoft (R) Incremental Linker Version 10.00.30319.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:ocsfml_system_stub.exe 
+ocsfml_system_stub.obj 
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu _caml_local_roots référencé dans la fonction _sf_Clock_destroy__impl
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu "__declspec(dllimport) public: unsigned int __thiscall sf::Clock::GetElapsedTime(void)const " (__imp_?GetElapsedTime@Clock@sf@@QBEIXZ) référencé dans la fonction _sf_Clock_GetElapsedTime__impl
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu "__declspec(dllimport) public: void __thiscall sf::Clock::Reset(void)" (__imp_?Reset@Clock@sf@@QAEXXZ) référencé dans la fonction _sf_Clock_Reset__impl
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu _caml_callback référencé dans la fonction "public: class sf::Clock * __thiscall ConversionManagement<class sf::Clock *>::from_value(long const &)" (?from_value@?$ConversionManagement@PAVClock@sf@@@@QAEPAVClock@sf@@ABJ@Z)
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu _caml_get_public_method référencé dans la fonction "public: class sf::Clock * __thiscall ConversionManagement<class sf::Clock *>::from_value(long const &)" (?from_value@?$ConversionManagement@PAVClock@sf@@@@QAEPAVClock@sf@@ABJ@Z)
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu _caml_hash_variant référencé dans la fonction "public: class sf::Clock * __thiscall ConversionManagement<class sf::Clock *>::from_value(long const &)" (?from_value@?$ConversionManagement@PAVClock@sf@@@@QAEPAVClock@sf@@ABJ@Z)
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu "__declspec(dllimport) public: __thiscall sf::Clock::Clock(void)" (__imp_??0Clock@sf@@QAE@XZ) référencé dans la fonction "public: class sf::Clock * __thiscall boost::factory<class sf::Clock *,int boost::detail::none_helper::*,0>::operator()(void)const " (??R?$factory@PAVClock@sf@@PQnone_helper@detail@boost@@H$0A@@boost@@QBEPAVClock@sf@@XZ)
+ocsfml_system_stub.obj : error LNK2019: symbole externe non résolu _caml_alloc_custom référencé dans la fonction "public: static void __cdecl AffectationManagement<class sf::Clock *,0>::affect(long &,class sf::Clock *)" (?affect@?$AffectationManagement@PAVClock@sf@@$0A@@@SAXAAJPAVClock@sf@@@Z)
+LIBCMT.lib(crt0.obj) : error LNK2019: symbole externe non résolu _main référencé dans la fonction ___tmainCRTStartup
+ocsfml_system_stub.exe : fatal error LNK1120: 9 externes non résolus
