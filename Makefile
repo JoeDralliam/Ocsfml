@@ -99,6 +99,71 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named audio
+
+# Build rule for target.
+audio: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 audio
+.PHONY : audio
+
+# fast build rule for target.
+audio/fast:
+	$(MAKE) -f CMakeFiles/audio.dir/build.make CMakeFiles/audio.dir/build
+.PHONY : audio/fast
+
+#=============================================================================
+# Target rules for targets named clear
+
+# Build rule for target.
+clear: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 clear
+.PHONY : clear
+
+# fast build rule for target.
+clear/fast:
+	$(MAKE) -f CMakeFiles/clear.dir/build.make CMakeFiles/clear.dir/build
+.PHONY : clear/fast
+
+#=============================================================================
+# Target rules for targets named clock
+
+# Build rule for target.
+clock: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 clock
+.PHONY : clock
+
+# fast build rule for target.
+clock/fast:
+	$(MAKE) -f CMakeFiles/clock.dir/build.make CMakeFiles/clock.dir/build
+.PHONY : clock/fast
+
+#=============================================================================
+# Target rules for targets named graphics
+
+# Build rule for target.
+graphics: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 graphics
+.PHONY : graphics
+
+# fast build rule for target.
+graphics/fast:
+	$(MAKE) -f CMakeFiles/graphics.dir/build.make CMakeFiles/graphics.dir/build
+.PHONY : graphics/fast
+
+#=============================================================================
+# Target rules for targets named network
+
+# Build rule for target.
+network: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 network
+.PHONY : network
+
+# fast build rule for target.
+network/fast:
+	$(MAKE) -f CMakeFiles/network.dir/build.make CMakeFiles/network.dir/build
+.PHONY : network/fast
+
+#=============================================================================
 # Target rules for targets named pong
 
 # Build rule for target.
@@ -111,15 +176,48 @@ pong/fast:
 	$(MAKE) -f CMakeFiles/pong.dir/build.make CMakeFiles/pong.dir/build
 .PHONY : pong/fast
 
+#=============================================================================
+# Target rules for targets named system
+
+# Build rule for target.
+system: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 system
+.PHONY : system
+
+# fast build rule for target.
+system/fast:
+	$(MAKE) -f CMakeFiles/system.dir/build.make CMakeFiles/system.dir/build
+.PHONY : system/fast
+
+#=============================================================================
+# Target rules for targets named window
+
+# Build rule for target.
+window: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 window
+.PHONY : window
+
+# fast build rule for target.
+window/fast:
+	$(MAKE) -f CMakeFiles/window.dir/build.make CMakeFiles/window.dir/build
+.PHONY : window/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... audio"
+	@echo "... clear"
+	@echo "... clock"
 	@echo "... edit_cache"
+	@echo "... graphics"
+	@echo "... network"
 	@echo "... pong"
 	@echo "... rebuild_cache"
+	@echo "... system"
+	@echo "... window"
 .PHONY : help
 
 

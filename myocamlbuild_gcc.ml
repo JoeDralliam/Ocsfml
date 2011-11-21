@@ -16,7 +16,8 @@ let get_symbol s =
   with Not_found -> failwith ("this symbol must be defined : "^ s)
 
 let add_gcc_rules () = 
-  let ccpp = get_symbol "gcc" in
+  let gcc = get_symbol "gcc" in (* gcc compiler *)
+  let ccpp = get_symbol "ccpp" in (* gcc-compatible compiler *)
 
   let parallel dir files = List.map (fun f -> [dir/f]) files  in
 
@@ -37,7 +38,7 @@ let add_gcc_rules () =
   let deps_action dep prod env build = 
     let file = env dep in
     let tags = tags_of_pathname file ++ "g++" in
-      Cmd (S [A ccpp; T tags; A "-std=c++0x" ;
+      Cmd (S [A gcc; T tags; A "-std=c++0x" ;
 	      A "-MM"; A "-MG"; A "-MF"; Px (env prod); P file])
   in
 
@@ -67,7 +68,7 @@ let add_gcc_rules () =
 		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
 	  build_transitive_deps [([],[cpp])];
-	  Cmd (S[A ccpp ; A"-g" ; A"-std=c++0x" ; A"-fpermissive"; T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
+	  Cmd (S[A ccpp ; A"-g" ; A"-std=c++0x" ; A (get_symbol "cxx_flags" ); T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
     end;
 
     rule "g++ : cpplib -> a" ~dep:"%.cpplib" ~prod:"%.a" begin
@@ -93,7 +94,7 @@ let graphics = "graphics"
 let audio = "audio"
 let network = "network"
 let includedir = "-I" ^ (get_symbol "includedir" )
-let libdir = "-L" ^ (get_symbol "libdir") 
+(* let libdir = "-L" ^ (get_symbol "libdir") *) 
 let libs = [
   "system", [system] ; 
   "window", [system ; window] ;
@@ -106,24 +107,26 @@ let libs = [
 let _ = dispatch begin function 
   | Before_rules ->  
       let create_libs_flags (s,l) = 
-	let link_prefix = "-lsfml-" in
-	let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in
+	let link_prefix = "" in
+	(* let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in *)
 	let verbose = if debug then [A"-verbose"] else [] in
 	let link_libs_ocaml = List.fold_left 
-	  (fun l' x -> [A"-cclib" ; A (link_prefix^x)] @ l') [A"-ccopt"; A libdir] l in
+	  (fun l' x -> [A"-cclib" ; A (link_prefix^(get_symbol ("lib"^x)) )] @ l') [A"-ccopt"; A"-v" (*A"-ccopt"; A libdir*)] l in
 	let d = get_directory s in
 	(*  List.iter (fun x -> dep ["g++"] [(get_directory x)^"/"^x^"_stub.hpp"]) l ; *)
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
-	  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs;  
+	(*  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs; *)
 
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
-            S[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"; A"-cclib"; A"-lstdc++"];  
+            S[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); 
+	      A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"; A"-cclib"; A ("-l"^(get_symbol "stdlib"))];  
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	  flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
-	    S(verbose@[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A "-cclib";A "-lthreadsnat";A "-cclib"; A "-lpthread"; A "-cclib"; A "-lunix";  A"-cclib"; A"-lstdc++"]); 
+	    S(verbose@[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s);
+		       A "-cclib";A "-lthreadsnat";A "-cclib"; A "-lpthread"; A "-cclib"; A "-lunix";  A"-cclib"; A("-l"^(get_symbol "stdlib"))]); 
 
 	  (* when we link an ocaml file against the sfml "s" module *)
 	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
