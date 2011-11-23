@@ -112,6 +112,19 @@ audio/fast:
 .PHONY : audio/fast
 
 #=============================================================================
+# Target rules for targets named camlpp
+
+# Build rule for target.
+camlpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 camlpp
+.PHONY : camlpp
+
+# fast build rule for target.
+camlpp/fast:
+	$(MAKE) -f CMakeFiles/camlpp.dir/build.make CMakeFiles/camlpp.dir/build
+.PHONY : camlpp/fast
+
+#=============================================================================
 # Target rules for targets named clear
 
 # Build rule for target.
@@ -149,6 +162,97 @@ graphics: cmake_check_build_system
 graphics/fast:
 	$(MAKE) -f CMakeFiles/graphics.dir/build.make CMakeFiles/graphics.dir/build
 .PHONY : graphics/fast
+
+#=============================================================================
+# Target rules for targets named infer
+
+# Build rule for target.
+infer: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 infer
+.PHONY : infer
+
+# fast build rule for target.
+infer/fast:
+	$(MAKE) -f CMakeFiles/infer.dir/build.make CMakeFiles/infer.dir/build
+.PHONY : infer/fast
+
+#=============================================================================
+# Target rules for targets named infer_audio
+
+# Build rule for target.
+infer_audio: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 infer_audio
+.PHONY : infer_audio
+
+# fast build rule for target.
+infer_audio/fast:
+	$(MAKE) -f CMakeFiles/infer_audio.dir/build.make CMakeFiles/infer_audio.dir/build
+.PHONY : infer_audio/fast
+
+#=============================================================================
+# Target rules for targets named infer_graphics
+
+# Build rule for target.
+infer_graphics: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 infer_graphics
+.PHONY : infer_graphics
+
+# fast build rule for target.
+infer_graphics/fast:
+	$(MAKE) -f CMakeFiles/infer_graphics.dir/build.make CMakeFiles/infer_graphics.dir/build
+.PHONY : infer_graphics/fast
+
+#=============================================================================
+# Target rules for targets named infer_network
+
+# Build rule for target.
+infer_network: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 infer_network
+.PHONY : infer_network
+
+# fast build rule for target.
+infer_network/fast:
+	$(MAKE) -f CMakeFiles/infer_network.dir/build.make CMakeFiles/infer_network.dir/build
+.PHONY : infer_network/fast
+
+#=============================================================================
+# Target rules for targets named infer_system
+
+# Build rule for target.
+infer_system: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 infer_system
+.PHONY : infer_system
+
+# fast build rule for target.
+infer_system/fast:
+	$(MAKE) -f CMakeFiles/infer_system.dir/build.make CMakeFiles/infer_system.dir/build
+.PHONY : infer_system/fast
+
+#=============================================================================
+# Target rules for targets named infer_window
+
+# Build rule for target.
+infer_window: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 infer_window
+.PHONY : infer_window
+
+# fast build rule for target.
+infer_window/fast:
+	$(MAKE) -f CMakeFiles/infer_window.dir/build.make CMakeFiles/infer_window.dir/build
+.PHONY : infer_window/fast
+
+#=============================================================================
+# Target rules for targets named install_camlpp
+
+# Build rule for target.
+install_camlpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 install_camlpp
+.PHONY : install_camlpp
+
+# fast build rule for target.
+install_camlpp/fast:
+	$(MAKE) -f CMakeFiles/install_camlpp.dir/build.make CMakeFiles/install_camlpp.dir/build
+.PHONY : install_camlpp/fast
 
 #=============================================================================
 # Target rules for targets named network
@@ -190,6 +294,19 @@ system/fast:
 .PHONY : system/fast
 
 #=============================================================================
+# Target rules for targets named uninstall_camlpp
+
+# Build rule for target.
+uninstall_camlpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 uninstall_camlpp
+.PHONY : uninstall_camlpp
+
+# fast build rule for target.
+uninstall_camlpp/fast:
+	$(MAKE) -f CMakeFiles/uninstall_camlpp.dir/build.make CMakeFiles/uninstall_camlpp.dir/build
+.PHONY : uninstall_camlpp/fast
+
+#=============================================================================
 # Target rules for targets named window
 
 # Build rule for target.
@@ -209,14 +326,23 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... audio"
+	@echo "... camlpp"
 	@echo "... clear"
 	@echo "... clock"
 	@echo "... edit_cache"
 	@echo "... graphics"
+	@echo "... infer"
+	@echo "... infer_audio"
+	@echo "... infer_graphics"
+	@echo "... infer_network"
+	@echo "... infer_system"
+	@echo "... infer_window"
+	@echo "... install_camlpp"
 	@echo "... network"
 	@echo "... pong"
 	@echo "... rebuild_cache"
 	@echo "... system"
+	@echo "... uninstall_camlpp"
 	@echo "... window"
 .PHONY : help
 

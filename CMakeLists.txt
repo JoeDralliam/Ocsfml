@@ -49,29 +49,90 @@ add_custom_target(
 )
 
 add_custom_target( 
-	system
-	ocamlbuild -use-ocamlfind ocsfmlsystem.cma && ocamlbuild -use-ocamlfind ocsfmlsystem.cmxa
+	system 
+	ALL	ocamlbuild -use-ocamlfind ocsfmlsystem.cma
+	COMMAND ocamlbuild -use-ocamlfind ocsfmlsystem.cmxa
 )
 
 add_custom_target( 
-	window
-	ocamlbuild -use-ocamlfind ocsfmlwindow.cma && ocamlbuild -use-ocamlfind ocsfmlwindow.cmxa
+	window 
+	ALL	ocamlbuild -use-ocamlfind ocsfmlwindow.cma
+	COMMAND	ocamlbuild -use-ocamlfind ocsfmlwindow.cmxa
 )
 
 add_custom_target( 
-	graphics
-	ocamlbuild -use-ocamlfind ocsfmlgraphics.cma && ocamlbuild -use-ocamlfind ocsfmlgraphics.cmxa
+	graphics 
+	ALL	ocamlbuild -use-ocamlfind ocsfmlgraphics.cma 
+	COMMAND	ocamlbuild -use-ocamlfind ocsfmlgraphics.cmxa
 )
 
 add_custom_target( 
-	network
-	ocamlbuild -use-ocamlfind ocsfmlnetwork.cma && ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
+	network 
+	ALL	ocamlbuild -use-ocamlfind ocsfmlnetwork.cma 
+	COMMAND	ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
 )
 
 add_custom_target( 
-	audio
-	ocamlbuild -use-ocamlfind ocsfmlaudio.cma && ocamlbuild -use-ocamlfind ocsfmlaudio.cmxa
+	audio 
+	ALL	ocamlbuild -use-ocamlfind ocsfmlaudio.cma 
+	COMMAND	ocamlbuild -use-ocamlfind ocsfmlaudio.cmxa
 )
+
+
+
+add_custom_target(
+	infer_system
+		ocamlbuild -use-ocamlfind ocsfmlSystem.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli
+)
+
+add_custom_target(
+	infer_window
+		ocamlbuild -use-ocamlfind ocsfmlWindow.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli
+)
+
+add_custom_target(
+	infer_graphics
+		ocamlbuild -use-ocamlfind ocsfmlGraphics.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli
+)
+
+add_custom_target(
+	infer_network
+		ocamlbuild -use-ocamlfind ocsfmlNetwork.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlNetwork/ocsfmlNetwork.inferred.mli OcsfmlNetwork/ocsfmlNetwork.mli
+)
+
+add_custom_target(
+	infer_audio
+	ocamlbuild -use-ocamlfind ocsfmlAudio.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli
+)
+
+add_custom_target( 
+	infer ALL
+	DEPENDS infer_system infer_window infer_graphics infer_network infer_audio
+)
+
+add_custom_target(
+	camlpp
+	ocamlbuild -use-ocamlfind ./camlpp/ExternalCpp/pa_cpp_external.cma
+)	
+
+add_custom_target(
+	install_camlpp
+	ocamlfind install "external_cpp" camlpp/ExternalCpp/META _build/camlpp/ExternalCpp/pa_cpp_external.cma _build/camlpp/ExternalCpp/pa_cpp_external.cmi _build/camlpp/ExternalCpp/synthese.cmi _build/camlpp/ExternalCpp/cppExternalAst.cmi
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ./camlpp/camlpp "/usr/local/include/camlpp"
+	DEPENDS camlpp
+)
+
+add_custom_target(
+	uninstall_camlpp
+	ocamlfind remove "external_cpp"
+	COMMAND ${CMAKE_COMMAND} -E remove_directory /usr/local/include/camlpp
+)
+
 
 add_custom_target( 
 	clock

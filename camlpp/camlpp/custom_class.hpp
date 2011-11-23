@@ -3,15 +3,15 @@
  *
  *       Filename:  custom_class.hpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  24/08/2011 10:52:39
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
+ *         Author:  YOUR NAME (),
+ *        Company:
  *
  * =====================================================================================
  */
@@ -556,14 +556,14 @@ struct method_traits< Ret (*)(C*, Args...)>
 		{ \
 			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj); \
 		} \
-	}; 
+	};
 
 
 #define camlpp__preregister_custom_class_and_ops( class_name, finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
 	extern "C" \
 	{ \
 		static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
-			BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() ), \
+            const_cast<char*>(BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() )), \
 			finalize_func, \
 			compare_func, \
 			hash_func, \
