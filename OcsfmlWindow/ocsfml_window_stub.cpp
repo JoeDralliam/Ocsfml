@@ -1,6 +1,10 @@
 #include "ocsfml_window_stub.hpp"
 #include <camlpp/type_option.hpp>
 
+typedef sf::Vector2i (*get_pos_type)();
+typedef sf::Vector2i (*get_relative_pos_type)(const sf::Window&);
+typedef void (*set_pos_type)(sf::Vector2i const&);
+typedef void (*set_relative_pos_type)(sf::Vector2i const&, const sf::Window&);
 extern "C"
 {
 	camlpp__register_overloaded_free_function1( Keyboard_IsKeyPressed, &sf::Keyboard::IsKeyPressed)
@@ -8,10 +12,10 @@ extern "C"
 
 
 	camlpp__register_overloaded_free_function1( Mouse_IsButtonPressed, &sf::Mouse::IsButtonPressed)
-	camlpp__register_overloaded_free_function0( Mouse_GetPosition, ((sf::Vector2i (*)()) &sf::Mouse::GetPosition) )
-	camlpp__register_overloaded_free_function1( Mouse_GetRelativePosition, ((sf::Vector2i (*)(const sf::Window&)) &sf::Mouse::GetPosition) )
-	camlpp__register_overloaded_free_function1( Mouse_SetPosition, ((void (*)(sf::Vector2i const&)) &sf::Mouse::SetPosition) )
-	camlpp__register_overloaded_free_function2( Mouse_SetRelativePosition, ((void (*)(sf::Vector2i const&, sf::Window const&)) &sf::Mouse::SetPosition) )
+	camlpp__register_overloaded_free_function0( Mouse_GetPosition, ((get_pos_type) &sf::Mouse::GetPosition) )
+	camlpp__register_overloaded_free_function1( Mouse_GetRelativePosition, ((get_relative_pos_type) &sf::Mouse::GetPosition) )
+	camlpp__register_overloaded_free_function1( Mouse_SetPosition, ((set_pos_type) &sf::Mouse::SetPosition) )
+	camlpp__register_overloaded_free_function2( Mouse_SetRelativePosition, ((set_relative_pos_type) &sf::Mouse::SetPosition) )
 
 
 	camlpp__register_overloaded_free_function1( Joystick_IsConnected, &sf::Joystick::IsConnected)
