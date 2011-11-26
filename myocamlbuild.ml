@@ -1,9 +1,14 @@
 open Ocamlbuild_plugin
+open Lexers
 open Pathname
 
 let symbols = 
+  let parse file =
+	with_input_file file begin fun ic ->
+		comma_sep_strings (Lexing.from_channel ic)
+	end in
   let tmp = Hashtbl.create 10 in 
-  let l = string_list_of_file "config" in
+  let l = parse "config" in
   let rec fill_tbl = function
     | [] -> tmp
     | [x] -> tmp
@@ -49,7 +54,7 @@ let add_gcc_rules () =
       ~dep:"%.hpp" ~prod:"%.hpp.depends"
       (deps_action "%.hpp" "%.hpp.depends");
 
-(* rajouter des rÃ©gles pour .h et .inl *)
+(* rajouter des régles pour .h et .inl *)
 
     rule "g++ : cpp & cpp.depends -> obj" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.obj" begin 
       fun env builder ->
@@ -67,7 +72,7 @@ let add_gcc_rules () =
 		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
 	  build_transitive_deps [([],[cpp])];
-	  Cmd (S[A"cl" ; A"/nologo" ; A "/Zl" ; A"/Ox" ; A"/EHsc" ; T tags;A("/I" ^ (get_symbol "includedir" )); A"/IC:\\cygwin\\usr\\local\\include"; A"/IC:\\ocamlms\\lib"; A"/c" ; P cpp ; A("/Fo"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.obj")))) ])
+	  Cmd (S[A"cl" ; A"/Ox" ; A"/EHsc" ; T tags;A("/I" ^ (get_symbol "includedir" )); A"/IC:\\cygwin\\usr\\local\\include"; A"/IC:\\ocamlms\\lib"; A"/c" ; P cpp ; A("/Fo"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.obj")))) ])
     end;
 
     rule "g++ : cpplib -> lib" ~dep:"%.cpplib" ~prod:"%.lib" begin
@@ -79,7 +84,7 @@ let add_gcc_rules () =
 	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
 	  let obtain_spec_obj o = A (dir/o) in
 	  let spec_obj_list =(List.map obtain_spec_obj o_files) in
-		Cmd ( S [A"lib" ; A"/NOLOGO" ; A"/NODEFAULTLIB" ; A"/LIBPATH:.\\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.lib")))); T tags; S spec_obj_list ])
+		Cmd ( S [A"lib" ; A"/LIBPATH:.\\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.lib")))); T tags; S spec_obj_list ])
     end
 
 let get_directory s =
@@ -93,8 +98,8 @@ let window = "window"
 let graphics = "graphics"
 let audio = "audio"
 let network = "network"
-let includedir = "-I" ^ (get_symbol "includedir" )
-let libdir = "-L" ^ (get_symbol "libdir") 
+let includedir = "/I" ^ (get_symbol "includedir" )
+let libdir = "/LIBPATH " ^ (get_symbol "libdir") 
 let libs = [
   "system", [system] ; 
   "window", [system ; window] ;
@@ -107,11 +112,11 @@ let libs = [
 let _ = dispatch begin function 
   | Before_rules ->  
       let create_libs_flags (s,l) = 
-	let link_prefix = "sfml-" in
+	let link_prefix = "-lsfml-" in
 	let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in
 	let verbose = if debug then [A"-verbose"] else [] in
 	let link_libs_ocaml = List.fold_left 
-	  (fun l' x -> [A (link_prefix^x^".lib")] @ l') [A"-ccopt"; A libdir] l in
+	  (fun l' x -> [A"-cclib" ; A (link_prefix^x)] @ l') [A"-ccopt"; A libdir] l in
 	let d = get_directory s in
 	(*  List.iter (fun x -> dep ["g++"] [(get_directory x)^"/"^x^"_stub.hpp"]) l ; *)
 
@@ -120,14 +125,14 @@ let _ = dispatch begin function
 
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
-            S[A "-cclib"; A libdir ; A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"];  
+            S[A "-cclib"; A("-I./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"];  
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	  flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
-	    S(verbose@[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); (* A "-cclib";A "-lthreadsnat";A "-cclib"; A "-lpthread"; *) A "-cclib"; A "-lunix"]); 
+	    S(verbose@[A "-cclib"; A("-I./"^d); A"-cclib"; A("-locsfml"^s); A "-cclib";A "-lthreadsnat";A "-cclib"; A "-lpthread"; A "-cclib"; A "-lunix"]); 
 
 	  (* when we link an ocaml file against the sfml "s" module *)
-	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml ;
+	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
 	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".lib"] ;
