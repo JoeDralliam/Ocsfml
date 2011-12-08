@@ -1,9 +1,21 @@
 open Ocamlbuild_plugin
 open Pathname
 
+let rec parse chan =
+  try
+    let s = input_line chan in
+    let name, value =
+      try 
+	let n = String.index s '=' in
+	  String.sub s 0 n, 
+	String.sub s (n+1) ((String.length s) - (n+1))
+      with Not_found -> s, "" in
+      name::value::(parse chan)
+  with End_of_file -> []
+    
 let symbols = 
   let tmp = Hashtbl.create 10 in 
-  let l = string_list_of_file "config" in
+  let l = parse (open_in "config") in
   let rec fill_tbl = function
     | [] -> tmp
     | [x] -> tmp
@@ -50,7 +62,7 @@ let add_gcc_rules () =
       ~dep:"%.hpp" ~prod:"%.hpp.depends"
       (deps_action "%.hpp" "%.hpp.depends");
 
-(* rajouter des rÃ©gles pour .h et .inl *)
+(* rajouter des régles pour .h et .inl *)
 
     rule "g++ : cpp & cpp.depends -> o" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.o" begin 
       fun env builder ->

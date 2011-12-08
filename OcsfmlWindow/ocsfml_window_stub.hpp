@@ -21,45 +21,45 @@ custom_enum_affectation( sf::Joystick::Axis );
 
 
 
-custom_struct_affectation( 	sf::Event::SizeEvent,
-				&sf::Event::SizeEvent::Width,
+custom_struct_affectation( 	sf::Event::SizeEvent, 
+				&sf::Event::SizeEvent::Width, 
 				&sf::Event::SizeEvent::Height );
 
-custom_struct_affectation( 	sf::Event::KeyEvent,
-				&sf::Event::KeyEvent::Code,
+custom_struct_affectation( 	sf::Event::KeyEvent, 
+				&sf::Event::KeyEvent::Code, 
 				&sf::Event::KeyEvent::Alt,
 				&sf::Event::KeyEvent::Control,
 				&sf::Event::KeyEvent::Shift,
 				&sf::Event::KeyEvent::System );
 
-custom_struct_affectation( 	sf::Event::TextEvent,
+custom_struct_affectation( 	sf::Event::TextEvent, 
 				&sf::Event::TextEvent::Unicode );
 
 
-custom_struct_affectation( 	sf::Event::MouseMoveEvent,
-				&sf::Event::MouseMoveEvent::X,
+custom_struct_affectation( 	sf::Event::MouseMoveEvent, 
+				&sf::Event::MouseMoveEvent::X, 
 				&sf::Event::MouseMoveEvent::Y );
 
-custom_struct_affectation( 	sf::Event::MouseButtonEvent,
-				&sf::Event::MouseButtonEvent::Button,
+custom_struct_affectation( 	sf::Event::MouseButtonEvent, 
+				&sf::Event::MouseButtonEvent::Button, 
 				&sf::Event::MouseButtonEvent::X,
 				&sf::Event::MouseButtonEvent::Y );
 
-custom_struct_affectation( 	sf::Event::MouseWheelEvent,
+custom_struct_affectation( 	sf::Event::MouseWheelEvent, 
 				&sf::Event::MouseWheelEvent::Delta,
 				&sf::Event::MouseWheelEvent::X,
 				&sf::Event::MouseWheelEvent::Y );
 
-custom_struct_affectation( 	sf::Event::JoystickConnectEvent,
+custom_struct_affectation( 	sf::Event::JoystickConnectEvent, 
 				&sf::Event::JoystickConnectEvent::JoystickId );
 
-custom_struct_affectation( 	sf::Event::JoystickMoveEvent,
-				&sf::Event::JoystickMoveEvent::JoystickId,
+custom_struct_affectation( 	sf::Event::JoystickMoveEvent, 
+				&sf::Event::JoystickMoveEvent::JoystickId, 
 				&sf::Event::JoystickMoveEvent::Axis,
 				&sf::Event::JoystickMoveEvent::Position );
 
-custom_struct_affectation( 	sf::Event::JoystickButtonEvent,
-				&sf::Event::JoystickButtonEvent::JoystickId,
+custom_struct_affectation( 	sf::Event::JoystickButtonEvent, 
+				&sf::Event::JoystickButtonEvent::JoystickId, 
 				&sf::Event::JoystickButtonEvent::Button );
 
 template<>
@@ -104,36 +104,34 @@ struct AffectationManagement< sf::Event >
 				v = caml_alloc( 1, 5 );
 				caml_cpp__affect_field( v, 0, e.MouseButton );
 				break;
-            case sf::Event::MouseButtonReleased:
+        		case sf::Event::MouseButtonReleased:
 				v = caml_alloc( 1, 6 );
 				caml_cpp__affect_field( v, 0, e.MouseButton );
 				break;
-            case sf::Event::MouseMoved:
+        		case sf::Event::MouseMoved: 
 				v = caml_alloc( 1, 7 );
 				caml_cpp__affect_field( v, 0, e.MouseMove );
 				break;
-            case sf::Event::JoystickButtonPressed:
+        		case sf::Event::JoystickButtonPressed:
 				v = caml_alloc( 1, 8 );
 				caml_cpp__affect_field( v, 0, e.JoystickButton );
 				break;
-            case sf::Event::JoystickButtonReleased:
+        		case sf::Event::JoystickButtonReleased:
 				v = caml_alloc( 1, 9 );
 				caml_cpp__affect_field( v, 0, e.JoystickButton );
 				break;
-            case sf::Event::JoystickMoved:
+        		case sf::Event::JoystickMoved:
 				v = caml_alloc( 1, 10 );
 				caml_cpp__affect_field( v, 0, e.JoystickMove );
 				break;
-            case sf::Event::JoystickConnected:
+        		case sf::Event::JoystickConnected:
 				v = caml_alloc( 1, 11 );
 				caml_cpp__affect_field( v, 0, e.JoystickConnect );
 				break;
-            case sf::Event::JoystickDisconnected:
+        		case sf::Event::JoystickDisconnected:
 				v = caml_alloc( 1, 12 );
 				caml_cpp__affect_field( v, 0, e.JoystickConnect );
 				break;
-            default:
-                break;
 		}
 	}
 

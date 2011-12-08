@@ -25,6 +25,8 @@ extern "C"
 	#include <caml/memory.h>
 	#include <caml/alloc.h>
 }
+#include <boost/type_traits.hpp>
+
 #include <iostream>
 #include <string>
 #include <type_traits>
@@ -57,7 +59,7 @@ struct copy_instance_helper2< T, false >
 {};
 
 template<class T, bool abstract>
-struct copy_instance_helper : public copy_instance_helper2<T, std::is_constructible<T, T&&>::value>
+struct copy_instance_helper : public copy_instance_helper2<T, std::is_convertible<T&&, T>::value>
 {};
 
 template<class T>
@@ -180,7 +182,7 @@ struct AffectationManagement< T&, true >
 }; 
 
 template<class T> 
-struct AffectationManagement< T, true > : public copy_instance_helper< T, std::is_abstract<T>::value > 
+struct AffectationManagement< T, true > : public copy_instance_helper< T, boost::is_abstract<T>::value > 
 { 
 };  
 

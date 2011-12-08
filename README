@@ -1,0 +1,12 @@
+Ocsfml -  an OCaml port of the C++ SFML library (version >= 2.0)
+
+Require :
+  - SFML >= 2.0
+  - OCaml >= 3.12
+  - cmake >= 2.8
+  - findlib >= 1.2.7
+
+
+Install :
+
+

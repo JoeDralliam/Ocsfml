@@ -1,12 +1,12 @@
-gcc 		@GCC@
-ccpp 		@CMAKE_CXX_COMPILER@
-includedir 	@SFML_DIR@
-libsystem 	@SFML_SYSTEM@
-libwindow 	@SFML_WINDOW@
-libgraphics 	@SFML_GRAPHICS@
-libnetwork 	@SFML_NETWORK@
-libaudio 	@SFML_AUDIO@
-boostincludedir @BOOST_DIR@
-camlincludedir 	@OCAML_DIR@
-stdlib		@STDLIB@
-cxx_flags	@CMAKE_CXX_FLAGS@
+gcc=@GCC@
+ccpp=@CMAKE_CXX_COMPILER@
+includedir=@SFML_DIR@
+libsystem=@SFML_SYSTEM@
+libwindow=@SFML_WINDOW@
+libgraphics=@SFML_GRAPHICS@
+libnetwork=@SFML_NETWORK@
+libaudio=@SFML_AUDIO@
+boostincludedir=@BOOST_DIR@
+camlincludedir=@OCAML_DIR@
+stdlib=@STDLIB@
+cxx_flags=@CMAKE_CXX_FLAGS@

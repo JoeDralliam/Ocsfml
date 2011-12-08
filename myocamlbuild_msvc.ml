@@ -1,9 +1,14 @@
 open Ocamlbuild_plugin
+open Lexers
 open Pathname
 
 let symbols = 
+  let parse file =
+	with_input_file file begin fun ic ->
+		comma_sep_strings (Lexing.from_channel ic)
+	end in
   let tmp = Hashtbl.create 10 in 
-  let l = string_list_of_file "config" in
+  let l = parse "config" in
   let rec fill_tbl = function
     | [] -> tmp
     | [x] -> tmp
@@ -49,7 +54,7 @@ let add_gcc_rules () =
       ~dep:"%.hpp" ~prod:"%.hpp.depends"
       (deps_action "%.hpp" "%.hpp.depends");
 
-(* rajouter des rÃ©gles pour .h et .inl *)
+(* rajouter des régles pour .h et .inl *)
 
     rule "g++ : cpp & cpp.depends -> obj" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.obj" begin 
       fun env builder ->
@@ -79,7 +84,7 @@ let add_gcc_rules () =
 	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
 	  let obtain_spec_obj o = A (dir/o) in
 	  let spec_obj_list =(List.map obtain_spec_obj o_files) in
-		Cmd ( S [A"lib" ; A"/LIBPATH:.\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.lib")))); T tags; S spec_obj_list ])
+		Cmd ( S [A"lib" ; A"/LIBPATH:.\\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.lib")))); T tags; S spec_obj_list ])
     end
 
 let get_directory s =

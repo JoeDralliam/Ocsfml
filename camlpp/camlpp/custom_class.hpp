@@ -3,15 +3,15 @@
  *
  *       Filename:  custom_class.hpp
  *
- *    Description:
+ *    Description:  
  *
  *        Version:  1.0
  *        Created:  24/08/2011 10:52:39
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (),
- *        Company:
+ *         Author:  YOUR NAME (), 
+ *        Company:  
  *
  * =====================================================================================
  */
@@ -21,6 +21,8 @@
 #include <functional>
 #include <type_traits>
 #include <boost/type_traits.hpp>
+#include <boost/function_types/result_type.hpp>
+#include <boost/function_types/parameter_types.hpp>
 #include <boost/functional/factory.hpp>
 #include <boost/preprocessor/library.hpp>
 #include <boost/preprocessor/stringize.hpp>
@@ -35,37 +37,23 @@ extern "C"
 }
 
 template<class MemFunc>
-struct method_traits;
-
-template<class Ret, class C, class... Args>
-struct method_traits< Ret (C::*)(Args...) >
+struct method_traits
 {
-	typedef Ret type (C*, Args...);
+	typedef typename boost::function_types::result_type< MemFunc >::type result_type;
+	typedef boost::function_types::parameter_types< MemFunc/*, boost::function_types::add_pointer< boost::mpl::_ > */ > args_type;
 };
 
-template<class Ret, class C, class... Args>
-struct method_traits< Ret (C::*)(Args...)const >
-{
-	typedef Ret type (C const*, Args...);
-};
-
-template<class Ret, class C, class... Args>
-struct method_traits< Ret (*)(C*, Args...)>
-{
-	typedef Ret type (C*, Args...);
-};
-
-
+using boost::mpl::int_;
 //#define CAMLPP__CLASS_NAME() CAMLPP__CLASS_NAME()
 
 #define camlpp__register_method0( method_name, func ) \
 	CAMLprim value  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _  ## method_name  ## __impl) ( value obj) \
 	{ \
-		typedef method_traits< decltype( func ) >::type FuncType; \
-		typedef boost::function_traits< FuncType > FuncTraits; \
+		typedef std::remove_pointer< decltype( func ) >::type FuncType; \
+		typedef method_traits< FuncType > FuncTraits; \
 		CAMLparam1(obj); \
 		ResManagement< FuncTraits::result_type> rm; \
-		ConversionManagement< FuncTraits::arg1_type > cm1; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
 		CAMLlocal1(res);\
 		CAMLPP__INVOKE \
 		( \
@@ -80,12 +68,12 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_method1( method_name, func ) \
 	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1 ) \
 	{ \
-		typedef method_traits< decltype( func ) >::type FuncType; \
-		typedef boost::function_traits< FuncType > FuncTraits; \
+		typedef std::remove_pointer<decltype( func ) >::type FuncType; \
+		typedef method_traits< FuncType > FuncTraits; \
 		CAMLparam2(obj, param1); \
 		ResManagement< FuncTraits::result_type> rm; \
-		ConversionManagement< FuncTraits::arg1_type > cm1; \
-		ConversionManagement< FuncTraits::arg2_type > cm2; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
 		CAMLlocal1(res);\
 		CAMLPP__INVOKE \
 		( \
@@ -100,13 +88,13 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_method2( method_name, func ) \
 	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2 ) \
 	{ \
-		typedef method_traits< decltype( func ) >::type FuncType; \
-		typedef boost::function_traits< FuncType > FuncTraits; \
+		typedef std::remove_pointer<decltype( func ) >::type FuncType; \
+		typedef method_traits< FuncType > FuncTraits; \
 		CAMLparam3(obj, param1, param2); \
 		ResManagement< FuncTraits::result_type> rm; \
-		ConversionManagement< FuncTraits::arg1_type > cm1; \
-		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		ConversionManagement< FuncTraits::arg3_type > cm3; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
 		CAMLlocal1(res);\
 		CAMLPP__INVOKE \
 		( \
@@ -122,14 +110,14 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_method3( method_name, func ) \
 	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3 ) \
 	{ \
-		typedef method_traits< decltype( func ) >::type FuncType; \
-		typedef boost::function_traits< FuncType > FuncTraits; \
+		typedef std::remove_pointer<decltype( func ) >::type FuncType; \
+		typedef method_traits< FuncType > FuncTraits; \
 		CAMLparam4(obj, param1, param2, param3); \
 		ResManagement< FuncTraits::result_type> rm; \
-		ConversionManagement< FuncTraits::arg1_type > cm1; \
-		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		ConversionManagement< FuncTraits::arg3_type > cm3; \
-		ConversionManagement< FuncTraits::arg4_type > cm4; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<3> >::type > cm4; \
 		CAMLlocal1(res);\
 		CAMLPP__INVOKE \
 		( \
@@ -147,15 +135,15 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_method4( method_name, func ) \
 	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
 	{ \
-		typedef method_traits< decltype( func ) >::type FuncType; \
-		typedef boost::function_traits< FuncType > FuncTraits; \
+		typedef std::remove_pointer<decltype( func ) >::type FuncType; \
+		typedef method_traits< FuncType > FuncTraits; \
 		CAMLparam5(obj, param1, param2, param3, param4); \
 		ResManagement< FuncTraits::result_type> rm; \
-		ConversionManagement< FuncTraits::arg1_type > cm1; \
-		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		ConversionManagement< FuncTraits::arg3_type > cm3; \
-		ConversionManagement< FuncTraits::arg4_type > cm4; \
-		ConversionManagement< FuncTraits::arg5_type > cm5; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<3> >::type > cm4; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<4> >::type > cm5; \
 		CAMLlocal1(res);\
 		CAMLPP__INVOKE \
 		( \
@@ -173,17 +161,17 @@ struct method_traits< Ret (*)(C*, Args...)>
 #define camlpp__register_method5( method_name, func ) \
 	CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5 ) \
 	{ \
-		typedef method_traits< decltype( func ) >::type FuncType; \
-		typedef boost::function_traits< FuncType > FuncTraits; \
+		typedef std::remove_pointer<decltype( func ) >::type FuncType; \
+		typedef method_traits< FuncType > FuncTraits; \
 		CAMLparam5(obj, param1, param2, param3, param4); \
 		CAMLxparam1(param5); \
 		ResManagement< FuncTraits::result_type> rm; \
-		ConversionManagement< FuncTraits::arg1_type > cm1; \
-		ConversionManagement< FuncTraits::arg2_type > cm2; \
-		ConversionManagement< FuncTraits::arg3_type > cm3; \
-		ConversionManagement< FuncTraits::arg4_type > cm4; \
-		ConversionManagement< FuncTraits::arg5_type > cm5; \
-		ConversionManagement< FuncTraits::arg6_type > cm6; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<3> >::type > cm4; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<4> >::type > cm5; \
+		ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<5> >::type > cm6; \
 		CAMLlocal1(res);\
 		CAMLPP__INVOKE \
 		( \
@@ -209,7 +197,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
-			typedef boost::function_traits< FuncType > FuncTraits; \
+			typedef method_traits< FuncType > FuncTraits; \
 			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
 			CAMLlocal1(res);\
@@ -225,10 +213,10 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
-			typedef boost::function_traits< FuncType > FuncTraits; \
+			typedef method_traits< FuncType > FuncTraits; \
 			CAMLparam1( param1 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			ConversionManagement< FuncTraits::arg1_type > cm1; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
 			CAMLlocal1(res);\
 			CAMLPP__INVOKE \
 			( \
@@ -243,11 +231,11 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
-			typedef boost::function_traits< FuncType > FuncTraits; \
+			typedef method_traits< FuncType > FuncTraits; \
 			CAMLparam2( param1, param2 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			ConversionManagement< FuncTraits::arg1_type > cm1; \
-			ConversionManagement< FuncTraits::arg2_type > cm2; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
 			CAMLlocal1(res);\
 			CAMLPP__INVOKE \
 			( \
@@ -263,12 +251,12 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
-			typedef boost::function_traits< FuncType > FuncTraits; \
+			typedef method_traits< FuncType > FuncTraits; \
 			CAMLparam3( param1, param2, param3 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			ConversionManagement< FuncTraits::arg1_type > cm1; \
-			ConversionManagement< FuncTraits::arg2_type > cm2; \
-			ConversionManagement< FuncTraits::arg3_type > cm3; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
 			CAMLlocal1(res);\
 			CAMLPP__INVOKE \
 			( \
@@ -285,13 +273,13 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
-			typedef boost::function_traits< FuncType > FuncTraits; \
+			typedef method_traits< FuncType > FuncTraits; \
 			CAMLparam4( param1, param2, param3, param4 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			ConversionManagement< FuncTraits::arg1_type > cm1; \
-			ConversionManagement< FuncTraits::arg2_type > cm2; \
-			ConversionManagement< FuncTraits::arg3_type > cm3; \
-			ConversionManagement< FuncTraits::arg4_type > cm4; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<3> >::type > cm4; \
 			CAMLlocal1(res);\
 			CAMLPP__INVOKE \
 			( \
@@ -309,14 +297,14 @@ struct method_traits< Ret (*)(C*, Args...)>
 		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
 		{ \
 			typedef std::remove_pointer<decltype(func)>::type FuncType; \
-			typedef boost::function_traits< FuncType > FuncTraits; \
+			typedef method_traits< FuncType > FuncTraits; \
 			CAMLparam5( param1, param2, param3, param4, param5 ); \
 			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
-			ConversionManagement< FuncTraits::arg1_type > cm1; \
-			ConversionManagement< FuncTraits::arg2_type > cm2; \
-			ConversionManagement< FuncTraits::arg3_type > cm3; \
-			ConversionManagement< FuncTraits::arg4_type > cm4; \
-			ConversionManagement< FuncTraits::arg5_type > cm5; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<0> >::type > cm1; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<1> >::type > cm2; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<2> >::type > cm3; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<3> >::type > cm4; \
+			ConversionManagement< boost::mpl::at< FuncTraits::args_type, int_<4> >::type > cm5; \
 			CAMLlocal1(res);\
 			CAMLPP__INVOKE \
 			( \
@@ -463,6 +451,91 @@ struct method_traits< Ret (*)(C*, Args...)>
 		}
 
 
+#define camlpp__register_constructor6( constructor_name, param1_type, param2_type, param3_type, param4_type, param5_type, param6_type) \
+		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5, value param6 ) \
+		{ \
+			CAMLparam5( param1, param2, param3, param4, param5 ); \
+			CAMLxparam1( param6 ); \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
+			ConversionManagement< param1_type > cm1; \
+			ConversionManagement< param2_type > cm2; \
+			ConversionManagement< param3_type > cm3; \
+			ConversionManagement< param4_type > cm4; \
+			ConversionManagement< param5_type > cm5; \
+			ConversionManagement< param6_type > cm6; \
+			auto p1 = cm1.from_value( param1 ); \
+			auto p2 = cm2.from_value( param2 ); \
+			auto p3 = cm3.from_value( param3 ); \
+			auto p4 = cm4.from_value( param4 ); \
+			auto p5 = cm5.from_value( param5 ); \
+			auto p6 = cm6.from_value( param6 ); \
+			CAMLlocal1(res);\
+			CAMLPP__INVOKE \
+			( \
+				rm, res, \
+				boost::factory< CAMLPP__CLASS_NAME() * >(), \
+				p1, \
+				p2, \
+				p3, \
+				p4, \
+				p5, \
+				p6  \
+			); \
+			CAMLreturn( res ); \
+		} \
+		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __byte ) ( value* v, int count ) \
+		{ \
+			assert( count == 6 ); \
+			return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
+		}
+
+		
+#define camlpp__register_constructor9( constructor_name, param1_type, param2_type, param3_type, param4_type, param5_type, param6_type, param7_type, param8_type, param9_type) \
+		CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8, value param9) \
+		{ \
+			CAMLparam5( param1, param2, param3, param4, param5 ); \
+			CAMLxparam4( param6, param7, param8, param9 ); \
+			ResManagement< CAMLPP__CLASS_NAME() *, false > rm; \
+			ConversionManagement< param1_type > cm1; \
+			ConversionManagement< param2_type > cm2; \
+			ConversionManagement< param3_type > cm3; \
+			ConversionManagement< param4_type > cm4; \
+			ConversionManagement< param5_type > cm5; \
+			ConversionManagement< param6_type > cm6; \
+			ConversionManagement< param7_type > cm7; \
+			ConversionManagement< param8_type > cm8; \
+			ConversionManagement< param9_type > cm9; \
+			auto p1 = cm1.from_value( param1 ); \
+			auto p2 = cm2.from_value( param2 ); \
+			auto p3 = cm3.from_value( param3 ); \
+			auto p4 = cm4.from_value( param4 ); \
+			auto p5 = cm5.from_value( param5 ); \
+			auto p6 = cm6.from_value( param6 ); \
+			auto p7 = cm7.from_value( param7 ); \
+			auto p8 = cm8.from_value( param8 ); \
+			auto p9 = cm9.from_value( param9 ); \
+			CAMLlocal1(res);\
+			CAMLPP__INVOKE \
+			( \
+				rm, res, \
+				boost::factory< CAMLPP__CLASS_NAME() * >(), \
+				p1, \
+				p2, \
+				p3, \
+				p4, \
+				p5, \
+				p6, \
+				p7, \
+				p8, \
+				p9  \
+			); \
+			CAMLreturn( res ); \
+		} \
+		CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __byte ) ( value* v, int count ) \
+		{ \
+			assert( count == 9 ); \
+			return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7], v[8] ); \
+		}
 
 
 
@@ -556,14 +629,14 @@ struct method_traits< Ret (*)(C*, Args...)>
 		{ \
 			AffectationManagement< class_name const*, true>::affect_field(v, field, &obj); \
 		} \
-	};
+	}; 
 
 
 #define camlpp__preregister_custom_class_and_ops( class_name, finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
 	extern "C" \
 	{ \
 		static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
-            const_cast<char*>(BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() )), \
+			BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() ), \
 			finalize_func, \
 			compare_func, \
 			hash_func, \
@@ -700,8 +773,8 @@ struct method_traits< Ret (*)(C*, Args...)>
 	camlpp__register_preregistered_custom_class()
 
 
-
-// 	template<> \
+/*
+ 	template<> \
 	struct ConversionManagement< CAMLPP__CLASS_NAME() * > \
 	{ \
 		CAMLPP__CLASS_NAME()* from_value( value const& v) \
@@ -730,7 +803,7 @@ struct method_traits< Ret (*)(C*, Args...)>
 	{ \
 		camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy) )
 
-
+*/
 
 #define camlpp__custom_class_registered() }
 
