@@ -82,34 +82,45 @@ type blend_mode =
   | BlendMultiply
   | BlendNone
 
+external class transform : "sf_Transform" =
+object auto (self:'a)
+  external method get_inverse : unit -> 'a = "GetInverse"
+  external method transform_point : float -> float -> float*float = "TransformPoint"
+  external method transform_point_v : float*float -> float*float = "TransformPointV"
+  external method transform_rect : float rect -> float rect = "TransformRect"
+  external method combine : 'a -> 'a = "Combine"
+  external method translate : float -> float -> unit = "Translate"
+  external method translate_v : float*float -> unit = "TranslateV"
+  external method rotate :  ?center_x:float -> ?center_y:float -> float -> unit = "Rotate"
+  external method rotate_v : ?center:float*float -> float -> unit = "RotateV"
+  external method scale : ?center_x:float -> ?center_y:float -> float -> float = "Scale"
+  external method scale_v : ?center:float*float -> float*float = "ScaleV"
+end
+
 external class virtual drawable : "sf_Drawable" =
+object
+end
+
+external class virtual transformable : "sf_Transformable" =
 object
   external method set_position : float -> float -> unit = "SetPosition"
   external method set_position_v : float*float -> unit = "SetPositionV"
-  external method set_x : float -> unit = "SetX"
-  external method set_y : float -> unit = "SetY"
   external method set_scale : float -> float -> unit = "SetScale"
   external method set_scale_v : float*float -> unit = "SetScaleV" 
-  external method set_scale_x : float -> unit = "SetScaleX"
-  external method set_scale_y : float -> unit = "SetScaleY"
   external method set_origin : float -> float -> unit = "SetOrigin"
   external method set_origin_v : float*float -> unit = "SetOriginV"
   external method set_rotation : float -> unit = "SetRotation"
-  external method set_color : Color.t -> unit = "SetColor"
-  external method set_blend_mode : blend_mode -> unit = "SetBlendMode"
   external method get_position : unit -> float * float = "GetPosition"
   external method get_scale : unit -> float * float = "GetScale"
   external method get_origin : unit -> float * float = "GetOrigin"
   external method get_rotation : unit -> float = "GetRotation"
-  external method get_color : unit -> Color.t = "GetColor"
-  external method get_blend_mode : unit -> blend_mode = "GetBlendMode"
   external method move : float -> float -> unit = "Move"
   external method move_v : float * float -> unit = "MoveV"
   external method scale : float -> float -> unit = "Scale"
   external method scale_v : float * float -> unit = "ScaleV"
   external method rotate : float -> unit = "Rotate"
-  external method transform_to_local : float * float -> float * float = "TransformToLocal"
-  external method transform_to_global : float * float -> float * float = "TransformToGlobal"
+  external method get_transform : unit -> transform = "TransformToLocal"
+  external method get_inverse_transform : unit -> transform = "TransformToGlobal"
 end
 
 let mk_drawable ?position ?scale ?origin ?rotation ?color ?blendMode (t: #drawable) =
@@ -360,24 +371,18 @@ class render_window ?style ?context vm name =
   let t = RenderWindow.create ?style ?context vm name in 
     render_windowCpp t
 
-external class shapeCpp (Shape) : "sf_Shape" =
+external class virtual shapeCpp (Shape) : "sf_Shape" =
 object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
-  external method add_point : ?color:Color.t -> ?outline:Color.t -> float -> float -> unit = "AddPoint"
-  external method add_point_v : ?color:Color.t -> ?outline:Color.t -> float * float -> unit = "AddPointV"
-  external method get_points_count : unit -> int = "GetPointsCount"
-  external method enable_fill : bool -> unit = "EnableFill"
-  external method enable_outline : bool -> unit = "EnableOutline"
-  external method set_point_position : int -> float -> float -> unit = "SetPointPosition"
-  external method set_point_position_v : int -> float * float -> unit = "SetPointPositionV"
-  external method set_point_color : int -> Color.t -> unit = "SetPointColor"
-  external method set_point_outline_color : int -> Color.t -> unit = "SetPointOutlineColor"
-  external method set_outline_thickness : float -> unit = "SetOutlineThickness"
-  external method get_point_position : int -> float * float = "GetPointPosition"
-  external method get_point_color : int -> Color.t = "GetPointColor"
-  external method get_point_outline_color : int -> Color.t = "GetPointOutlineColor"
-  external method get_outline_thickness : unit -> float = "GetOutlineThickness"
+  external method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit = "SetTexture"
+  external method set_texture_rect : int rect -> unit = "SetTextureRect"
+  external method set_fill_color : Color.t -> unit = "SetFillColor"
+  external method set_outline_color : Color.t -> unit = "SetOutlineColor"
+  external method get_texture : unit -> texture option = "GetTexture"
+  external method get_texture_rect : unit -> int rect = "GetTextureRect"
+  external method get_fill_color : unit -> Color.t = "GetFillColor"
+  external method get_outline_color : unit -> Color.t = "GetOutlineColor"
 end
 
 class shape_bis () = 
@@ -395,7 +400,7 @@ let mk_shape ?points ?position ?scale ?rotation ?origin ?color ?blendMode ?fill 
     do_if t#enable_outline outline;
     do_if t#set_outline_thickness outline_thickness;
     t
-
+(*
 module ShapeObjects =
 struct 
   external cpp line : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Line"
@@ -405,9 +410,10 @@ struct
   external cpp circle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> Color.t -> shape = "sf_Shape_Circle"
   external cpp circle_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_CircleV"
 end 
+*)
 
 type text_style = Bold | Italic | Underline
-
+ 
 external class textCpp (Text) : "sf_Text" =
 object
   external inherit drawable : "sf_Drawable"

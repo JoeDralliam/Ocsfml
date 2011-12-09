@@ -18,41 +18,8 @@ custom_struct_conversion(	 sf::FloatRect,
 				&sf::FloatRect::Top,
 				&sf::FloatRect::Width,
 				&sf::FloatRect::Height );
-/*  
-bool FloatRect_Contains( sf::FloatRect f, float x, float y)
-{
-	return f.Contains(x, y);
-}
 
-bool FloatRect_ContainsV( sf::FloatRect f, sf::Vector2f vec)
-{
-	return f.Contains( vec );
-}
-
-bool FloatRect_Intersects( sf::FloatRect f1, sf::FloatRect f2 )
-{
-	return f1.Intersects( f2 )
-}
-
-Optional< FloatRect > FloatRect_Intersection( sf::FloatRect f1, sf::FloatRect f2)
-{
-	sf::FloatRect res;
-	if( f1.Intersects( f2, res) )
-	{
-		return some( res );
-	}
-	return none< sf::FloatRect >();
-}
-
-extern "C"
-{
-	camlpp__register_free_function3( FloatRect_Contains )
-	camlpp__register_free_function2( FloatRect_ContainsV )
-	camlpp__register_free_function2( FloatRect_Intersects )
-	camlpp__register_free_function2( FloatRect_Intersection )
-}
-*/
-custom_struct_affectation(	 sf::IntRect,
+ustom_struct_affectation(	 sf::IntRect,
 				&sf::IntRect::Left,
 				&sf::IntRect::Top,
 				&sf::IntRect::Width,
@@ -63,41 +30,6 @@ custom_struct_conversion(	 sf::IntRect,
 				&sf::IntRect::Top,
 				&sf::IntRect::Width,
 				&sf::IntRect::Height );
-
-/*
-bool IntRect_Contains( sf::IntRect f,int x, int y)
-{
-	return f.Contains(x, y);
-}
-
-bool IntRect_ContainsV( sf::IntRect f, sf::Vector2f vec)
-{
-	return f.Contains( vec );
-}
-
-bool IntRect_Intersects( sf::IntRect f1, sf::IntRect f2 )
-{
-	return f1.Intersects( f2 )
-}
-
-Optional< IntRect > IntRect_Intersection( sf::IntRect f1, sf::IntRect f2)
-{
-	sf::IntRect res;
-	if( f1.Intersects( f2, res) )
-	{
-		return some( res );
-	}
-	return none< sf::IntRect >();
-}
-
-extern "C"
-{
-	camlpp__register_free_function3( IntRect_Contains )
-	camlpp__register_free_function2( IntRect_ContainsV )
-	camlpp__register_free_function2( IntRect_Intersects )
-	camlpp__register_free_function2( IntRect_Intersection )
-}
-*/
 
 custom_struct_affectation(	 sf::Color,
 				&sf::Color::r,
@@ -234,8 +166,7 @@ camlpp__register_custom_class()
 	camlpp__register_method2( Create, &sf::Texture::Create )
 	camlpp__register_method2( LoadFromFile, &texture_load_from_file_helper )
 	camlpp__register_method2( LoadFromStream, &texture_load_from_stream_helper )
-	camlpp__register_method2( LoadFromImage, &texture_load_from_image_helper )
-	camlpp__register_method0( GetWidth, &sf::Texture::GetWidth )
+	camlpp__register_method2( LoadFromImage, &texture_load_from_image_helper )	camlpp__register_method0( GetWidth, &sf::Texture::GetWidth )
 	camlpp__register_method0( GetHeight, &sf::Texture::GetHeight )
 	camlpp__register_method0( CopyToImage, &sf::Texture::CopyToImage )
 //	camlpp__register_method2( UpdateFromPixels, &texture_update_from_pixels_helper )
@@ -259,6 +190,90 @@ extern "C"
 custom_enum_affectation( sf::BlendMode );
 
 custom_enum_conversion( sf::BlendMode );
+
+typedef sf::Vector2f (sf::Transform::*TransformPointFunc)(float,float) const;
+typedef sf::Vector2f (sf::Transform::*TransformPointVFunc)(sf::Vector2f const&) const;
+
+void transform_translate_helper(sf::Transform* t, float x, float y)
+{
+	t->Translate(x,y);
+}
+
+void transform_translateV_helper(sf::Transform* t, sf::Vector2f v)
+{
+	t->Translate(v);
+}
+
+void transform_rotate_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float degrees)
+{
+	if(x.is_some() && y.is_some())
+	{
+		t->Rotate(degrees, x.get_value(), y.get_value());
+	}
+	else
+	{
+		t->Rotate(degrees);
+	}
+}
+
+void transform_rotateV_helper(sf::Transform* t, Optional< sf::Vector2f > v, float degrees)
+{
+	if(v.is_some())
+	{
+		t->Rotate(degrees, v.get_value());
+	}
+	else
+	{
+		t->Rotate(degrees);
+	}
+}
+
+void transform_scale_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float scaleX, float scaleY)
+{
+	if(x.is_some() && y.is_some())
+	{
+		t->Scale(scaleX, scaleY, x.get_value(), y.get_value());
+	}
+	else
+	{
+		t->Scale(scaleX, scaleY);
+	}
+}
+
+void transform_scaleV_helper(sf::Transform* t, Optional< sf::Vector2f > v, sf::Vector2f scale)
+{
+	if(v.is_some())
+	{
+		t->Scale(scale, v.get_value());
+	}
+	else
+	{
+		t->Scale(scale);
+	}
+}
+
+typedef sf::Transform sf_Transform;
+#define CAMLPP__CLASS_NAME() sf_Transform
+camlpp__register_custom_class()
+	camlpp__register_constructor0( default_constructor )
+	camlpp__register_constructor9( matrix_constructor,
+					float, float, float,
+					float, float, float,
+					float, float, float )
+	camlpp__register_method0( GetInverse, &sf::Transform::GetInverse )
+	camlpp__register_method2( TransformPoint, ((TransformPointFunc) &sf::Transform::TransformPoint) )
+	camlpp__register_method1( TransformPointV, ((TransformPointVFunc) &sf::Transform::TransformPoint) )
+	camlpp__register_method1( TransformRect, &sf::Transform::TransformRect )
+	camlpp__register_method1( Combine, &sf::Transform::Combine )
+	camlpp__register_method2( Translate, &transform_translate_helper )
+	camlpp__register_method1( TranslateV, &transform_translateV_helper )
+	camlpp__register_method3( Rotate, &transform_rotate_helper )
+	camlpp__register_method2( RotateV, &transform_rotateV_helper )
+	camlpp__register_method4( Scale, &transform_scale_helper )
+	camlpp__register_method2( ScaleV, &transform_scaleV_helper )
+camlpp__custom_class_registered()
+#undef CAMLPP__CLASS_NAME
+
 
 
 typedef sf::Drawable sf_Drawable;
@@ -300,23 +315,6 @@ void shape_set_texture_helper( sf::Shape* shape, Optional<sf::Texture const*> te
 	shape->SetTexture( 	texture.get_value_no_fail( 0 ),
 				resetRect.get_value_no_fail( false ) );
 }
-
-/* 
-void shape_add_point_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, float x, float y)
-{
-	shape->AddPoint(x, y, 
-			col.get_value_no_fail( sf::Color(255, 255, 255) ),
-			outline.get_value_no_fail( sf::Color(0, 0, 0) ) );
-}
-
-void shape_add_pointV_helper( sf::Shape* shape, Optional<sf::Color> col, Optional<sf::Color> outline, sf::Vector2f vec)
-{
-	shape->AddPoint( vec,
-			col.get_value_no_fail( sf::Color(255, 255, 255) ),
-			outline.get_value_no_fail( sf::Color(0, 0, 0) ) );
-}
-*/
-
 
 typedef sf::Shape sf_Shape;
 #define CAMLPP__CLASS_NAME() sf_Shape
@@ -386,119 +384,6 @@ camlpp__register_custom_class()
 	camlpp__register_method1( GetPoint, &sf::ConvexShape::GetPoint )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
-
-//TODO: implement Shape static func : Line(), Circle(), Rectangle(), ....
-/*
-sf::Shape* shape_line_helper(Optional<float> outline, Optional<sf::Color> outlineColor,
-			     float  p1x, float p1y, float p2x, float p2y, 
-			     float thickness, const sf::Color& color)
-{
-	return new sf::Shape
-			( 
-				sf::Shape::Line
-				(
-			    		p1x, p1y, p2x, p2y,
-			    		thickness, color,
-			    		outline.get_value_no_fail( 0.f ),
-			    		outlineColor.get_value_no_fail( sf::Color(0,0,0) )
-				)
-			);
-}
-
-sf::Shape* shape_lineV_helper(Optional<float> outline, Optional<sf::Color> outlineColor,
-			      sf::Vector2f const& start, sf::Vector2f const& end, 
-			      float thickness, const sf::Color& color)
-{
-	return new sf::Shape
-			( 
-				sf::Shape::Line
-				(
-					start, end,
-					thickness, color,
-					outline.get_value_no_fail( 0.f ),
-					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
-				)
-			);
-}
-
-
-sf::Shape* shape_rectangle_helper(Optional<float> outline, Optional<sf::Color> outlineColor,
-				  float left, float top, float width, float height, 
-				  const sf::Color& color)
-{
-	return new sf::Shape
-			(
-				sf::Shape::Rectangle
-				(
-					left, top, width, height,
-					color,
-					outline.get_value_no_fail( 0.f ),
-					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
-				)
-			);
-}
-
-
-sf::Shape* shape_rectangleR_helper( Optional<float> outline, Optional<sf::Color> outlineColor,
-				    sf::FloatRect const& rectangle, 
-				    const sf::Color& color)
-{
-	return new sf::Shape
-			(
-				sf::Shape::Rectangle
-				(
-					rectangle,
-			 		color,
-					outline.get_value_no_fail( 0.f),
-					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
-				)
-			);
-}
-
-
-sf::Shape* shape_circle_helper( Optional<float> outline, Optional<sf::Color> outlineColor,
-				float x, float y, 
-				float radius, const sf::Color& color)
-{
-	return new sf::Shape
-			(
-				sf::Shape::Circle
-				(
-					x, y,
-					radius, color,
-					outline.get_value_no_fail( 0.f),
-					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
-				)
-			);
-}
-
-sf::Shape* shape_circleV_helper( Optional<float> outline, Optional<sf::Color> outlineColor,
-				 sf::Vector2f center, 
-				 float radius, const sf::Color& color)
-{
-	return new sf::Shape
-			(
-				sf::Shape::Circle
-				(
-					center,
-					radius, color,
-					outline.get_value_no_fail( 0.f),
-					outlineColor.get_value_no_fail( sf::Color(0,0,0) )
-				)
-			);
-}
-
-
-extern "C"
-{
-	camlpp__register_overloaded_free_function8( sf_Shape_Line, shape_line_helper )
-	camlpp__register_overloaded_free_function6( sf_Shape_LineV, shape_lineV_helper )
-	camlpp__register_overloaded_free_function7( sf_Shape_Rectangle, shape_rectangle_helper )
-	camlpp__register_overloaded_free_function4( sf_Shape_RectangleR, shape_rectangleR_helper )
-	camlpp__register_overloaded_free_function6( sf_Shape_Circle, shape_circle_helper )
-	camlpp__register_overloaded_free_function5( sf_Shape_CircleV, shape_circleV_helper )
-}
-*/
 
 
 
@@ -698,89 +583,6 @@ camlpp__register_custom_class()
 	camlpp__register_method1( Zoom, &sf::View::Zoom )
 //	camlpp__register_method0( GetMatrix, &sf::View::GetMatrix )
 //	camlpp__register_method0( GetInverseMatrix, &sf::View::GetInverseMatrix )
-camlpp__custom_class_registered()
-#undef CAMLPP__CLASS_NAME
-
-typedef sf::Vector2f (sf::Transform::*TransformPointFunc)(float,float) const;
-typedef sf::Vector2f (sf::Transform::*TransformPointVFunc)(sf::Vector2f const&) const;
-
-void transform_translate_helper(sf::Transform* t, float x, float y)
-{
-	t->Translate(x,y);
-}
-
-void transform_translateV_helper(sf::Transform* t, sf::Vector2f v)
-{
-	t->Translate(v);
-}
-
-void transform_rotate_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float degrees)
-{
-	if(x.is_some() && y.is_some())
-	{
-		t->Rotate(degrees, x.get_value(), y.get_value());
-	}
-	else
-	{
-		t->Rotate(degrees);
-	}
-}
-
-void transform_rotateV_helper(sf::Transform* t, Optional< sf::Vector2f > v, float degrees)
-{
-	if(v.is_some())
-	{
-		t->Rotate(degrees, v.get_value());
-	}
-	else
-	{
-		t->Rotate(degrees);
-	}
-}
-
-void transform_scale_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float scaleX, float scaleY)
-{
-	if(x.is_some() && y.is_some())
-	{
-		t->Scale(scaleX, scaleY, x.get_value(), y.get_value());
-	}
-	else
-	{
-		t->Scale(scaleX, scaleY);
-	}
-}
-
-void transform_scaleV_helper(sf::Transform* t, Optional< sf::Vector2f > v, sf::Vector2f scale)
-{
-	if(v.is_some())
-	{
-		t->Scale(scale, v.get_value());
-	}
-	else
-	{
-		t->Scale(scale);
-	}
-}
-
-typedef sf::Transform sf_Transform;
-#define CAMLPP__CLASS_NAME() sf_Transform
-camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor9( matrix_constructor,
-					float, float, float,
-					float, float, float,
-					float, float, float )
-	camlpp__register_method0( GetInverse, &sf::Transform::GetInverse )
-	camlpp__register_method2( TransformPoint, ((TransformPointFunc) &sf::Transform::TransformPoint) )
-	camlpp__register_method1( TransformPointV, ((TransformPointVFunc) &sf::Transform::TransformPoint) )
-	camlpp__register_method1( TransformRect, &sf::Transform::TransformRect )
-	camlpp__register_method1( Combine, &sf::Transform::Combine )
-	camlpp__register_method2( Translate, &transform_translate_helper )
-	camlpp__register_method1( TranslateV, &transform_translateV_helper )
-	camlpp__register_method3( Rotate, &transform_rotate_helper )
-	camlpp__register_method2( RotateV, &transform_rotateV_helper )
-	camlpp__register_method4( Scale, &transform_scale_helper )
-	camlpp__register_method2( ScaleV, &transform_scaleV_helper )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
