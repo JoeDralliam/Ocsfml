@@ -123,12 +123,11 @@ object
   external method get_inverse_transform : unit -> transform = "TransformToGlobal"
 end
 
-let mk_drawable ?position ?scale ?origin ?rotation ?color ?blendMode (t: #drawable) =
+let mk_transformable ?position ?scale ?origin ?rotation (t: #drawable) =
   do_if t#set_position_v position ;
   do_if t#set_scale_v scale ;
   do_if t#set_origin_v origin ;
-  do_if t#set_rotation rotation ;
-  do_if t#set_blend_mode blendMode
+  do_if t#set_rotation rotation
 
 external class imageCpp (Image) : "sf_Image" =
 object auto (self:'a)
@@ -371,11 +370,11 @@ class render_window ?style ?context vm name =
   let t = RenderWindow.create ?style ?context vm name in 
     render_windowCpp t
 
-external class virtual shapeCpp (Shape) : "sf_Shape" =
+external class virtual shape : "sf_Shape" =
 object
   external inherit drawable : "sf_Drawable"
-  constructor default : unit = "default_constructor"
-  external method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit = "SetTexture"
+  external inherit transformable : "sf_Transformable"
+  external method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit = "SetTexture"
   external method set_texture_rect : int rect -> unit = "SetTextureRect"
   external method set_fill_color : Color.t -> unit = "SetFillColor"
   external method set_outline_color : Color.t -> unit = "SetOutlineColor"
@@ -385,21 +384,72 @@ object
   external method get_outline_color : unit -> Color.t = "GetOutlineColor"
 end
 
-class shape_bis () = 
-  let t = Shape.default () in 
-    shapeCpp t
+let mk_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color (t :#shape) =
+    mk_transformable ?position ?scale ?rotation ?origin t;
+    t#set_texture ?new_texture ();
+    do_if t#set_texture_rect texture_rect ;
+    do_if t#set_fill_color fill_color ;
+    do_if t#set_outline_color outline_color
 
-class shape =
-  shape_bis ()
 
-let mk_shape ?points ?position ?scale ?rotation ?origin ?color ?blendMode ?fill ?outline ?outline_thickness () =
-  let t = new shape in
-    do_if (fun l -> List.iter (fun (x,y,c1,c2) -> t#add_point ~color:c1 ~outline:c2 x y) l) points ;
-    mk_drawable ?position ?scale ?rotation ?origin ?color ?blendMode t;
-    do_if t#enable_fill fill ;
-    do_if t#enable_outline outline;
-    do_if t#set_outline_thickness outline_thickness;
-    t
+
+
+external class rectangle_shapeCpp (RectangleShape) : "sf_RectangleShape" =
+object
+  external inherit shape : "sf_Shape"
+  constructor default : unit = "default_constructor"
+  constructor from_size : float*float = "size_constructor"
+  external method set_size : float*float = "SetSize"
+  external method get_size : float*float = "GetSize"
+end
+
+external class circle_shapeCpp (CircleShape) : "sf_CircleShape" =
+object
+  external inherit shape : "sf_Shape"
+  constructor default : unit = "default_constructor"
+  constructor from_radius : float = "radius_constructor"
+  external method set_radius : float -> unit = "SetRadius"
+  external method get_radius : unit -> float = "GetRadius"
+end
+
+external class star_shapeCpp (StarShape) : "sf_StarShape" =
+object
+  external inherit shape : "sf_Shape"
+  constructor default : unit = "default_constructor"
+  constructor from_characteristics : float -> float -> int = "complete_constructor"
+  external method set_inner_radius : float -> unit  = "SetInnerRadius"
+  external method get_inner_radius : unit  -> float = "GetInnerRadius"
+  external method set_outer_radius : float -> unit  = "SetOuterRadius"
+  external method get_outer_radius : unit  -> float = "GetOuterRadius"
+  external method set_points_count : int   -> unit  = "SetPointsCount"
+  external method get_points_count : unit  -> int   = "GetPointsCount"
+end
+
+external class convex_shapeCpp (ConvexShape) : "sf_ConvexShape" =
+object
+  external inherit shape : "sf_Shape"
+  constructor default : unit = "default_constructor"
+  constructor from_points_count : int = "points_constructor"
+  external method set_points_count : int -> unit = "SetPointsCount"
+  external method get_points_count : unit -> int = "GetPointsCount"
+  external method set_point : int -> float*float -> unit = "SetPoint"
+  external method get_point : int -> float*float = "GetPoint"
+end
+
+class convex_shape ?points_count () = 
+  let t = match points_count with
+    | Some x -> ConvexShape.from_points_count x
+    | None -> ConvexShape.default () in
+    convex_shapeCpp t 
+
+let mk_convex_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?points =
+  let t = match points with 
+      | Some l -> new convex_shape ~points_count:(List.length l) ()
+      | None -> new convex_shape () in
+    do_if (fun l -> ( List.fold_left (fun idx pos ->( t#set_point idx pos; idx+1) ) 0 l; ())) points ;
+    mk_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color t
+
+
 (*
 module ShapeObjects =
 struct 

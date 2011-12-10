@@ -4,27 +4,27 @@
 <OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <OcsfmlNetwork> or <Test> : include
 
 <OcsfmlSystem/*.{h,c}pp> : include_sfml_system
-"OcsfmlSystem/libocsfmlsystem.lib" : use_sfml_system
+"OcsfmlSystem/libocsfmlsystem.a" : use_sfml_system
 <OcsfmlSystem/*.cm{x,}a> : use_sfml_system, use_libocsfmlsystem
 <OcsfmlSystem/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <OcsfmlWindow/*.{h,c}pp> : include_sfml_window
-"OcsfmlWindow/libocsfmlwindow.lib" : use_sfml_window
+"OcsfmlWindow/libocsfmlwindow.a" : use_sfml_window
 <OcsfmlWindow/*.cm{x,}a> : use_sfml_window, use_libocsfmlwindow
 <OcsfmlWindow/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <OcsfmlGraphics/*.{h,c}pp> : include_sfml_graphics
-"OcsfmlGraphics/libocsfmlgraphics.lib" : use_sfml_graphics
+"OcsfmlGraphics/libocsfmlgraphics.a" : use_sfml_graphics
 <OcsfmlGraphics/*.cm{x,}a> : use_sfml_graphics, use_libocsfmlgraphics
 <OcsfmlGraphics/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <OcsfmlAudio/*.{h,c}pp> : include_sfml_audio
-"OcsfmlAudio/libocsfmlaudio.lib" : use_sfml_audio
+"OcsfmlAudio/libocsfmlaudio.a" : use_sfml_audio
 <OcsfmlAudio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
 <OcsfmlAudio/*.ml> : syntax(camlp4o), package(external_cpp)
 
 <OcsfmlNetwork/*.{h,c}pp> : include_sfml_network
-"OcsfmlNetwork/libocsfmlnetwork.lib" : use_sfml_network
+"OcsfmlNetwork/libocsfmlnetwork.a" : use_sfml_network
 <OcsfmlNetwork/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork
 <OcsfmlNetwork/*.ml> : syntax(camlp4o), package(external_cpp)
 
