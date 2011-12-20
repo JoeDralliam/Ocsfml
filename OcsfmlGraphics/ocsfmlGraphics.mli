@@ -106,7 +106,7 @@ class transform :
   end
 module Drawable :
   sig type t external destroy : t -> unit = "sf_Drawable_destroy__impl" end
-class drawable :
+class virtual drawable :
   Drawable.t ->
   object
     val t_drawable : Drawable.t
@@ -152,7 +152,7 @@ module Transformable :
     external get_inverse_transform : t -> transform
       = "sf_Transformable_GetInverseTransform__impl"
   end
-class transformable :
+class virtual transformable :
   Transformable.t ->
   object
     val t_transformable : Transformable.t
@@ -374,6 +374,8 @@ module Shader :
       = "sf_Shader_SetVec3ParameterV__impl"
     external set_texture : t -> string -> texture -> unit
       = "sf_Shader_SetTextureParameter__impl"
+    external set_current_texture : t -> string -> unit
+      = "sf_Shader_SetCurrentTexture__impl"
     external bind : t -> unit = "sf_Shader_Bind__impl"
     external unbind : t -> unit = "sf_Shader_Unbind__impl"
   end
@@ -387,6 +389,7 @@ class shaderCpp :
       ?vertex:string -> ?fragment:string -> unit -> bool
     method load_from_stream : #OcsfmlSystem.input_stream -> bool
     method rep__sf_Shader : Shader.t
+    method set_current_texture : string -> unit
     method set_parameter :
       string -> ?x:float -> ?y:float -> ?z:float -> float -> unit
     method set_parameter1 : string -> float -> unit
@@ -480,7 +483,7 @@ module RenderTarget :
       = "sf_RenderTarget_PushGLStates__impl"
     external pop_gl_states : t -> unit = "sf_RenderTarget_PopGLStates__impl"
   end
-class render_target :
+class virtual render_target :
   RenderTarget.t ->
   object
     val t_render_target : RenderTarget.t
@@ -653,7 +656,7 @@ module Shape :
     external get_global_bounds : t -> float rect
       = "sf_Shape_GetGlobalBounds__impl"
   end
-class shape :
+class virtual shape :
   Shape.t ->
   object
     val t_drawable : Drawable.t

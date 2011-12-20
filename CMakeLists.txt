@@ -146,7 +146,7 @@ add_custom_target(
 
 add_custom_target( 
 	infer ALL
-	DEPENDS infer_system infer_window infer_graphics infer_network infer_audio
+
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
@@ -160,7 +160,6 @@ add_custom_target(
 	install_camlpp
 	ocamlfind install "external_cpp" camlpp/ExternalCpp/META _build/camlpp/ExternalCpp/pa_cpp_external.cma _build/camlpp/ExternalCpp/pa_cpp_external.cmi _build/camlpp/ExternalCpp/synthese.cmi _build/camlpp/ExternalCpp/cppExternalAst.cmi
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ./camlpp/camlpp "/usr/local/include/camlpp"
-	DEPENDS camlpp
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 

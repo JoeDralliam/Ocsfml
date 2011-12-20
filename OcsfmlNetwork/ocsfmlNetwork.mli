@@ -421,7 +421,7 @@ module Socket :
     external set_blocking : t -> bool -> unit = "sf_Socket_SetBlocking__impl"
     external is_blocking : t -> bool = "sf_Socket_IsBlocking__impl"
   end
-class socket :
+class virtual socket :
   Socket.t ->
   object
     val t_socket : Socket.t

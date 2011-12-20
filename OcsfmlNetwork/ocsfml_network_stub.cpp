@@ -233,7 +233,8 @@ typedef sf::Uint32 sf_Uint32;
 typedef std::string std_string;
 
 #define STORE_FUNCTION_ACCESS_ADDRESS( type ) \
-	auto packet_write_ ## type ## _helper = &packet_write_helper< type >; \
+  void packet_write_ ## type ## _helper (sf::Packet* obj, type data) \
+    &packet_write_helper< type >;					\
 	auto packet_read_ ## type ## _helper = &packet_read_helper< type >;
 
 STORE_FUNCTION_ACCESS_ADDRESS(bool) 
