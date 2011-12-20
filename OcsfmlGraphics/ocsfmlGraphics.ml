@@ -269,7 +269,7 @@ object (self)
   external method set_parameter2v : string -> float * float -> unit = "SetVec2ParameterV"
   external method set_parameter3v : string -> float * float * float -> unit = "SetVec3ParameterV"
   external method set_texture : string -> texture -> unit = "SetTextureParameter"
- (* external method set_current_texture : string -> unit = "SetCurrentTexture" *)
+  external method set_current_texture : string -> unit = "SetCurrentTexture"
   external method bind : unit -> unit = "Bind"
   external method unbind : unit -> unit = "Unbind"
 end

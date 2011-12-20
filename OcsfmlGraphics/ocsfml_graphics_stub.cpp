@@ -579,6 +579,11 @@ typedef void (sf::Shader::*SetTextureParameterType)(std::string const&, sf::Text
 SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( file, std::string, LoadFromFile )
 SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( stream, sf::InputStream&, LoadFromStream )
 
+void shader_set_current_texture_helper( sf::Shader* s, std::string str )
+{
+  s->SetParameter( str, sf::Shader::CurrentTexture );
+}
+
 typedef sf::Shader sf_Shader;
 #define CAMLPP__CLASS_NAME() sf_Shader
 camlpp__register_custom_class()
@@ -595,7 +600,7 @@ camlpp__register_custom_class()
 	camlpp__register_method2( SetColorParameter, ((SetColorParameterType) &sf::Shader::SetParameter)  )
 	camlpp__register_method2( SetTransformParameter, ((SetTransformParameterType) &sf::Shader::SetParameter) )
 	camlpp__register_method2( SetTextureParameter, ((SetTextureParameterType) &sf::Shader::SetParameter) ) 
-//	camlpp__register_method1( SetCurrentTexture, &sf::Shader::SetCurrentTexture)
+	camlpp__register_method1( SetCurrentTexture, &shader_set_current_texture_helper)
 	camlpp__register_method0( Bind, &sf::Shader::Bind )
 	camlpp__register_method0( Unbind, &sf::Shader::Unbind )
 camlpp__custom_class_registered()
