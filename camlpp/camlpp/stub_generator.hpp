@@ -52,12 +52,13 @@
 		CAMLparam1( param1 ); \
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type> cm1; \
+		auto&& p1 = cm1.from_value( param1 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ) \
+			p1 \
 		); \
 		CAMLreturn( res ); \
 	}
@@ -74,13 +75,15 @@
 		ResManagement< FuncTraits::result_type> rm; \
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ) \
+			p1, \
+			p2  \
 		); \
 		CAMLreturn( res ); \
 	}
@@ -95,14 +98,17 @@
 		ConversionManagement< FuncTraits::arg1_type > cm1; \
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ) \
+			p1, \
+			p2, \
+			p3  \
 		); \
 		CAMLreturn( res ); \
 	}
@@ -118,15 +124,19 @@
 		ConversionManagement< FuncTraits::arg2_type > cm2; \
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
+		auto&& p4 = cm4.from_value( param4 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ), \
-			cm4.from_value( param4 ) \
+			p1, \
+			p2, \
+			p3, \
+			p4  \
 		); \
 		CAMLreturn( res ); \
 	}
@@ -143,16 +153,20 @@
 		ConversionManagement< FuncTraits::arg3_type > cm3; \
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
+		auto&& p4 = cm4.from_value( param4 ); \
+		auto&& p5 = cm5.from_value( param5 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
-			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ), \
-			cm4.from_value( param4 ), \
-			cm5.from_value( param5 ) \
+			p1, \
+			p2, \
+			p3, \
+			p4, \
+			p5  \
 		); \
 		CAMLreturn( res ); \
 	}
@@ -171,17 +185,23 @@
 		ConversionManagement< FuncTraits::arg4_type > cm4; \
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
+		auto&& p4 = cm4.from_value( param4 ); \
+		auto&& p5 = cm5.from_value( param5 ); \
+		auto&& p6 = cm6.from_value( param6 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ), \
-			cm4.from_value( param4 ), \
-			cm5.from_value( param5 ), \
-			cm6.from_value( param6 )  \
+			p1, \
+			p2, \
+			p3, \
+			p4, \
+			p5, \
+			p6  \
 		); \
 		CAMLreturn( res ); \
 	} \
@@ -206,18 +226,25 @@
 		ConversionManagement< FuncTraits::arg5_type > cm5; \
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
+		auto&& p4 = cm4.from_value( param4 ); \
+		auto&& p5 = cm5.from_value( param5 ); \
+		auto&& p6 = cm6.from_value( param6 ); \
+		auto&& p7 = cm7.from_value( param7 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ), \
-			cm4.from_value( param4 ), \
-			cm5.from_value( param5 ), \
-			cm6.from_value( param6 ),  \
-			cm7.from_value( param7 )  \
+			p1, \
+			p2, \
+			p3, \
+			p4, \
+			p5, \
+			p6, \
+			p7  \
 		); \
 		CAMLreturn( res ); \
 	} \
@@ -243,19 +270,27 @@
 		ConversionManagement< FuncTraits::arg6_type > cm6; \
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
 		ConversionManagement< FuncTraits::arg8_type > cm8; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
+		auto&& p4 = cm4.from_value( param4 ); \
+		auto&& p5 = cm5.from_value( param5 ); \
+		auto&& p6 = cm6.from_value( param6 ); \
+		auto&& p7 = cm7.from_value( param7 ); \
+		auto&& p8 = cm8.from_value( param8 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ), \
-			cm4.from_value( param4 ), \
-			cm5.from_value( param5 ), \
-			cm6.from_value( param6 ), \
-			cm7.from_value( param7 ), \
-			cm8.from_value( param8 )  \
+			p1, \
+			p2, \
+			p3, \
+			p4, \
+			p5, \
+			p6, \
+			p7, \
+			p8  \
 		); \
 		CAMLreturn( res ); \
 	} \
@@ -282,20 +317,29 @@
 		ConversionManagement< FuncTraits::arg7_type > cm7; \
 		ConversionManagement< FuncTraits::arg8_type > cm8; \
 		ConversionManagement< FuncTraits::arg9_type > cm9; \
+		auto&& p1 = cm1.from_value( param1 ); \
+		auto&& p2 = cm2.from_value( param2 ); \
+		auto&& p3 = cm3.from_value( param3 ); \
+		auto&& p4 = cm4.from_value( param4 ); \
+		auto&& p5 = cm5.from_value( param5 ); \
+		auto&& p6 = cm6.from_value( param6 ); \
+		auto&& p7 = cm7.from_value( param7 ); \
+		auto&& p8 = cm8.from_value( param8 ); \
+		auto&& p9 = cm9.from_value( param9 ); \
 		CAMLlocal1(res); \
 		CAMLPP__INVOKE \
 		( \
 			rm, res, \
 			func, \
-			cm1.from_value( param1 ), \
-			cm2.from_value( param2 ), \
-			cm3.from_value( param3 ), \
-			cm4.from_value( param4 ), \
-			cm5.from_value( param5 ), \
-			cm6.from_value( param6 ), \
-			cm7.from_value( param7 ), \
-			cm8.from_value( param8 ), \
-			cm9.from_value( param9 )  \
+			p1, \
+			p2, \
+			p3, \
+			p4, \
+			p5, \
+			p6, \
+			p7, \
+			p8, \
+			p9  \
 		); \
 		CAMLreturn( res ); \
 	} \

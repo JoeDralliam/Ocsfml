@@ -31,6 +31,7 @@ if(MSVC_VERSION EQUAL 1600) #VC++ 2010
 	set(GCC "g++")
 	set(STDLIB "nostdlib")
 	set(OBJ_EXTENSION "obj")
+	set(LIB_EXTENSION "lib")
 	set(CMAKE_CXX_FLAGS "/nologo") #dummy flag
 	configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild_msvc.ml ${CMAKE_SOURCE_DIR}/myocamlbuild.ml COPYONLY)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
@@ -38,6 +39,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 	set(GCC ${CMAKE_CXX_COMPILER})
 	set(STDLIB "stdc++")
 	set(OBJ_EXTENSION "o")
+	set(LIB_EXTENSION "a")
 	set(CMAKE_CXX_FLAGS "-fpermissive")
 	configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild_gcc.ml ${CMAKE_SOURCE_DIR}/myocamlbuild.ml COPYONLY)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -45,11 +47,19 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(GCC "g++")
 	set(STDLIB "c++")
 	set(OBJ_EXTENSION "o")
+	set(LIB_EXTENSION "a")
 	set(CMAKE_CXX_FLAGS "-stdlib=libc++")
 	configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild_gcc.ml ${CMAKE_SOURCE_DIR}/myocamlbuild.ml COPYONLY)
 endif()
 
-configure_file( ${CMAKE_SOURCE_DIR}/config.in ${CMAKE_SOURCE_DIR}/config )
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_system_stub.hpp COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfml_system_stub.hpp COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlNetwork/ocsfml_system_stub.hpp COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlAudio/ocsfml_system_stub.hpp COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_window_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfml_window_stub.hpp COPYONLY)
+
+configure_file(${CMAKE_SOURCE_DIR}/_tags.in ${CMAKE_SOURCE_DIR}/_tags)
+configure_file(${CMAKE_SOURCE_DIR}/config.in ${CMAKE_SOURCE_DIR}/config )
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/libocsfmlsystem.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlSystem/libocsfmlsystem.cpplib)
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/libocsfmlwindow.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlWindow/libocsfmlwindow.cpplib)
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlGraphics/libocsfmlgraphics.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/libocsfmlgraphics.cpplib)
@@ -59,6 +69,7 @@ configure_file(${CMAKE_SOURCE_DIR}/OcsfmlNetwork/libocsfmlnetwork.cpplib.in ${CM
 add_custom_target( 
 	clear
 	ocamlbuild -clean
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target( 
@@ -169,6 +180,12 @@ add_custom_target(
 
 add_custom_target( 
 	pong
-	ocamlbuild -use-ocamlfind Test/test_pong.native 
+	ocamlbuild -use-ocamlfind Test/test_pong2.native 
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+add_custom_target( 
+	drawable
+	ocamlbuild -use-ocamlfind Test/test_custom_drawable.native 
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

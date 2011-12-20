@@ -65,10 +65,10 @@ let add_gcc_rules () =
 
 (* rajouter des régles pour .h et .inl *)
 
-    rule "g++ : cpp & cpp.depends -> obj" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.obj" begin 
+    rule "g++ : cpp & cpp.depends -> o" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.o" begin 
       fun env builder ->
 	let cpp = env "%.cpp" in
-	let tags = tags_of_pathname cpp ++ "compile" ++ "cl" in
+	let tags = tags_of_pathname cpp ++ "compile" ++ "g++" in
 	let rec build_transitive_deps = function
 	  | [] -> ()
 	  | (_, []) :: todo -> build_transitive_deps todo
@@ -84,16 +84,15 @@ let add_gcc_rules () =
 	  Cmd (S[A ccpp ; A"-g" ; A"-std=c++0x" ; A (get_symbol "cxx_flags" ); T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
     end;
 
-    rule "g++ : cpplib -> lib" ~dep:"%.cpplib" ~prod:"%.lib" begin
+    rule "g++ : cpplib -> a" ~dep:"%.cpplib" ~prod:"%.a" begin
       fun env builder ->
 	let cpplib = env "%.cpplib" in
-	let tags = tags_of_pathname cpplib ++ "archive" ++ "cl" in
-	let o_files = string_list_of_file cpplib in 
+	let tags = tags_of_pathname cpplib ++ "archive" ++ "g++" in
+	let o_files = string_list_of_file cpplib in
 	let dir = dirname cpplib in
 	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
-	  let obtain_spec_obj o = A (dir/o) in
-	  let spec_obj_list =(List.map obtain_spec_obj o_files) in
-		Cmd ( S [A"lib" ; A"/LIBPATH:.\\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.lib")))); T tags; S spec_obj_list ])
+	  let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A (dir/o) ]) in
+	    Seq (List.map ar_cmd o_files)
     end
 
 let get_directory s =
@@ -147,7 +146,7 @@ let _ = dispatch begin function
 	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
-	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".lib"] ;
+	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
 
 	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
 	  ocaml_lib (d ^ "/ocsfml" ^ s);

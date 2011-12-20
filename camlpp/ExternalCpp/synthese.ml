@@ -39,7 +39,7 @@ struct
   let generate_class_and_module map (ci, ce) =
     
     let v = match ci.is_virtual with
-      | true -> <:virtual_flag< virtual >>
+      | true -> <:virtual_flag< (* virtual *) >>
       | false -> <:virtual_flag< >> 
     in
       
@@ -254,9 +254,9 @@ struct
     let class_decl = mk_class () in
     let mod_expr, mod_type = mk_module () in
     let helper_decl = 
-      if ci.is_virtual 
+     (* if ci.is_virtual 
       then <:str_item< >> 
-      else mk_create_helper ()
+      else *) mk_create_helper ()
     in	  
       mk_class_declaration ~class_decl ~mod_expr ~helper_decl ~mod_type ~mod_name:ci.module_name
 	

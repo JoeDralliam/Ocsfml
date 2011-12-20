@@ -80,6 +80,63 @@ public:
 };
 
 template<class T>
+class Optional<T&>
+{
+	std::unique_ptr<T*> val_;
+	ConversionManagement<T*> cm_;
+public:
+	Optional( value const& v ) : val_()
+	{
+		if( Is_block( v ) )
+		{
+			val_.reset(new T*( cm_.from_value( Field(v,0) ) ));
+		}
+		else
+		{
+			assert( v == Val_int( 0 ) );
+		}
+	}
+	
+	Optional( std::unique_ptr< T* > ptr ) : val_( std::move( ptr ) )
+	{}
+
+  	Optional( Optional const& other) : val_( other.val_ ? new T*(*other.val_) : 0)
+	{}
+
+	bool is_none() const
+	{
+		return !val_;
+	}
+
+	bool is_some() const
+	{
+		return (bool)val_;
+	}
+
+	T& get_value()
+	{
+		assert( is_some() );
+		return **val_;
+	}
+
+	T const& get_value() const
+	{
+		assert( is_some() );
+		return **val_;
+	}
+	
+	T const& get_value_no_fail( T const& t) const
+	{
+		if(is_some())
+		{
+			return **val_;
+		}
+		return t;
+	}
+
+};
+
+template<class T>
 Optional< T > some ( T t )
 {
 	return Optional< T >( std::unique_ptr<T>(new T(std::forward< T >( t ) ) ) );

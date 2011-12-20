@@ -25,6 +25,7 @@ extern "C"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/callback.h>
+#include <caml/threads.h>
 }
 
 #include <functional>
@@ -462,16 +463,20 @@ struct ConversionManagement< std::function< void(Args...) > >
 			}
 		}
 
-		CamlCallback( CamlCallback const& other) {}
+	  CamlCallback( CamlCallback const& other)
+	    :callback_(other.callback_)
+	  {}
 
 
-		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
-		{}
+	  //		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
+	  //	{}
 		template<class... OArgs>
 		void operator()(OArgs&&... args)
 		{
 			assert( callback_ );
+			caml_acquire_runtime_system() ;
 			call(std::forward<OArgs>(args)...);
+			caml_release_runtime_system() ;
 		}
 	};
 	CamlCallback from_value( value const& v)

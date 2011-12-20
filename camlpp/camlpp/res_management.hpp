@@ -22,16 +22,24 @@
 #include "affectation_management.hpp"
 #include <functional>
 
+extern "C"
+{
+#include <caml/threads.h>
+}
+
 #ifndef _MSC_VER
 
 template<class T, bool shouldReturnObject = true>
-struct ResManagement {
-
-	template<class Func,class... Args>
-	void call(value& res, Func&& f, Args&&... args)
-	{
-		caml_cpp__affect<shouldReturnObject>(res, f(std::forward<Args>(args)...));
-	}
+struct ResManagement 
+{
+    template<class Func,class... Args>
+    void call(value& res, Func&& f, Args&&... args)
+    {
+		caml_release_runtime_system();
+		auto tmpRes( f(std::forward<Args>(args)...) );
+		caml_acquire_runtime_system();
+		caml_cpp__affect<shouldReturnObject>(res, tmpRes);
+    }
 };
 
 
@@ -40,7 +48,9 @@ struct ResManagementIntegerBase
 	template<class Func, class... Args>
 	void call(value& res, Func&& f, Args&&... args)
 	{
+		caml_release_runtime_system();
 		res = Val_int(f(std::forward<Args>(args)...));
+		caml_acquire_runtime_system();
 	}
 };
 
@@ -50,8 +60,10 @@ struct ResManagement<void>
 	template<class Func, class... Args>
 	void call(value& res, Func&& f, Args&&... args)
 	{
+		caml_release_runtime_system();
 		f(std::forward<Args>(args)...);
 		res = Val_unit;
+		caml_acquire_runtime_system();
 	}
 };
 
@@ -65,7 +77,10 @@ struct ResManagement {
 	template<class Func>
 	void call(value& res, Func& ret)
 	{
-		caml_cpp__affect<shouldReturnObject>(res, ret() );
+		caml_release_runtime_system();
+		auto tmpRes(ret());
+		caml_acquire_runtime_system();
+		caml_cpp__affect<shouldReturnObject>(res);
 	}
 };
 
@@ -75,7 +90,9 @@ struct ResManagementIntegerBase
 	template<class Func>
 	void call(value& res, Func& ret)
 	{
+		caml_release_runtime_system();
 		res = Val_int(ret());
+		caml_acquire_runtime_system();
 	}
 };
 
@@ -85,8 +102,10 @@ struct ResManagement<void>
 	template<class Func>
 	void call(value& res, Func& f)
 	{
+		caml_release_runtime_system();
 		f();
 		res = Val_unit;
+		caml_acquire_runtime_system();
 	}
 };
 
