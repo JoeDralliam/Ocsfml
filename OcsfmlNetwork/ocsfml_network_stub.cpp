@@ -210,20 +210,6 @@ bool packet_is_valid_helper( sf::Packet* packet)
 	return *packet;
 }
 
-template<class T>
-T packet_read_helper(sf::Packet* obj)
-{
-	T data;
-	(*obj) >> data;
-	return data;
-}
-
-template<class T>
-void packet_write_helper(sf::Packet* obj, T data)
-{
-	*obj << data;
-}
-
 typedef sf::Int8 sf_Int8;
 typedef sf::Int16 sf_Int16;
 typedef sf::Int32 sf_Int32;
@@ -233,9 +219,16 @@ typedef sf::Uint32 sf_Uint32;
 typedef std::string std_string;
 
 #define STORE_FUNCTION_ACCESS_ADDRESS( type ) \
-  void packet_write_ ## type ## _helper (sf::Packet* obj, type data) \
-    &packet_write_helper< type >;					\
-	auto packet_read_ ## type ## _helper = &packet_read_helper< type >;
+  void packet_write_ ## type ## _helper (sf::Packet* obj, type data)	\
+  {									\
+    (*obj) << data;							\
+  } \
+  type packet_read_  ## type ## _helper (sf::Packet* obj) \
+  { \
+    type data;					\
+    (*obj) >> data;				\
+    return data;				\
+  }
 
 STORE_FUNCTION_ACCESS_ADDRESS(bool) 
 STORE_FUNCTION_ACCESS_ADDRESS(sf_Int8 )

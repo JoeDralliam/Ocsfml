@@ -284,7 +284,7 @@ struct
 
   external cpp is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
   external cpp get_position : unit -> int*int = "Mouse_GetPosition"
-  external cpp get_relative_position : window -> int*int = "Mouse_GetRelativePosition"
+  external cpp get_relative_position :  (#window as 'a) -> int*int = "Mouse_GetRelativePosition"
   external cpp set_position : int * int -> unit = "Mouse_SetPosition"
-  external cpp set_relative_position : int*int -> window -> unit = "Mouse_SetRelativePosition"
+  external cpp set_relative_position : int*int -> (#window as 'a) -> unit = "Mouse_SetRelativePosition"
 end

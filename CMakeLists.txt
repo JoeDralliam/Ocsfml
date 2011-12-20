@@ -188,3 +188,9 @@ add_custom_target(
 	ocamlbuild -use-ocamlfind Test/test_custom_drawable.native 
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+add_custom_target( 
+	shader
+	ocamlbuild -use-ocamlfind Test/test_shader.native 
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)

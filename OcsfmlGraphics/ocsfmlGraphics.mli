@@ -106,7 +106,7 @@ class transform :
   end
 module Drawable :
   sig type t external destroy : t -> unit = "sf_Drawable_destroy__impl" end
-class virtual drawable :
+class drawable :
   Drawable.t ->
   object
     val t_drawable : Drawable.t
@@ -152,7 +152,7 @@ module Transformable :
     external get_inverse_transform : t -> transform
       = "sf_Transformable_GetInverseTransform__impl"
   end
-class virtual transformable :
+class transformable :
   Transformable.t ->
   object
     val t_transformable : Transformable.t
@@ -483,7 +483,7 @@ module RenderTarget :
       = "sf_RenderTarget_PushGLStates__impl"
     external pop_gl_states : t -> unit = "sf_RenderTarget_PopGLStates__impl"
   end
-class virtual render_target :
+class render_target :
   RenderTarget.t ->
   object
     val t_render_target : RenderTarget.t
@@ -512,7 +512,7 @@ module RenderTexture :
       = "upcast__sf_RenderTarget_of_sf_RenderTexture__impl"
     external default : unit -> t
       = "sf_RenderTexture_default_constructor__impl"
-    external create : t -> ?dephtBfr:bool -> int -> int -> unit
+    external create : t -> ?dephtBfr:bool -> int -> int -> bool
       = "sf_RenderTexture_Create__impl"
     external set_smooth : t -> bool -> unit
       = "sf_RenderTexture_SetSmooth__impl"
@@ -529,7 +529,7 @@ class render_textureCpp :
     val t_render_textureCpp : RenderTexture.t
     method clear : ?color:Color.t -> unit -> unit
     method convert_coords : ?view:view -> int -> int -> float * float
-    method create : ?dephtBfr:bool -> int -> int -> unit
+    method create : ?dephtBfr:bool -> int -> int -> bool
     method destroy : unit -> unit
     method display : unit -> unit
     method draw :
@@ -656,7 +656,7 @@ module Shape :
     external get_global_bounds : t -> float rect
       = "sf_Shape_GetGlobalBounds__impl"
   end
-class virtual shape :
+class shape :
   Shape.t ->
   object
     val t_drawable : Drawable.t
@@ -1143,8 +1143,11 @@ module CamlDrawable :
     external destroy : t -> unit = "CamlDrawable_destroy__impl"
     external to_drawable : t -> Drawable.t
       = "upcast__sf_Drawable_of_CamlDrawable__impl"
+    external default : unit -> t = "CamlDrawable_default_constructor__impl"
     external callback : draw_func_type -> t
       = "CamlDrawable_callback_constructor__impl"
+    external set_callback : t -> draw_func_type -> unit
+      = "CamlDrawable_SetCallback__impl"
   end
 class caml_drawableCpp :
   CamlDrawable.t ->
@@ -1154,5 +1157,16 @@ class caml_drawableCpp :
     method destroy : unit -> unit
     method rep__CamlDrawable : CamlDrawable.t
     method rep__sf_Drawable : Drawable.t
+    method set_callback : draw_func_type -> unit
   end
-class caml_drawable : draw_func_type -> caml_drawableCpp
+class virtual caml_drawable :
+  unit ->
+  object
+    val t_caml_drawableCpp : CamlDrawable.t
+    val t_drawable : Drawable.t
+    method destroy : unit -> unit
+    method virtual draw : draw_func_type
+    method rep__CamlDrawable : CamlDrawable.t
+    method rep__sf_Drawable : Drawable.t
+    method set_callback : draw_func_type -> unit
+  end

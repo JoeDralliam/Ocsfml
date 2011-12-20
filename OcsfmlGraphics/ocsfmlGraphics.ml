@@ -348,7 +348,7 @@ external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
   external inherit render_target (RenderTarget) : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
-  external method create : ?dephtBfr:bool -> int -> int -> unit = "Create"
+  external method create : ?dephtBfr:bool -> int -> int -> bool = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
   external method is_smooth : unit -> bool = "IsSmooth"
   external method set_active : bool -> unit = "SetActive"
@@ -589,10 +589,14 @@ type draw_func_type = render_target -> unit
 external class caml_drawableCpp (CamlDrawable) : "CamlDrawable" =
 object
   external inherit drawable : "sf_Drawable"
+  constructor default : unit = "default_constructor"
   constructor callback : draw_func_type = "callback_constructor"
+  external method set_callback : draw_func_type -> unit = "SetCallback" 
 end
 
-class caml_drawable callback =
-  let t = CamlDrawable.callback callback in
-  caml_drawableCpp t 
-
+class virtual caml_drawable () =
+object (self)
+  inherit caml_drawableCpp (CamlDrawable.default ()) as super
+  method virtual draw : render_target -> unit
+  initializer super#set_callback self#draw
+end

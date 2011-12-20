@@ -280,9 +280,9 @@ module Mouse :
     external is_button_pressed : button -> bool
       = "Mouse_IsButtonPressed__impl"
     external get_position : unit -> int * int = "Mouse_GetPosition__impl"
-    external get_relative_position : window -> int * int
+    external get_relative_position : #window -> int * int
       = "Mouse_GetRelativePosition__impl"
     external set_position : int * int -> unit = "Mouse_SetPosition__impl"
-    external set_relative_position : int * int -> window -> unit
+    external set_relative_position : int * int -> #window -> unit
       = "Mouse_SetRelativePosition__impl"
   end

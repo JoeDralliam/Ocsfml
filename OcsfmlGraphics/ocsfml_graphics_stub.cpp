@@ -797,16 +797,27 @@ private:
     callback_(&target /* , states */ );
   }
 public:
+  CamlDrawable()
+  {
+  }
+
   CamlDrawable(CallbackType c):callback_(c)
   {
+  }
+
+  void SetCallback(CallbackType c)
+  {
+    callback_ = c;
   }
 };
 
 #define CAMLPP__CLASS_NAME() CamlDrawable
 camlpp__register_custom_class()
 camlpp__register_inheritance_relationship( sf_Drawable )
+camlpp__register_constructor0( default_constructor )
 camlpp__register_constructor1( callback_constructor, 
 			       std::function<void(sf::RenderTarget* /* , sf::RenderStates */ )> )
+camlpp__register_method1( SetCallback, &CamlDrawable::SetCallback )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
