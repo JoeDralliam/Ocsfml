@@ -529,6 +529,7 @@ typedef sf::VertexArray sf_VertexArray;
 #define CAMLPP__CLASS_NAME() sf_VertexArray
 camlpp__register_custom_class()
 camlpp__register_inheritance_relationship( sf_Drawable )
+camlpp__register_constructor0( default_constructor )
 camlpp__register_method0( GetVerticesCount, &sf::VertexArray::GetVerticesCount )
 camlpp__register_method2( SetAtIndex , &vertex_array_set_at_index_helper )
 camlpp__register_method1( GetAtIndex , ((GetAtIndexFunc)&sf::VertexArray::operator[]) )

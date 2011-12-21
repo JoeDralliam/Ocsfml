@@ -357,8 +357,10 @@ module Shader :
     external load_from_file :
       t -> ?vertex:string -> ?fragment:string -> unit -> bool
       = "sf_Shader_LoadFromFile__impl"
-    external load_from_stream : t -> #OcsfmlSystem.input_stream -> bool
-      = "sf_Shader_LoadFromStream__impl"
+    external load_from_stream :
+      t ->
+      ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
+      ?fragment:'a -> unit -> bool = "sf_Shader_LoadFromStream__impl"
     external set_parameter1 : t -> string -> float -> unit
       = "sf_Shader_SetFloatParameter__impl"
     external set_parameter2 : t -> string -> float -> float -> unit
@@ -372,6 +374,10 @@ module Shader :
       = "sf_Shader_SetVec2ParameterV__impl"
     external set_parameter3v : t -> string -> float * float * float -> unit
       = "sf_Shader_SetVec3ParameterV__impl"
+    external set_color : t -> string -> Color.t -> unit
+      = "sf_Shader_SetColorParameter__impl"
+    external set_transform : t -> string -> transform -> unit
+      = "sf_Shader_SetTransformParameter__impl"
     external set_texture : t -> string -> texture -> unit
       = "sf_Shader_SetTextureParameter__impl"
     external set_current_texture : t -> string -> unit
@@ -387,8 +393,11 @@ class shaderCpp :
     method destroy : unit -> unit
     method load_from_file :
       ?vertex:string -> ?fragment:string -> unit -> bool
-    method load_from_stream : #OcsfmlSystem.input_stream -> bool
+    method load_from_stream :
+      ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
+      ?fragment:'a -> unit -> bool
     method rep__sf_Shader : Shader.t
+    method set_color : string -> Color.t -> unit
     method set_current_texture : string -> unit
     method set_parameter :
       string -> ?x:float -> ?y:float -> ?z:float -> float -> unit
@@ -400,6 +409,7 @@ class shaderCpp :
     method set_parameter4 :
       string -> float -> float -> float -> float -> unit
     method set_texture : string -> texture -> unit
+    method set_transform : string -> transform -> unit
     method unbind : unit -> unit
   end
 external shader_is_available : unit -> unit = "Shader_IsAvailable__impl"
@@ -1089,6 +1099,9 @@ type vertex = {
   color : Color.t;
   tex_coords : int * int;
 }
+val mk_vertex :
+  ?position:float * float ->
+  ?color:Color.t -> ?tex_coords:int * int -> unit -> vertex
 type primitive_type =
     Points
   | Lines
@@ -1103,6 +1116,7 @@ module VertexArray :
     external destroy : t -> unit = "sf_VertexArray_destroy__impl"
     external to_drawable : t -> Drawable.t
       = "upcast__sf_Drawable_of_sf_VertexArray__impl"
+    external default : unit -> t = "sf_VertexArray_default_constructor__impl"
     external get_vertices_count : t -> int
       = "sf_VertexArray_GetVerticesCount__impl"
     external set_at_index : t -> int -> vertex -> unit
@@ -1136,6 +1150,7 @@ class vertex_arrayCpp :
     method set_at_index : int -> vertex -> unit
     method set_primitive_type : primitive_type -> unit
   end
+class vertex_array : unit -> vertex_arrayCpp
 type draw_func_type = render_target -> unit
 module CamlDrawable :
   sig

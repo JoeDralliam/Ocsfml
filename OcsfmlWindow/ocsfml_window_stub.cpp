@@ -1,31 +1,7 @@
 #include "ocsfml_window_stub.hpp"
 #include <camlpp/type_option.hpp>
 
-typedef sf::Vector2i (*get_pos_type)();
-typedef sf::Vector2i (*get_relative_pos_type)(const sf::Window&);
-typedef void (*set_pos_type)(sf::Vector2i const&);
-typedef void (*set_relative_pos_type)(sf::Vector2i const&, const sf::Window&);
-extern "C"
-{
-	camlpp__register_overloaded_free_function1( Keyboard_IsKeyPressed, &sf::Keyboard::IsKeyPressed)
-	
 
-
-	camlpp__register_overloaded_free_function1( Mouse_IsButtonPressed, &sf::Mouse::IsButtonPressed)
-	camlpp__register_overloaded_free_function0( Mouse_GetPosition, ((get_pos_type) &sf::Mouse::GetPosition) )
-	camlpp__register_overloaded_free_function1( Mouse_GetRelativePosition, ((get_relative_pos_type) &sf::Mouse::GetPosition) )
-	camlpp__register_overloaded_free_function1( Mouse_SetPosition, ((set_pos_type) &sf::Mouse::SetPosition) )
-	camlpp__register_overloaded_free_function2( Mouse_SetRelativePosition, ((set_relative_pos_type) &sf::Mouse::SetPosition) )
-
-
-	camlpp__register_overloaded_free_function1( Joystick_IsConnected, &sf::Joystick::IsConnected)
-	camlpp__register_overloaded_free_function1( Joystick_GetButtonCount, &sf::Joystick::GetButtonCount)
-	camlpp__register_overloaded_free_function2( Joystick_HasAxis, &sf::Joystick::HasAxis )
-	camlpp__register_overloaded_free_function2( Joystick_IsButtonPressed, &sf::Joystick::IsButtonPressed)
-	camlpp__register_overloaded_free_function2( Joystick_GetAxisPosition, &sf::Joystick::GetAxisPosition)
-	camlpp__register_overloaded_free_function0( Joystick_Update, &sf::Joystick::Update )
-
-}
 
 bool VideoMode_IsValid( const sf::VideoMode& v )
 {
@@ -123,3 +99,28 @@ camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME	
 
 
+typedef sf::Vector2i (*get_pos_type)();
+typedef sf::Vector2i (*get_relative_pos_type)(const sf::Window&);
+typedef void (*set_pos_type)(sf::Vector2i const&);
+typedef void (*set_relative_pos_type)(sf::Vector2i const&, const sf::Window&);
+extern "C"
+{
+	camlpp__register_overloaded_free_function1( Keyboard_IsKeyPressed, &sf::Keyboard::IsKeyPressed)
+	
+
+
+	camlpp__register_overloaded_free_function1( Mouse_IsButtonPressed, &sf::Mouse::IsButtonPressed)
+	camlpp__register_overloaded_free_function0( Mouse_GetPosition, ((get_pos_type) &sf::Mouse::GetPosition) )
+	camlpp__register_overloaded_free_function1( Mouse_GetRelativePosition, ((get_relative_pos_type) &sf::Mouse::GetPosition) )
+	camlpp__register_overloaded_free_function1( Mouse_SetPosition, ((set_pos_type) &sf::Mouse::SetPosition) )
+	camlpp__register_overloaded_free_function2( Mouse_SetRelativePosition, ((set_relative_pos_type) &sf::Mouse::SetPosition) )
+
+
+	camlpp__register_overloaded_free_function1( Joystick_IsConnected, &sf::Joystick::IsConnected)
+	camlpp__register_overloaded_free_function1( Joystick_GetButtonCount, &sf::Joystick::GetButtonCount)
+	camlpp__register_overloaded_free_function2( Joystick_HasAxis, &sf::Joystick::HasAxis )
+	camlpp__register_overloaded_free_function2( Joystick_IsButtonPressed, &sf::Joystick::IsButtonPressed)
+	camlpp__register_overloaded_free_function2( Joystick_GetAxisPosition, &sf::Joystick::GetAxisPosition)
+	camlpp__register_overloaded_free_function0( Joystick_Update, &sf::Joystick::Update )
+
+}

@@ -191,5 +191,6 @@ custom_struct_affectation(	 sf::ContextSettings,
 
 unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst );
 
-camlpp__preregister_custom_class( sf::Window );
+typedef sf::Window sf_Window;
+camlpp__preregister_custom_class( sf_Window );
 #endif

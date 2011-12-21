@@ -98,13 +98,39 @@ object
     target#draw ~shader:myShader myText
 end
 
-(*
+
 class storm_blink =
 object
   inherit effect "storm + blink"
-  val myPoints = new vertex_array
+  val myPoints = new vertex_array ()
+  val myShader = new shader
+  method destroy () =
+    myPoints#destroy () ;
+    myShader#destroy () 
+    
+  method private on_load () =
+    myPoints#set_primitive_type Points ;
+    let create_point () =
+      let pos = (Random.float 800.,  Random.float 600.) in
+      let color = Color.rgb (Random.int 255) (Random.int 255) (Random.int 255) in
+      myPoints#append (mk_vertex ~position:pos ~color:color ())
+    in
+    for i = 0 to 40000
+    do
+      create_point ()
+    done ;
+    myShader#load_from_file ~vertex:"resources/storm.vert" ~fragment:"resources/blink.frag" ()
+
+  method private on_update time x y =
+    let radius = 200. +. (cos time) *. 150. in
+    myShader#set_parameter "storm_position" ~x:(x *. 800.) (y *. 600.) ;
+    myShader#set_parameter "storm_inner_radius" (radius /. 3.) ;
+    myShader#set_parameter "storm_total_radius" radius ;
+    myShader#set_parameter "blink_alpha" (0.5 +. (cos (time *. 3.) ) *. 0.25)
+
+  method private on_draw target = 
+    target#draw ~shader:myShader myPoints
 end
-*)
 
 class edge =
 object
@@ -157,9 +183,9 @@ object
     myShader#set_parameter "edge_threshold" (1. -. (x +. y) /. 2.) ;
     let entities_count = Array.length myEntities in
     let update_entity i entity =
-      let x = cos (0.25 *. (time *. (float_of_int i) +. float_of_int (entities_count - i))) *. 300. +. 350. in
-      let y = sin (0.25 *. (time *. float_of_int (entities_count - i) +. (float_of_int i))) *. 200. +. 250. in
-      entity#set_position x y
+      let xpos = cos (0.25 *. (time *. (float_of_int i) +. float_of_int (entities_count - i))) *. 300. +. 350. in
+      let ypos = sin (0.25 *. (time *. float_of_int (entities_count - i) +. (float_of_int i))) *. 200. +. 250. in
+      entity#set_position xpos ypos
     in
     Array.iteri update_entity myEntities ;
     mySurface#clear ~color:Color.white () ;
@@ -173,9 +199,11 @@ object
 end
 
 let _ = 
+  Random.self_init () ;
   let app = new render_window VideoMode.({width=800 ; height=600 ; bits_per_pixel=32}) "Ocsfml Shader" in
 let effects = [| ((new pixelate):>effect) ; 
-		 ((new wave_blur):>effect) ;  
+		 ((new wave_blur):>effect) ;
+		 ((new storm_blink):>effect) ;
 		 ((new edge):>effect) |] in
   let current = ref 0 in
 
@@ -215,19 +243,21 @@ Array.iter (fun eff -> eff#load () ) effects ;
 	  | KeyPressed { code = KeyCode.Left ; _ } ->
 	    if !current = 0
 	    then current := (Array.length effects) - 1
-	    else decr current
+	    else decr current ;
+	    description#set_string ("Current effect: " ^ (effects.(!current)#get_name ()))
 	  | KeyPressed { code = KeyCode.Right ; _ } ->
-	    if !current = (Array.length effects)
+	    if !current = ((Array.length effects) - 1)
 	    then current := 0
-	    else incr current
+	    else incr current ;
+	    description#set_string ("Current effect: " ^ (effects.(!current)#get_name ()))
 	  | _ -> () ) ;
 	event_loop ()
       | None -> () 
   in
 
   let update () =
-    let x = (float_of_int (fst (Mouse.get_position ()))) /. (float_of_int (app#get_width  ())) in
-    let y = (float_of_int (snd (Mouse.get_position ()))) /. (float_of_int ( app#get_height ())) in
+    let x = (float_of_int (fst (Mouse.get_relative_position app))) /. (float_of_int (app#get_width  ())) in
+    let y = (float_of_int (snd (Mouse.get_relative_position app))) /. (float_of_int ( app#get_height ())) in
     effects.(!current)#update ((float_of_int (timer#get_elapsed_time ())) /. 1000.) x y
   in
   
@@ -241,7 +271,7 @@ Array.iter (fun eff -> eff#load () ) effects ;
   let rec main_loop () = 
     event_loop () ;
     update () ;
-    app#clear  () ; 
+    app#clear ~color:(Color.rgb 155 155 155 ) () ; 
     draw_scene () ;
     app#display() ;
     if app#is_opened () then main_loop ()

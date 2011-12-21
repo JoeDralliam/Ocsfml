@@ -248,7 +248,7 @@ object (self)
   constructor default : unit = "default_constructor"
   external method load_from_file : ?vertex:string -> ?fragment:string -> unit -> bool = "LoadFromFile"
 (* external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : 'a. (#input_stream as 'a) -> bool = "LoadFromStream" 
+  external method load_from_stream : 'a. ?vertex:(#input_stream as 'a) -> ?fragment:(#input_stream as 'a) -> unit -> bool = "LoadFromStream" 
   method set_parameter name ?x ?y ?z w =
     let count = ref 0 in
     let vars = Array.make 4 0.0 in
@@ -268,6 +268,8 @@ object (self)
   external method set_parameter4 : string -> float -> float -> float -> float -> unit = "SetVec4Parameter"
   external method set_parameter2v : string -> float * float -> unit = "SetVec2ParameterV"
   external method set_parameter3v : string -> float * float * float -> unit = "SetVec3ParameterV"
+  external method set_color : string -> Color.t -> unit = "SetColorParameter"
+  external method set_transform : string -> transform -> unit = "SetTransformParameter"
   external method set_texture : string -> texture -> unit = "SetTextureParameter"
   external method set_current_texture : string -> unit = "SetCurrentTexture"
   external method bind : unit -> unit = "Bind"
@@ -561,6 +563,9 @@ type vertex =
       tex_coords : int*int
     }
 
+let mk_vertex ?(position = (0., 0.)) ?(color = Color.white) ?(tex_coords = (0,0)) () =
+  { position=position ; color=color ; tex_coords=tex_coords }
+
 type primitive_type =
     Points
   | Lines
@@ -573,6 +578,7 @@ type primitive_type =
 external class vertex_arrayCpp (VertexArray) : "sf_VertexArray" =
 object
   external inherit drawable : "sf_Drawable"
+  constructor default : unit = "default_constructor"
   external method get_vertices_count : unit -> int = "GetVerticesCount"
   external method set_at_index : int -> vertex -> unit = "SetAtIndex"
   external method get_at_index : int -> vertex = "GetAtIndex"
@@ -583,6 +589,10 @@ object
   external method get_primitive_type : unit -> primitive_type = "GetPrimitiveType"
   external method get_bounds : unit -> float rect = "GetBounds"
 end
+
+class vertex_array () =
+  let t = VertexArray.default () in
+  vertex_arrayCpp t
 
 type draw_func_type = render_target -> unit 
 
