@@ -55,7 +55,7 @@ object
   method private on_update time x y =
     myShader#set_parameter "pixel_threshold" ((x +. y) /. 30.)
   method private on_draw target = 
-    target#draw ~shader:myShader mySprite
+     target#draw ~shader:myShader mySprite
 end
 
 class wave_blur =
@@ -262,7 +262,7 @@ Array.iter (fun eff -> eff#load () ) effects ;
   in
   
   let draw_scene () =
-    app#draw effects.(!current) ;
+    app#draw effects.(!current) ; 
     app#draw textBackground ;
     app#draw instructions ;
     app#draw description  ;
@@ -271,7 +271,7 @@ Array.iter (fun eff -> eff#load () ) effects ;
   let rec main_loop () = 
     event_loop () ;
     update () ;
-    app#clear ~color:(Color.rgb 155 155 155 ) () ; 
+    app#clear ~color:(Color.rgb 255 128 0 ) () ; 
     draw_scene () ;
     app#display() ;
     if app#is_opened () then main_loop ()

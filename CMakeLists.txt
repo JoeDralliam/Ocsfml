@@ -21,8 +21,9 @@ set( SFML_WINDOW ${SFML_WINDOW_LIBRARY_RELEASE} CACHE FILEPATH "SFML system libr
 set( SFML_GRAPHICS ${SFML_GRAPHICS_LIBRARY_RELEASE} CACHE FILEPATH "SFML system library path" )
 set( SFML_AUDIO ${SFML_AUDIO_LIBRARY_RELEASE} CACHE FILEPATH "SFML system library path" )
 set( SFML_NETWORK ${SFML_NETWORK_LIBRARY_RELEASE} CACHE FILEPATH "SFML system library path" )
-set( BOOST_DIR ${SFML_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" )
+set( BOOST_DIR ${Boost_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" )
 set( OCAML_DIR ${OCAML_LIB_DIR} CACHE PATH "Ocaml 'include' directory path (where 'caml' directory is)" )
+set( OCAMLPP_DIR ${CMAKE_SOURCE_DIR}/camlpp )
 
 message("${CMAKE_CXX_COMPILER_ID}")
 

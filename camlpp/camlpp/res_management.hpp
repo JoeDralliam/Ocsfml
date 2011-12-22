@@ -80,7 +80,7 @@ struct ResManagement {
 		caml_release_runtime_system();
 		auto tmpRes(ret());
 		caml_acquire_runtime_system();
-		caml_cpp__affect<shouldReturnObject>(res);
+		caml_cpp__affect<shouldReturnObject>(res, tmpRes);
 	}
 };
 

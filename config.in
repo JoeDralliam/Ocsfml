@@ -8,5 +8,6 @@ libnetwork=@SFML_NETWORK@
 libaudio=@SFML_AUDIO@
 boostincludedir=@BOOST_DIR@
 camlincludedir=@OCAML_DIR@
+camlppincludedir=@OCAMLPP_DIR@
 stdlib=@STDLIB@
 cxx_flags=@CMAKE_CXX_FLAGS@

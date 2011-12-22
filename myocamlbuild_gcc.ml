@@ -1,5 +1,4 @@
 open Ocamlbuild_plugin
-
 open Pathname
 
 let rec parse chan =
@@ -51,8 +50,8 @@ let add_gcc_rules () =
   let deps_action dep prod env build = 
     let file = env dep in
     let tags = tags_of_pathname file ++ "g++" in
-      Cmd (S [A gcc; T tags; A "-std=c++0x" ;
-	      A "-MM"; A "-MG"; A "-MF"; Px (env prod); P file])
+      Cmd (S [A gcc; T tags; 
+	      A "-MM"; A "-MG"; A "-std=c++0x" ; A "-MF"; Px (env prod); P file])
   in
 
     rule "g++ : cpp -> cpp.depends"  

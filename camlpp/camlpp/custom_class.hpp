@@ -617,11 +617,11 @@ using boost::mpl::int_;
   }
 
 
-
+/*  std::cout << "Creating : " << BOOST_PP_STRINGIZE( superclass_name ) << " (from " << BOOST_PP_STRINGIZE( CAMLPP__CLASS_NAME() ) << " ), at " << dynamic_cast<superclass_name*>(sub) << std::endl; */
+  
 #define camlpp__register_inheritance_relationship( superclass_name )	\
   superclass_name * BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ) ( CAMLPP__CLASS_NAME() * sub ) \
   {									\
-    std::cout << "Creating : " << BOOST_PP_STRINGIZE( superclass_name ) << " (from " << BOOST_PP_STRINGIZE( CAMLPP__CLASS_NAME() ) << " ), at " << dynamic_cast<superclass_name*>(sub) << std::endl; \
       return sub;							\
   }									\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
@@ -834,12 +834,11 @@ using boost::mpl::int_;
   };
 
 
-
+  //  std::cout << "Deleting : " << BOOST_PP_STRINGIZE( CAMLPP__CLASS_NAME() ) << ", at : " << sub << std::endl;
 
 #define camlpp__register_preregistered_custom_class()			\
   void BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy) ( CAMLPP__CLASS_NAME() * sub ) \
   {									\
-    std::cout << "Deleting : " << BOOST_PP_STRINGIZE( CAMLPP__CLASS_NAME() ) << ", at : " << sub << std::endl; \
     delete sub;								\
   }									\
   extern "C"								\

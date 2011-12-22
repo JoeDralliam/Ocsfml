@@ -211,13 +211,14 @@ private:
         template<class Args>
         static void affect_impl_helper(value& v,int fieldCount, T const& t, Args const& args, Int2Type<0>)
         {
-		assert( fieldCount == 0 );
+				assert( fieldCount == 0 );
                 AffectationManagement< typename remove_qualifiers<decltype(t.*std::get<0>(args))>::type >::affect_field(v, fieldCount, t.*std::get<0>(args));
         }
 
         template<class Args, size_t I>
         static void affect_impl_helper(value& v,int fieldCount, T const& t, Args const& args, Int2Type<I>)
         {
+				static_assert( I != 0, "Error" );
                 AffectationManagement< typename remove_qualifiers<decltype(t.*std::get<I>(args))>::type >::affect_field(v, fieldCount,  t.*std::get<I>(args));
                 affect_impl_helper(v, fieldCount-1, t, args, Int2Type<I-1>());
         }

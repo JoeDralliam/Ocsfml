@@ -489,6 +489,64 @@ struct ConversionManagement< std::function< void(Args...) > >
   }
 };
 
+#else
+
+
+template< class Arg>
+struct ConversionManagement< std::function< void(Arg) > >
+{
+  class CamlCallback
+  {	
+    std::shared_ptr<value> callback_;
+  private:
+
+    value call( Arg t )
+    {
+      CAMLparam0();
+      CAMLlocal1( p1 );
+      AffectationManagement<Arg>::affect(p1, t);
+      CAMLreturn( callback( *callback_, p1 ) );
+    }
+		
+    CamlCallback& operator=( CamlCallback const& );
+  public:
+    CamlCallback( value const& v ) : callback_(new value(v))
+    {
+      caml_register_generational_global_root(callback_.get());
+    }
+
+    ~CamlCallback()
+    {
+      if(callback_ && callback_.unique()) 
+	{
+	  caml_remove_generational_global_root(callback_.get());
+	}
+    }
+
+    CamlCallback( CamlCallback const& other)
+      :callback_(other.callback_)
+    {}
+
+
+    //		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
+    //	{}
+    template<class T>
+    void operator()(T&& args)
+    {
+      assert( callback_ );
+      caml_acquire_runtime_system() ;
+      call(std::forward<T>(args));
+      caml_release_runtime_system() ;
+    }
+  };
+  CamlCallback from_value( value const& v)
+  {
+		
+    assert( Tag_val( v ) == Closure_tag );
+    return CamlCallback( v );
+  }
+};
+
 #endif
 
 template<class T>
