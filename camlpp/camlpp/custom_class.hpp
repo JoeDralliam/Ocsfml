@@ -649,7 +649,12 @@ using boost::mpl::int_;
     {									\
       if( Tag_val( v ) == Object_tag )					\
 	{								\
-	  return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v, hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ), v), 0)); \
+	  static value callback_method = 0; \
+	  if( !callback_method ) \
+	  { \
+		callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ; \
+	  } \
+	  return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v,  callback_method), v), 0)); \
 	}								\
       assert( Tag_val( v ) == Abstract_tag );				\
       return reinterpret_cast< class_name *>( Field(v, 0) );		\
@@ -687,9 +692,13 @@ using boost::mpl::int_;
       CAMLparam0();							\
       CAMLlocal1( objPtrVal );						\
       AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-      value* createFunc = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
-      assert( createFunc );						\
-      v = callback( *createFunc  ,  objPtrVal );			\
+      static value* callback_function = 0; \
+	  if(!callback_function) \
+	  { \
+		callback_function = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
+	  } \
+      assert( callback_function );						\
+      v = callback( *callback_function  ,  objPtrVal );			\
       CAMLreturn0;							\
     }									\
     static void affect_field( value& v, int field, class_name const* obj) \
@@ -733,22 +742,23 @@ using boost::mpl::int_;
     class_name* from_value( value const& v)				\
     {									\
       if( Tag_val( v ) == Object_tag )					\
-	{								\
-	  return *reinterpret_cast< class_name**>			\
+	{	\
+		static value callback_method = 0; \
+		if( !callback_method ) \
+		{ \
+			callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
+		} \
+		return *reinterpret_cast< class_name**>			\
 	    (								\
 	     Data_custom_val						\
 	     (								\
 	      callback							\
 	      (								\
-	       caml_get_public_method					\
-	       (							\
-		v,							\
-		hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) \
-		 ),							\
+	       caml_get_public_method( v, callback_method),							\
 	       v							\
-		)							\
-	       )							\
-	      );							\
+		  )							\
+	     )							\
+	    );							\
 	}								\
       assert( Tag_val( v ) == Custom_tag );				\
       return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
@@ -808,7 +818,12 @@ using boost::mpl::int_;
       CAMLparam0();							\
       CAMLlocal1( objPtrVal );						\
       AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-      v = callback( *caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ),  objPtrVal ); \
+	  static value* callback_function = 0; \
+	  if(!callback_function) \
+	  { \
+		callback_function = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
+	  } \
+      v = callback( *callback_function ,  objPtrVal ); \
       CAMLreturn0;							\
     }									\
     static void affect_field( value& v, int field, class_name const* obj) \

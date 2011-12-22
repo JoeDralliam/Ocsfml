@@ -65,7 +65,7 @@ module Sound_source :
     external get_attenuation : t -> float
       = "sf_SoundSource_GetAttenuation__impl"
   end
-class virtual sound_source :
+class sound_source :
   Sound_source.t ->
   object
     val t_sound_source : Sound_source.t
@@ -112,7 +112,7 @@ module Sound_stream :
     external set_loop : t -> bool -> unit = "sf_SoundStream_SetLoop__impl"
     external get_loop : t -> bool = "sf_SoundStream_GetLoop__impl"
   end
-class virtual sound_stream :
+class sound_stream :
   Sound_stream.t ->
   object
     val t_sound_source : Sound_source.t
@@ -276,7 +276,7 @@ module Sound_recorder :
     external get_sample_rate : t -> int
       = "sf_SoundRecorder_GetSampleRate__impl"
   end
-class virtual sound_recorder :
+class sound_recorder :
   Sound_recorder.t ->
   object
     val t_sound_recorder : Sound_recorder.t
