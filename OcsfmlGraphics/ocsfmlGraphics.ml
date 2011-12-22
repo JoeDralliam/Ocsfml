@@ -358,7 +358,8 @@ object
   external method get_texture : unit -> texture = "GetTexture"
 end
 
-class render_texture = let t = RenderTexture.default () in render_textureCpp t
+class render_texture_bis () = let t = RenderTexture.default () in render_textureCpp t
+class render_texture = render_texture_bis () 
 
 external class render_windowCpp (RenderWindow) : "sf_RenderWindow" =
 object
@@ -604,7 +605,7 @@ object
   external method set_callback : draw_func_type -> unit = "SetCallback" 
 end
 
-class virtual caml_drawable () =
+class virtual caml_drawable =
 object (self)
   inherit caml_drawableCpp (CamlDrawable.default ()) as super
   method virtual draw : render_target -> unit
