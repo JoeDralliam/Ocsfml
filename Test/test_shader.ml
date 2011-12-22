@@ -141,6 +141,7 @@ object
   val myEntityTexture = new texture
   val myBackgroundSprite = new sprite
   val myShader = new shader
+  val mySceneSprite = new sprite
 
   method destroy () =
     Array.iter (fun spr -> spr#destroy () ) myEntities ;
@@ -148,7 +149,8 @@ object
     myBackgroundTexture#destroy () ;
     myEntityTexture#destroy () ;
     myBackgroundSprite#destroy () ;
-    myShader#destroy ()
+    myShader#destroy () ;
+	mySceneSprite#destroy ()
 
   method private on_load () =
     if (mySurface#create 800 600) 
@@ -157,6 +159,7 @@ object
     then
       begin
 	mySurface#set_smooth true ;
+	mySceneSprite#set_texture( mySurface#get_texture () );
 	myBackgroundTexture#set_smooth true ;
 	myEntityTexture#set_smooth true ;
 	myBackgroundSprite#set_texture myBackgroundTexture ;
@@ -193,9 +196,7 @@ object
     Array.iter (fun spr -> mySurface#draw spr) myEntities ;
     mySurface#display ()
   method on_draw target =
-    let spr = mk_sprite ~texture:(mySurface#get_texture ()) () in
-    target#draw ~shader:myShader spr ;
-    spr#destroy ()
+    target#draw ~shader:myShader mySceneSprite
 end
 
 let _ = 
