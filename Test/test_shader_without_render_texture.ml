@@ -69,24 +69,25 @@ object
     myShader#destroy ()
 
   method private on_load () =
-    myText#set_string ("Praesent suscipit augue in velit pulvinar hendrerit varius purus aliquam.\n"
-   ^ "Mauris mi odio, bibendum quis fringilla a, laoreet vel orci. Proin vitae vulputate tortor.\n"
-   ^ "Praesent cursus ultrices justo, ut feugiat ante vehicula quis.\n"
-   ^ "Donec fringilla scelerisque mauris et viverra.\n"
-   ^ "Maecenas adipiscing ornare scelerisque. Nullam at libero elit.\n"
-   ^ "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.\n"
-   ^ "Nullam leo urna, tincidunt id semper eget, ultricies sed mi.\n"
-   ^ "Morbi mauris massa, commodo id dignissim vel, lobortis et elit.\n"
-   ^ "Fusce vel libero sed neque scelerisque venenatis.\n"
-   ^ "Integer mattis tincidunt quam vitae iaculis.\n"
-   ^ "Vivamus fringilla sem non velit venenatis fermentum.\n"
-   ^ "Vivamus varius tincidunt nisi id vehicula.\n"
-   ^ "Integer ullamcorper, enim vitae euismod rutrum, massa nisl semper ipsum,\n"
-   ^ "vestibulum sodales sem ante in massa.\n"
-   ^ "Vestibulum in augue non felis convallis viverra.\n"
-   ^ "Mauris ultricies dolor sed massa convallis sed aliquet augue fringilla.\n"
-   ^ "Duis erat eros, porta in accumsan in, blandit quis sem.\n"
-   ^ "In hac habitasse platea dictumst. Etiam fringilla est id odio dapibus sit amet semper dui laoreet.\n") ;
+    myText#set_string (
+      "Praesent suscipit augue in velit pulvinar hendrerit varius purus aliquam.\n\
+   Mauris mi odio, bibendum quis fringilla a, laoreet vel orci. Proin vitae vulputate tortor.\n\
+   Praesent cursus ultrices justo, ut feugiat ante vehicula quis.\n\
+   Donec fringilla scelerisque mauris et viverra.\n\
+   Maecenas adipiscing ornare scelerisque. Nullam at libero elit.\n\
+   Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.\n\
+   Nullam leo urna, tincidunt id semper eget, ultricies sed mi.\n\
+   Morbi mauris massa, commodo id dignissim vel, lobortis et elit.\n\
+   Fusce vel libero sed neque scelerisque venenatis.\n\
+   Integer mattis tincidunt quam vitae iaculis.\n\
+   Vivamus fringilla sem non velit venenatis fermentum.\n\
+   Vivamus varius tincidunt nisi id vehicula.\n\
+   Integer ullamcorper, enim vitae euismod rutrum, massa nisl semper ipsum,\n\
+   vestibulum sodales sem ante in massa.\n\
+   Vestibulum in augue non felis convallis viverra.\n\
+   Mauris ultricies dolor sed massa convallis sed aliquet augue fringilla.\n\
+   Duis erat eros, porta in accumsan in, blandit quis sem.\n\
+   In hac habitasse platea dictumst. Etiam fringilla est id odio dapibus sit amet semper dui laoreet.\n") ;
     myText#set_character_size 22 ;
     myText#set_position 30. 20. ;
     myShader#load_from_file ~vertex:"resources/wave.vert" ~fragment:"resources/blur.frag" ()
@@ -136,38 +137,32 @@ class edge =
 object
   inherit effect "edge post-effect"
   val myEntities = Array.init 6 (fun i -> new sprite)
-  val mySurface = new render_texture
   val myBackgroundTexture = new texture
-  val myEntityTexture = new texture
+  val myEntityTexture = new texture 
   val myBackgroundSprite = new sprite
   val myShader = new shader
-  val mySceneSprite = new sprite
 
   method destroy () =
     Array.iter (fun spr -> spr#destroy () ) myEntities ;
-    mySurface#destroy () ;
     myBackgroundTexture#destroy () ;
     myEntityTexture#destroy () ;
     myBackgroundSprite#destroy () ;
-    myShader#destroy () ;
-	mySceneSprite#destroy ()
+    myShader#destroy () 
 
   method private on_load () =
-    if (mySurface#create 800 600) 
-      && (myBackgroundTexture#load_from_file "resources/sfml.png")
+    if (myBackgroundTexture#load_from_file "resources/sfml.png")
       && (myEntityTexture#load_from_file "resources/devices.png")
     then
       let init_entity i spr =
 	spr#destroy () ;
 	let texture_rect = { left= 96 * i; top= 0 ; width= 96 ; height= 96 } in
-	  mk_sprite ~texture:myEntityTexture ~texture_rect ()
+	  myEntities.(i) <- mk_sprite ~texture:myEntityTexture ~texture_rect ()
       in
-	mySurface#set_smooth true ;
 	myBackgroundTexture#set_smooth true ;
 	myEntityTexture#set_smooth true ;
 	myBackgroundSprite#set_texture myBackgroundTexture ;
 	myBackgroundSprite#set_position 135. 100. ;
-	Array.mapi init_entity myEntities ;
+	Array.iteri init_entity myEntities ;
 	(myShader#load_from_file ~fragment:"resources/edge.frag" ()) &&
 	  (myShader#set_current_texture "texture" ; true)
     else false
@@ -177,21 +172,18 @@ object
     myShader#set_parameter "edge_threshold" (1. -. (x +. y) /. 2.) ;
     let entities_count = Array.length myEntities in
     let update_entity i entity =
-      let xpos = cos (0.25 *. (time *. (float_of_int i) +. float_of_int (entities_count - i))) *. 300. +. 350. in
-      let ypos = sin (0.25 *. (time *. float_of_int (entities_count - i) +. (float_of_int i))) *. 200. +. 250. in
-      entity#set_position xpos ypos
+      let i' = float_of_int i in
+      let j' = float_of_int (entities_count - i) in
+      let xpos = cos (0.25 *. (time *. i' +. j')) *. 300. +. 350. in
+      let ypos = sin (0.25 *. (time *. j' +. i')) *. 200. +. 250. in
+	entity#set_position xpos ypos ;
     in
     Array.iteri update_entity myEntities ;
-    mySurface#clear ~color:Color.white () ;
-    mySurface#draw myBackgroundSprite ;
-    Array.iter (fun spr -> mySurface#draw spr) myEntities ;
-    mySurface#display ()
 
   method on_draw target =
-    let tex = mySurface#get_texture () in
-      mySceneSprite#set_texture tex;
-      target#draw ~shader:myShader mySceneSprite ;
-      tex#destroy ()
+    target#clear ~color:Color.white () ;
+    target#draw ~shader:myShader myBackgroundSprite ;
+    Array.iter (target#draw ~shader:myShader) myEntities
 end
 
 let _ = 
