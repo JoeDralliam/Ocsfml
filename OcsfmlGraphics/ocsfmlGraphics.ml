@@ -605,7 +605,7 @@ object
   external method set_callback : draw_func_type -> unit = "SetCallback" 
 end
 
-class virtual caml_drawable () =
+class virtual caml_drawable =
 object (self)
   inherit caml_drawableCpp (CamlDrawable.default ()) as super
   method virtual draw : render_target -> unit

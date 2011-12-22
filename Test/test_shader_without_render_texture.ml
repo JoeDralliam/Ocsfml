@@ -4,7 +4,7 @@ open OcsfmlGraphics
 
 class virtual effect (myName :string)  =
 object (this)
-  inherit caml_drawable ()
+  inherit caml_drawable
   val mutable myIsLoaded = false
   method virtual private on_load : unit -> bool
   method virtual private on_update : float -> float -> float -> unit
