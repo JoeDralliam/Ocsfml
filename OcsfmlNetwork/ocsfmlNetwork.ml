@@ -18,76 +18,91 @@ struct
 
   type transfer_mode = Binary | Ascii | Ebcdic
 
+  type status = int
 
-  type status = 
-      RestartMarkerReply 
-    | ServiceReadySoon 
-    | DataConnectionAlreadyOpened 
-    | OpeningDataConnection
-    | Ok
-    | PointlessCommand
-    | SystemStatus
-    | DirectoryStatus
-    | FileStatus
-    | HelpMessage
-    | SystemType
-    | ServiceReady
-    | ClosingConnection
-    | DataConnectionOpened
-    | ClosingDataConnection
-    | EnteringPassiveMode
-    | LoggedIn
-    | FileActionOk
-    | DirectoryOk
-    | NeedPassword
-    | NeedAccountToLogIn
-    | NeedInformation
-    | ServiceUnavailable
-    | DataConnectionUnavailable
-    | TransferAborted
-    | FileActionAborted
-    | LocalError
-    | InsufficientStorageSpace
-    | CommandUnknown
-    | ParametersUnknown
-    | CommandNotImplemented
-    | BadCommandSequence
-    | ParameterNotImplemented
-    | NotLoggedIn
-    | NeedAccountToStore
-    | FileUnavailable
-    | PageTypeUnknown
-    | NotEnoughMemory
-    | FilenameNotAllowed
-    | InvalidResponse
-    | ConnectionFailed
-    | ConnectionClosed
-    | InvalidFile
-	
-	
-  external class response : "sf_Ftp_Response" =
+  (* 1xx: the requested action is being initiated,*)
+  (* expect another reply before proceeding with a new command*)
+  let RestartMarkerReply          = 110 (**< Restart marker reply*)
+  let ServiceReadySoon            = 120 (**< Service ready in N minutes*)
+  let DataConnectionAlreadyOpened = 125 (**< Data connection already opened, transfer starting*)
+  let OpeningDataConnection       = 150 (**< File status ok, about to open data connection*)
+   
+  (* 2xx: the requested action has been successfully completed*)
+  let Ok                    = 200 (**< Command ok*)
+  let PointlessCommand      = 202 (**< Command not implemented*)
+  let SystemStatus          = 211 (**< System status, or system help reply*)
+  let DirectoryStatus       = 212 (**< Directory status*)
+  let FileStatus            = 213 (**< File status*)
+  let HelpMessage           = 214 (**< Help message*)
+  let SystemType            = 215 (**< NAME system type, where NAME is an official system name from the list in the Assigned Numbers document*)
+  let ServiceReady          = 220 (**< Service ready for new user*)
+  let ClosingConnection     = 221 (**< Service closing control connection*)
+  let DataConnectionOpened  = 225 (**< Data connection open, no transfer in progress*)
+  let ClosingDataConnection = 226 (**< Closing data connection, requested file action successful*)
+  let EnteringPassiveMode   = 227 (**< Entering passive mode*)
+  let LoggedIn              = 230 (**< User logged in, proceed. Logged out if appropriate*)
+  let FileActionOk          = 250 (**< Requested file action ok*)
+  let DirectoryOk           = 257 (**< PATHNAME created*)
+    
+  (* 3xx: the command has been accepted, but the requested action*)
+  (* is dormant, pending receipt of further information*)
+  let NeedPassword       = 331 (**< User name ok, need password*)
+  let NeedAccountToLogIn = 332 (**< Need account for login*)
+  let NeedInformation    = 350 (**< Requested file action pending further information*)
+    
+  (* 4xx: the command was not accepted and the requested action did not take place,*)
+  (* but the error condition is temporary and the action may be requested again*)
+  let ServiceUnavailable        = 421 (**< Service not available, closing control connection*)
+  let DataConnectionUnavailable = 425 (**< Can't open data connection*)
+  let TransferAborted           = 426 (**< Connection closed, transfer aborted*)
+  let FileActionAborted         = 450 (**< Requested file action not taken*)
+  let LocalError                = 451 (**< Requested action aborted, local error in processing*)
+  let InsufficientStorageSpace  = 452 (**< Requested action not taken; insufficient storage space in system, file unavailable*)
+    
+  (* 5xx: the command was not accepted and*)
+  (* the requested action did not take place*)
+  let CommandUnknown          = 500 (**< Syntax error, command unrecognized*)
+  let ParametersUnknown       = 501 (**< Syntax error in parameters or arguments*)
+  let CommandNotImplemented   = 502 (**< Command not implemented*)
+  let BadCommandSequence      = 503 (**< Bad sequence of commands*)
+  let ParameterNotImplemented = 504 (**< Command not implemented for that parameter*)
+  let NotLoggedIn             = 530 (**< Not logged in*)
+  let NeedAccountToStore      = 532 (**< Need account for storing files*)
+  let FileUnavailable         = 550 (**< Requested action not taken, file unavailable*)
+  let PageTypeUnknown         = 551 (**< Requested action aborted, page type unknown*)
+  let NotEnoughMemory         = 552 (**< Requested file action aborted, exceeded storage allocation*)
+  let FilenameNotAllowed      = 553 (**< Requested action not taken, file name not allowed*)
+    
+  (* 10xx: SFML custom codes*)
+  let InvalidResponse  = 1000 (**< Response is not a valid FTP one*)
+  let ConnectionFailed = 1001 (**< Connection with server failed*)
+  let ConnectionClosed = 1002 (**< Connection with server closed*)
+  let InvalidFile      = 1003  (**< Invalid file to upload / download*)
+    
+    
+  external class response : "sf_Ftp_Response" = 
   object
-    constructor default : ?code:status -> ?msg:string -> unit = "default_constructor"
+    constructor default : ?code:status -> ?msg:string -> unit = "default_constructor" 
     external method get_status : unit -> status = "GetStatus" 
-    external method get_message : unit -> string = "GetMessage"
+    external method get_message : unit -> string = "GetMessage" 
   end
     
-  external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse" =
+  external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse" = 
   object
-    external inherit response : "sf_Ftp_Response"
+    external inherit response : "sf_Ftp_Response" 
     constructor default : response = "default_constructor"
-    external method get_directory : unit -> string = "GetDirectory"
+    external method get_directory : unit -> string = "GetDirectory" 
   end
 
-  external class listing_response (ListingResponse) : "sf_Ftp_ListingResponse" =
+  external class listing_response (ListingResponse) : "sf_Ftp_ListingResponse" = 
   object
-    external inherit response : "sf_Ftp_Response"
+    external inherit response : "sf_Ftp_Response" 
     constructor default : response -> char list (* ou char array ? *) = "default_constructor"
-    external method get_filenames : unit -> string list (* ou string array ? *) = "GetFilenames"
-  end
+    external method get_filenames : unit -> string list (* ou string array ? *) = "GetFilenames" 
+  end 
 
   external class ftp (Ftp) : "sf_Ftp" =
-  object
+  object 
     constructor default : unit = "default_constructor"
     external method connect : ?port:int -> ?timeout:int -> ip_address -> response = "Connect"
     external method disconnect : unit -> response = "Disconnect"
