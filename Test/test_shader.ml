@@ -157,31 +157,22 @@ object
       && (myBackgroundTexture#load_from_file "resources/sfml.png")
       && (myEntityTexture#load_from_file "resources/devices.png")
     then
-      begin
+      let init_entity i spr =
+	spr#destroy () ;
+	let texture_rect = { left= 96 * i; top= 0 ; width= 96 ; height= 96 } in
+	  mk_sprite ~texture:myEntityTexture ~texture_rect ()
+      in
 	mySurface#set_smooth true ;
-	mySceneSprite#set_texture( mySurface#get_texture () );
 	myBackgroundTexture#set_smooth true ;
 	myEntityTexture#set_smooth true ;
 	myBackgroundSprite#set_texture myBackgroundTexture ;
 	myBackgroundSprite#set_position 135. 100. ;
-	let entities = 
-	  Array.init 
-	    6 
-	    (fun i -> mk_sprite ~texture:myEntityTexture
-	                        ~texture_rect:({ left=96 * i; top=0     ;
-						 width=96   ; height=96 }) () )
-	in
-	Array.iter (fun spr -> spr#destroy () ) myEntities ;
-	Array.blit entities 0 myEntities 0 6 ;
-	if myShader#load_from_file ~fragment:"resources/edge.frag" ()
-	then
-	  begin
-	    myShader#set_current_texture "texture" ;
-	    true
-	  end
-	else false
-      end
+	Array.mapi init_entity myEntities ;
+	(myShader#load_from_file ~fragment:"resources/edge.frag" ()) &&
+	  (myShader#set_current_texture "texture" ; true)
     else false
+
+
   method on_update time x y =
     myShader#set_parameter "edge_threshold" (1. -. (x +. y) /. 2.) ;
     let entities_count = Array.length myEntities in
@@ -195,7 +186,9 @@ object
     mySurface#draw myBackgroundSprite ;
     Array.iter (fun spr -> mySurface#draw spr) myEntities ;
     mySurface#display ()
+
   method on_draw target =
+    mySceneSprite#set_texture( mySurface#get_texture () );
     target#draw ~shader:myShader mySceneSprite
 end
 
