@@ -27,57 +27,61 @@ external get_public_address : ?timeout:int -> unit -> ip_address
 module FTP :
   sig
     type transfer_mode = Binary | Ascii | Ebcdic
-    type status =
-        RestartMarkerReply
-      | ServiceReadySoon
-      | DataConnectionAlreadyOpened
-      | OpeningDataConnection
-      | Ok
-      | PointlessCommand
-      | SystemStatus
-      | DirectoryStatus
-      | FileStatus
-      | HelpMessage
-      | SystemType
-      | ServiceReady
-      | ClosingConnection
-      | DataConnectionOpened
-      | ClosingDataConnection
-      | EnteringPassiveMode
-      | LoggedIn
-      | FileActionOk
-      | DirectoryOk
-      | NeedPassword
-      | NeedAccountToLogIn
-      | NeedInformation
-      | ServiceUnavailable
-      | DataConnectionUnavailable
-      | TransferAborted
-      | FileActionAborted
-      | LocalError
-      | InsufficientStorageSpace
-      | CommandUnknown
-      | ParametersUnknown
-      | CommandNotImplemented
-      | BadCommandSequence
-      | ParameterNotImplemented
-      | NotLoggedIn
-      | NeedAccountToStore
-      | FileUnavailable
-      | PageTypeUnknown
-      | NotEnoughMemory
-      | FilenameNotAllowed
-      | InvalidResponse
-      | ConnectionFailed
-      | ConnectionClosed
-      | InvalidFile
+    module Status :
+      sig
+        type t = int
+        val restartMarkerReply : int
+        val serviceReadySoon : int
+        val dataConnectionAlreadyOpened : int
+        val openingDataConnection : int
+        val ok : int
+        val pointlessCommand : int
+        val systemStatus : int
+        val directoryStatus : int
+        val fileStatus : int
+        val helpMessage : int
+        val systemType : int
+        val serviceReady : int
+        val closingConnection : int
+        val dataConnectionOpened : int
+        val closingDataConnection : int
+        val enteringPassiveMode : int
+        val loggedIn : int
+        val fileActionOk : int
+        val directoryOk : int
+        val needPassword : int
+        val needAccountToLogIn : int
+        val needInformation : int
+        val serviceUnavailable : int
+        val dataConnectionUnavailable : int
+        val transferAborted : int
+        val fileActionAborted : int
+        val localError : int
+        val insufficientStorageSpace : int
+        val commandUnknown : int
+        val parametersUnknown : int
+        val commandNotImplemented : int
+        val badCommandSequence : int
+        val parameterNotImplemented : int
+        val notLoggedIn : int
+        val needAccountToStore : int
+        val fileUnavailable : int
+        val pageTypeUnknown : int
+        val notEnoughMemory : int
+        val filenameNotAllowed : int
+        val invalidResponse : int
+        val connectionFailed : int
+        val connectionClosed : int
+        val invalidFile : int
+      end
     module Response :
       sig
         type t
         external destroy : t -> unit = "sf_Ftp_Response_destroy__impl"
-        external default : ?code:status -> ?msg:string -> unit -> t
+        external default : ?code:Status.t -> ?msg:string -> unit -> t
           = "sf_Ftp_Response_default_constructor__impl"
-        external get_status : t -> status = "sf_Ftp_Response_GetStatus__impl"
+        external get_status : t -> Status.t
+          = "sf_Ftp_Response_GetStatus__impl"
         external get_message : t -> string
           = "sf_Ftp_Response_GetMessage__impl"
       end
@@ -87,7 +91,7 @@ module FTP :
         val t_response : Response.t
         method destroy : unit -> unit
         method get_message : unit -> string
-        method get_status : unit -> status
+        method get_status : unit -> Status.t
         method rep__sf_Ftp_Response : Response.t
       end
     module DirectoryResponse :
@@ -110,7 +114,7 @@ module FTP :
         method destroy : unit -> unit
         method get_directory : unit -> string
         method get_message : unit -> string
-        method get_status : unit -> status
+        method get_status : unit -> Status.t
         method rep__sf_Ftp_DirectoryResponse : DirectoryResponse.t
         method rep__sf_Ftp_Response : Response.t
       end
@@ -133,7 +137,7 @@ module FTP :
         method destroy : unit -> unit
         method get_filenames : unit -> string list
         method get_message : unit -> string
-        method get_status : unit -> status
+        method get_status : unit -> Status.t
         method rep__sf_Ftp_ListingResponse : ListingResponse.t
         method rep__sf_Ftp_Response : Response.t
       end
@@ -197,30 +201,33 @@ module FTP :
 module HTTP :
   sig
     type request_method = Get | Post | Head
-    type status =
-        Ok
-      | Created
-      | Accepted
-      | NoContent
-      | ResetContent
-      | PartialContent
-      | MultipleChoices
-      | MovedPermanently
-      | MovedTemporarily
-      | NotModified
-      | BadRequest
-      | Unauthorized
-      | Forbidden
-      | NotFound
-      | RangeNotSatisfiable
-      | InternalServerError
-      | NotImplemented
-      | BadGateway
-      | ServiceNotAvailable
-      | GatewayTimeout
-      | VersionNotSupported
-      | InvalidResponse
-      | ConnectionFailed
+    module Status :
+      sig
+        type t = int
+        val ok : int
+        val created : int
+        val accepted : int
+        val noContent : int
+        val resetContent : int
+        val partialContent : int
+        val multipleChoices : int
+        val movedPermanently : int
+        val movedTemporarily : int
+        val notModified : int
+        val badRequest : int
+        val unauthorized : int
+        val forbidden : int
+        val notFound : int
+        val rangeNotSatisfiable : int
+        val internalServerError : int
+        val notImplemented : int
+        val badGateway : int
+        val serviceNotAvailable : int
+        val gatewayTimeout : int
+        val versionNotSupported : int
+        val invalidResponse : int
+        val connectionFailed : int
+      end
     module Request :
       sig
         type t
@@ -259,7 +266,7 @@ module HTTP :
           = "sf_Http_Response_default_constructor__impl"
         external get_field : t -> string -> string
           = "sf_Http_Response_GetField__impl"
-        external get_status : t -> status
+        external get_status : t -> Status.t
           = "sf_Http_Response_GetStatus__impl"
         external get_major_http_version : t -> int
           = "sf_Http_Response_GetMajorHttpVersion__impl"
@@ -276,7 +283,7 @@ module HTTP :
         method get_field : string -> string
         method get_major_http_version : unit -> int
         method get_minor_http_version : unit -> int
-        method get_status : unit -> status
+        method get_status : unit -> Status.t
         method rep__sf_Http_Response : Response.t
       end
     module Http :

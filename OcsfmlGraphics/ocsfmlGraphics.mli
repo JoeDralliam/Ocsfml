@@ -561,7 +561,8 @@ class render_textureCpp :
     method set_smooth : bool -> unit
     method set_view : view -> unit
   end
-class render_texture : render_textureCpp
+class render_texture_bis : unit -> render_textureCpp
+class render_texture : render_texture_bis
 module RenderWindow :
   sig
     type t
@@ -1175,7 +1176,6 @@ class caml_drawableCpp :
     method set_callback : draw_func_type -> unit
   end
 class virtual caml_drawable :
-  unit ->
   object
     val t_caml_drawableCpp : CamlDrawable.t
     val t_drawable : Drawable.t

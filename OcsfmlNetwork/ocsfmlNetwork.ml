@@ -18,72 +18,75 @@ struct
 
   type transfer_mode = Binary | Ascii | Ebcdic
 
-  type status = int
-
-  (* 1xx: the requested action is being initiated,*)
-  (* expect another reply before proceeding with a new command*)
-  let RestartMarkerReply          = 110 (**< Restart marker reply*)
-  let ServiceReadySoon            = 120 (**< Service ready in N minutes*)
-  let DataConnectionAlreadyOpened = 125 (**< Data connection already opened, transfer starting*)
-  let OpeningDataConnection       = 150 (**< File status ok, about to open data connection*)
-   
-  (* 2xx: the requested action has been successfully completed*)
-  let Ok                    = 200 (**< Command ok*)
-  let PointlessCommand      = 202 (**< Command not implemented*)
-  let SystemStatus          = 211 (**< System status, or system help reply*)
-  let DirectoryStatus       = 212 (**< Directory status*)
-  let FileStatus            = 213 (**< File status*)
-  let HelpMessage           = 214 (**< Help message*)
-  let SystemType            = 215 (**< NAME system type, where NAME is an official system name from the list in the Assigned Numbers document*)
-  let ServiceReady          = 220 (**< Service ready for new user*)
-  let ClosingConnection     = 221 (**< Service closing control connection*)
-  let DataConnectionOpened  = 225 (**< Data connection open, no transfer in progress*)
-  let ClosingDataConnection = 226 (**< Closing data connection, requested file action successful*)
-  let EnteringPassiveMode   = 227 (**< Entering passive mode*)
-  let LoggedIn              = 230 (**< User logged in, proceed. Logged out if appropriate*)
-  let FileActionOk          = 250 (**< Requested file action ok*)
-  let DirectoryOk           = 257 (**< PATHNAME created*)
-    
-  (* 3xx: the command has been accepted, but the requested action*)
-  (* is dormant, pending receipt of further information*)
-  let NeedPassword       = 331 (**< User name ok, need password*)
-  let NeedAccountToLogIn = 332 (**< Need account for login*)
-  let NeedInformation    = 350 (**< Requested file action pending further information*)
-    
-  (* 4xx: the command was not accepted and the requested action did not take place,*)
-  (* but the error condition is temporary and the action may be requested again*)
-  let ServiceUnavailable        = 421 (**< Service not available, closing control connection*)
-  let DataConnectionUnavailable = 425 (**< Can't open data connection*)
-  let TransferAborted           = 426 (**< Connection closed, transfer aborted*)
-  let FileActionAborted         = 450 (**< Requested file action not taken*)
-  let LocalError                = 451 (**< Requested action aborted, local error in processing*)
-  let InsufficientStorageSpace  = 452 (**< Requested action not taken; insufficient storage space in system, file unavailable*)
-    
-  (* 5xx: the command was not accepted and*)
-  (* the requested action did not take place*)
-  let CommandUnknown          = 500 (**< Syntax error, command unrecognized*)
-  let ParametersUnknown       = 501 (**< Syntax error in parameters or arguments*)
-  let CommandNotImplemented   = 502 (**< Command not implemented*)
-  let BadCommandSequence      = 503 (**< Bad sequence of commands*)
-  let ParameterNotImplemented = 504 (**< Command not implemented for that parameter*)
-  let NotLoggedIn             = 530 (**< Not logged in*)
-  let NeedAccountToStore      = 532 (**< Need account for storing files*)
-  let FileUnavailable         = 550 (**< Requested action not taken, file unavailable*)
-  let PageTypeUnknown         = 551 (**< Requested action aborted, page type unknown*)
-  let NotEnoughMemory         = 552 (**< Requested file action aborted, exceeded storage allocation*)
-  let FilenameNotAllowed      = 553 (**< Requested action not taken, file name not allowed*)
-    
-  (* 10xx: SFML custom codes*)
-  let InvalidResponse  = 1000 (**< Response is not a valid FTP one*)
-  let ConnectionFailed = 1001 (**< Connection with server failed*)
-  let ConnectionClosed = 1002 (**< Connection with server closed*)
-  let InvalidFile      = 1003  (**< Invalid file to upload / download*)
-    
+  module Status =
+  struct
+    type t = int
+	
+    (* 1xx: the requested action is being initiated,*)
+    (* expect another reply before proceeding with a new command*)
+    let restartMarkerReply          = 110 (**< Restart marker reply*)
+    let serviceReadySoon            = 120 (**< Service ready in N minutes*)
+    let dataConnectionAlreadyOpened = 125 (**< Data connection already opened, transfer starting*)
+    let openingDataConnection       = 150 (**< File status ok, about to open data connection*)
+      
+    (* 2xx: the requested action has been successfully completed*)
+    let ok                    = 200 (**< Command ok*)
+    let pointlessCommand      = 202 (**< Command not implemented*)
+    let systemStatus          = 211 (**< System status, or system help reply*)
+    let directoryStatus       = 212 (**< Directory status*)
+    let fileStatus            = 213 (**< File status*)
+    let helpMessage           = 214 (**< Help message*)
+    let systemType            = 215 (**< NAME system type, where NAME is an official system name from the list in the Assigned Numbers document*)
+    let serviceReady          = 220 (**< Service ready for new user*)
+    let closingConnection     = 221 (**< Service closing control connection*)
+    let dataConnectionOpened  = 225 (**< Data connection open, no transfer in progress*)
+    let closingDataConnection = 226 (**< Closing data connection, requested file action successful*)
+    let enteringPassiveMode   = 227 (**< Entering passive mode*)
+    let loggedIn              = 230 (**< User logged in, proceed. Logged out if appropriate*)
+    let fileActionOk          = 250 (**< Requested file action ok*)
+    let directoryOk           = 257 (**< PATHNAME created*)
+      
+    (* 3xx: the command has been accepted, but the requested action*)
+    (* is dormant, pending receipt of further information*)
+    let needPassword       = 331 (**< User name ok, need password*)
+    let needAccountToLogIn = 332 (**< Need account for login*)
+    let needInformation    = 350 (**< Requested file action pending further information*)
+      
+    (* 4xx: the command was not accepted and the requested action did not take place,*)
+    (* but the error condition is temporary and the action may be requested again*)
+    let serviceUnavailable        = 421 (**< Service not available, closing control connection*)
+    let dataConnectionUnavailable = 425 (**< Can't open data connection*)
+    let transferAborted           = 426 (**< Connection closed, transfer aborted*)
+    let fileActionAborted         = 450 (**< Requested file action not taken*)
+    let localError                = 451 (**< Requested action aborted, local error in processing*)
+    let insufficientStorageSpace  = 452 (**< Requested action not taken; insufficient storage space in system, file unavailable*)
+      
+    (* 5xx: the command was not accepted and*)
+    (* the requested action did not take place*)
+    let commandUnknown          = 500 (**< Syntax error, command unrecognized*)
+    let parametersUnknown       = 501 (**< Syntax error in parameters or arguments*)
+    let commandNotImplemented   = 502 (**< Command not implemented*)
+    let badCommandSequence      = 503 (**< Bad sequence of commands*)
+    let parameterNotImplemented = 504 (**< Command not implemented for that parameter*)
+    let notLoggedIn             = 530 (**< Not logged in*)
+    let needAccountToStore      = 532 (**< Need account for storing files*)
+    let fileUnavailable         = 550 (**< Requested action not taken, file unavailable*)
+    let pageTypeUnknown         = 551 (**< Requested action aborted, page type unknown*)
+    let notEnoughMemory         = 552 (**< Requested file action aborted, exceeded storage allocation*)
+    let filenameNotAllowed      = 553 (**< Requested action not taken, file name not allowed*)
+      
+    (* 10xx: SFML custom codes*)
+    let invalidResponse  = 1000 (**< Response is not a valid FTP one*)
+    let connectionFailed = 1001 (**< Connection with server failed*)
+    let connectionClosed = 1002 (**< Connection with server closed*)
+    let invalidFile      = 1003  (**< Invalid file to upload / download*)
+      
+  end
     
   external class response : "sf_Ftp_Response" = 
   object
-    constructor default : ?code:status -> ?msg:string -> unit = "default_constructor" 
-    external method get_status : unit -> status = "GetStatus" 
+    constructor default : ?code:Status.t -> ?msg:string -> unit = "default_constructor" 
+    external method get_status : unit -> Status.t = "GetStatus" 
     external method get_message : unit -> string = "GetMessage" 
   end
     
@@ -127,30 +130,44 @@ struct
 
   type request_method = Get | Post | Head
 
-  type status =
-      Ok
-    | Created
-    | Accepted
-    | NoContent
-    | ResetContent
-    | PartialContent
-    | MultipleChoices
-    | MovedPermanently
-    | MovedTemporarily
-    | NotModified
-    | BadRequest
-    | Unauthorized
-    | Forbidden
-    | NotFound
-    | RangeNotSatisfiable
-    | InternalServerError
-    | NotImplemented
-    | BadGateway
-    | ServiceNotAvailable
-    | GatewayTimeout
-    | VersionNotSupported
-    | InvalidResponse
-    | ConnectionFailed
+  module Status =
+    struct
+      type t = int
+
+      (* 2xx: success*)
+      let ok             = 200 (**< Most common code returned when operation was successful*)
+      let created        = 201 (**< The resource has successfully been created*)
+      let accepted       = 202 (**< The request has been accepted, but will be processed later by the server*)
+      let noContent      = 204 (**< The server didn't send any data in return*)
+      let resetContent   = 205 (**< The server informs the client that it should clear the view (form) that caused the request to be sent*)
+      let partialContent = 206 (**< The server has sent a part of the resource, as a response to a partial GET request*)
+	
+      (* 3xx: redirection*)
+      let multipleChoices  = 300 (**< The requested page can be accessed from several locations*)
+      let movedPermanently = 301 (**< The requested page has permanently moved to a new location*)
+      let movedTemporarily = 302 (**< The requested page has temporarily moved to a new location*)
+      let notModified      = 304 (**< For conditionnal requests, means the requested page hasn't changed and doesn't need to be refreshed*)
+
+      (* 4xx: client error*)
+      let badRequest          = 400 (**< The server couldn't understand the request (syntax error)*)
+      let unauthorized        = 401 (**< The requested page needs an authentification to be accessed*)
+      let forbidden           = 403 (**< The requested page cannot be accessed at all, even with authentification*)
+      let notFound            = 404 (**< The requested page doesn't exist*)
+      let rangeNotSatisfiable = 407 (**< The server can't satisfy the partial GET request (with a "Range" header field)*)
+
+      (* 5xx: server error*)
+      let internalServerError = 500 (**< The server encountered an unexpected error*)
+      let notImplemented      = 501 (**< The server doesn't implement a requested feature*)
+      let badGateway          = 502 (**< The gateway server has received an error from the source server*)
+      let serviceNotAvailable = 503 (**< The server is temporarily unavailable (overloaded, in maintenance ...)*)
+      let gatewayTimeout      = 504 (**< The gateway server couldn't receive a response from the source server*)
+      let versionNotSupported = 505 (**< The server doesn't support the requested HTTP version*)
+
+      (* 10xx: SFML custom codes*)
+      let invalidResponse  = 1000 (**< Response is not a valid HTTP one*)
+      let connectionFailed = 1001  (**< Connection with server failed*)
+
+    end
 
 
   external class request : "sf_Http_Request" =
@@ -167,7 +184,7 @@ struct
   object
     constructor default : unit = "default_constructor"
     external method get_field : string -> string = "GetField"
-    external method get_status : unit -> status = "GetStatus"
+    external method get_status : unit -> Status.t = "GetStatus"
     external method get_major_http_version : unit -> int = "GetMajorHttpVersion"
     external method get_minor_http_version : unit -> int = "GetMinorHttpVersion"
     external method get_body : unit -> string = "GetBody"
