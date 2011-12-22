@@ -320,28 +320,28 @@ module Packet :
     external is_valid : t -> bool = "sf_Packet_IsValid__impl"
     external read_bool : t -> bool = "sf_Packet_ReadBool__impl"
     external read_int8 : t -> int = "sf_Packet_ReadInt8__impl"
-    external read_uint8 : t -> int = "sf_Packet_ReadUInt8__impl"
+    external read_uint8 : t -> int = "sf_Packet_ReadUint8__impl"
     external read_int16 : t -> int = "sf_Packet_ReadInt16__impl"
-    external read_uint16 : t -> int = "sf_Packet_ReadUInt16__impl"
+    external read_uint16 : t -> int = "sf_Packet_ReadUint16__impl"
     external read_int32 : t -> int = "sf_Packet_ReadInt32__impl"
-    external read_uint32 : t -> int = "sf_Packet_ReadUInt32__impl"
+    external read_uint32 : t -> int = "sf_Packet_ReadUint32__impl"
     external read_float : t -> float = "sf_Packet_ReadFloat__impl"
     external read_string : t -> string = "sf_Packet_ReadString__impl"
     external write_bool : t -> bool -> unit = "sf_Packet_WriteBool__impl"
     external write_int8 : t -> int -> unit = "sf_Packet_WriteInt8__impl"
-    external write_uint8 : t -> int -> unit = "sf_Packet_WriteInt8__impl"
+    external write_uint8 : t -> int -> unit = "sf_Packet_WriteUint8__impl"
     external write_int16 : t -> int -> unit = "sf_Packet_WriteInt16__impl"
-    external write_uint16 : t -> int -> unit = "sf_Packet_WriteUInt16__impl"
+    external write_uint16 : t -> int -> unit = "sf_Packet_WriteUint16__impl"
     external write_int32 : t -> int -> unit = "sf_Packet_WriteInt32__impl"
-    external write_uint32 : t -> int -> unit = "sf_Packet_WriteUInt32__impl"
+    external write_uint32 : t -> int -> unit = "sf_Packet_WriteUint32__impl"
     external write_float : t -> float -> unit = "sf_Packet_WriteFloat__impl"
     external write_string : t -> string -> unit
       = "sf_Packet_WriteString__impl"
   end
-class packet :
+class packetCpp :
   Packet.t ->
   object
-    val t_packet : Packet.t
+    val t_packetCpp : Packet.t
     method clear : unit -> unit
     method destroy : unit -> unit
     method end_of_packet : unit -> bool
@@ -367,6 +367,8 @@ class packet :
     method write_uint32 : int -> unit
     method write_uint8 : int -> unit
   end
+class packet_bis : unit -> packetCpp
+class packet : packet_bis
 type read_val =
     [ `Bool of bool ref
     | `Float of float ref
@@ -388,37 +390,28 @@ type write_val =
     | `UInt32 of int
     | `UInt8 of int ]
 val ( >> ) :
-  (< read_bool : unit -> 'b; read_float : unit -> 'c;
-     read_int16 : unit -> 'd; read_int32 : unit -> 'e;
-     read_int8 : unit -> 'f; read_string : unit -> 'g;
-     read_uint16 : unit -> 'h; read_uint32 : unit -> 'i;
-     read_uint8 : unit -> 'j; .. >
-   as 'a) ->
-  [< `Bool of 'b ref
-   | `Float of 'c ref
-   | `Int16 of 'd ref
-   | `Int32 of 'e ref
-   | `Int8 of 'f ref
-   | `String of 'g ref
-   | `UInt16 of 'h ref
-   | `UInt32 of 'i ref
-   | `UInt8 of 'j ref ] ->
+  (#packet as 'a) ->
+  [< `Bool of bool ref
+   | `Float of float ref
+   | `Int16 of int ref
+   | `Int32 of int ref
+   | `Int8 of int ref
+   | `String of string ref
+   | `UInt16 of int ref
+   | `UInt32 of int ref
+   | `UInt8 of int ref ] ->
   'a
 val ( << ) :
-  (< write_bool : 'b -> 'c; write_float : 'd -> 'e; write_int16 : 'f -> 'g;
-     write_int32 : 'h -> 'i; write_int8 : 'j -> 'k; write_string : 'l -> 'm;
-     write_uint16 : 'n -> 'o; write_uint32 : 'p -> 'q;
-     write_uint8 : 'r -> 's; .. >
-   as 'a) ->
-  [< `Bool of 'b
-   | `Float of 'd
-   | `Int16 of 'f
-   | `Int32 of 'h
-   | `Int8 of 'j
-   | `String of 'l
-   | `UInt16 of 'n
-   | `UInt32 of 'p
-   | `UInt8 of 'r ] ->
+  (#packet as 'a) ->
+  [< `Bool of bool
+   | `Float of float
+   | `Int16 of int
+   | `Int32 of int
+   | `Int8 of int
+   | `String of string
+   | `UInt16 of int
+   | `UInt32 of int
+   | `UInt8 of int ] ->
   'a
 type socket_status = Done | NotReady | Disconnected | Error
 module Socket :
@@ -485,35 +478,39 @@ module TcpSocket :
       = "upcast__sf_Socket_of_sf_TcpSocket__impl"
     external default : unit -> t = "sf_TcpSocket_default_constructor__impl"
     external get_local_port : t -> int = "sf_TcpSocket_GetLocalPort__impl"
-    external get_remote_port : t -> ip_address
-      = "sf_TcpSocket_GetRemotePort__impl"
+    external get_remote_address : t -> ip_address
+      = "sf_TcpSocket_GetRemoteAddress__impl"
+    external get_remote_port : t -> int = "sf_TcpSocket_GetRemotePort__impl"
     external connect :
       t -> ?timeout:int -> ip_address -> int -> socket_status
       = "sf_TcpSocket_Connect__impl"
     external disconnect : t -> unit = "sf_TcpSocket_Disconnect__impl"
-    external send_packet : t -> packet -> socket_status
+    external send_packet : t -> #packet -> socket_status
       = "sf_TcpSocket_SendPacket__impl"
-    external receive_packet : t -> packet -> socket_status
+    external receive_packet : t -> #packet -> socket_status
       = "sf_TcpSocket_ReceivePacket__impl"
   end
-class tcp_socket :
+class tcp_socketCpp :
   TcpSocket.t ->
   object
     val t_socket : Socket.t
-    val t_tcp_socket : TcpSocket.t
+    val t_tcp_socketCpp : TcpSocket.t
     method connect : ?timeout:int -> ip_address -> int -> socket_status
     method destroy : unit -> unit
     method disconnect : unit -> unit
     method get_local_port : unit -> int
-    method get_remote_port : unit -> ip_address
+    method get_remote_address : unit -> ip_address
+    method get_remote_port : unit -> int
     method is_blocking : unit -> bool
-    method receive_packet : packet -> socket_status
+    method receive_packet : #packet -> socket_status
     method rep__sf_Socket : Socket.t
     method rep__sf_TcpSocket : TcpSocket.t
-    method send_packet : packet -> socket_status
+    method send_packet : #packet -> socket_status
     method set_blocking : bool -> unit
   end
-module Tcp_listener :
+class tcp_socket_bis : unit -> tcp_socketCpp
+class tcp_socket : tcp_socket_bis
+module TcpListener :
   sig
     type t
     external destroy : t -> unit = "sf_TcpListener_destroy__impl"
@@ -527,11 +524,11 @@ module Tcp_listener :
     external accept : t -> tcp_socket -> socket_status
       = "sf_TcpListener_Accept__impl"
   end
-class tcp_listener :
-  Tcp_listener.t ->
+class tcp_listenerCpp :
+  TcpListener.t ->
   object
     val t_socket : Socket.t
-    val t_tcp_listener : Tcp_listener.t
+    val t_tcp_listenerCpp : TcpListener.t
     method accept : tcp_socket -> socket_status
     method close : unit -> unit
     method destroy : unit -> unit
@@ -539,9 +536,11 @@ class tcp_listener :
     method is_blocking : unit -> bool
     method listen : int -> socket_status
     method rep__sf_Socket : Socket.t
-    method rep__sf_TcpListener : Tcp_listener.t
+    method rep__sf_TcpListener : TcpListener.t
     method set_blocking : bool -> unit
   end
+class tcp_listener_bis : unit -> tcp_listenerCpp
+class tcp_listener : tcp_listener_bis
 val max_datagram_size : int
 module UdpSocket :
   sig
@@ -552,9 +551,9 @@ module UdpSocket :
     external default : unit -> t = "sf_UdpSocket_default_constructor__impl"
     external bind : t -> int -> socket_status = "sf_UdpSocket_Bind__impl"
     external unbind : t -> unit = "sf_UdpSocket_Unbind__impl"
-    external send_packet : t -> packet -> socket_status
+    external send_packet : t -> #packet -> socket_status
       = "sf_UdpSocket_SendPacket__impl"
-    external receive_packet : t -> packet -> socket_status
+    external receive_packet : t -> #packet -> socket_status
       = "sf_UdpSocket_ReceivePacket__impl"
   end
 class udp_socket :
@@ -565,10 +564,10 @@ class udp_socket :
     method bind : int -> socket_status
     method destroy : unit -> unit
     method is_blocking : unit -> bool
-    method receive_packet : packet -> socket_status
+    method receive_packet : #packet -> socket_status
     method rep__sf_Socket : Socket.t
     method rep__sf_UdpSocket : UdpSocket.t
-    method send_packet : packet -> socket_status
+    method send_packet : #packet -> socket_status
     method set_blocking : bool -> unit
     method unbind : unit -> unit
   end

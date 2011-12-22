@@ -202,7 +202,7 @@ struct
 end
 
 
-external class packet : "sf_Packet" =
+external class packetCpp (Packet) : "sf_Packet" =
 object
   constructor default : unit = "default_constructor"
   external method clear : unit -> unit = "Clear"
@@ -211,23 +211,30 @@ object
   external method is_valid : unit -> bool = "IsValid"
   external method read_bool : unit -> bool = "ReadBool"
   external method read_int8 : unit -> int = "ReadInt8"
-  external method read_uint8 : unit -> int = "ReadUInt8"
+  external method read_uint8 : unit -> int = "ReadUint8"
   external method read_int16 : unit -> int = "ReadInt16"
-  external method read_uint16 : unit -> int = "ReadUInt16"
+  external method read_uint16 : unit -> int = "ReadUint16"
   external method read_int32 : unit -> int = "ReadInt32"
-  external method read_uint32 : unit -> int = "ReadUInt32"
+  external method read_uint32 : unit -> int = "ReadUint32"
   external method read_float : unit -> float = "ReadFloat"
   external method read_string : unit -> string = "ReadString"
   external method write_bool : bool -> unit = "WriteBool"
   external method write_int8 : int -> unit = "WriteInt8"
-  external method write_uint8 : int -> unit = "WriteInt8"
+  external method write_uint8 : int -> unit = "WriteUint8"
   external method write_int16 : int -> unit = "WriteInt16"
-  external method write_uint16 : int -> unit = "WriteUInt16"
+  external method write_uint16 : int -> unit = "WriteUint16"
   external method write_int32 : int -> unit = "WriteInt32"
-  external method write_uint32 : int -> unit = "WriteUInt32"
+  external method write_uint32 : int -> unit = "WriteUint32"
   external method write_float : float -> unit = "WriteFloat"
   external method write_string : string -> unit = "WriteString"
 end
+
+class packet_bis () =
+  let t = Packet.default () in
+  packetCpp t
+
+class packet =
+  packet_bis ()
 
 (* pour avoir un feeling plus SFMLisant*)
 
@@ -257,7 +264,7 @@ type write_val =
     | `String of string
     ]
 
-let (>>) p = function
+let (>>) (p:#packet) = function
     `Int8 i -> i := p#read_int8 () ; p
   | `UInt8 i -> i := p#read_uint8 () ; p
   | `Int16 i -> i := p#read_int16 () ; p
@@ -268,7 +275,7 @@ let (>>) p = function
   | `Bool b -> b := p#read_bool () ; p
   | `String s -> s := p#read_string () ; p
 
-let (<<) p = function
+let (<<) (p:#packet) = function
     `Int8 i -> p#write_int8 i ; p
   | `UInt8 i -> p#write_uint8 i ; p
   | `Int16 i -> p#write_int16 i ; p
@@ -304,19 +311,27 @@ object auto (_:'self)
   external method set : 'self -> 'self = "Affect"
 end
 
-external class tcp_socket (TcpSocket) : "sf_TcpSocket" =
+external class tcp_socketCpp (TcpSocket) : "sf_TcpSocket" =
 object
   external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
   external method get_local_port : unit -> int = "GetLocalPort"
-  external method get_remote_port : unit -> ip_address = "GetRemotePort"
+  external method get_remote_address : unit -> ip_address = "GetRemoteAddress"
+  external method get_remote_port : unit -> int = "GetRemotePort"
   external method connect : ?timeout:int -> ip_address -> int -> socket_status = "Connect"
   external method disconnect : unit -> unit = "Disconnect"
-  external method send_packet : packet -> socket_status = "SendPacket"
-  external method receive_packet : packet -> socket_status = "ReceivePacket"
+  external method send_packet : 'a. (#packet as 'a) -> socket_status = "SendPacket"
+  external method receive_packet :'a. (#packet as 'a) -> socket_status = "ReceivePacket"
 end
 
-external class tcp_listener : "sf_TcpListener" =
+class tcp_socket_bis () =
+  let t = TcpSocket.default () in
+  tcp_socketCpp t
+
+class tcp_socket =
+  tcp_socket_bis ()
+
+external class tcp_listenerCpp (TcpListener) : "sf_TcpListener" =
 object
   external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
@@ -326,6 +341,13 @@ object
   external method accept : tcp_socket -> socket_status = "Accept"
 end
 
+class tcp_listener_bis () =
+  let t = TcpListener.default () in
+  tcp_listenerCpp t
+
+class tcp_listener = 
+  tcp_listener_bis () 
+
 let max_datagram_size = 65507
 
 external class udp_socket (UdpSocket) : "sf_UdpSocket" =
@@ -334,6 +356,6 @@ external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
   external method bind : int -> socket_status = "Bind"
   external method unbind : unit -> unit = "Unbind"	     
-  external method send_packet : packet -> socket_status = "SendPacket"
-  external method receive_packet : packet -> socket_status = "ReceivePacket"
+  external method send_packet : 'a. (#packet as 'a) -> socket_status = "SendPacket"
+  external method receive_packet : 'a. (#packet as 'a) -> socket_status = "ReceivePacket"
 end

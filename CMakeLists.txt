@@ -197,7 +197,7 @@ add_custom_target(
 )
 
 add_custom_target( 
-	texture
-	ocamlbuild -use-ocamlfind Test/test_texture.native 
+	sockets
+	ocamlbuild -use-ocamlfind Test/test_sockets.native 
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

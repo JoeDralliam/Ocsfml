@@ -40,3 +40,4 @@
 <Test/test_pong_objects.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem
 <Test/test_shader.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem
 <Test/test_texture.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem
+<Test/test_sockets.{byte,native}> : use_ocsfmlnetwork, use_ocsfmlsystem
