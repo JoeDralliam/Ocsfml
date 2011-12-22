@@ -116,4 +116,3 @@ struct AffectationManagement< BigarrayInterface<IType, dim> >
 					dim, const_cast<void*>(static_cast<void const*>(b.data)), size);
 	}
 };
-
