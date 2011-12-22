@@ -144,6 +144,9 @@ object
   val mySceneSprite = new sprite
 
   method destroy () =
+    let img =  (mySurface#get_texture()) (*#copy_to_image() *) in
+ (*   img#save_to_file "test.jpg" ; *)
+  (*  img#destroy () ; *)
     Array.iter (fun spr -> spr#destroy () ) myEntities ;
     mySurface#destroy () ;
     myBackgroundTexture#destroy () ;

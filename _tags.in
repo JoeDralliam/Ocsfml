@@ -39,3 +39,4 @@
 <Test/test_custom_drawable.{d.byte,byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem, package( bigarray )
 <Test/test_pong_objects.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem
 <Test/test_shader.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem
+<Test/test_texture.{byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem

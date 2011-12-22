@@ -752,6 +752,10 @@ bool render_texture_set_active_helper( sf::RenderTexture* rI, Optional<bool> act
 	return rI->SetActive( active.get_value_no_fail( true ) );
 }
 
+sf::Texture const* render_texture_get_texture_helper(sf::RenderTexture* rT )
+{
+  return &rT->GetTexture();
+}
 
 typedef sf::RenderTexture sf_RenderTexture;
 #define CAMLPP__CLASS_NAME() sf_RenderTexture
@@ -763,7 +767,7 @@ camlpp__register_custom_class()
 	camlpp__register_method0( IsSmooth, &sf::RenderTexture::IsSmooth )
 	camlpp__register_method2( SetActive, &render_texture_set_active_helper )
 	camlpp__register_method0( Display, &sf::RenderTexture::Display )
-	camlpp__register_method0( GetTexture, &sf::RenderTexture::GetTexture )	
+	camlpp__register_method0( GetTexture, &render_texture_get_texture_helper )	
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 

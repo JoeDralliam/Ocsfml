@@ -36,9 +36,9 @@ struct ResManagement
     void call(value& res, Func&& f, Args&&... args)
     {
 		caml_release_runtime_system();
-		auto tmpRes( f(std::forward<Args>(args)...) );
+		auto&& tmpRes( f(std::forward<Args>(args)...) );
 		caml_acquire_runtime_system();
-		caml_cpp__affect<shouldReturnObject, T >(res, tmpRes);
+		AffectationManagement<T, shouldReturnObject>::affect(res, tmpRes);
     }
 };
 

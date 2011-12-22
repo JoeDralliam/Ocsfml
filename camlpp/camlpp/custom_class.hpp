@@ -692,12 +692,12 @@ using boost::mpl::int_;
       CAMLparam0();							\
       CAMLlocal1( objPtrVal );						\
       AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-      static value* callback_function = 0; \
-	  if(!callback_function) \
-	  { \
-		callback_function = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
-	  } \
-      assert( callback_function );						\
+      static value* callback_function = 0;				\
+      if(!callback_function)						\
+	{								\
+	  callback_function = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
+	}								\
+      assert( callback_function );					\
       v = callback( *callback_function  ,  objPtrVal );			\
       CAMLreturn0;							\
     }									\

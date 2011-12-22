@@ -195,3 +195,9 @@ add_custom_target(
 	ocamlbuild -use-ocamlfind Test/test_shader.native 
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+add_custom_target( 
+	texture
+	ocamlbuild -use-ocamlfind Test/test_texture.native 
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
