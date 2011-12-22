@@ -527,7 +527,7 @@ module RenderTexture :
     external set_smooth : t -> bool -> unit
       = "sf_RenderTexture_SetSmooth__impl"
     external is_smooth : t -> bool = "sf_RenderTexture_IsSmooth__impl"
-    external set_active : t -> bool -> unit
+    external set_active : t -> ?active:bool -> unit -> bool
       = "sf_RenderTexture_SetActive__impl"
     external display : t -> unit = "sf_RenderTexture_Display__impl"
     external get_texture : t -> texture = "sf_RenderTexture_GetTexture__impl"
@@ -557,7 +557,7 @@ class render_textureCpp :
     method push_gl_states : unit -> unit
     method rep__sf_RenderTarget : RenderTarget.t
     method rep__sf_RenderTexture : RenderTexture.t
-    method set_active : bool -> unit
+    method set_active : ?active:bool -> unit -> bool
     method set_smooth : bool -> unit
     method set_view : view -> unit
   end

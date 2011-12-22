@@ -747,7 +747,7 @@ bool render_texture_create_helper( sf::RenderTexture* rI, Optional<bool> depthBf
 	return rI->Create( w, h, depthBfr.get_value_no_fail( false ) );
 }
 
-bool render_texture_set_active_helper( sf::RenderTexture* rI, Optional<bool> active )
+bool render_texture_set_active_helper( sf::RenderTexture* rI, Optional<bool> active, UnitTypeHolder )
 {
 	return rI->SetActive( active.get_value_no_fail( true ) );
 }
@@ -761,7 +761,7 @@ camlpp__register_custom_class()
 	camlpp__register_method3( Create, &render_texture_create_helper )
 	camlpp__register_method1( SetSmooth, &sf::RenderTexture::SetSmooth )
 	camlpp__register_method0( IsSmooth, &sf::RenderTexture::IsSmooth )
-	camlpp__register_method1( SetActive, &render_texture_set_active_helper )
+	camlpp__register_method2( SetActive, &render_texture_set_active_helper )
 	camlpp__register_method0( Display, &sf::RenderTexture::Display )
 	camlpp__register_method0( GetTexture, &sf::RenderTexture::GetTexture )	
 camlpp__custom_class_registered()

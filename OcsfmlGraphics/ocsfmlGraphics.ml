@@ -353,7 +353,7 @@ object
   external method create : ?dephtBfr:bool -> int -> int -> bool = "Create"
   external method set_smooth : bool -> unit = "SetSmooth"
   external method is_smooth : unit -> bool = "IsSmooth"
-  external method set_active : bool -> unit = "SetActive"
+  external method set_active : ?active:bool -> unit -> bool = "SetActive"
   external method display : unit -> unit = "Display"
   external method get_texture : unit -> texture = "GetTexture"
 end

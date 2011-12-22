@@ -160,14 +160,14 @@ object
       let init_entity i spr =
 	spr#destroy () ;
 	let texture_rect = { left= 96 * i; top= 0 ; width= 96 ; height= 96 } in
-	  mk_sprite ~texture:myEntityTexture ~texture_rect ()
+	  myEntities.(i) <- mk_sprite ~texture:myEntityTexture ~texture_rect ()
       in
 	mySurface#set_smooth true ;
 	myBackgroundTexture#set_smooth true ;
 	myEntityTexture#set_smooth true ;
 	myBackgroundSprite#set_texture myBackgroundTexture ;
 	myBackgroundSprite#set_position 135. 100. ;
-	Array.mapi init_entity myEntities ;
+	Array.iteri init_entity myEntities ;
 	(myShader#load_from_file ~fragment:"resources/edge.frag" ()) &&
 	  (myShader#set_current_texture "texture" ; true)
     else false
@@ -190,8 +190,8 @@ object
   method on_draw target =
     let tex = mySurface#get_texture () in
       mySceneSprite#set_texture tex;
-      target#draw ~shader:myShader mySceneSprite ;
-      tex#destroy ()
+      target#draw ~shader:myShader mySceneSprite (* ;
+      tex#destroy () *)
 end
 
 let _ = 

@@ -44,6 +44,7 @@ struct copy_instance_helper2
 	template< class T2 >
 	static void affect( value& v, T2&& obj )
 	{
+	  std::cout << "Copy object of type : " << typeid(T2).name() << std::endl; 
 		AffectationManagement< T const*, true >::affect( v, new T( std::forward<T2>(obj) ) );
 	}
 	
@@ -184,7 +185,7 @@ struct AffectationManagement< T&, true >
 template<class T> 
 struct AffectationManagement< T, true > : public copy_instance_helper< T, boost::is_abstract<T>::value > 
 { 
-};  
+};
 
 template< class T >
 struct AffectationManagement<T const&> : AffectationManagement<T>
