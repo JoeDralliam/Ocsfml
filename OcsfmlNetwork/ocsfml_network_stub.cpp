@@ -375,9 +375,9 @@ udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpA
 	return std::make_pair( status, remotePort );
 }
 
-typedef sf::Socket::Status (sf::UdpSocket::*TransferDataUdp( const char* data, 
+typedef sf::Socket::Status (sf::UdpSocket::*TransferDataUdp)( const char* data, 
 							     std::size_t size, 
-							     const IpAddress& remoteAddress, 
+							     const sf::IpAddress& remoteAddress, 
 							     unsigned short remotePort);
 
 std::tuple< sf::Socket::Status, unsigned short, std::string > 
@@ -402,7 +402,7 @@ camlpp__register_custom_class()
 	camlpp__register_method1( Bind, &sf::UdpSocket::Bind )
 	camlpp__register_method0( Unbind, &sf::UdpSocket::Unbind )
 	camlpp__register_method4( SendData, (TransferDataUdp)&sf::UdpSocket::Send)
-	camlpp__register_method3( ReceiveData, &udpsocket_receive_data_helper )
+	camlpp__register_method2( ReceiveData, &udpsocket_receive_data_helper )
 	camlpp__register_method3( SendPacket, ((TransferPacketUdp)&sf::UdpSocket::Send) )
 	camlpp__register_method2( ReceivePacket, &udpsocket_receive_packet_helper )
 camlpp__custom_class_registered()
