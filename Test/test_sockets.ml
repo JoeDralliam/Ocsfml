@@ -1,8 +1,5 @@
 open OcsfmlNetwork
 
-let run_udp_server port = print_string "Not yet implemented"
-let run_udp_client port = print_string "Not yet implemented"
-
 let rec get_ip_address () =
   Printf.printf "Type the address or name of the server to connect to:\n" ;
   let ad = mk_ip_address (`String (read_line ())) in
@@ -22,27 +19,30 @@ let run_tcp_server port =
   let socket = new tcp_socket in
     if listener#accept socket <> Done
     then failwith "Could not connect";
-    Printf.printf "Client connected: %s\n" ((socket#get_remote_address ())#to_string ());
+
+    let sender = socket#get_remote_address () in
+      Printf.printf "Client connected: %s\n" (sender#to_string ());
+      
+      let packet = new packet in
   
-    let packet = new packet in
-  
-    let out = "Hi, I'm the server" in
-      ignore( packet << (`String out) );
-      if not ((socket#send_packet packet) = Done)
-      then failwith "Could not send packet";
-      Printf.printf "Message sent to the client: \"%s\"\n" out;
-
-      packet#clear () ;
-
-      let in_s = ref "" in
-	if not ((socket#receive_packet packet) = Done)
-	then failwith "Coud not receive packet";
-	ignore( packet >> (`String in_s) );
-	Printf.printf "Answer received from the client: \"%s\"\n" !in_s;
-
-	packet#destroy () ;
-	socket#destroy () ;
-	listener#destroy ()
+      let out = "Hi, I'm the server" in
+	ignore( packet << (`String out) );
+	if not ((socket#send_packet packet) = Done)
+	then failwith "Could not send packet";
+	Printf.printf "Message sent to the client: \"%s\"\n" out;
+	
+	packet#clear () ;
+	
+	let in_s = ref "" in
+	  if not ((socket#receive_packet packet) = Done)
+	  then failwith "Coud not receive packet";
+	  ignore( packet >> (`String in_s) );
+	  Printf.printf "Answer received from the client: \"%s\"\n" !in_s;
+	  
+	  sender#destroy () ;
+	  packet#destroy () ;
+	  socket#destroy () ;
+	  listener#destroy ()
 
 
 let run_tcp_client port =
@@ -97,7 +97,7 @@ let run_udp_server port =
       then failwith "Unable to send the packet to the client"
       else Printf.printf "Message sent to the client: \"%s\"\n" answer ;
   
-      sender#destroy () ;
+      sender#destroy () ; 
       packet#destroy () ;
       socket#destroy ()
 	

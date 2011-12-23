@@ -595,3 +595,4 @@ class udp_socketCpp :
   end
 class udp_socket_bis : unit -> udp_socketCpp
 class udp_socket : udp_socket_bis
+val cleanup_ocsfml_network : unit -> unit
