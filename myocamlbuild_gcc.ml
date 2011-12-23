@@ -80,7 +80,7 @@ let add_gcc_rules () =
 		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
 	  build_transitive_deps [([],[cpp])];
-	  Cmd (S[A ccpp ; A"-g" ; A"-std=c++0x" ; A (get_symbol "cxx_flags" ); T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
+	  Cmd (S[A ccpp ; A"-g" ; A"-std=c++0x" ; A"-fPIC"; A (get_symbol "cxx_flags" ); T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
     end;
 
     rule "g++ : cpplib -> a" ~dep:"%.cpplib" ~prod:"%.a" begin
@@ -89,9 +89,21 @@ let add_gcc_rules () =
 	let tags = tags_of_pathname cpplib ++ "archive" ++ "g++" in
 	let o_files = string_list_of_file cpplib in
 	let dir = dirname cpplib in
-	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
-	  let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A (dir/o) ]) in
-	    Seq (List.map ar_cmd o_files)
+	List.iter Outcome.ignore_good (builder (parallel dir o_files));
+	let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A (dir/o) ]) in
+	Seq (List.map ar_cmd o_files)
+    end;
+      
+    rule "g++ : cpplib -> so" ~dep:"%.cpplib" ~prod:"%.so" begin
+      fun env builder ->
+	let cpplib = env "%.cpplib" in
+	let tags = tags_of_pathname cpplib ++ "shared" ++ "g++" in
+	let o_files = string_list_of_file cpplib in
+	let dir = dirname cpplib in
+	List.iter Outcome.ignore_good (builder (parallel dir o_files));
+	let obtain_spec_obj o = A (dir/o) in
+	let spec_obj_list =(List.map obtain_spec_obj o_files) in
+	Cmd( S[A ccpp ; A"-shared" ; S spec_obj_list ; A"-o" ; Px (env "%.so")] )
     end
 
 let get_directory s =
@@ -129,7 +141,6 @@ let _ = dispatch begin function
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
 
-	(*  flag ["g++" ; "compile" ; "include_sfml_"^s ] & S link_libs; *)
 
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
@@ -145,8 +156,8 @@ let _ = dispatch begin function
 	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
-	  dep  ["link"; "ocaml"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
-
+	  dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
+	  dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] [d^"/libocsfml"^s^".so"] ;
 	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
 	  ocaml_lib (d ^ "/ocsfml" ^ s);
       in 

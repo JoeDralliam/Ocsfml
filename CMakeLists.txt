@@ -188,7 +188,7 @@ add_custom_target(
 
 add_custom_target( 
 	pong
-	ocamlbuild -use-ocamlfind Test/test_pong2.native 
+	ocamlbuild -use-ocamlfind Test/test_pong2.byte
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
