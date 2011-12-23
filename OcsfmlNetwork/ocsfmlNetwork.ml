@@ -1,6 +1,6 @@
 
 
-external class ip_address (IPAddress) : "sf_IpAddress" =
+external class ip_address (IPAddressCPP) : "sf_IpAddress" =
 object
   constructor default : unit = "default_constructor"
   constructor from_string : string = "string_constructor"
@@ -10,8 +10,21 @@ object
   external method to_integer : unit -> int = "ToInteger"
 end
 
-external cpp get_local_address : unit -> ip_address = "sf_IpAddress_GetLocalAddress"
-external cpp get_public_address : ?timeout:int -> unit -> ip_address = "sf_IpAddress_GetPublicAddress"
+module IPAddress =
+struct
+  include IPAddressCPP
+  external cpp get_local_address : unit -> ip_address = "sf_IpAddress_GetLocalAddress"
+  external cpp get_public_address : ?timeout:int -> unit -> ip_address = "sf_IpAddress_GetPublicAddress"
+  let none = new ip_address (default ())
+  let localhost = new ip_address (from_string "127.0.0.1")
+end
+
+let mk_ip_address = function
+  | `None -> new ip_address (IPAddress.default ())
+  | `String s -> new ip_address (IPAddress.from_string s)
+  | `Bytes (x,y,z,w) -> new ip_address (IPAddress.from_bytes x y z w)
+  | `Int i -> new ip_address (IPAddress.from_int i)
+
 
 module FTP =
 struct
@@ -350,12 +363,19 @@ class tcp_listener =
 
 let max_datagram_size = 65507
 
-external class udp_socket (UdpSocket) : "sf_UdpSocket" =
+external class udp_socketCpp (UdpSocket) : "sf_UdpSocket" =
 object
 external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
   external method bind : int -> socket_status = "Bind"
   external method unbind : unit -> unit = "Unbind"	     
-  external method send_packet : 'a. (#packet as 'a) -> socket_status = "SendPacket"
-  external method receive_packet : 'a. (#packet as 'a) -> socket_status = "ReceivePacket"
+  external method send_packet : 'a. (#packet as 'a) -> ip_address -> int -> socket_status = "SendPacket"
+  external method receive_packet : 'a. (#packet as 'a) -> ip_address -> socket_status * int = "ReceivePacket"
 end
+
+class udp_socket_bis () =
+  let t = UdpSocket.default () in
+    udp_socketCpp t
+
+class udp_socket =
+  udp_socket_bis ()

@@ -1,4 +1,4 @@
-module IPAddress :
+module IPAddressCPP :
   sig
     type t
     external destroy : t -> unit = "sf_IpAddress_destroy__impl"
@@ -12,18 +12,39 @@ module IPAddress :
     external to_integer : t -> int = "sf_IpAddress_ToInteger__impl"
   end
 class ip_address :
-  IPAddress.t ->
+  IPAddressCPP.t ->
   object
-    val t_ip_address : IPAddress.t
+    val t_ip_address : IPAddressCPP.t
     method destroy : unit -> unit
-    method rep__sf_IpAddress : IPAddress.t
+    method rep__sf_IpAddress : IPAddressCPP.t
     method to_integer : unit -> int
     method to_string : unit -> string
   end
-external get_local_address : unit -> ip_address
-  = "sf_IpAddress_GetLocalAddress__impl"
-external get_public_address : ?timeout:int -> unit -> ip_address
-  = "sf_IpAddress_GetPublicAddress__impl"
+module IPAddress :
+  sig
+    type t = IPAddressCPP.t
+    external destroy : t -> unit = "sf_IpAddress_destroy__impl"
+    external default : unit -> t = "sf_IpAddress_default_constructor__impl"
+    external from_string : string -> t
+      = "sf_IpAddress_string_constructor__impl"
+    external from_bytes : int -> int -> int -> int -> t
+      = "sf_IpAddress_bytes_constructor__impl"
+    external from_int : int -> t = "sf_IpAddress_integer_constructor__impl"
+    external to_string : t -> string = "sf_IpAddress_ToString__impl"
+    external to_integer : t -> int = "sf_IpAddress_ToInteger__impl"
+    external get_local_address : unit -> ip_address
+      = "sf_IpAddress_GetLocalAddress__impl"
+    external get_public_address : ?timeout:int -> unit -> ip_address
+      = "sf_IpAddress_GetPublicAddress__impl"
+    val none : ip_address
+    val localhost : ip_address
+  end
+val mk_ip_address :
+  [< `Bytes of int * int * int * int
+   | `Int of int
+   | `None
+   | `String of string ] ->
+  ip_address
 module FTP :
   sig
     type transfer_mode = Binary | Ascii | Ebcdic
@@ -551,23 +572,26 @@ module UdpSocket :
     external default : unit -> t = "sf_UdpSocket_default_constructor__impl"
     external bind : t -> int -> socket_status = "sf_UdpSocket_Bind__impl"
     external unbind : t -> unit = "sf_UdpSocket_Unbind__impl"
-    external send_packet : t -> #packet -> socket_status
+    external send_packet : t -> #packet -> ip_address -> int -> socket_status
       = "sf_UdpSocket_SendPacket__impl"
-    external receive_packet : t -> #packet -> socket_status
+    external receive_packet :
+      t -> #packet -> ip_address -> socket_status * int
       = "sf_UdpSocket_ReceivePacket__impl"
   end
-class udp_socket :
+class udp_socketCpp :
   UdpSocket.t ->
   object
     val t_socket : Socket.t
-    val t_udp_socket : UdpSocket.t
+    val t_udp_socketCpp : UdpSocket.t
     method bind : int -> socket_status
     method destroy : unit -> unit
     method is_blocking : unit -> bool
-    method receive_packet : #packet -> socket_status
+    method receive_packet : #packet -> ip_address -> socket_status * int
     method rep__sf_Socket : Socket.t
     method rep__sf_UdpSocket : UdpSocket.t
-    method send_packet : #packet -> socket_status
+    method send_packet : #packet -> ip_address -> int -> socket_status
     method set_blocking : bool -> unit
     method unbind : unit -> unit
   end
+class udp_socket_bis : unit -> udp_socketCpp
+class udp_socket : udp_socket_bis
