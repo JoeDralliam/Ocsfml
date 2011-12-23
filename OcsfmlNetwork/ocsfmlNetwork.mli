@@ -38,6 +38,9 @@ module IPAddress :
       = "sf_IpAddress_GetPublicAddress__impl"
     val none : ip_address
     val localhost : ip_address
+    val equal :
+      < rep__sf_IpAddress : 'a; .. > ->
+      < rep__sf_IpAddress : 'a; .. > -> bool
   end
 val mk_ip_address :
   [< `Bytes of int * int * int * int
@@ -595,4 +598,3 @@ class udp_socketCpp :
   end
 class udp_socket_bis : unit -> udp_socketCpp
 class udp_socket : udp_socket_bis
-val cleanup_ocsfml_network : unit -> unit

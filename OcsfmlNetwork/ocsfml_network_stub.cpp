@@ -4,12 +4,13 @@
 #include <camlpp/type_option.hpp>
 #include <camlpp/custom_conversion.hpp>
 #include <camlpp/custom_class.hpp>
+#include <camlpp/custom_ops.hpp>
 #include <camlpp/stub_generator.hpp>
 #include <camlpp/unit.hpp>
 
 typedef sf::IpAddress sf_IpAddress;
 #define CAMLPP__CLASS_NAME() sf_IpAddress
-camlpp__register_custom_class()
+camlpp__register_custom_class_and_ops( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__DEFAULT_COMPARE(), custom_hash_default, custom_serialize_default, custom_deserialize_default)
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_constructor1( string_constructor, std::string )
 	camlpp__register_constructor4( bytes_constructor, sf::Uint8, sf::Uint8, sf::Uint8, sf::Uint8 )

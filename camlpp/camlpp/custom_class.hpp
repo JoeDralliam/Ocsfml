@@ -742,24 +742,16 @@ using boost::mpl::int_;
     class_name* from_value( value const& v)				\
     {									\
       if( Tag_val( v ) == Object_tag )					\
-	{	\
-		static value callback_method = 0; \
-		if( !callback_method ) \
-		{ \
-			callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
-		} \
-		return *reinterpret_cast< class_name**>			\
-	    (								\
-	     Data_custom_val						\
-	     (								\
-	      callback							\
-	      (								\
-	       caml_get_public_method( v, callback_method),							\
-	       v							\
-		  )							\
-	     )							\
-	    );							\
+	{								\
+	  static value callback_method = 0;				\
+	  if( !callback_method )					\
+	    {								\
+	      callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
+	    }								\
+	  return *reinterpret_cast< class_name**>			\
+	    (Data_custom_val(callback(caml_get_public_method( v, callback_method),v))); \
 	}								\
+      std::cout << "Tag_val( v ) : " << (int)(Tag_val(v)) << std::endl; \
       assert( Tag_val( v ) == Custom_tag );				\
       return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
     }									\
@@ -788,6 +780,28 @@ using boost::mpl::int_;
       return ConversionManagement< class_name * >::from_value( v );	\
     }									\
   };									\
+  template<>								\
+  struct AffectationManagement< class_name const*, false >		\
+  {									\
+    static void affect( value& v, class_name const* objPtr )		\
+    {									\
+      v = caml_alloc_custom						\
+	(								\
+	 &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
+	 sizeof( class_name * ),					\
+	 0, 1								\
+									); \
+      std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
+    }									\
+    static void affect_field( value& v, int field, class_name const* objPtr ) \
+    {									\
+      CAMLparam0();							\
+      CAMLlocal1( tmp );						\
+      affect( tmp, objPtr );						\
+      Store_field(v, field, tmp);					\
+      CAMLreturn0;							\
+    }									\
+  };								        \
   template<>								\
   struct AffectationManagement< class_name*, false >			\
   {									\

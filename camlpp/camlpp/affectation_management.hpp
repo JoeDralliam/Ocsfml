@@ -30,7 +30,7 @@ extern "C"
 #include <iostream>
 #include <string>
 #include <type_traits>
-#include <tuple>
+#include <tuple
 #include <vector>
 #include <list>
 
@@ -44,7 +44,6 @@ struct copy_instance_helper2
   template< class T2 >
   static void affect( value& v, T2&& obj )
   {
-    std::cout << "Copy object of type : " << typeid(T2).name() << std::endl; 
     AffectationManagement< T const*, true >::affect( v, new T( std::forward<T2>(obj) ) );
   }
 	
@@ -141,8 +140,6 @@ struct AffectationManagement<T*, false>
 {
   static void affect(value& v, T* t)
   {
-    std::cout << "Returning " << typeid(T).name() ;		
-    std::cout << " @ address : " << t << std::endl;	       
     v = caml_alloc(1, Abstract_tag);
     Store_field(v, 0,reinterpret_cast<value>(t));
   }
@@ -450,6 +447,27 @@ private:
   {
     AffectationManagement< typename std::tuple_element< I, std::tuple< Args... >>::type >::affect_field( v, I, std::move( std::get<I>(tup) ) );
     affect_helper( v, tup, std::integral_constant<size_t, I-1>() );
+  }
+};
+#else
+template<class T1, class T2, class T3>
+struct AffectationManagement< std::tuple< T1, T2, T3 > >
+{
+  static void affect(value& v, std::tuple< T1, T2, T3 > const& tup)
+  {
+    v = caml_alloc_tuple( 3 );
+    AffectationManagement< T1 >::affect_field(v, 0, std::get<0>(tup));
+    AffectationManagement< T2 >::affect_field(v, 1, std::get<1>(tup));
+    AffectationManagement< T3 >::affect_field(v, 2, std::get<2>(tup));
+  }
+
+  static void affect_field(value& v, int field, std::tuple< Args... > const& p)
+  {
+    CAMLparam0();
+    CAMLlocal1( tupleVal );
+    affect( tupleVal, p );
+    Store_field(v, field, tupleVal);
+    CAMLreturn0;
   }
 };
 #endif

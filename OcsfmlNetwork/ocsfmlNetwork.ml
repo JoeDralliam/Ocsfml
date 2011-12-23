@@ -17,6 +17,7 @@ struct
   external cpp get_public_address : ?timeout:int -> unit -> ip_address = "sf_IpAddress_GetPublicAddress"
   let none = new ip_address (default ())
   let localhost = new ip_address (from_string "127.0.0.1")
+  let equal x y = x#rep__sf_IpAddress = y#rep__sf_IpAddress
 end
 
 let mk_ip_address = function
@@ -380,9 +381,9 @@ class udp_socket_bis () =
 class udp_socket =
   udp_socket_bis ()
 
-
+(*
 let cleanup_ocsfml_network () =
   IPAddress.none#destroy () ;
   IPAddress.localhost#destroy ()
 
-let _ = at_exit cleanup_ocsfml_network
+let _ = at_exit cleanup_ocsfml_network *)

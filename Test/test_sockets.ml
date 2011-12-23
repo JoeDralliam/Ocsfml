@@ -3,10 +3,9 @@ open OcsfmlNetwork
 let rec get_ip_address () =
   Printf.printf "Type the address or name of the server to connect to:\n" ;
   let ad = mk_ip_address (`String (read_line ())) in
-    if ad = IPAddress.none
-    then 
-      (ad#destroy () ; get_ip_address () )
-    else ad
+  if IPAddress.(equal ad none)
+  then get_ip_address () 
+  else ad
   
 
 let run_tcp_server port =
@@ -17,33 +16,30 @@ let run_tcp_server port =
     Printf.printf "Server is listening to port %d, waiting for connections...\n" port ;
 
   let socket = new tcp_socket in
-    if listener#accept socket <> Done
-    then failwith "Could not connect";
+  if listener#accept socket <> Done
+  then failwith "Could not connect";
 
-    let sender = socket#get_remote_address () in
-      Printf.printf "Client connected: %s\n" (sender#to_string ());
+  let sender = socket#get_remote_address () in
+  Printf.printf "Client connected: %s\n" (sender#to_string ());
       
       let packet = new packet in
   
       let out = "Hi, I'm the server" in
-	ignore( packet << (`String out) );
-	if not ((socket#send_packet packet) = Done)
-	then failwith "Could not send packet";
-	Printf.printf "Message sent to the client: \"%s\"\n" out;
+      ignore( packet << (`String out) );
+      if not ((socket#send_packet packet) = Done)
+      then failwith "Could not send packet";
+      Printf.printf "Message sent to the client: \"%s\"\n" out;
 	
-	packet#clear () ;
+      packet#clear () ;
 	
-	let in_s = ref "" in
-	  if not ((socket#receive_packet packet) = Done)
-	  then failwith "Coud not receive packet";
-	  ignore( packet >> (`String in_s) );
-	  Printf.printf "Answer received from the client: \"%s\"\n" !in_s;
-	  
-	  sender#destroy () ;
-	  packet#destroy () ;
-	  socket#destroy () ;
-	  listener#destroy ()
-
+      let in_s = ref "" in
+      if not ((socket#receive_packet packet) = Done)
+      then failwith "Coud not receive packet";
+      ignore( packet >> (`String in_s) );
+      Printf.printf "Answer received from the client: \"%s\"\n" !in_s;
+      
+      packet#destroy () ;
+      socket#destroy ()
 
 let run_tcp_client port =
   let server = get_ip_address () in
@@ -70,8 +66,8 @@ let run_tcp_client port =
   Printf.printf "Message sent to the server: \"%s\"\n" out;
   
   packet#destroy () ;
-  socket#destroy () ;
-  server#destroy ()
+  socket#destroy ()
+
 	  
 let run_udp_server port = 
   let socket = new udp_socket in
@@ -98,7 +94,6 @@ let run_udp_server port =
   then failwith "Unable to send the packet to the client"
   else Printf.printf "Message sent to the client: \"%s\"\n" answer ;
   
-  sender#destroy () ; 
   packet#destroy () ;
   socket#destroy ()
 	
@@ -125,11 +120,8 @@ let run_udp_client port =
   else Printf.printf "Message received from %s: \"%s\"\n" 
     (sender#to_string ()) (packet#read_string ()) ;
   
-  sender#destroy () ;
   packet#destroy () ;
-  socket#destroy () ;
-  server#destroy ()
-
+  socket#destroy ()
 
 let rec get_answer (q : ('a,'b,'c,'d,'e,'f) format6) a1 a2 = 
   Printf.printf q a1 a2 ; flush stdout ;
@@ -139,11 +131,12 @@ let rec get_answer (q : ('a,'b,'c,'d,'e,'f) format6) a1 a2 =
     else c
 
 let _ =
-  let port = 25001 in
+  let port = 25004 in
   let protocol = get_answer "Do you want to use TCP (%c) or UDP (%c) ?\n" 't' 'u' in
   let who = get_answer "Do you want to be a server (%c) or a client (%c) ?\n" 's' 'c' in
-  match (protocol,who) with
+  (match (protocol,who) with
     | ('t','s') -> run_tcp_server port
     | ('t', _ ) -> run_tcp_client port
     | ( _ ,'s') -> run_udp_server port
-    | ( _ , _ ) -> run_udp_client port ;
+    | ( _ , _ ) -> run_udp_client port );
+  Gc.full_major ()
