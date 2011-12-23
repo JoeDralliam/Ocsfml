@@ -751,7 +751,6 @@ using boost::mpl::int_;
 	  return *reinterpret_cast< class_name**>			\
 	    (Data_custom_val(callback(caml_get_public_method( v, callback_method),v))); \
 	}								\
-      std::cout << "Tag_val( v ) : " << (int)(Tag_val(v)) << std::endl; \
       assert( Tag_val( v ) == Custom_tag );				\
       return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
     }									\

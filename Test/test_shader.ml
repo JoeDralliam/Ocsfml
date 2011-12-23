@@ -256,7 +256,8 @@ let _ =
 		| Closed | KeyPressed { code = KeyCode.Escape ; _ } -> 
 		    app#close ()
 		| KeyPressed { code = KeyCode.Left ; _ } ->
-		    current := (!current - 1) mod (Array.length effects) ;
+		    decr current ;
+		    if !current < 0 then current := Array.length effects - 1;
 		    let current_name = effects.(!current)#get_name () in
 		      description#set_string ("Current effect: " ^ current_name)
 		| KeyPressed { code = KeyCode.Right ; _ } ->
