@@ -95,7 +95,7 @@ let run_udp_server port =
 
       if socket#send_packet packet sender sender_port <> Done
       then failwith "Unable to send the packet to the client"
-      else Printf.printf "Message sent to the client: \"%s\"" answer ;
+      else Printf.printf "Message sent to the client: \"%s\"\n" answer ;
   
       sender#destroy () ;
       packet#destroy () ;

@@ -379,3 +379,10 @@ class udp_socket_bis () =
 
 class udp_socket =
   udp_socket_bis ()
+
+
+let cleanup_ocsfml_network () =
+  IPAddress.none#destroy () ;
+  IPAddress.localhost#destroy ()
+
+let _ = at_exit cleanup_ocsfml_network
