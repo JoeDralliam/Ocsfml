@@ -1,0 +1,32 @@
+name = "ocsfml"
+version = "2.0a"
+description = "ocaml port of the c++ SFML library"
+
+package "system" (
+	archive(byte, toploop) = "ocsfmlSystem.cma"
+	archive(native) = "ocsfmlSystem.cmxa"
+)
+
+package "window" (
+	requires="ocsfml.system"
+	archive(byte, toploop) = "ocsfmlWindow.cma"
+	archive(native) = "ocsfmlWindow.cmxa"
+)
+
+package "graphics" (
+	requires="ocsfml.window"
+	archive(byte, toploop) = "ocsfmlGraphics.cma"	
+	archive(native) = "ocsfmlGraphics.cmxa"
+)
+
+package "audio" (
+	requires="ocsfml.system"
+	archive(byte, toploop) = "ocsfmlAudio.cma"
+	archive(native) = "ocsfmlAudio.cmxa"
+)
+
+package "network" (
+	requires="ocsfml.system"
+	archive(byte, toploop) = "ocsfmlNetwork.cma"
+	archive(native) = "ocsfmlNetwork.cmxa"
+)
