@@ -74,11 +74,11 @@ configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_window_stub.hpp ${CMAKE_S
 
 configure_file(${CMAKE_SOURCE_DIR}/_tags.in ${CMAKE_SOURCE_DIR}/_tags)
 configure_file(${CMAKE_SOURCE_DIR}/config.in ${CMAKE_SOURCE_DIR}/config )
-configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/libocsfmlsystem.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlSystem/libocsfmlsystem.cpplib)
-configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/libocsfmlwindow.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlWindow/libocsfmlwindow.cpplib)
-configure_file(${CMAKE_SOURCE_DIR}/OcsfmlGraphics/libocsfmlgraphics.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/libocsfmlgraphics.cpplib)
-configure_file(${CMAKE_SOURCE_DIR}/OcsfmlAudio/libocsfmlaudio.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlAudio/libocsfmlaudio.cpplib)
-configure_file(${CMAKE_SOURCE_DIR}/OcsfmlNetwork/libocsfmlnetwork.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlNetwork/libocsfmlnetwork.cpplib)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfmlsystem.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfmlsystem.cpplib)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfmlwindow.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfmlwindow.cpplib)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfmlgraphics.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfmlgraphics.cpplib)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlAudio/ocsfmlaudio.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlAudio/ocsfmlaudio.cpplib)
+configure_file(${CMAKE_SOURCE_DIR}/OcsfmlNetwork/ocsfmlnetwork.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlNetwork/ocsfmlnetwork.cpplib)
 
 add_custom_target( 
 	clear
@@ -86,7 +86,7 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target( 
+add_custom_target(
 	ocsfml
 	ALL	ocamlbuild -use-ocamlfind ocsfmlsystem.cma
 	COMMAND ocamlbuild -use-ocamlfind ocsfmlsystem.cmxa
@@ -100,8 +100,6 @@ add_custom_target(
 	COMMAND	ocamlbuild -use-ocamlfind ocsfmlaudio.cmxa
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-
-
 
 #add_custom_target(
 #	infer_system
@@ -138,9 +136,19 @@ add_custom_target(
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
 
+macro(ocsfml_library dir name)
+	set(${name} _build/Ocsfml${dir}/ocsfml${name}.cmi _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  _build/Ocsfml${dir}/ocsfml${name}.cma _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} _build/Ocsfml${dir}/ocsfml${name}.cmxa _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} )
+endmacro()
+
+ocsfml_library(System system) 
+ocsfml_library(Window window) 
+ocsfml_library(Graphics graphics) 
+ocsfml_library(Audio audio) 
+ocsfml_library(Network network)
+
 add_custom_target(
   install
-  ocamlfind install ocsfml META _build/Ocsfml*/ocsfml*.cmi _build/Ocsfml*/dllocsfml*.so  _build/Ocsfml*/ocsfml*.cma _build/Ocsfml*/libocsfml*.a _build/Ocsfml*/ocsfml*.cmxa _build/Ocsfml*/ocsfml*.a 
+  ocamlfind install ocsfml META ${system} ${window} ${graphics} ${audio} ${network}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
@@ -180,7 +188,7 @@ add_custom_target(
 	COMMAND ocamlbuild -use-ocamlfind Test/test_shader.native 
 	COMMAND ocamlbuild -use-ocamlfind Test/test_sockets.byte
 	COMMAND ocamlbuild -use-ocamlfind Test/test_sockets.native 
-	COMMAND ocamlbuild -use-ocamlfind Test/test_audio.byte
-	COMMAND ocamlbuild -use-ocamlfind Test/test_audio.native
+#	COMMAND ocamlbuild -use-ocamlfind Test/test_audio.byte
+#	COMMAND ocamlbuild -use-ocamlfind Test/test_audio.native
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

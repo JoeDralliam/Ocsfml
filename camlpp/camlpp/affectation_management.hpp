@@ -461,7 +461,7 @@ struct AffectationManagement< std::tuple< T1, T2, T3 > >
     AffectationManagement< T3 >::affect_field(v, 2, std::get<2>(tup));
   }
 
-  static void affect_field(value& v, int field, std::tuple< Args... > const& p)
+  static void affect_field(value& v, int field, std::tuple< T1, T2, T3 > const& p)
   {
     CAMLparam0();
     CAMLlocal1( tupleVal );

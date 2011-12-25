@@ -146,7 +146,7 @@ let _ = dispatch begin function
 	flag["g++" ; "shared"] & S libs_sfml;
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
-            S[ A"-cclib" ;  A ("-I\""^d^"\""); A"-dllib"; A("-locsfml"^s); A"-dllib"; A("-locsfml"^s); 
+       S[ A"-cclib" ;  A ("-I\""^d^"\""); A"-dllib"; A("-locsfml"^s);
 	      A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"; A"-cclib"; A ("-l"^(get_symbol "stdlib"))];  
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
