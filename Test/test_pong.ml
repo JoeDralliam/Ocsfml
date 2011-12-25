@@ -27,58 +27,68 @@ let load_font file_name  =
 
 let test_pong () = 
   Random.self_init () ;
+
+  let game_width = 800 in
+  let game_height = 600 in
+  let paddle_sizeX = 25. in
+  let paddle_sizeY = 100. in
+  let ball_radius = 10. in
   
-  let vm = VideoMode.({ width=800 ; height=600 ; bits_per_pixel=32 }) in
+  let vm = VideoMode.({ width=game_width ; height=game_height ; bits_per_pixel=32 }) in
   let app = new render_window vm  "Ocsfml - Pong" in
 	
   let font = mk_font (`File "resources/sansation.ttf") in
-  let ball_texture = mk_texture (`File "resources/ball.png") in
-  let background_texture = mk_texture (`File "resources/background.jpg") in
-  let left_paddle_texture = mk_texture (`File "resources/paddle_left.png") in 
-  let right_paddle_texture = mk_texture (`File "resources/paddle_right.png") in
   let ball_sound_buffer = mk_sound_buffer (`File "resources/ball.wav") in
 
 
-  let endText = mk_text ~font ~character_size:50 ~position:(150.0, 200.0) ~color:(Color.rgb 50 50 250) () in
+  let pauseMessage = mk_text ~font ~character_size:40 ~position:(170.0, 150.0) ~color:(Color.white)
+			     ~string:"Welcome to SFML pong!\nPress space to start the game" () in
 
-  let background = mk_sprite ~texture:background_texture () in
-  let left_paddle = mk_sprite ~texture:left_paddle_texture () in
-  let right_paddle = mk_sprite ~texture:right_paddle_texture () in
-  let ball =  mk_sprite ~texture:ball_texture () in
+  let left_paddle = mk_rectangle_shape 	~size:(paddle_sizeX -. 3., paddle_sizeY -. 3.) 
+					~outline_thickness:3.
+					~outline_color:Color.black 
+					~fill_color:(Color.rgb 100 100 200)
+					~origin:(paddle_sizeX /. 2., paddle_sizeY /. 2.) () in
+  ignore( left_paddle#get_size() );
+  let right_paddle = mk_rectangle_shape ~size:(paddle_sizeX -. 3., paddle_sizeY -. 3.) 
+					~outline_thickness:3.
+					~outline_color:Color.black 
+					~fill_color:(Color.rgb 200 100 100)
+					~origin:(paddle_sizeX /. 2., paddle_sizeY /. 2.) () in
+  let ball =  mk_circle_shape ~radius:(ball_radius -. 3.)
+			      ~outline_thickness:3.
+			      ~outline_color:Color.black
+			      ~fill_color:Color.white
+			      ~origin:(ball_radius /. 2., ball_radius /. 2.) () in
   let ball_sound = mk_sound ~buffer:ball_sound_buffer () in
+  let ai_timer = new clock in
+  let ai_time = 300 in
+  let paddle_speed = 400.0 in
+  let right_paddle_speed = ref 0.0 in
 
-  let view = app#get_view () in
-  let app_size = view#get_size () in
-  let lft_size = left_paddle#get_size () in
-  let rgt_size = right_paddle#get_size () in
-  let ball_size = ball#get_size () in
-    
-  let middle project x1 x2 = (project x1 -. project x2) /. 2.0 in
-
-    left_paddle#move 10.0 (middle snd app_size lft_size);
-    right_paddle#move (fst app_size -. fst rgt_size -. 10.0) (middle snd app_size rgt_size);
-    ball#move (middle fst app_size ball_size) (middle snd app_size ball_size) ; 
-	
-    let ai_timer = new clock in
-    let ai_time = 100 in
-    let left_paddle_speed = ref 400.0 in
-    let right_paddle_speed = ref 400.0 in
-	
-    let ball_speed = ref 400.0 in
-    let ball_angle =
-      let angle = acos ((Random.float 0.3) +. 0.7) in
-	ref( if Random.bool () then angle +. pi else angle )
+  let ball_speed = 400.0 in
+  let ball_angle =
+    let angle = acos ((Random.float 0.3) +. 0.7) in
+      ref( if Random.bool () then angle +. pi else angle )
     in
-	
-    let is_playing = ref true in
-
-    let rec event_loop () =
-      match app#poll_event () with
+  let is_playing = ref false in
+  let rec event_loop () =
+    match app#poll_event () with
 	| Some e ->
 	    Event.( match e with
 		      | Closed 
 		      | KeyPressed { code = KeyCode.Escape ; _ } -> 
 			  app#close ()
+		      | KeyPressed { code = KeyCode.Space ; _ } when not !is_playing ->
+			begin
+			  is_playing := true ;
+			  let angle = acos ((Random.float 0.3) +. 0.7) in
+			  ball_angle := if Random.bool () then angle +. pi else angle ;
+			   
+			  left_paddle#set_position (10. +. paddle_sizeX /. 2.) (float_of_int (game_height / 2)) ;
+			  right_paddle#set_position ((float_of_int game_width) -. 10. -. paddle_sizeX /. 2.) (float_of_int (game_height / 2)) ;
+			  ball#set_position (float_of_int (game_width / 2)) (float_of_int (game_height / 2))
+			end ;
 		      | _ -> () ) ;
 	    event_loop ()
 	| None -> () 
@@ -90,15 +100,15 @@ let test_pong () =
 	begin
 	  let interpolation = float_of_int (app#get_frame_time ()) in
 	    
-	    if is_key_pressed KeyCode.Up && (snd (left_paddle#get_position ()) > 5.0) 
-	    then left_paddle#move 0.0 (-. !left_paddle_speed *. interpolation /. 1000.0) ;
+	    if is_key_pressed KeyCode.Up && (snd (left_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0) 
+	    then left_paddle#move 0.0 (-. paddle_speed *. interpolation /. 1000.0) ;
 	    
 	  
-	    if is_key_pressed KeyCode.Down && (snd (left_paddle#get_position ()) < (snd app_size -. snd lft_size -. 5.0)) 
-	    then left_paddle#move 0.0 (!left_paddle_speed *. interpolation /. 1000.0) ;
+	    if is_key_pressed KeyCode.Down && (snd (left_paddle#get_position ()) +. (paddle_sizeY /. 2.) < (float_of_int game_height -. 5.0)) 
+	    then left_paddle#move 0.0 (paddle_speed *. interpolation /. 1000.0) ;
 		
-	    if (!right_paddle_speed < 0.0 && (snd (right_paddle#get_position ()) > 5.0)) || 
-	      (!right_paddle_speed > 0.0 && (snd (right_paddle#get_position ()) < (snd app_size -. snd rgt_size -. 5.0)))
+	    if (!right_paddle_speed < 0.0 && (snd (right_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0)) || 
+	      (!right_paddle_speed > 0.0 && (snd (right_paddle#get_position ()) +. (paddle_sizeY /. 2. ) < (float_of_int game_height -. 5.0)))
 	    then right_paddle#move 0.0 (!right_paddle_speed *. interpolation /. 1000.0) ;
 	  
 	    let rgt_pos = right_paddle#get_position () in
@@ -109,16 +119,15 @@ let test_pong () =
 	      then 
 		begin
 		  ai_timer#reset ();
-		  if (!right_paddle_speed < 0.0) && 
-		    ((snd (ball#get_position ()) +. snd ball_size ) > (snd rgt_pos +. snd rgt_size))
-		  then right_paddle_speed := -. !right_paddle_speed;
-		  if (!right_paddle_speed > 0.0) &&
-		    (snd (ball#get_position ()) < snd rgt_pos)
-		  then right_paddle_speed := -. !right_paddle_speed
+		  if (snd (ball#get_position ()) +. ball_radius ) > (snd rgt_pos +. (paddle_sizeY /. 2.))
+		  then right_paddle_speed :=  paddle_speed
+		  else if (snd (ball#get_position ()) -. ball_radius ) < (snd rgt_pos -. (paddle_sizeY /. 2.))
+		  then right_paddle_speed := -. paddle_speed
+		  else right_paddle_speed := 0. ;
 		end;
 	    
 	      (** Update Ball Position **)
-	      let factor = !ball_speed *. interpolation /. 1000.0 in
+	      let factor = ball_speed *. interpolation /. 1000.0 in
 		ball#move ((cos !ball_angle) *. factor) ((sin !ball_angle) *. factor) ;
 		
 		let ball_pos = ball#get_position () in
@@ -126,68 +135,80 @@ let test_pong () =
 		  then 
 		    begin
 		      is_playing := false;
-		      endText#set_string "You lost!\n(press escape to exit)"
+		      pauseMessage#set_string "You lost !\nPress space to restart or\nescape to exit"
 		    end;
-		  if (fst ball_pos +. fst ball_size) > fst app_size
+		  if (fst ball_pos +. ball_radius) > float_of_int game_width
 		  then 
 		    begin
 		      is_playing := false;
-		      endText#set_string "You won!\n(press escape to exit)"
+		      pauseMessage#set_string "You won !\nPress space to restart or\nescape to exit"
 		    end;
-		  if snd ball_pos < 0.0
+		  if (snd ball_pos -. ball_radius) < 0.0
 		  then 
 		    begin
 		      ball_sound#play (); 
 		      ball_angle := -. !ball_angle;
-		      ball#set_y 0.1
+		      ball#set_position (fst ball_pos) (ball_radius +. 0.1)
 		    end;
-		  if (snd ball_pos +. snd ball_size) > snd app_size
+		  if (snd ball_pos +. ball_radius) > float_of_int game_height
 		  then 
 		    begin
 		      ball_sound#play ();
 		      ball_angle := -. !ball_angle;
-		      ball#set_y  (snd app_size -. snd ball_size -. 0.1)
+		      ball#set_position (fst ball_pos)  (float_of_int game_height -. ball_radius -. 0.1)
 		    end;
-		
+		  let ball_pos = ball#get_position () in
 		  (** Check collision between the paddles and the ball **)
-		  if (fst ball_pos  < (fst lft_pos +. fst lft_size)) &&
-		    (fst ball_pos  > (fst lft_pos +. (fst lft_size /. 2.0))) &&
-		    ((snd ball_pos +. snd ball_size) >= snd lft_pos) &&
-           	    (snd ball_pos	<= (snd lft_pos +. snd lft_size))
+		  if ((fst ball_pos -. ball_radius) < (fst lft_pos +. paddle_sizeX /. 2.)) &&
+		     ((fst ball_pos -. ball_radius) >  fst lft_pos) &&
+		     ((snd ball_pos +. ball_radius) >=(snd lft_pos -. paddle_sizeY /. 2.)) &&
+           	     ((snd ball_pos -. ball_radius) <=(snd lft_pos +. paddle_sizeY /. 2.))
 		  then 
 		    begin
+		      if snd ball_pos > snd lft_pos 
+		      then
+			ball_angle := pi -. !ball_angle +. (float_of_int (Random.int 20)) *. pi /. 180.
+		      else
+			ball_angle := pi -. !ball_angle -. (float_of_int (Random.int 20)) *. pi /. 180. ;
+
 		      ball_sound#play (); 
-		      ball_angle := pi -. !ball_angle;
-		      ball#set_x  (fst lft_pos +. fst ball_size +. 0.1)
+		      ball#set_position  (fst lft_pos +. ball_radius +. (paddle_sizeX /. 2.0) +. 0.1) (snd ball_pos)
 		    end ;
 		
-		  if ((fst ball_pos  +. fst ball_size)  >  fst rgt_pos) &&
-		    ((fst ball_pos  +. fst ball_size)  <  (fst rgt_pos +. (fst rgt_size /. 2.0))) &&
-		    ((snd ball_pos  +. snd ball_size)  >= snd rgt_pos) &&
-		    (snd ball_pos <= (snd rgt_pos +. snd rgt_size))
+		  if ((fst ball_pos  +. ball_radius) >  (fst rgt_pos -. paddle_sizeX /. 2.0)) &&
+		     ((fst ball_pos  +. ball_radius) <   fst rgt_pos) &&
+		     ((snd ball_pos  +. ball_radius) >= (snd rgt_pos -. paddle_sizeY /. 2.0)) &&
+		     ((snd ball_pos  -. ball_radius) <= (snd rgt_pos +. paddle_sizeY /. 2.0))
 		  then 
 		    begin
+		      if snd ball_pos > snd rgt_pos 
+		      then
+			ball_angle := pi -. !ball_angle +. (Random.float 20.0) *. pi /. 180.
+		      else
+			ball_angle := pi -. !ball_angle -. (Random.float 20.0) *. pi /. 180. ;
 		      ball_sound#play ();
-		      ball_angle := pi -. !ball_angle;
-		      ball#set_x  (fst rgt_pos -. fst ball_size -. 0.1)
+		      ball#set_position (fst rgt_pos -. ball_radius -. (paddle_sizeX /. 2.) -. 0.1) (snd ball_pos)
 		    end
 	end
 		
     in			
 	
     let draw () =
-      app#clear () ;
-      app#draw background ;
-      app#draw left_paddle ;
-      app#draw right_paddle ;
-      app#draw ball ;
-      if not !is_playing
-      then app#draw endText
+      app#clear ~color:(Color.rgb 50 200 50) () ;
+
+      if !is_playing
+      then begin
+	app#draw left_paddle ;
+	app#draw right_paddle ;
+	app#draw ball
+      end
+      else app#draw pauseMessage ;
     in
       
     let rec main_loop () =
       if app#is_opened()
       then 
+
 	begin
 	  event_loop ();
 	  update ();
@@ -198,20 +219,14 @@ let test_pong () =
     in
       
       main_loop ();
-      ai_timer#destroy ();
       ball_sound#destroy ();
       ball#destroy ();
       right_paddle#destroy ();
-      left_paddle#destroy ();
-      background#destroy ();
-      endText#destroy ();
+      left_paddle#destroy (); 
+      pauseMessage#destroy ();
       ball_sound_buffer#destroy ();
-      left_paddle_texture#destroy ();
-      right_paddle_texture#destroy ();
-      ball_texture#destroy ();
       font#destroy () ;
-      app#destroy () ;
-      background_texture#destroy ()
+      app#destroy ()
 
 let _ = test_pong ()
   

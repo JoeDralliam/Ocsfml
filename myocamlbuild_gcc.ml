@@ -83,34 +83,34 @@ let add_gcc_rules () =
 	  Cmd (S[A ccpp ; A"-g" ; A"-std=c++0x" ; A"-fPIC"; A (get_symbol "cxx_flags" ); T tags;A"-I/usr/local/include"; A"-I/usr/local/lib/ocaml"; A"-c" ; P cpp ; A"-o" ; Px (env "%.o") ])
     end;
 
-    rule "g++ : cpplib -> a" ~dep:"%.cpplib" ~prod:"%.a" begin
+    rule "g++ : cpplib -> a" ~dep:"%(path)/%(libname).cpplib" ~prod:"%(path)/lib%(libname).a" begin
       fun env builder ->
-	let cpplib = env "%.cpplib" in
+	let cpplib = env "%(path)/%(libname).cpplib" in
 	let tags = tags_of_pathname cpplib ++ "archive" ++ "g++" in
 	let o_files = string_list_of_file cpplib in
 	let dir = dirname cpplib in
 	List.iter Outcome.ignore_good (builder (parallel dir o_files));
-	let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%.a"); T tags; A (dir/o) ]) in
+	let ar_cmd o = Cmd ( S [A"ar" ; A"-q" ; Px (env "%(path)/lib%(libname).a"); T tags; A (dir/o) ]) in
 	Seq (List.map ar_cmd o_files)
     end;
       
-    rule "g++ : cpplib -> so" ~dep:"%.cpplib" ~prod:"%.so" begin
+    rule "g++ : cpplib -> so" ~dep:"%(path)/%(libname).cpplib" ~prod:"%(path)/dll%(libname).so" begin
       fun env builder ->
-	let cpplib = env "%.cpplib" in
+	let cpplib = env "%(path)/%(libname).cpplib" in
 	let tags = tags_of_pathname cpplib ++ "shared" ++ "g++" in
 	let o_files = string_list_of_file cpplib in
 	let dir = dirname cpplib in
 	List.iter Outcome.ignore_good (builder (parallel dir o_files));
 	let obtain_spec_obj o = A (dir/o) in
 	let spec_obj_list =(List.map obtain_spec_obj o_files) in
-	Cmd( S[A ccpp ; A"-shared" ; S spec_obj_list ; A"-o" ; Px (env "%.so")] )
+	Cmd( S[A ccpp ; A"-shared" ; S spec_obj_list ; T tags ; A"-o"; Px (env "%(path)/dll%(libname).so")] )
     end
 
 let get_directory s =
   "Ocsfml" ^ (String.capitalize s)
 
 
-let static = true 
+let static = false 
 let debug = true
 let system = "system"
 let window = "window"
@@ -134,6 +134,8 @@ let _ = dispatch begin function
 	let link_prefix = "" in
 	(* let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in *)
 	let verbose = if debug then [A"-verbose"] else [] in
+	let libs_sfml = List.fold_left
+	   (fun l' x -> [A (link_prefix^(get_symbol ("lib"^x)) )] @ l') [] l in
 	let link_libs_ocaml = List.fold_left 
 	  (fun l' x -> [A"-cclib" ; A (link_prefix^(get_symbol ("lib"^x)) )] @ l') [A"-ccopt"; A"-v" (*A"-ccopt"; A libdir*)] l in
 	let d = get_directory s in
@@ -141,11 +143,11 @@ let _ = dispatch begin function
 
 	  (* when a c++ file employ the sfml "s" module is compiled *)
 
-
+	flag["g++" ; "shared"] & S libs_sfml;
 	  (* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	  flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
-            S[A "-cclib"; A("-L./"^d); A"-cclib"; A("-locsfml"^s); A"-cclib"; A("-locsfml"^s); 
-	      A"-cclib"; A"-lthreads"; A"-cclib"; A"-lunix"; A"-cclib"; A ("-l"^(get_symbol "stdlib"))];  
+            S[ A"-cclib" ;  A ("-I\""^d^"\""); A"-dllib"; A("-locsfml"^s); A"-dllib"; A("-locsfml"^s); 
+	      A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"; A"-cclib"; A ("-l"^(get_symbol "stdlib"))];  
 	  
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	  flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
@@ -157,7 +159,7 @@ let _ = dispatch begin function
 
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
 	  dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] [d^"/libocsfml"^s^".a"] ;
-	  dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] [d^"/libocsfml"^s^".so"] ;
+	  dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] [d^"/dllocsfml"^s^".so"] ;
 	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
 	  ocaml_lib (d ^ "/ocsfml" ^ s);
       in 
