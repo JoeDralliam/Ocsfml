@@ -51,7 +51,7 @@ object
   external method play : unit -> unit  = "Play"
   external method pause : unit -> unit = "Pause"
   external method stop : unit -> unit = "Stop"
-  external method get_channels_count : unit -> int = "GetChannelsCount"
+  external method get_channel_count : unit -> int = "GetChannelCount"
   external method get_sample_rate : unit -> int = "GetSampleRate"
   external method get_status : unit -> status = "GetStatus"	     
   external method set_playing_offset : int -> unit = "SetPlayingOffset"
@@ -96,9 +96,9 @@ object auto (_ : 'a)
   external method load_from_samples :  samples_type -> int -> int -> bool = "LoadFromSamples"
   external method save_to_file : string -> bool = "SaveToFile"
   external method get_samples : unit -> samples_type = "GetSamples" 
-  external method get_samples_count : unit -> int = "GetSamplesCount"
+  external method get_sample_count : unit -> int = "GetSampleCount"
   external method get_sample_rate : unit -> int = "GetSampleRate"
-  external method get_channels_count : unit -> int = "GetChannelsCount"
+  external method get_channel_count : unit -> int = "GetChannelCount"
   external method get_duration : unit -> int = "GetDuration"
 end
 

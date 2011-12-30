@@ -46,12 +46,14 @@ let add_gcc_rules () =
       List.map correct deps
   in
 
+(*
   let deps_action dep prod env build = 
     let file = env dep in
     let tags = tags_of_pathname file ++ "g++" in
       Cmd (S [A "g++"; T tags; A "-std=c++0x" ;
-	      A "-MM"; A "-MG"; A "-MF"; Px (env prod); P file])
+      A "-MM"; A "-MG"; A "-MF"; Px (env prod); P file])
   in
+*)
 
     rule "g++ : cpp -> cpp.depends"  
       ~dep:"%.cpp" ~prod:"%.cpp.depends"

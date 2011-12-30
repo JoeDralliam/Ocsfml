@@ -728,7 +728,7 @@ using boost::mpl::int_;
   extern "C"								\
   {									\
     static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
-      BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME() ),		\
+      const_cast<char*>(BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME())), \
       finalize_func,							\
       compare_func,							\
       hash_func,							\

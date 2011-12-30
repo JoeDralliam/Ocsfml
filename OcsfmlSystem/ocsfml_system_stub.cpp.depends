@@ -1,0 +1,2 @@
+ocsfml_system_stub.o: OcsfmlSystem/ocsfml_system_stub.cpp \
+ OcsfmlSystem/ocsfml_system_stub.hpp

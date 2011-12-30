@@ -388,7 +388,7 @@ object
   external method get_fill_color : unit -> Color.t = "GetFillColor"
   external method get_outline_color : unit -> Color.t = "GetOutlineColor"
   external method get_outline_thickness : unit -> float = "GetOutlineThickness"
-  external method get_points_count : unit -> int = "GetPointsCount"
+  external method get_point_count : unit -> int = "GetPointCount"
   external method get_point : int -> float*float = "GetPoint"
   external method get_local_bounds : unit -> float rect = "GetLocalBounds"
   external method get_global_bounds : unit -> float rect = "GetGlobalBounds" 
@@ -433,7 +433,7 @@ object
   constructor from_radius : float = "radius_constructor"
   external method set_radius : float -> unit = "SetRadius"
   external method get_radius : unit -> float = "GetRadius"
-  external method set_points_count : int -> unit = "SetPointsCount"
+  external method set_point_count : int -> unit = "SetPointCount"
 end
 
 class circle_shape ?radius () =
@@ -442,29 +442,30 @@ class circle_shape ?radius () =
     | None -> CircleShape.default () in
     circle_shapeCpp t
 
-let mk_circle_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness ?radius () =
+let mk_circle_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness ?radius ?point_count () =
   let t = new circle_shape ?radius () in
-    mk_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness t ;
-    t
+  mk_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness t ;
+  do_if t#set_point_count point_count ;
+  t
 
 external class convex_shapeCpp (ConvexShape) : "sf_ConvexShape" =
 object
   external inherit shape : "sf_Shape"
   constructor default : unit = "default_constructor"
-  constructor from_points_count : int = "points_constructor"
-  external method set_points_count : int -> unit = "SetPointsCount"
+  constructor from_point_count : int = "point_constructor"
+  external method set_point_count : int -> unit = "SetPointCount"
   external method set_point : int -> float*float -> unit = "SetPoint"
 end
 
-class convex_shape ?points_count () = 
-  let t = match points_count with
-    | Some x -> ConvexShape.from_points_count x
+class convex_shape ?point_count () = 
+  let t = match point_count with
+    | Some x -> ConvexShape.from_point_count x
     | None -> ConvexShape.default () in
     convex_shapeCpp t 
 
 let mk_convex_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness ?points () =
   let t = match points with 
-      | Some l -> new convex_shape ~points_count:(List.length l) ()
+      | Some l -> new convex_shape ~point_count:(List.length l) ()
       | None -> new convex_shape () in
     do_if (fun l -> ignore( List.fold_left (fun idx pos ->( t#set_point idx pos; idx+1) ) 0 l)) points ;
     mk_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness t ;
@@ -580,7 +581,7 @@ external class vertex_arrayCpp (VertexArray) : "sf_VertexArray" =
 object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
-  external method get_vertices_count : unit -> int = "GetVerticesCount"
+  external method get_vertex_count : unit -> int = "GetVertexCount"
   external method set_at_index : int -> vertex -> unit = "SetAtIndex"
   external method get_at_index : int -> vertex = "GetAtIndex"
   external method clear : unit -> unit = "Clear"

@@ -53,7 +53,7 @@ camlpp__register_custom_class()
 	camlpp__register_method0( Play, &sf::SoundStream::Play )
 	camlpp__register_method0( Pause, &sf::SoundStream::Pause )
 	camlpp__register_method0( Stop, &sf::SoundStream::Stop )
-	camlpp__register_method0( GetChannelsCount, &sf::SoundStream::GetChannelsCount )
+	camlpp__register_method0( GetChannelCount, &sf::SoundStream::GetChannelCount )
 	camlpp__register_method0( GetSampleRate, &sf::SoundStream::GetSampleRate )
 	camlpp__register_method0( GetStatus, &sf::SoundStream::GetStatus )
 	camlpp__register_method1( SetPlayingOffset, &sf::SoundStream::SetPlayingOffset )
@@ -89,7 +89,7 @@ bool sound_buffer_load_from_samples_helper( 	sf::SoundBuffer* buffer,
 BigarrayInterface< const sf::Int16, 1 > sound_buffer_get_samples_helper( sf::SoundBuffer* buffer )
 {
 	int size[1];
-	size[0] = buffer->GetSamplesCount();
+	size[0] = buffer->GetSampleCount();
 	return BigarrayInterface< const sf::Int16, 1>(buffer->GetSamples(), size);
 }
 
@@ -104,9 +104,9 @@ camlpp__register_custom_class()
 	camlpp__register_method3( LoadFromSamples, &sound_buffer_load_from_samples_helper )
 	camlpp__register_method1( SaveToFile, &sf::SoundBuffer::SaveToFile )
 	camlpp__register_method0( GetSamples, &sound_buffer_get_samples_helper )
-	camlpp__register_method0( GetSamplesCount, &sf::SoundBuffer::GetSamplesCount )
+	camlpp__register_method0( GetSampleCount, &sf::SoundBuffer::GetSampleCount )
 	camlpp__register_method0( GetSampleRate, &sf::SoundBuffer::GetSampleRate )
-	camlpp__register_method0( GetChannelsCount, &sf::SoundBuffer::GetChannelsCount )
+	camlpp__register_method0( GetChannelCount, &sf::SoundBuffer::GetChannelCount )
 	camlpp__register_method0( GetDuration, &sf::SoundBuffer::GetDuration )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME

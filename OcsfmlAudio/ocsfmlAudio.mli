@@ -100,8 +100,8 @@ module Sound_stream :
     external play : t -> unit = "sf_SoundStream_Play__impl"
     external pause : t -> unit = "sf_SoundStream_Pause__impl"
     external stop : t -> unit = "sf_SoundStream_Stop__impl"
-    external get_channels_count : t -> int
-      = "sf_SoundStream_GetChannelsCount__impl"
+    external get_channel_count : t -> int
+      = "sf_SoundStream_GetChannelCount__impl"
     external get_sample_rate : t -> int
       = "sf_SoundStream_GetSampleRate__impl"
     external get_status : t -> status = "sf_SoundStream_GetStatus__impl"
@@ -119,7 +119,7 @@ class sound_stream :
     val t_sound_stream : Sound_stream.t
     method destroy : unit -> unit
     method get_attenuation : unit -> float
-    method get_channels_count : unit -> int
+    method get_channel_count : unit -> int
     method get_loop : unit -> bool
     method get_min_distance : unit -> float
     method get_pitch : unit -> float
@@ -165,7 +165,7 @@ class musicCpp :
     val t_sound_stream : Sound_stream.t
     method destroy : unit -> unit
     method get_attenuation : unit -> float
-    method get_channels_count : unit -> int
+    method get_channel_count : unit -> int
     method get_duration : unit -> int
     method get_loop : unit -> bool
     method get_min_distance : unit -> float
@@ -212,11 +212,11 @@ module SoundBuffer :
       object
         val t_sound_bufferCpp : t
         method destroy : unit -> unit
-        method get_channels_count : unit -> int
+        method get_channel_count : unit -> int
         method get_duration : unit -> int
+        method get_sample_count : unit -> int
         method get_sample_rate : unit -> int
         method get_samples : unit -> samples_type
-        method get_samples_count : unit -> int
         method load_from_file : string -> bool
         method load_from_samples : samples_type -> int -> int -> bool
         method load_from_stream : OcsfmlSystem.input_stream -> bool
@@ -235,12 +235,12 @@ module SoundBuffer :
       = "sf_SoundBuffer_SaveToFile__impl"
     external get_samples : t -> samples_type
       = "sf_SoundBuffer_GetSamples__impl"
-    external get_samples_count : t -> int
-      = "sf_SoundBuffer_GetSamplesCount__impl"
+    external get_sample_count : t -> int
+      = "sf_SoundBuffer_GetSampleCount__impl"
     external get_sample_rate : t -> int
       = "sf_SoundBuffer_GetSampleRate__impl"
-    external get_channels_count : t -> int
-      = "sf_SoundBuffer_GetChannelsCount__impl"
+    external get_channel_count : t -> int
+      = "sf_SoundBuffer_GetChannelCount__impl"
     external get_duration : t -> int = "sf_SoundBuffer_GetDuration__impl"
   end
 class sound_bufferCpp :
@@ -248,11 +248,11 @@ class sound_bufferCpp :
   object
     val t_sound_bufferCpp : SoundBuffer.t
     method destroy : unit -> unit
-    method get_channels_count : unit -> int
+    method get_channel_count : unit -> int
     method get_duration : unit -> int
+    method get_sample_count : unit -> int
     method get_sample_rate : unit -> int
     method get_samples : unit -> samples_type
-    method get_samples_count : unit -> int
     method load_from_file : string -> bool
     method load_from_samples : samples_type -> int -> int -> bool
     method load_from_stream : OcsfmlSystem.input_stream -> bool

@@ -38,7 +38,7 @@ if(MSVC_VERSION EQUAL 1600) #VC++ 2010
 elseif(CMAKE_COMPILER_IS_GNUCXX)
 	set(GCC_COMPATIBLE_COMPILER 1)
 	set(GCC ${CMAKE_CXX_COMPILER})
-	set(STDLIB "stdc++")
+	set(STDLIB "-lstdc++")
 	set(OBJ_EXTENSION "o")
 	set(LIB_EXTENSION "a")
 	set(CMAKE_CXX_FLAGS "-fpermissive")
@@ -46,7 +46,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(GCC_COMPATIBLE_COMPILER 1)
 	set(GCC "g++")
-	set(STDLIB "c++")
+	set(STDLIB "-lc++ -lstdc++")
 	set(OBJ_EXTENSION "o")
 	set(LIB_EXTENSION "a")
 	set(CMAKE_CXX_FLAGS "-stdlib=libc++")
@@ -137,7 +137,7 @@ add_custom_target(
 #)
 
 macro(ocsfml_library dir name)
-	set(${name} _build/Ocsfml${dir}/ocsfml${name}.cmi _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  _build/Ocsfml${dir}/ocsfml${name}.cma _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} _build/Ocsfml${dir}/ocsfml${name}.cmxa _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} )
+	set(${name} _build/Ocsfml${dir}/ocsfml${dir}.cmi _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  _build/Ocsfml${dir}/ocsfml${name}.cma _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} _build/Ocsfml${dir}/ocsfml${name}.cmxa _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} )
 endmacro()
 
 ocsfml_library(System system) 
@@ -170,12 +170,12 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-#add_custom_target(
-#	uninstall_camlpp
-#	ocamlfind remove "external_cpp"
-#	COMMAND ${CMAKE_COMMAND} -E remove_directory /usr/local/include/camlpp
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	uninstall_external_cpp
+	ocamlfind remove "external_cpp"
+	COMMAND ${CMAKE_COMMAND} -E remove_directory /usr/local/include/camlpp
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
 
 add_custom_target( 
