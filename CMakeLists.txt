@@ -180,7 +180,7 @@ add_custom_target(
 
 add_custom_target( 
 	tests
-	        ocamlbuild -use-ocamlfind Test/test_clock.byte
+	ocamlbuild -use-ocamlfind Test/test_clock.byte
 	COMMAND ocamlbuild -use-ocamlfind Test/test_clock.native
 	COMMAND ocamlbuild -use-ocamlfind Test/test_pong.byte
 	COMMAND ocamlbuild -use-ocamlfind Test/test_pong.native

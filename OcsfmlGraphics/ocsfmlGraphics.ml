@@ -562,10 +562,10 @@ type vertex =
     {
       position : float*float ;
       color : Color.t ;
-      tex_coords : int*int
+      tex_coords : float*float
     }
 
-let mk_vertex ?(position = (0., 0.)) ?(color = Color.white) ?(tex_coords = (0,0)) () =
+let mk_vertex ?(position = (0., 0.)) ?(color = Color.white) ?(tex_coords = (0.,0.)) () =
   { position=position ; color=color ; tex_coords=tex_coords }
 
 type primitive_type =

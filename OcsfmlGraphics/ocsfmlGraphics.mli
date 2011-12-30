@@ -1099,11 +1099,11 @@ val mk_sprite :
 type vertex = {
   position : float * float;
   color : Color.t;
-  tex_coords : int * int;
+  tex_coords : float * float;
 }
 val mk_vertex :
   ?position:float * float ->
-  ?color:Color.t -> ?tex_coords:int * int -> unit -> vertex
+  ?color:Color.t -> ?tex_coords:float * float -> unit -> vertex
 type primitive_type =
     Points
   | Lines

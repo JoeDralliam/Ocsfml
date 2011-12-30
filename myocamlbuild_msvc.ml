@@ -55,62 +55,67 @@ let add_gcc_rules () =
   in
 *)
 
-    rule "g++ : cpp -> cpp.depends"  
-      ~dep:"%.cpp" ~prod:"%.cpp.depends"
-      (deps_action "%.cpp" "%.cpp.depends");
+  let deps_action dep prod env build =
+    let file = "../"^(env dep)^".depends" in
+    Cmd( S [A "cp" ;P file ; Px (env prod)] )
+  in
 
-    rule "g++ : hpp -> hpp.depends" 
-      ~dep:"%.hpp" ~prod:"%.hpp.depends"
-      (deps_action "%.hpp" "%.hpp.depends");
-
+  rule "g++ : cpp -> cpp.depends"  
+    ~dep:"%.cpp" ~prod:"%.cpp.depends"
+    (deps_action "%.cpp" "%.cpp.depends");
+  
+  rule "g++ : hpp -> hpp.depends" 
+    ~dep:"%.hpp" ~prod:"%.hpp.depends"
+    (deps_action "%.hpp" "%.hpp.depends");
+  
 (* rajouter des régles pour .h et .inl *)
 
-    rule "g++ : cpp & cpp.depends -> obj" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.obj" begin 
-      fun env builder ->
-	let cpp = env "%.cpp" in
-	let tags = tags_of_pathname cpp ++ "compile" ++ "cl" in
-	let rec build_transitive_deps = function
-	  | [] -> ()
-	  | (_, []) :: todo -> build_transitive_deps todo
-	  | (path, f :: rest) :: todo ->
-	      if List.mem f path then failwith (err_circular f path) else
-		let deps = parse_deps (f ^ ".depends") in
-		let dep_files = List.map (fun d -> d ^ ".depends") deps in
-		  List.iter Outcome.ignore_good (builder (parallel "" deps));
-		  List.iter Outcome.ignore_good (builder (parallel "" dep_files));
-		  build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
-	in
-	  build_transitive_deps [([],[cpp])];
-	  Cmd (S[A"cl" ; A"/Zi" ; A"/EHsc" ; A"/Zl" ; T tags;A("/I" ^ (get_symbol "boostincludedir" )); A("/I" ^ (get_symbol "includedir" )); A("/I" ^ (get_symbol "camlppincludedir" )); A"/IC:\\ocamlms\\lib"; A"/c" ; P cpp ; A("/Fo"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.obj")))) ])
+  rule "g++ : cpp & cpp.depends -> obj" ~deps:["%.cpp"; "%.cpp.depends"] ~prod:"%.obj" begin 
+    fun env builder ->
+      let cpp = env "%.cpp" in
+      let tags = tags_of_pathname cpp ++ "compile" ++ "cl" in
+      let rec build_transitive_deps = function
+	| [] -> ()
+	| (_, []) :: todo -> build_transitive_deps todo
+	| (path, f :: rest) :: todo ->
+	  if List.mem f path then failwith (err_circular f path) else
+	    let deps = parse_deps (f ^ ".depends") in
+	    let dep_files = List.map (fun d -> d ^ ".depends") deps in
+	    List.iter Outcome.ignore_good (builder (parallel "" deps));
+	    List.iter Outcome.ignore_good (builder (parallel "" dep_files));
+	    build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
+      in
+      build_transitive_deps [([],[cpp])];
+      Cmd (S[A"cl" ; A"/Zi" ; A"/EHsc" ; A"/Zl" ; T tags;A("/I" ^ (get_symbol "boostincludedir" )); A("/I" ^ (get_symbol "includedir" )); A("/I" ^ (get_symbol "camlppincludedir" )); A"/IC:\\ocamlms\\lib"; A"/c" ; P cpp ; A("/Fo"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%.obj")))) ])
     end;
 
-    rule "g++ : cpplib -> lib" ~dep:"%(path)/%(libname).cpplib" ~prod:"%(path)/lib%(libname).lib" begin
-      fun env builder ->
-	let cpplib = env "%(path)/%(libname).cpplib" in
-	let tags = tags_of_pathname cpplib ++ "archive" ++ "cl" in
-	let o_files = string_list_of_file cpplib in 
-	let dir = dirname cpplib in
-	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
-	  let obtain_spec_obj o = A (dir/o) in
-	  let spec_obj_list =(List.map obtain_spec_obj o_files) in
-		Cmd ( S [A"lib" ; A"/NODEFAULTLIB" ; A"/LIBPATH:.\\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%(path)/lib%(libname).lib")))); T tags; S spec_obj_list ])
-    end;
-	
-	rule "g++ : cpplib -> dll" ~dep:"%(path)/%(libname).cpplib" ~prod:"%(path)/dll%(libname).dll" begin
-      fun env builder ->
-	let cpplib = env "%(path)/%(libname).cpplib" in
-	let tags = tags_of_pathname cpplib ++ "shared" ++ "cl" in
-	let o_files = string_list_of_file cpplib in 
-	let dir = dirname cpplib in
-	  List.iter Outcome.ignore_good (builder (parallel dir o_files));
-	  let obtain_spec_obj o = A (dir/o) in
-	  let spec_obj_list =(List.map obtain_spec_obj o_files) in
-		Cmd ( S [A"flexlink";A "-chain"; A "msvc"; A "-o"; Px (env "%(path)/dll%(libname).dll"); S spec_obj_list ; A"-L.\\_build" ; T tags])
-    end
-
+  rule "g++ : cpplib -> lib" ~dep:"%(path)/%(libname).cpplib" ~prod:"%(path)/lib%(libname).lib" begin
+    fun env builder ->
+      let cpplib = env "%(path)/%(libname).cpplib" in
+      let tags = tags_of_pathname cpplib ++ "archive" ++ "cl" in
+      let o_files = string_list_of_file cpplib in 
+      let dir = dirname cpplib in
+      List.iter Outcome.ignore_good (builder (parallel dir o_files));
+      let obtain_spec_obj o = A (dir/o) in
+      let spec_obj_list =(List.map obtain_spec_obj o_files) in
+      Cmd ( S [A"lib" ; A"/NODEFAULTLIB" ; A"/LIBPATH:.\\_build" ; A ("/OUT:"^(Ocamlbuild_pack.Command.string_of_command_spec(Px (env "%(path)/lib%(libname).lib")))); T tags; S spec_obj_list ])
+  end;
+  
+  rule "g++ : cpplib -> dll" ~dep:"%(path)/%(libname).cpplib" ~prod:"%(path)/dll%(libname).dll" begin
+    fun env builder ->
+      let cpplib = env "%(path)/%(libname).cpplib" in
+      let tags = tags_of_pathname cpplib ++ "shared" ++ "cl" in
+      let o_files = string_list_of_file cpplib in 
+      let dir = dirname cpplib in
+      List.iter Outcome.ignore_good (builder (parallel dir o_files));
+      let obtain_spec_obj o = A (dir/o) in
+      let spec_obj_list =(List.map obtain_spec_obj o_files) in
+      Cmd ( S [A"flexlink";A "-chain"; A "msvc"; A "-o"; Px (env "%(path)/dll%(libname).dll"); S spec_obj_list ; A"-L.\\_build" ; T tags])
+  end
+    
 let get_directory s =
   "Ocsfml" ^ (String.capitalize s)
-
+    
 
 let static = false 
 let debug = true
