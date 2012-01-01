@@ -333,7 +333,7 @@ camlpp__register_custom_class()
 	camlpp__register_method0( GetFillColor, &sf::Shape::GetFillColor )
 	camlpp__register_method0( GetOutlineColor, &sf::Shape::GetOutlineColor )
 	camlpp__register_method0( GetOutlineThickness, &sf::Shape::GetOutlineThickness )
-	camlpp__register_method0( GetPointsCount, &sf::Shape::GetPointsCount ) // pure virtual
+	camlpp__register_method0( GetPointCount, &sf::Shape::GetPointCount ) // pure virtual
 	camlpp__register_method1( GetPoint, &sf::Shape::GetPoint ) // pure virtual
 	camlpp__register_method0( GetLocalBounds, &sf::Shape::GetLocalBounds )
 	camlpp__register_method0( GetGlobalBounds, &sf::Shape::GetGlobalBounds )
@@ -360,7 +360,7 @@ camlpp__register_custom_class()
 	camlpp__register_constructor1( radius_constructor, float )
 	camlpp__register_method1( SetRadius, &sf::CircleShape::SetRadius )
 	camlpp__register_method0( GetRadius, &sf::CircleShape::GetRadius )
-	camlpp__register_method1( SetPointsCount, &sf::CircleShape::SetPointsCount )
+	camlpp__register_method1( SetPointCount, &sf::CircleShape::SetPointCount )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
@@ -370,8 +370,8 @@ typedef sf::ConvexShape sf_ConvexShape;
 camlpp__register_custom_class()
 	camlpp__register_inheritance_relationship( sf_Shape )
 	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( points_constructor, int )
-	camlpp__register_method1( SetPointsCount, &sf::ConvexShape::SetPointsCount )
+	camlpp__register_constructor1( point_constructor, int )
+	camlpp__register_method1( SetPointCount, &sf::ConvexShape::SetPointCount )
 	camlpp__register_method2( SetPoint, &sf::ConvexShape::SetPoint )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
@@ -530,7 +530,7 @@ typedef sf::VertexArray sf_VertexArray;
 camlpp__register_custom_class()
 camlpp__register_inheritance_relationship( sf_Drawable )
 camlpp__register_constructor0( default_constructor )
-camlpp__register_method0( GetVerticesCount, &sf::VertexArray::GetVerticesCount )
+camlpp__register_method0( GetVertexCount, &sf::VertexArray::GetVertexCount )
 camlpp__register_method2( SetAtIndex , &vertex_array_set_at_index_helper )
 camlpp__register_method1( GetAtIndex , ((GetAtIndexFunc)&sf::VertexArray::operator[]) )
 camlpp__register_method0( Clear, &sf::VertexArray::Clear )

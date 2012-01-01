@@ -1,0 +1,179 @@
+open Ocamlbuild_plugin
+open Pathname
+
+let lib_extension = "@LIB_EXTENSION@"
+let dll_extension = "@DLL_EXTENSION@" 
+
+let add_compile_rules () =
+  let cpp_compiler = "@CPP_COMPILER@" in
+  
+  let parallel dir files = List.map (fun f -> [dir/f]) files in
+  
+  let err_circular file path =
+    Printf.sprintf "Circular build detected (%s already seen in [%s]"
+      file (String.concat "; " path)
+  in
+
+
+  let parse_deps file =
+    let dir = dirname file in
+    let deps = List.tl (List.tl (string_list_of_file file)) in
+    let deps = List.filter (fun d -> d <> "\\") deps in (* remove \ *)
+    let correct d = if dirname d = dir then d else dir / d in
+    List.map correct deps
+  in
+
+
+  let deps_action dep prod env build =
+    let cmake = "@CMAKE_COMMAND@" in
+    let file = "../"^(env dep)^".depends" in
+    Cmd( S [A cmake;A "-E";A "copy" ; P file ; Px (env prod)] )
+  in
+
+  rule "g++ : cpp -> cpp.depends"  
+    ~dep:"%.cpp" ~prod:"%.cpp.depends"
+    (deps_action "%.cpp" "%.cpp.depends");
+  
+  rule "g++ : hpp -> hpp.depends" 
+    ~dep:"%.hpp" ~prod:"%.hpp.depends"
+    (deps_action "%.hpp" "%.hpp.depends");
+
+
+  let obj_extension = "@OBJ_EXTENSION@" in
+  let match_obj = "%."^obj_extension in
+
+  rule "g++ : cpp & cpp.depends -> (o|obj)" 
+    ~deps:["%.cpp"; "%.cpp.depends"] 
+    ~prod:match_obj begin 
+      fun env builder ->
+	let cpp = env "%.cpp" in
+	let tags = tags_of_pathname cpp ++ "compile" ++ "c++" in
+	let rec build_transitive_deps = function
+	  | [] -> ()
+	  | (_, []) :: todo -> build_transitive_deps todo
+	  | (path, f :: rest) :: todo ->
+	      if List.mem f path then failwith (err_circular f path) else
+		let deps = parse_deps (f ^ ".depends") in
+		let dep_files = List.map (fun d -> d ^ ".depends") deps in
+		List.iter Outcome.ignore_good (builder (parallel "" deps));
+		List.iter Outcome.ignore_good (builder (parallel "" dep_files));
+		build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
+	in
+	build_transitive_deps [([],[cpp])];
+	let obj_name = env match_obj in
+	let obj_flag = "@OBJ_FLAG@"^obj_name in
+	Cmd (S[A cpp_compiler ; @COMPILATION_FLAGS@ ; T tags ; P cpp ;A obj_flag ])
+    end;
+
+  let match_cpplib = "%(path)/%(libname).cpplib" in
+  let match_staticlib = "%(path)/lib%(libname)."^lib_extension in
+
+  rule "g++ : cpplib -> (a|lib)" ~dep:match_cpplib ~prod:match_staticlib begin
+    fun env builder ->
+      let cpplib = env match_cpplib in
+      let staticlib = env match_staticlib in
+      let tags = tags_of_pathname cpplib ++ "archive" ++ "c++" in
+      let o_files = string_list_of_file cpplib in
+      let dir = dirname cpplib in
+      let lib_mk = "@LIB_MAKER@" in
+      let lib_flag = "@LIB_FLAG@" in
+      List.iter Outcome.ignore_good (builder (parallel dir o_files));
+      let make_archive () =
+	let ar_cmd o = Cmd ( S [A lib_mk ; A lib_flag ; Px staticlib; T tags; A (dir/o) ]) in
+	Seq (List.map ar_cmd o_files)
+      in
+      let make_library () =
+	let obtain_spec_obj o = A (dir/o) in
+	let spec_obj_list =(List.map obtain_spec_obj o_files) in
+	Cmd(S[A lib_mk ;@LINKING_LIB_FLAGS@; A (lib_flag^staticlib); T tags; S spec_obj_list ])
+      in
+      @MAKE_STATIC_COMMAND@ () 
+  end;
+  
+  let match_dynamiclib = "%(path)/dll%(libname)."^dll_extension in
+
+  rule "g++ : cpplib -> (so|dll)" ~dep:match_cpplib ~prod:match_dynamiclib begin
+    fun env builder ->
+      let linker = "@DLL_LINKER@" in
+      let cpplib = env match_cpplib in
+      let dynamiclib = env match_dynamiclib in
+      let tags = tags_of_pathname cpplib ++ "shared" ++ "c++" in
+      let o_files = string_list_of_file cpplib in
+      let dir = dirname cpplib in
+      List.iter Outcome.ignore_good (builder (parallel dir o_files));
+      let obtain_spec_obj o = A (dir/o) in
+      let spec_obj_list =(List.map obtain_spec_obj o_files) in
+      Cmd( S[A linker ; @LINKING_DLL_FLAGS@  ; S spec_obj_list ; T tags ; A"-o"; Px dynamiclib] )
+  end
+
+let get_directory s =
+  "Ocsfml" ^ (String.capitalize s)
+    
+let static = false 
+let debug = true
+let system = "@SFML_SYSTEM@"
+let window = "@SFML_WINDOW@"
+let graphics = "@SFML_GRAPHICS@"
+let audio = "@SFML_AUDIO@"
+let network = "@SFML_NETWORK@"
+let includedir = "-I" ^ "@SFML_DIR@"
+let libs = [
+  "system", [system] ; 
+  "window", [system ; window] ;
+  "graphics", [system ; window ; graphics] ;
+  "audio", [system ; audio ] ;
+  "network", [system ; network ] ; 
+]
+;; 
+
+let _ = dispatch begin function 
+  | Before_rules ->  
+      let create_libs_flags (s,l) = 
+	(* let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in *)
+	let verbose = if debug then [A"-verbose"] else [] in
+	let libs_sfml = List.fold_left
+	  (fun l' x -> [ A x ] @ l') [@LINK_STDLIB@] l in
+	let link_libs_ocaml = List.fold_left 
+	  (fun l' x -> [A "-cclib" ; A x ] @ l') [(*A"-ccopt"; A libdir*)] l in
+	let d = get_directory s in
+	(*  List.iter (fun x -> dep ["g++"] [(get_directory x)^"/"^x^"_stub.hpp"]) l ; *)
+
+	(* when a c++ file employ the sfml "s" module is compiled *)
+	
+	flag["c++" ; "shared"] & S libs_sfml;
+	(* when we link an ocaml bytecode target with the c++ lib "s" *) 
+	flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
+	  S([ A"-dllib"; A("-locsfml"^s);
+	      A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"] 
+	    @[A"-cclib"; @LINK_STDLIB@]);  
+	
+	  (* when we link an ocaml native target with the c++ lib "s" *)
+	flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
+	  S(verbose
+	    @[A"-cclib"; A("-locsfml"^s) ;
+	      A "-cclib";A "-lthreads"; A "-cclib"; A "-lunix"]  
+	    @[A "-ccopt";  @OCSFML_LINKPATH@ ]
+	    @[A "-cclib"; @LINK_STDLIB@ ]); 
+	
+	  (* when we link an ocaml file against the sfml "s" module *)
+	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
+	  
+	  (* if the c++ "s" lib is employed we add it to the dependencies *)
+	  dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] [d^"/libocsfml"^s^"."^lib_extension] ;
+	  dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] [d^"/dllocsfml"^s^"."^dll_extension] ;
+	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
+	  ocaml_lib (d ^ "/ocsfml" ^ s);
+      in 
+      add_compile_rules () ;
+      let includepath_flag = "@INCLUDEPATH_FLAG@" in
+      flag [ "c++" ; "compile" ] & A(includepath_flag^"@SFML_DIR@" ) ;
+      flag [ "c++" ; "compile" ] & A(includepath_flag^"@BOOST_DIR@") ;
+      flag [ "c++" ; "compile" ] & A(includepath_flag^"@OCAML_DIR@") ;
+	(*dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["camlpp/ExternalCpp/pa_cpp_external.cma"] ;
+	  flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"camlpp/ExternalCpp/pa_cpp_external.cma"] ;*)
+      List.iter create_libs_flags libs ;
+	(* If `static' is true then every ocaml link in bytecode will add -custom *)
+      if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
+  | _ -> ()
+end
+

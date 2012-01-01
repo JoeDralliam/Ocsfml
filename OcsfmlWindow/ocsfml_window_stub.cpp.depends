@@ -1,0 +1,2 @@
+ocsfml_window_stub.o: OcsfmlWindow/ocsfml_window_stub.cpp \
+ ocsfml_window_stub.hpp

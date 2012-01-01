@@ -25,46 +25,73 @@ set( BOOST_DIR ${Boost_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" 
 set( OCAML_DIR ${OCAML_LIB_DIR} CACHE PATH "Ocaml 'include' directory path (where 'caml' directory is)" )
 set( OCAMLPP_DIR ${CMAKE_SOURCE_DIR}/camlpp )
 
-message("${CMAKE_CXX_COMPILER_ID}")
+set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 
 if(MSVC_VERSION EQUAL 1600) #VC++ 2010
 	set(MSVC_COMPATIBLE_COMPILER 1)
-	set(GCC "g++")
-	set(STDLIB "nostdlib")
+	set(LIB_MAKER "lib")
+	set(DLL_LINKER "flexlink")
+	set(LINK_STDLIB "A \"\"")
+	set(OBJ_FLAG "/Fo")
+	set(LIB_FLAG "/OUT:")
+	set(INCLUDEPATH_FLAG "/I")
+	set(COMPILATION_FLAGS "A \"/EHsc\" ; A \"/c\"")
+	set(LINKING_LIB_FLAGS "A \"/NODEFAULTLIB\" ; A \"/LIBPATH:./build\"")
+	set(LINKING_DLL_FLAGS "A \"-chain\" ; A \"msvc\" ; A \"-L./build\"")
+	set(MAKE_STATIC_COMMAND "make_library")
 	set(OBJ_EXTENSION "obj")
 	set(LIB_EXTENSION "lib")
-	set(CMAKE_CXX_FLAGS "/nologo") #dummy flag
-	configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild_msvc.ml ${CMAKE_SOURCE_DIR}/myocamlbuild.ml COPYONLY)
+	set(OCSFML_LINKPATH "A \"/LINKPATH:${OCAML_DIR}/site-lib/ocsfml\"")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
 	set(GCC_COMPATIBLE_COMPILER 1)
-	set(GCC ${CMAKE_CXX_COMPILER})
-	set(STDLIB "stdc++")
+	set(LIB_MAKER "ar")
+	set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
+	set(LINK_STDLIB "A \"-lstdc++\"")
+	set(OBJ_FLAG "-o")
+	set(LIB_FLAG "-q")
+	set(INCLUDEPATH_FLAG "-I")
+	set(COMPILATION_FLAGS "A \"-fPIC\" ; A \"-O3\"; A \"-std=c++0x\" ; A \"-fpermissive\" ; A \"-c\"")
+	set(LINKING_LIB_FLAGS "A \"\"")
+	set(LINKING_DLL_FLAGS "A \"-shared\"")
+	set(MAKE_STATIC_COMMAND "make_archive")
 	set(OBJ_EXTENSION "o")
 	set(LIB_EXTENSION "a")
-	set(CMAKE_CXX_FLAGS "-fpermissive")
-	configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild_gcc.ml ${CMAKE_SOURCE_DIR}/myocamlbuild.ml COPYONLY)
+	set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(GCC_COMPATIBLE_COMPILER 1)
-	set(GCC "g++")
-	set(STDLIB "c++")
+	set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
+	set(LIB_MAKER "ar")
+	set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
+	set(LINK_STDLIB "A \"-lc++\"")
+	set(OBJ_FLAG "-o")
+	set(LIB_FLAG "-q")
+	set(INCLUDEPATH_FLAG "-I")
+	set(COMPILATION_FLAGS "A \"-fPIC\" ;A \"-O3\";A \"-std=c++0x\" ;A \"-stdlib=libc++\"; A \"-c\"")
+	set(LINKING_LIB_FLAGS "A \"\"")
+	set(LINKING_DLL_FLAGS "A \"-shared\"; A \"-flat_namespace\" ; A\"-undefined\" ; A \"suppress\"")
+	set(MAKE_STATIC_COMMAND "make_archive")
 	set(OBJ_EXTENSION "o")
 	set(LIB_EXTENSION "a")
-	set(CMAKE_CXX_FLAGS "-stdlib=libc++")
-	configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild_gcc.ml ${CMAKE_SOURCE_DIR}/myocamlbuild.ml COPYONLY)
+	set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(DLL_EXTENSION "dylib")
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "-framework \\1" SFML_SYSTEM "${SFML_SYSTEM}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "-framework \\1" SFML_WINDOW "${SFML_WINDOW}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "-framework \\1" SFML_GRAPHICS "${SFML_GRAPHICS}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "-framework \\1" SFML_NETWORK "${SFML_NETWORK}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "-framework \\1" SFML_AUDIO "${SFML_AUDIO}" )
+  set(DLL_EXTENSION "so")
+ # set( COMPILATION_FLAGS "${COMPILATION_FLAGS}; A \"-arch\" ; A \"${CMAKE_OSX_ARCHITECTURES}\"")
+ # set( LINKING_DLL_FLAGS "${LINKING_DLL_FLAGS}; A \"-arch\"; A \"${CMAKE_OSX_ARCHITECTURES}\"")
+  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_SYSTEM}/\\1" SFML_SYSTEM "${SFML_SYSTEM}" )
+  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_WINDOW}/\\1" SFML_WINDOW "${SFML_WINDOW}" )
+  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_GRAPHICS}/\\1" SFML_GRAPHICS "${SFML_GRAPHICS}" )
+  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_NETWORK}/\\1" SFML_NETWORK "${SFML_NETWORK}" )
+  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_AUDIO}/\\1" SFML_AUDIO "${SFML_AUDIO}" )
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(DLL_EXTENSION "so")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(DLL_EXTENSION "dll")
 endif()
+
+
+configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild.ml.in ${CMAKE_SOURCE_DIR}/myocamlbuild.ml)
 
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_system_stub.hpp COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfml_system_stub.hpp COPYONLY)
@@ -73,7 +100,6 @@ configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_S
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_window_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfml_window_stub.hpp COPYONLY)
 
 configure_file(${CMAKE_SOURCE_DIR}/_tags.in ${CMAKE_SOURCE_DIR}/_tags)
-configure_file(${CMAKE_SOURCE_DIR}/config.in ${CMAKE_SOURCE_DIR}/config )
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfmlsystem.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfmlsystem.cpplib)
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfmlwindow.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfmlwindow.cpplib)
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfmlgraphics.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfmlgraphics.cpplib)
@@ -137,7 +163,7 @@ add_custom_target(
 #)
 
 macro(ocsfml_library dir name)
-	set(${name} _build/Ocsfml${dir}/ocsfml${name}.cmi _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  _build/Ocsfml${dir}/ocsfml${name}.cma _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} _build/Ocsfml${dir}/ocsfml${name}.cmxa _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} )
+	set(${name} _build/Ocsfml${dir}/ocsfml${dir}.cmi _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  _build/Ocsfml${dir}/ocsfml${name}.cma _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} _build/Ocsfml${dir}/ocsfml${name}.cmxa _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} )
 endmacro()
 
 ocsfml_library(System system) 
@@ -170,17 +196,17 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-#add_custom_target(
-#	uninstall_camlpp
-#	ocamlfind remove "external_cpp"
-#	COMMAND ${CMAKE_COMMAND} -E remove_directory /usr/local/include/camlpp
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	uninstall_external_cpp
+	ocamlfind remove "external_cpp"
+	COMMAND ${CMAKE_COMMAND} -E remove_directory /usr/local/include/camlpp
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
 
 add_custom_target( 
 	tests
-	        ocamlbuild -use-ocamlfind Test/test_clock.byte
+	ocamlbuild -use-ocamlfind Test/test_clock.byte
 	COMMAND ocamlbuild -use-ocamlfind Test/test_clock.native
 	COMMAND ocamlbuild -use-ocamlfind Test/test_pong.byte
 	COMMAND ocamlbuild -use-ocamlfind Test/test_pong.native

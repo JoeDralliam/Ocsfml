@@ -1,0 +1,2 @@
+ocsfml_network_stub.o: OcsfmlNetwork/ocsfml_network_stub.cpp \
+ ocsfml_network_stub.hpp

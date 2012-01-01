@@ -659,7 +659,7 @@ module Shape :
       = "sf_Shape_GetOutlineColor__impl"
     external get_outline_thickness : t -> float
       = "sf_Shape_GetOutlineThickness__impl"
-    external get_points_count : t -> int = "sf_Shape_GetPointsCount__impl"
+    external get_point_count : t -> int = "sf_Shape_GetPointCount__impl"
     external get_point : t -> int -> float * float
       = "sf_Shape_GetPoint__impl"
     external get_local_bounds : t -> float rect
@@ -682,7 +682,7 @@ class shape :
     method get_outline_color : unit -> Color.t
     method get_outline_thickness : unit -> float
     method get_point : int -> float * float
-    method get_points_count : unit -> int
+    method get_point_count : unit -> int
     method get_position : unit -> float * float
     method get_rotation : unit -> float
     method get_scale : unit -> float * float
@@ -751,7 +751,7 @@ class rectangle_shapeCpp :
     method get_outline_color : unit -> Color.t
     method get_outline_thickness : unit -> float
     method get_point : int -> float * float
-    method get_points_count : unit -> int
+    method get_point_count : unit -> int
     method get_position : unit -> float * float
     method get_rotation : unit -> float
     method get_scale : unit -> float * float
@@ -806,8 +806,8 @@ module CircleShape :
     external set_radius : t -> float -> unit
       = "sf_CircleShape_SetRadius__impl"
     external get_radius : t -> float = "sf_CircleShape_GetRadius__impl"
-    external set_points_count : t -> int -> unit
-      = "sf_CircleShape_SetPointsCount__impl"
+    external set_point_count : t -> int -> unit
+      = "sf_CircleShape_SetPointCount__impl"
   end
 class circle_shapeCpp :
   CircleShape.t ->
@@ -825,7 +825,7 @@ class circle_shapeCpp :
     method get_outline_color : unit -> Color.t
     method get_outline_thickness : unit -> float
     method get_point : int -> float * float
-    method get_points_count : unit -> int
+    method get_point_count : unit -> int
     method get_position : unit -> float * float
     method get_radius : unit -> float
     method get_rotation : unit -> float
@@ -847,7 +847,7 @@ class circle_shapeCpp :
     method set_origin_v : float * float -> unit
     method set_outline_color : Color.t -> unit
     method set_outline_thickness : float -> unit
-    method set_points_count : int -> unit
+    method set_point_count : int -> unit
     method set_position : float -> float -> unit
     method set_position_v : float * float -> unit
     method set_radius : float -> unit
@@ -868,7 +868,8 @@ val mk_circle_shape :
   ?texture_rect:int rect ->
   ?fill_color:Color.t ->
   ?outline_color:Color.t ->
-  ?outline_thickness:float -> ?radius:float -> unit -> circle_shape
+  ?outline_thickness:float ->
+  ?radius:float -> ?point_count:int -> unit -> circle_shape
 module ConvexShape :
   sig
     type t
@@ -876,10 +877,10 @@ module ConvexShape :
     external to_shape : t -> Shape.t
       = "upcast__sf_Shape_of_sf_ConvexShape__impl"
     external default : unit -> t = "sf_ConvexShape_default_constructor__impl"
-    external from_points_count : int -> t
-      = "sf_ConvexShape_points_constructor__impl"
-    external set_points_count : t -> int -> unit
-      = "sf_ConvexShape_SetPointsCount__impl"
+    external from_point_count : int -> t
+      = "sf_ConvexShape_point_constructor__impl"
+    external set_point_count : t -> int -> unit
+      = "sf_ConvexShape_SetPointCount__impl"
     external set_point : t -> int -> float * float -> unit
       = "sf_ConvexShape_SetPoint__impl"
   end
@@ -899,7 +900,7 @@ class convex_shapeCpp :
     method get_outline_color : unit -> Color.t
     method get_outline_thickness : unit -> float
     method get_point : int -> float * float
-    method get_points_count : unit -> int
+    method get_point_count : unit -> int
     method get_position : unit -> float * float
     method get_rotation : unit -> float
     method get_scale : unit -> float * float
@@ -921,7 +922,7 @@ class convex_shapeCpp :
     method set_outline_color : Color.t -> unit
     method set_outline_thickness : float -> unit
     method set_point : int -> float * float -> unit
-    method set_points_count : int -> unit
+    method set_point_count : int -> unit
     method set_position : float -> float -> unit
     method set_position_v : float * float -> unit
     method set_rotation : float -> unit
@@ -931,7 +932,7 @@ class convex_shapeCpp :
       ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
     method set_texture_rect : int rect -> unit
   end
-class convex_shape : ?points_count:int -> unit -> convex_shapeCpp
+class convex_shape : ?point_count:int -> unit -> convex_shapeCpp
 val mk_convex_shape :
   ?position:float * float ->
   ?scale:float * float ->
@@ -1098,11 +1099,11 @@ val mk_sprite :
 type vertex = {
   position : float * float;
   color : Color.t;
-  tex_coords : int * int;
+  tex_coords : float * float;
 }
 val mk_vertex :
   ?position:float * float ->
-  ?color:Color.t -> ?tex_coords:int * int -> unit -> vertex
+  ?color:Color.t -> ?tex_coords:float * float -> unit -> vertex
 type primitive_type =
     Points
   | Lines
@@ -1118,8 +1119,8 @@ module VertexArray :
     external to_drawable : t -> Drawable.t
       = "upcast__sf_Drawable_of_sf_VertexArray__impl"
     external default : unit -> t = "sf_VertexArray_default_constructor__impl"
-    external get_vertices_count : t -> int
-      = "sf_VertexArray_GetVerticesCount__impl"
+    external get_vertex_count : t -> int
+      = "sf_VertexArray_GetVertexCount__impl"
     external set_at_index : t -> int -> vertex -> unit
       = "sf_VertexArray_SetAtIndex__impl"
     external get_at_index : t -> int -> vertex
@@ -1144,7 +1145,7 @@ class vertex_arrayCpp :
     method get_at_index : int -> vertex
     method get_bounds : unit -> float rect
     method get_primitive_type : unit -> primitive_type
-    method get_vertices_count : unit -> int
+    method get_vertex_count : unit -> int
     method rep__sf_Drawable : Drawable.t
     method rep__sf_VertexArray : VertexArray.t
     method resize : int -> unit

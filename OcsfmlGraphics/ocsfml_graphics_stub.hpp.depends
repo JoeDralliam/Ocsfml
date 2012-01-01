@@ -1,0 +1,2 @@
+ocsfml_graphics_stub.o: OcsfmlGraphics/ocsfml_graphics_stub.hpp \
+ ocsfml_system_stub.hpp ocsfml_window_stub.hpp
