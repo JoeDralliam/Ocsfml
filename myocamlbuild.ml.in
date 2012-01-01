@@ -132,7 +132,7 @@ let _ = dispatch begin function
 	(* let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in *)
 	let verbose = if debug then [A"-verbose"] else [] in
 	let libs_sfml = List.fold_left
-	  (fun l' x -> [A "-cclib" ; A x ] @ l') [@LINK_STDLIB@] l in
+	  (fun l' x -> [ A x ] @ l') [@LINK_STDLIB@] l in
 	let link_libs_ocaml = List.fold_left 
 	  (fun l' x -> [A "-cclib" ; A x ] @ l') [(*A"-ccopt"; A libdir*)] l in
 	let d = get_directory s in
@@ -145,7 +145,7 @@ let _ = dispatch begin function
 	flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
 	  S([ A"-dllib"; A("-locsfml"^s);
 	      A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"] 
-	    @ [@LINK_STDLIB@]);  
+	    @[A"-cclib"; @LINK_STDLIB@]);  
 	
 	  (* when we link an ocaml native target with the c++ lib "s" *)
 	flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
@@ -153,7 +153,7 @@ let _ = dispatch begin function
 	    @[A"-cclib"; A("-locsfml"^s) ;
 	      A "-cclib";A "-lthreads"; A "-cclib"; A "-lunix"]  
 	    @[A "-ccopt";  @OCSFML_LINKPATH@ ]
-	    @[ @LINK_STDLIB@ ]); 
+	    @[A "-cclib"; @LINK_STDLIB@ ]); 
 	
 	  (* when we link an ocaml file against the sfml "s" module *)
 	  flag ["ocaml" ; "link" ;  "use_sfml_"^s ] & S link_libs_ocaml;
@@ -166,8 +166,9 @@ let _ = dispatch begin function
       in 
       add_compile_rules () ;
       let includepath_flag = "@INCLUDEPATH_FLAG@" in
-      flag [ "c++" ; "include_boost"] & A(includepath_flag^"@BOOST_DIR@") ;
-      flag [ "c++" ; "include_caml"]  & A(includepath_flag^"@OCAML_DIR@") ;
+      flag [ "c++" ; "compile" ] & A(includepath_flag^"@SFML_DIR@" ) ;
+      flag [ "c++" ; "compile" ] & A(includepath_flag^"@BOOST_DIR@") ;
+      flag [ "c++" ; "compile" ] & A(includepath_flag^"@OCAML_DIR@") ;
 	(*dep [ "use_cpp_external" ; "ocaml" ; "ocamldep" ] ["camlpp/ExternalCpp/pa_cpp_external.cma"] ;
 	  flag [ "use_cpp_external" ; "ocaml" ; "pp" ] & S[A"camlp4o"; A"-printer"; A"o"; A"camlpp/ExternalCpp/pa_cpp_external.cma"] ;*)
       List.iter create_libs_flags libs ;
