@@ -31,22 +31,22 @@ if(MSVC_VERSION EQUAL 1600) #VC++ 2010
 	set(MSVC_COMPATIBLE_COMPILER 1)
 	set(LIB_MAKER "lib")
 	set(DLL_LINKER "flexlink")
-	set(LINK_STDLIB "A \"\"")
+	set(LINK_STDLIB "S []")
 	set(OBJ_FLAG "/Fo")
 	set(LIB_FLAG "/OUT:")
 	set(INCLUDEPATH_FLAG "/I")
-	set(COMPILATION_FLAGS "A \"/EHsc\" ; A \"/c\"")
+	set(COMPILATION_FLAGS "A \"/MD\" ; A \"/I${OCAMLPP_DIR}\" ; A \"/EHsc\" ; A \"/c\"")
 	set(LINKING_LIB_FLAGS "A \"/NODEFAULTLIB\" ; A \"/LIBPATH:./build\"")
 	set(LINKING_DLL_FLAGS "A \"-chain\" ; A \"msvc\" ; A \"-L./build\"")
 	set(MAKE_STATIC_COMMAND "make_library")
 	set(OBJ_EXTENSION "obj")
 	set(LIB_EXTENSION "lib")
-	set(OCSFML_LINKPATH "A \"/LINKPATH:${OCAML_DIR}/site-lib/ocsfml\"")
-elseif(CMAKE_COMPILER_IS_GNUCXX)
+	set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
+	elseif(CMAKE_COMPILER_IS_GNUCXX)
 	set(GCC_COMPATIBLE_COMPILER 1)
 	set(LIB_MAKER "ar")
 	set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
-	set(LINK_STDLIB "A \"-lstdc++\"")
+	set(LINK_STDLIB "A \"-cclib\" ; A \"-lstdc++\"")
 	set(OBJ_FLAG "-o")
 	set(LIB_FLAG "-q")
 	set(INCLUDEPATH_FLAG "-I")
@@ -62,7 +62,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 	set(LIB_MAKER "ar")
 	set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
-	set(LINK_STDLIB "A \"-lc++\"")
+	set(LINK_STDLIB "A \"-cclib\" ; A \"-lc++\"")
 	set(OBJ_FLAG "-o")
 	set(LIB_FLAG "-q")
 	set(INCLUDEPATH_FLAG "-I")
@@ -106,58 +106,60 @@ configure_file(${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfmlgraphics.cpplib.in ${CMA
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlAudio/ocsfmlaudio.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlAudio/ocsfmlaudio.cpplib)
 configure_file(${CMAKE_SOURCE_DIR}/OcsfmlNetwork/ocsfmlnetwork.cpplib.in ${CMAKE_SOURCE_DIR}/OcsfmlNetwork/ocsfmlnetwork.cpplib)
 
+set(OCAMLBUILD_COMMAND "ocamlbuild")
+
 add_custom_target( 
 	clear
-	ocamlbuild -clean
+	${OCAMLBUILD_COMMAND} -clean
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(
 	ocsfml
-	ALL	ocamlbuild -use-ocamlfind ocsfmlsystem.cma
-	COMMAND ocamlbuild -use-ocamlfind ocsfmlsystem.cmxa
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlwindow.cma
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlwindow.cmxa
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlgraphics.cma 
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlgraphics.cmxa
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlnetwork.cma
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlaudio.cma
-	COMMAND	ocamlbuild -use-ocamlfind ocsfmlaudio.cmxa
+	ALL	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.cma
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.cmxa
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.cma
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.cmxa
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.cma 
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.cmxa
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.cma
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.cmxa
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.cma
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.cmxa
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 #add_custom_target(
 #	infer_system
-#		ocamlbuild -use-ocamlfind ocsfmlSystem.inferred.mli 
+#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlSystem.inferred.mli 
 #	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
 
 #add_custom_target(
 #	infer_window
-#		ocamlbuild -use-ocamlfind ocsfmlWindow.inferred.mli 
+#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlWindow.inferred.mli 
 #	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
 
 #add_custom_target(
 #	infer_graphics
-#		ocamlbuild -use-ocamlfind ocsfmlGraphics.inferred.mli 
+#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlGraphics.inferred.mli 
 #	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
 
 #add_custom_target(
 #	infer_network
-#		ocamlbuild -use-ocamlfind ocsfmlNetwork.inferred.mli 
+#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlNetwork.inferred.mli 
 #	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlNetwork/ocsfmlNetwork.inferred.mli OcsfmlNetwork/ocsfmlNetwork.mli
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
 
 #add_custom_target(
 #	infer_audio
-#	ocamlbuild -use-ocamlfind ocsfmlAudio.inferred.mli 
+#	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlAudio.inferred.mli 
 #	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
@@ -185,7 +187,7 @@ add_custom_target(
 
 add_custom_target(
 	external_cpp
-	ocamlbuild -use-ocamlfind ./camlpp/ExternalCpp/pa_cpp_external.cma
+	${OCAMLBUILD_COMMAND} -use-ocamlfind ./camlpp/ExternalCpp/pa_cpp_external.cma
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )	
 
@@ -206,15 +208,15 @@ add_custom_target(
 
 add_custom_target( 
 	tests
-	ocamlbuild -use-ocamlfind Test/test_clock.byte
-	COMMAND ocamlbuild -use-ocamlfind Test/test_clock.native
-	COMMAND ocamlbuild -use-ocamlfind Test/test_pong.byte
-	COMMAND ocamlbuild -use-ocamlfind Test/test_pong.native
-	COMMAND ocamlbuild -use-ocamlfind Test/test_shader.byte
-	COMMAND ocamlbuild -use-ocamlfind Test/test_shader.native 
-	COMMAND ocamlbuild -use-ocamlfind Test/test_sockets.byte
-	COMMAND ocamlbuild -use-ocamlfind Test/test_sockets.native 
-#	COMMAND ocamlbuild -use-ocamlfind Test/test_audio.byte
-#	COMMAND ocamlbuild -use-ocamlfind Test/test_audio.native
+	${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.native
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.d.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.native
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.d.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.native 
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.native 
+#	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.byte
+#	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.native
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
