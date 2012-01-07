@@ -23,34 +23,37 @@ set( SFML_AUDIO ${SFML_AUDIO_LIBRARY_RELEASE} CACHE FILEPATH "SFML system librar
 set( SFML_NETWORK ${SFML_NETWORK_LIBRARY_RELEASE} CACHE FILEPATH "SFML system library path" )
 set( BOOST_DIR ${Boost_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" )
 set( OCAML_DIR ${OCAML_LIB_DIR} CACHE PATH "Ocaml 'include' directory path (where 'caml' directory is)" )
-set( OCAMLPP_DIR ${CMAKE_SOURCE_DIR}/camlpp )
 
 set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 
 if(MSVC_VERSION EQUAL 1600) #VC++ 2010
-	set(MSVC_COMPATIBLE_COMPILER 1)
+	set(MSVC_COMPATIBLE_COMPILER 1) 
+	set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/Ocsfml/Include")
+	set(TESTS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/Ocsfml/Test")
 	set(LIB_MAKER "lib")
 	set(DLL_LINKER "flexlink")
 	set(LINK_STDLIB "S []")
 	set(OBJ_FLAG "/Fo")
 	set(LIB_FLAG "/OUT:")
 	set(INCLUDEPATH_FLAG "/I")
-	set(COMPILATION_FLAGS "A \"/MD\" ; A \"/I${OCAMLPP_DIR}\" ; A \"/EHsc\" ; A \"/c\"")
+	set(COMPILATION_FLAGS "A \"/MD\" ; A \"/I${EXTERNAL_CPP_INSTALL_PREFIX}\" ; A \"/EHsc\" ; A \"/c\"")
 	set(LINKING_LIB_FLAGS "A \"/NODEFAULTLIB\" ; A \"/LIBPATH:./build\"")
 	set(LINKING_DLL_FLAGS "A \"-chain\" ; A \"msvc\" ; A \"-L./build\"")
 	set(MAKE_STATIC_COMMAND "make_library")
 	set(OBJ_EXTENSION "obj")
 	set(LIB_EXTENSION "lib")
 	set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
-	elseif(CMAKE_COMPILER_IS_GNUCXX)
-	set(GCC_COMPATIBLE_COMPILER 1)
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+	set(GCC_COMPATIBLE_COMPILER 1) 
+	set(TESTS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/share/Ocsfml")
+	set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/include/Ocsfml")
 	set(LIB_MAKER "ar")
 	set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
 	set(LINK_STDLIB "A \"-cclib\" ; A \"-lstdc++\"")
 	set(OBJ_FLAG "-o")
 	set(LIB_FLAG "-q")
 	set(INCLUDEPATH_FLAG "-I")
-	set(COMPILATION_FLAGS "A \"-fPIC\" ; A \"-O3\"; A \"-std=c++0x\" ; A \"-fpermissive\" ; A \"-c\"")
+	set(COMPILATION_FLAGS "A \"-fPIC\" ; A \"-O3\"; A \"-I${EXTERNAL_CPP_INSTALL_PREFIX}\"; A \"-std=c++0x\" ; A \"-fpermissive\" ; A \"-c\"")
 	set(LINKING_LIB_FLAGS "A \"\"")
 	set(LINKING_DLL_FLAGS "A \"-shared\"")
 	set(MAKE_STATIC_COMMAND "make_archive")
@@ -58,7 +61,9 @@ if(MSVC_VERSION EQUAL 1600) #VC++ 2010
 	set(LIB_EXTENSION "a")
 	set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	set(GCC_COMPATIBLE_COMPILER 1)
+	set(GCC_COMPATIBLE_COMPILER 1) 
+	set(TESTS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/share/Ocsfml")
+	set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/include/Ocsfml")
 	set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 	set(LIB_MAKER "ar")
 	set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
@@ -66,7 +71,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(OBJ_FLAG "-o")
 	set(LIB_FLAG "-q")
 	set(INCLUDEPATH_FLAG "-I")
-	set(COMPILATION_FLAGS "A \"-fPIC\" ;A \"-O3\";A \"-std=c++0x\" ;A \"-stdlib=libc++\"; A \"-c\"")
+	set(COMPILATION_FLAGS "A \"-fPIC\" ;A \"-O3\"; A \"-I${EXTERNAL_CPP_INSTALL_PREFIX}\";A \"-std=c++0x\" ;A \"-stdlib=libc++\"; A \"-c\"")
 	set(LINKING_LIB_FLAGS "A \"\"")
 	set(LINKING_DLL_FLAGS "A \"-shared\"; A \"-flat_namespace\" ; A\"-undefined\" ; A \"suppress\"")
 	set(MAKE_STATIC_COMMAND "make_archive")
@@ -194,14 +199,14 @@ add_custom_target(
 add_custom_target(
 	install_external_cpp
 	ocamlfind install "external_cpp" camlpp/ExternalCpp/META _build/camlpp/ExternalCpp/pa_cpp_external.cma _build/camlpp/ExternalCpp/pa_cpp_external.cmi _build/camlpp/ExternalCpp/synthese.cmi _build/camlpp/ExternalCpp/cppExternalAst.cmi
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ./camlpp/camlpp "/usr/local/include/camlpp"
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ./camlpp/camlpp "${EXTERNAL_CPP_INSTALL_PREFIX}/camlpp"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(
 	uninstall_external_cpp
 	ocamlfind remove "external_cpp"
-	COMMAND ${CMAKE_COMMAND} -E remove_directory /usr/local/include/camlpp
+	COMMAND ${CMAKE_COMMAND} -E remove_directory "${EXTERNAL_CPP_INSTALL_PREFIX}/camlpp"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
@@ -210,13 +215,19 @@ add_custom_target(
 	tests
 	${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.byte
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.native
-	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.d.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.byte
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.native
-	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.d.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.byte
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.native 
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.byte
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.native 
 #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.byte
 #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.native
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+add_custom_target(
+	install_tests
+	${CMAKE_COMMAND} -E copy_directory ./_build/Test "${TESTS_INSTALL_PREFIX}/Test"
+	COMMAND ${CMAKE_COMMAND} -E copy_directory resources "${TESTS_INSTALL_PREFIX}/Test/resources"
 )
