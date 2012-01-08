@@ -2,11 +2,77 @@ Ocsfml -  an OCaml port of the C++ SFML library (version >= 2.0)
 
 Require :
   - SFML >= 2.0
-  - OCaml >= 3.12
+  - OCaml >= 3.12 
   - cmake >= 2.8
   - findlib >= 1.2.7
-
+  - a C++ compiler having a minimal support of C++11 
+    (Tested with :
+    	Linux :
+	 - gcc 4.6.1
+	 - clang 2.9
+	OS X (10.7) :
+	 - gcc 4.5
+	 - clang 2.9
+	Windows :
+	 - VC++ 10 ) 
+   - boost
+   - flexlink (only on Windows)
 
 Install :
 
+1) Configuration
+The configuration tool is cmake.
+When running cmake ocamlc must in the PATH environment variable.
+Following instructions will assume that you are in the cmake build directory.
 
+2) Compiling and installing Ocsfml
+
+Ocsfml use a preprocessor library (external_cpp) to facilitate C++/OCaml binding.
+Thus, you must first compile and install it; then you could compile ocsfml itself.
+Target to build are (in the same order) :
+  * external_cpp
+  * install_external_cpp
+  * all
+  * install
+
+For instance :
+
+- With make :
+make external_cpp
+sudo make install_external_cpp
+make
+sudo make install
+
+- With nmake :
+nmake external_cpp
+nmake install_external_cpp
+nmake 
+nmake install
+
+
+3) Compiling and installing the tests [optional]
+You may want to tests Ocsfml. Build the targets 'tests' and 'install_tests'.
+Native and byte-code executable should be installed in CMAKE_INSTALL_PREFIX/share/Ocsfml/Test (on Unix) or CMAKE_INSTALL_PREFIX/Ocsfml/Test (on Windows)
+
+4) Using Ocsfml in Ocaml top-level
+Ocsfml may be used in the ocaml top-level :
+
+#use "topfind" ;;
+#require "ocsfml.graphics" ;;
+open OcsfmlWindow ;;
+open OcsfmlGraphics ;;
+let vm = VideoMode.({width = 400 ; height = 400 ; bits_per_pixel = 32 }) ;;
+let app = new render_window vm "Ocsfml Window" ;;
+let shape = mk_circle_shape ~radius:50. ~fill_color:Color.yellow ~outline_color:Color.blue ~outline_thickness:10. ~position:(100., 100.) ();;
+app#clear () ;;
+app#draw shape ;;
+app#display () ;;
+
+Don't forget to release allocated object :
+
+shape#destroy () ;;
+app#destroy () ;;
+
+5) Integrating Ocsfml in Ocamlbuild toolchain
+Add '-use-ocamlfind' flag when invoking ocamlbuild.
+In your _tags file, specify package( ocsfml.LLL ) with LLL the lower-case name of one of the SFML module (system, window, graphics, audio or network)

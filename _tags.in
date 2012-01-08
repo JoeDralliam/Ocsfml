@@ -33,8 +33,8 @@
 <OcsfmlNetwork/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork
 <OcsfmlNetwork/*.ml> : syntax(camlp4o), package(external_cpp)
 
-<Test/test_clock.{{d.n,}byte,native}> : use_ocsfmlsystem
-<Test/test_audio.{{d.,}byte,native}> : use_ocsfmlaudio, use_ocsfmlsystem, package( bigarray )
-<Test/test_pong.{{d.,}byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlaudio, use_ocsfmlsystem, package( bigarray )
-<Test/test_shader.{{d.,}byte,native}> : use_ocsfmlgraphics, use_ocsfmlwindow, use_ocsfmlsystem
-<Test/test_sockets.{{d.,}byte,native}> : use_ocsfmlnetwork, use_ocsfmlsystem
+<Test/test_clock.{{d.n,}byte,native}> : package( ocsfml.system )
+<Test/test_audio.{{d.,}byte,native}> : package( ocsfml.audio )
+<Test/test_pong.{{d.,}byte,native}> : package( ocsfml.graphics ), package( ocsfml.audio )
+<Test/test_shader.{{d.,}byte,native}> : package( ocsfml.graphics )
+<Test/test_sockets.{{d.,}byte,native}> : package( ocsfml.network )
