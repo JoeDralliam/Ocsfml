@@ -38,3 +38,4 @@
 <Test/test_pong.{{d.,}byte,native}> : package( ocsfml.graphics ), package( ocsfml.audio )
 <Test/test_shader.{{d.,}byte,native}> : package( ocsfml.graphics )
 <Test/test_sockets.{{d.,}byte,native}> : package( ocsfml.network )
+<Test/w.{{d.,}byte,native}> : package( ocsfml.graphics ), package( unix )

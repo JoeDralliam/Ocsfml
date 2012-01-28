@@ -141,19 +141,19 @@ add_custom_target(
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 #)
 
-#add_custom_target(
-#	infer_window
-#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlWindow.inferred.mli 
-#	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	infer_window
+		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlWindow.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlWindow/ocsfmlWindow.inferred.mli OcsfmlWindow/ocsfmlWindow.mli
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
-#add_custom_target(
-#	infer_graphics
-#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlGraphics.inferred.mli 
-#	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	infer_graphics
+		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlGraphics.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlGraphics/ocsfmlGraphics.inferred.mli OcsfmlGraphics/ocsfmlGraphics.mli
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
 #add_custom_target(
 #	infer_network
@@ -221,6 +221,8 @@ add_custom_target(
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.native 
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.byte
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.native 
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/w.byte
+	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/w.native 
 #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.byte
 #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.native
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -237,7 +239,9 @@ add_custom_target(
 	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_shader.native "${TESTS_INSTALL_PREFIX}/Test/"
 	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_shader.byte "${TESTS_INSTALL_PREFIX}/Test/"
 	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.native "${TESTS_INSTALL_PREFIX}/Test/"
-	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.byte "${TESTS_INSTALL_PREFIX}/Test/" 
+	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.byte "${TESTS_INSTALL_PREFIX}/Test/"
+	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/w.native "${TESTS_INSTALL_PREFIX}/Test/"
+	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/w.byte "${TESTS_INSTALL_PREFIX}/Test/" 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory resources "${TESTS_INSTALL_PREFIX}/Test/resources"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

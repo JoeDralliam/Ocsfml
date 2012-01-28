@@ -215,7 +215,7 @@ module Window :
       ?context:context_settings -> VideoMode.t -> string -> unit
       = "sf_Window_Create__impl"
     external close : t -> unit = "sf_Window_Close__impl"
-    external is_opened : t -> bool = "sf_Window_IsOpened__impl"
+    external is_open : t -> bool = "sf_Window_IsOpen__impl"
     external get_width : t -> int = "sf_Window_GetWidth__impl"
     external get_height : t -> int = "sf_Window_GetHeight__impl"
     external get_settings : t -> context_settings
@@ -258,7 +258,7 @@ class windowCpp :
     method get_settings : unit -> context_settings
     method get_size : unit -> int * int
     method get_width : unit -> int
-    method is_opened : unit -> bool
+    method is_open : unit -> bool
     method poll_event : unit -> Event.t option
     method rep__sf_Window : Window.t
     method set_active : bool -> bool

@@ -206,7 +206,7 @@ let test_pong () =
     in
       
     let rec main_loop () =
-      if app#is_opened()
+      if app#is_open()
       then 
 
 	begin

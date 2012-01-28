@@ -252,7 +252,7 @@ object (self)
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
   external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"
   external method close : unit -> unit = "Close"
-  external method is_opened : unit -> bool = "IsOpened"
+  external method is_open : unit -> bool = "IsOpen"
   external method get_width : unit -> int = "GetWidth"
   external method get_height : unit -> int = "GetHeight"
   method get_size () = self#get_width (), self#get_height ()

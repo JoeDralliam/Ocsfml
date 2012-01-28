@@ -292,7 +292,7 @@ let _ =
       app#clear ~color:(Color.rgb 255 128 0 ) () ; 
       draw_scene () ;
       app#display() ;
-      if app#is_opened () then main_loop ()
+      if app#is_open () then main_loop ()
     in
       main_loop() ;
       

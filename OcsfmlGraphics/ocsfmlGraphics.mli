@@ -610,7 +610,7 @@ class render_windowCpp :
     method get_view : unit -> view
     method get_viewport : unit -> int rect
     method get_width : unit -> int
-    method is_opened : unit -> bool
+    method is_open : unit -> bool
     method poll_event : unit -> OcsfmlWindow.Event.t option
     method pop_gl_states : unit -> unit
     method push_gl_states : unit -> unit
