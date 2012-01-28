@@ -96,11 +96,10 @@ let test_pong () =
     in
 
     let update () =
+      let interpolation = Time.as_seconds( global_clock#restart ()) in
       if !is_playing 
       then 
 	begin
-	  let interpolation = Time.as_seconds( global_clock#restart ()) in
-	  
 	  if is_key_pressed KeyCode.Up && (snd (left_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0) 
 	  then left_paddle#move 0.0 (-. paddle_speed *. interpolation) ;
 	  
