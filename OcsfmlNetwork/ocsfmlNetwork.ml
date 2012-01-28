@@ -14,7 +14,7 @@ module IPAddress =
 struct
   include IPAddressCPP
   external cpp get_local_address : unit -> ip_address = "sf_IpAddress_GetLocalAddress"
-  external cpp get_public_address : ?timeout:int -> unit -> ip_address = "sf_IpAddress_GetPublicAddress"
+  external cpp get_public_address : ?timeout:OcsfmlSystem.Time.t -> unit -> ip_address = "sf_IpAddress_GetPublicAddress"
   let none = new ip_address (default ())
   let localhost = new ip_address (from_string "127.0.0.1")
   let equal x y = x#rep__sf_IpAddress = y#rep__sf_IpAddress
@@ -121,7 +121,7 @@ struct
   external class ftp (Ftp) : "sf_Ftp" =
   object 
     constructor default : unit = "default_constructor"
-    external method connect : ?port:int -> ?timeout:int -> ip_address -> response = "Connect"
+    external method connect : ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response = "Connect"
     external method disconnect : unit -> response = "Disconnect"
     external method login : ?log:string*string -> unit -> response = "Login"
     external method keep_alive : unit -> response = "KeepAlive"
@@ -210,7 +210,7 @@ struct
     constructor from_host : string = "host_constructor"
     constructor from_host_and_port : string -> int = "host_and_port_constructor"
     external method set_host : ?port:int -> string -> unit = "SetHost"
-    external method send_request : ?timeout:int -> request -> response = "SendRequest"
+    external method send_request : ?timeout:OcsfmlSystem.Time.t -> request -> response = "SendRequest"
   end
 
 end
@@ -320,7 +320,7 @@ object auto (_:'self)
   external method add : 'a. (#socket as 'a) -> unit = "Add"
   external method remove : 'a. (#socket as 'a) -> unit = "Remove"
   external method clear : unit -> unit = "Clear"
-  external method wait : ?timeout:int -> unit -> unit = "Wait"
+  external method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit = "Wait"
   external method is_ready : 'a. (#socket as 'a) -> bool = "IsReady"
   external method set : 'self -> 'self = "Affect"
 end
@@ -332,7 +332,7 @@ object
   external method get_local_port : unit -> int = "GetLocalPort"
   external method get_remote_address : unit -> ip_address = "GetRemoteAddress"
   external method get_remote_port : unit -> int = "GetRemotePort"
-  external method connect : ?timeout:int -> ip_address -> int -> socket_status = "Connect"
+  external method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status = "Connect"
   external method disconnect : unit -> unit = "Disconnect"
   external method send_packet : 'a. (#packet as 'a) -> socket_status = "SendPacket"
   external method receive_packet :'a. (#packet as 'a) -> socket_status = "ReceivePacket"

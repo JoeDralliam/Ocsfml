@@ -85,7 +85,7 @@ public:
 template<>
 struct ConversionManagement< CamlInputStream >
 {
-	CamlInputStream from_value( value& v)
+	CamlInputStream from_value( value & v)
 	{
 	  return CamlInputStream(v);
 	}
@@ -94,6 +94,30 @@ struct ConversionManagement< CamlInputStream >
 template<>
 class ConversionManagement< sf::InputStream& > : public ConversionManagement< CamlInputStream& >
 {};
+
+template<>
+struct ConversionManagement< sf::Time >
+{
+  ConversionManagement<int> cm_;
+  sf::Time from_value( value & v)
+  {
+    return sf::Microseconds( cm_.from_value(v));
+  }
+};
+
+template<>
+struct AffectationManagement< sf::Time >
+{
+  static void affect( value & v, sf::Time t )
+  {
+    AffectationManagement<int>::affect(v, t.AsMicroseconds());
+  }
+
+  static void affect_field( value & v, int field, sf::Time t )
+  {
+    AffectationManagement<int>::affect_field(v, field, t.AsMicroseconds());
+  }
+};
 
 template<class T>
 struct ConversionManagement< sf::Vector2<T> >

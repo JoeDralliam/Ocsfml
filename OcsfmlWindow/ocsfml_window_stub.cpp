@@ -85,7 +85,7 @@ camlpp__register_preregistered_custom_class()
 	camlpp__register_method1( SetActive, &window_set_active_helper )
 	camlpp__register_method0( Display, &sf::Window::Display )
 	camlpp__register_method1( SetFramerateLimit, &sf::Window::SetFramerateLimit )
-	camlpp__register_method0( GetFrameTime, &sf::Window::GetFrameTime )
+//	camlpp__register_method0( GetFrameTime, &sf::Window::GetFrameTime )
 	camlpp__register_method1( SetJoystickThreshold, &sf::Window::SetJoystickThreshold )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME	

@@ -270,7 +270,7 @@ object (self)
   external method set_active : bool -> bool = "SetActive" 
   external method display : unit -> unit = "Display"
   external method set_framerate_limit : int -> unit = "SetFramerateLimit"
-  external method get_frame_time : unit -> int = "GetFrameTime" 
+(*  external method get_frame_time : unit -> int = "GetFrameTime"  *)
   external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
 end
 

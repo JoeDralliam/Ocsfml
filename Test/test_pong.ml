@@ -66,6 +66,7 @@ let test_pong () =
   let paddle_speed = 400.0 in
   let right_paddle_speed = ref 0.0 in
 
+  let global_clock = new clock in
   let ball_speed = 400.0 in
   let ball_angle =
     let angle = acos ((Random.float 0.3) +. 0.7) in
@@ -98,27 +99,27 @@ let test_pong () =
       if !is_playing 
       then 
 	begin
-	  let interpolation = float_of_int (app#get_frame_time ()) in
-	    
-	    if is_key_pressed KeyCode.Up && (snd (left_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0) 
-	    then left_paddle#move 0.0 (-. paddle_speed *. interpolation /. 1000.0) ;
-	    
+	  let interpolation = Time.as_seconds( global_clock#restart ()) in
 	  
-	    if is_key_pressed KeyCode.Down && (snd (left_paddle#get_position ()) +. (paddle_sizeY /. 2.) < (float_of_int game_height -. 5.0)) 
-	    then left_paddle#move 0.0 (paddle_speed *. interpolation /. 1000.0) ;
-		
-	    if (!right_paddle_speed < 0.0 && (snd (right_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0)) || 
-	      (!right_paddle_speed > 0.0 && (snd (right_paddle#get_position ()) +. (paddle_sizeY /. 2. ) < (float_of_int game_height -. 5.0)))
-	    then right_paddle#move 0.0 (!right_paddle_speed *. interpolation /. 1000.0) ;
+	  if is_key_pressed KeyCode.Up && (snd (left_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0) 
+	  then left_paddle#move 0.0 (-. paddle_speed *. interpolation) ;
 	  
-	    let rgt_pos = right_paddle#get_position () in
-			  
-	    let lft_pos = left_paddle#get_position () in
-
-	      if ai_timer#get_elapsed_time () > ai_time
+	  
+	  if is_key_pressed KeyCode.Down && (snd (left_paddle#get_position ()) +. (paddle_sizeY /. 2.) < (float_of_int game_height -. 5.0)) 
+	  then left_paddle#move 0.0 (paddle_speed *. interpolation) ;
+	  
+	  if (!right_paddle_speed < 0.0 && (snd (right_paddle#get_position ()) -. (paddle_sizeY /. 2.) > 5.0)) || 
+	    (!right_paddle_speed > 0.0 && (snd (right_paddle#get_position ()) +. (paddle_sizeY /. 2. ) < (float_of_int game_height -. 5.0)))
+	  then right_paddle#move 0.0 (!right_paddle_speed *. interpolation) ;
+	  
+	  let rgt_pos = right_paddle#get_position () in
+	  
+	  let lft_pos = left_paddle#get_position () in
+	  
+	      if Time.as_milliseconds (ai_timer#get_elapsed_time ()) > ai_time
 	      then 
 		begin
-		  ai_timer#reset ();
+		  ai_timer#restart ();
 		  if (snd (ball#get_position ()) +. ball_radius ) > (snd rgt_pos +. (paddle_sizeY /. 2.))
 		  then right_paddle_speed :=  paddle_speed
 		  else if (snd (ball#get_position ()) -. ball_radius ) < (snd rgt_pos -. (paddle_sizeY /. 2.))
@@ -127,7 +128,7 @@ let test_pong () =
 		end;
 	    
 	      (** Update Ball Position **)
-	      let factor = ball_speed *. interpolation /. 1000.0 in
+	      let factor = ball_speed *. interpolation in
 		ball#move ((cos !ball_angle) *. factor) ((sin !ball_angle) *. factor) ;
 		
 		let ball_pos = ball#get_position () in

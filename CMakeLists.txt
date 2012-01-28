@@ -134,12 +134,12 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-#add_custom_target(
-#	infer_system
-#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlSystem.inferred.mli 
-#	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	infer_system
+		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlSystem.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlSystem/ocsfmlSystem.inferred.mli OcsfmlSystem/ocsfmlSystem.mli
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
 add_custom_target(
 	infer_window
@@ -155,19 +155,19 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-#add_custom_target(
-#	infer_network
-#		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlNetwork.inferred.mli 
-#	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlNetwork/ocsfmlNetwork.inferred.mli OcsfmlNetwork/ocsfmlNetwork.mli
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	infer_network
+		${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlNetwork.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlNetwork/ocsfmlNetwork.inferred.mli OcsfmlNetwork/ocsfmlNetwork.mli
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
-#add_custom_target(
-#	infer_audio
-#	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlAudio.inferred.mli 
-#	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli
-#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#)
+add_custom_target(
+	infer_audio
+	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlAudio.inferred.mli 
+	COMMAND	${CMAKE_COMMAND} -E copy _build/OcsfmlAudio/ocsfmlAudio.inferred.mli OcsfmlAudio/ocsfmlAudio.mli
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
 macro(ocsfml_library dir name)
 	set(${name} _build/Ocsfml${dir}/ocsfml${dir}.cmi _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  _build/Ocsfml${dir}/ocsfml${name}.cma _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} _build/Ocsfml${dir}/ocsfml${name}.cmxa _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} )

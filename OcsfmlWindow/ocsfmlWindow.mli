@@ -237,7 +237,6 @@ module Window :
     external display : t -> unit = "sf_Window_Display__impl"
     external set_framerate_limit : t -> int -> unit
       = "sf_Window_SetFramerateLimit__impl"
-    external get_frame_time : t -> int = "sf_Window_GetFrameTime__impl"
     external set_joystick_threshold : t -> float -> unit
       = "sf_Window_SetJoystickThreshold__impl"
   end
@@ -253,7 +252,6 @@ class windowCpp :
     method display : unit -> unit
     method enable_key_repeat : bool -> unit
     method enable_vertical_sync : bool -> unit
-    method get_frame_time : unit -> int
     method get_height : unit -> int
     method get_settings : unit -> context_settings
     method get_size : unit -> int * int

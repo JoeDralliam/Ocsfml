@@ -34,7 +34,8 @@ module IPAddress :
     external to_integer : t -> int = "sf_IpAddress_ToInteger__impl"
     external get_local_address : unit -> ip_address
       = "sf_IpAddress_GetLocalAddress__impl"
-    external get_public_address : ?timeout:int -> unit -> ip_address
+    external get_public_address :
+      ?timeout:OcsfmlSystem.Time.t -> unit -> ip_address
       = "sf_IpAddress_GetPublicAddress__impl"
     val none : ip_address
     val localhost : ip_address
@@ -171,7 +172,8 @@ module FTP :
         external destroy : t -> unit = "sf_Ftp_destroy__impl"
         external default : unit -> t = "sf_Ftp_default_constructor__impl"
         external connect :
-          t -> ?port:int -> ?timeout:int -> ip_address -> response
+          t ->
+          ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response
           = "sf_Ftp_Connect__impl"
         external disconnect : t -> response = "sf_Ftp_Disconnect__impl"
         external login : t -> ?log:string * string -> unit -> response
@@ -204,7 +206,8 @@ module FTP :
       object
         val t_ftp : Ftp.t
         method change_directory : string -> response
-        method connect : ?port:int -> ?timeout:int -> ip_address -> response
+        method connect :
+          ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response
         method create_directory : string -> response
         method delete_directory : string -> response
         method delete_file : string -> response
@@ -320,7 +323,8 @@ module HTTP :
           = "sf_Http_host_and_port_constructor__impl"
         external set_host : t -> ?port:int -> string -> unit
           = "sf_Http_SetHost__impl"
-        external send_request : t -> ?timeout:int -> request -> response
+        external send_request :
+          t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
           = "sf_Http_SendRequest__impl"
       end
     class http :
@@ -329,7 +333,8 @@ module HTTP :
         val t_http : Http.t
         method destroy : unit -> unit
         method rep__sf_Http : Http.t
-        method send_request : ?timeout:int -> request -> response
+        method send_request :
+          ?timeout:OcsfmlSystem.Time.t -> request -> response
         method set_host : ?port:int -> string -> unit
       end
   end
@@ -467,7 +472,7 @@ module SocketSelector :
         method remove : #socket -> unit
         method rep__sf_SocketSelector : t
         method set : 'a -> 'a
-        method wait : ?timeout:int -> unit -> unit
+        method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit
       end
     external destroy : t -> unit = "sf_SocketSelector_destroy__impl"
     external default : unit -> t
@@ -475,7 +480,7 @@ module SocketSelector :
     external add : t -> #socket -> unit = "sf_SocketSelector_Add__impl"
     external remove : t -> #socket -> unit = "sf_SocketSelector_Remove__impl"
     external clear : t -> unit = "sf_SocketSelector_Clear__impl"
-    external wait : t -> ?timeout:int -> unit -> unit
+    external wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> unit
       = "sf_SocketSelector_Wait__impl"
     external is_ready : t -> #socket -> bool
       = "sf_SocketSelector_IsReady__impl"
@@ -492,7 +497,7 @@ class socket_selector :
     method remove : #socket -> unit
     method rep__sf_SocketSelector : SocketSelector.t
     method set : 'a -> 'a
-    method wait : ?timeout:int -> unit -> unit
+    method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit
   end
 module TcpSocket :
   sig
@@ -506,7 +511,7 @@ module TcpSocket :
       = "sf_TcpSocket_GetRemoteAddress__impl"
     external get_remote_port : t -> int = "sf_TcpSocket_GetRemotePort__impl"
     external connect :
-      t -> ?timeout:int -> ip_address -> int -> socket_status
+      t -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
       = "sf_TcpSocket_Connect__impl"
     external disconnect : t -> unit = "sf_TcpSocket_Disconnect__impl"
     external send_packet : t -> #packet -> socket_status
@@ -519,7 +524,8 @@ class tcp_socketCpp :
   object
     val t_socket : Socket.t
     val t_tcp_socketCpp : TcpSocket.t
-    method connect : ?timeout:int -> ip_address -> int -> socket_status
+    method connect :
+      ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
     method destroy : unit -> unit
     method disconnect : unit -> unit
     method get_local_port : unit -> int

@@ -32,7 +32,7 @@ typedef sf::Clock sf_Clock;
 camlpp__register_custom_class_and_ops( CAMLPP__DEFAULT_FINALIZE() , custom_compare_default , custom_hash_default , custom_serialize_default, custom_deserialize_default)
 	camlpp__register_constructor0( default_constructor )
 	camlpp__register_method0( GetElapsedTime, &sf::Clock::GetElapsedTime )
-	camlpp__register_method0( Reset, &sf::Clock::Reset )
+	camlpp__register_method0( Restart, &sf::Clock::Restart )
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 

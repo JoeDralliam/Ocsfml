@@ -276,7 +276,7 @@ let _ =
       let y = 
 	(float_of_int (snd (Mouse.get_relative_position app))) /. 
 	  (float_of_int ( app#get_height ())) in
-	effects.(!current)#update ((float_of_int (timer#get_elapsed_time ())) /. 1000.) x y
+	effects.(!current)#update (Time.as_seconds (timer#restart ())) x y
     in
       
     let draw_scene () =

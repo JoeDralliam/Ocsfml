@@ -4,11 +4,35 @@ let do_if f = function
     | Some x -> f x
     | None -> ()
 
+
+module Time =
+struct
+  type t = int
+      
+  let as_seconds (time:t) =
+    (float_of_int time) /. 1000000.
+      
+  let as_milliseconds (time:t) =
+    time / 1000
+      
+  let as_microseconds (time:t) =
+    time
+      
+  let seconds s =
+    int_of_float (s *. 1000000.)
+      
+  let milliseconds m = 
+    m * 1000
+      
+  let microseconds m =
+    m
+end
+
 external class clockCpp (Clock): "sf_Clock" =
 object
   constructor create : unit = "default_constructor"
-  external method get_elapsed_time : unit -> int = "GetElapsedTime"
-  external method reset : unit -> unit = "Reset"
+  external method get_elapsed_time : unit -> Time.t = "GetElapsedTime"
+  external method restart : unit -> Time.t = "Restart"
 end
 
 class clock_bis () = 

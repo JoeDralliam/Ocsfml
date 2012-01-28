@@ -603,7 +603,6 @@ class render_windowCpp :
     method enable_key_repeat : bool -> unit
     method enable_vertical_sync : bool -> unit
     method get_default_view : unit -> view
-    method get_frame_time : unit -> int
     method get_height : unit -> int
     method get_settings : unit -> OcsfmlWindow.context_settings
     method get_size : unit -> int * int

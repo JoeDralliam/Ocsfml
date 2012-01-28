@@ -22,7 +22,7 @@ camlpp__custom_class_registered()
 
 sf::IpAddress ipaddress_get_public_address_helper( Optional<sf::Uint32> timeout, UnitTypeHolder )
 {
-	return sf::IpAddress::GetPublicAddress( timeout.get_value_no_fail( 0 ) );
+  return sf::IpAddress::GetPublicAddress(sf::Microseconds( timeout.get_value_no_fail( 0 ) ) );
 }
 
 extern "C"
@@ -85,7 +85,12 @@ sf::Ftp::Response ftp_connect_helper( 	sf::Ftp* obj,
 					Optional<sf::Uint32> timeout, 
 					const sf::IpAddress& server)
 {
-	return obj->Connect( server, port.get_value_no_fail(21), timeout.get_value_no_fail(0) );
+	return obj->Connect
+	  (
+	   server, 
+	   port.get_value_no_fail(21), 
+	   sf::Microseconds(timeout.get_value_no_fail(0)) 
+	  );
 }
 
 sf::Ftp::Response ftp_login_helper( sf::Ftp* obj,
@@ -191,7 +196,11 @@ sf::Http::Response http_send_request_helper( 	sf::Http* obj,
 						Optional< sf::Uint32 > timeout,
 						sf::Http::Request const& request )
 {
-	return obj->SendRequest( request, timeout.get_value_no_fail( 0 ) );
+  return obj->SendRequest
+    ( 
+     request, 
+     sf::Microseconds( timeout.get_value_no_fail( 0) ) 
+    );
 }
 
 typedef sf::Http sf_Http;
@@ -297,7 +306,7 @@ camlpp__custom_class_registered()
 bool socketselector_wait_helper( sf::SocketSelector* obj,
 				 Optional<sf::Uint32> timeout, UnitTypeHolder )
 {
-	return obj->Wait( timeout.get_value_no_fail( 0 ) );
+  return obj->Wait( sf::Microseconds( timeout.get_value_no_fail( 0 ) ) );
 }
 
 typedef sf::SocketSelector sf_SocketSelector;
@@ -321,7 +330,7 @@ sf::Socket::Status tcpsocket_connect_helper( 	sf::TcpSocket* obj,
 						unsigned short remotePort )
 {
 	return obj->Connect( 	remoteAddress, remotePort,
-				timeout.get_value_no_fail( 0 ) );
+				sf::Microseconds( timeout.get_value_no_fail( 0 )));
 }
 
 typedef sf::TcpSocket sf_TcpSocket;
