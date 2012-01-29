@@ -7,22 +7,22 @@ let do_if f = function
 
 module Time =
 struct
-  type t = int
+  type t = int64
       
   let as_seconds (time:t) =
-    (float_of_int time) /. 1000000.
+    (Int64.to_float time) /. 1000000.
       
   let as_milliseconds (time:t) =
-    time / 1000
+    (Int64.to_int time) / 1000
       
   let as_microseconds (time:t) =
     time
       
   let seconds s =
-    int_of_float (s *. 1000000.)
+    Int64.of_float (s *. 1000000.)
       
   let milliseconds m = 
-    m * 1000
+    Int64.of_int (m * 1000)
       
   let microseconds m =
     m
@@ -42,8 +42,8 @@ class clock_bis () =
 class clock =
   clock_bis ()
 
-(*external cpp sleep : int -> unit = "sf_Sleep"
-
+external cpp sleep : Time.t -> unit = "sf_Sleep"
+(*
 type func0 = unit -> unit
 
 external class threadCpp (Thread) : "sf_Thread" =

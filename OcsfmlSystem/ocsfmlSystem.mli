@@ -5,10 +5,10 @@ module Time :
     type t
     val as_seconds : t -> float
     val as_milliseconds : t -> int
-    val as_microseconds : t -> t
+    val as_microseconds : t -> int64
     val seconds : float -> t
     val milliseconds : int -> t
-    val microseconds : int -> t
+    val microseconds : int64 -> t
   end
 module Clock :
   sig
@@ -36,3 +36,4 @@ class virtual input_stream :
     method virtual seek : int -> int
     method virtual tell : unit -> int
   end
+val sleep : Time.t -> unit

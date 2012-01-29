@@ -98,10 +98,9 @@ class ConversionManagement< sf::InputStream& > : public ConversionManagement< Ca
 template<>
 struct ConversionManagement< sf::Time >
 {
-  ConversionManagement<int> cm_;
   sf::Time from_value( value & v)
   {
-    return sf::Microseconds( cm_.from_value(v));
+    return sf::Microseconds( Int64_val(v));
   }
 };
 
@@ -110,12 +109,12 @@ struct AffectationManagement< sf::Time >
 {
   static void affect( value & v, sf::Time t )
   {
-    AffectationManagement<int>::affect(v, t.AsMicroseconds());
+    v = caml_copy_int64(t.AsMicroseconds());
   }
 
   static void affect_field( value & v, int field, sf::Time t )
   {
-    AffectationManagement<int>::affect_field(v, field, t.AsMicroseconds());
+    v = caml_copy_int64(t.AsMicroseconds());
   }
 };
 

@@ -36,7 +36,7 @@ camlpp__register_custom_class_and_ops( CAMLPP__DEFAULT_FINALIZE() , custom_compa
 camlpp__custom_class_registered()
 #undef CAMLPP__CLASS_NAME
 
-/*  
+  
 #include <SFML/System/Sleep.hpp>
 
 
@@ -46,7 +46,7 @@ extern "C"
 	camlpp__register_overloaded_free_function1( sf_Sleep, &sf::Sleep )
 }
 
-
+/*
 #include <SFML/System/Thread.hpp>
 
 void thread_function( std::function<void()> const& f )
