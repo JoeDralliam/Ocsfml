@@ -29,7 +29,7 @@ set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 if(MSVC_VERSION EQUAL 1600) #VC++ 2010
 	set(MSVC_COMPATIBLE_COMPILER 1) 
 	set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/Ocsfml/Include")
-	set(TESTS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/Ocsfml/Test")
+	set(TESTS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/Ocsfml")
 	set(LIB_MAKER "lib")
 	set(DLL_LINKER "flexlink")
 	set(LINK_STDLIB "S []")
@@ -80,15 +80,22 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
 endif()
 
+macro(correct_osx_framework module_name)
+  string(REGEX MATCH ".*/([^/]+)\\.framework$" use_framework "${SFML_${module_name}}" )
+  if( ${use_framework} )
+    string( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_${module_name}}/\\1" SFML_${module_name} "${SFML_${module_name}}" )
+  endif()
+endmacro()
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DLL_EXTENSION "so")
  # set( COMPILATION_FLAGS "${COMPILATION_FLAGS}; A \"-arch\" ; A \"${CMAKE_OSX_ARCHITECTURES}\"")
  # set( LINKING_DLL_FLAGS "${LINKING_DLL_FLAGS}; A \"-arch\"; A \"${CMAKE_OSX_ARCHITECTURES}\"")
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_SYSTEM}/\\1" SFML_SYSTEM "${SFML_SYSTEM}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_WINDOW}/\\1" SFML_WINDOW "${SFML_WINDOW}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_GRAPHICS}/\\1" SFML_GRAPHICS "${SFML_GRAPHICS}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_NETWORK}/\\1" SFML_NETWORK "${SFML_NETWORK}" )
-  STRING( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_AUDIO}/\\1" SFML_AUDIO "${SFML_AUDIO}" )
+ correct_osx_framework( SYSTEM )
+ correct_osx_framework( WINDOW )
+ correct_osx_framework( GRAPHICS )
+ correct_osx_framework( NETWORK )
+ correct_osx_framework( AUDIO )
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(DLL_EXTENSION "so")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -240,8 +247,8 @@ add_custom_target(
 	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_shader.byte "${TESTS_INSTALL_PREFIX}/Test/"
 	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.native "${TESTS_INSTALL_PREFIX}/Test/"
 	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.byte "${TESTS_INSTALL_PREFIX}/Test/"
-	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/w.native "${TESTS_INSTALL_PREFIX}/Test/"
-	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/w.byte "${TESTS_INSTALL_PREFIX}/Test/" 
+	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.native "${TESTS_INSTALL_PREFIX}/Test/"
+	COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.byte "${TESTS_INSTALL_PREFIX}/Test/" 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory resources "${TESTS_INSTALL_PREFIX}/Test/resources"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
