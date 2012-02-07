@@ -144,33 +144,38 @@ add_custom_target(
 
 if(${DEV_MODE})
   add_custom_target(
-    ocsfml
+    ocsfml_system
     ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.cma
     COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.cmxa
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
 	
   add_custom_target(
-    ocsfml
+    ocsfml_window
     ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.cma
     COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.cmxa
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
 
   add_custom_target(
-    ocsfml
+    ocsfml_graphics
     ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.cma
     COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.cmxa
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}   
     )
   
   add_custom_target(
-    ocsfml
+    ocsfml_audio
     ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.cma
     COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.cmxa
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
     )
   
   add_custom_target(
-    ocsfml
+    ocsfml_network
     ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.cma
     COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.cmxa
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}   
     )
 endif()
 
