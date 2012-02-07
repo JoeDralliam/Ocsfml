@@ -1,4 +1,6 @@
-module KeyCode :
+(** module KeyCode : *)
+
+module KeyCode : 
   sig
     type t =
         A
@@ -104,40 +106,74 @@ module KeyCode :
       | Pause
       | Count
   end
-external is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed__impl"
-module Joystick :
+
+(** is_key_pressed k *)
+
+external is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed__impl" 
+
+
+(** module Joystick *)
+
+module Joystick : 
   sig
+
     val count : int
+
     val buttonCount : int
+
     val axisCount : int
+
     type axis = X | Y | Z | R | U | V | PovX | PovY
+
     external is_connected : int -> bool = "Joystick_IsConnected__impl"
+
     external get_button_count : int -> int = "Joystick_GetButtonCount__impl"
+
     external has_axis : int -> axis -> bool = "Joystick_HasAxis__impl"
+
     external is_button_pressed : int -> int -> bool
       = "Joystick_IsButtonPressed__impl"
+
     external get_axis_position : int -> axis -> float
       = "Joystick_GetAxisPosition__impl"
+
     external update : unit -> unit = "Joystick_Update__impl"
+
   end
-module Context :
+
+
+
+
+(** module Context & class context *)
+
+module Context : 
   sig
+
     type t
+
     external destroy : t -> unit = "sf_Context_destroy__impl"
+
     external default : unit -> t = "sf_Context_default_constructor__impl"
+
     external set_active : t -> bool -> unit = "sf_Context_SetActive__impl"
+
   end
-class contextCpp :
-  Context.t ->
+
+class context :
   object
     val t_contextCpp : Context.t
     method destroy : unit -> unit
     method rep__sf_Context : Context.t
     method set_active : bool -> unit
   end
-class context : contextCpp
+
+
+
+(** module Event *)
+
 module Event :
   sig
+
     type mouseButton =
         MouseLeft
       | MouseRight
@@ -145,7 +181,9 @@ module Event :
       | MouseXButton1
       | MouseXButton2
       | MouseButtonCount
+
     type sizeEvent = { width : int; height : int; }
+
     type keyEvent = {
       code : KeyCode.t;
       alt : bool;
@@ -153,17 +191,25 @@ module Event :
       shift : bool;
       system : bool;
     }
+
     type textEvent = { unicode : int; }
+
     type mouseMoveEvent = { x : int; y : int; }
+
     type mouseButtonEvent = { button : mouseButton; x : int; y : int; }
+
     type mouseWheelEvent = { delta : int; x : int; y : int; }
+
     type joystickConnectEvent = { joystickId : int; }
+
     type joystickMoveEvent = {
       joystickId : int;
       axis : Joystick.axis;
       position : float;
     }
+
     type joystickButtonEvent = { joystickId : int; button : int; }
+
     type t =
         Closed
       | LostFocus
@@ -183,35 +229,64 @@ module Event :
       | JoystickMoved of joystickMoveEvent
       | JoystickConnected of joystickConnectEvent
       | JoystickDisconnected of joystickConnectEvent
-  end
-module VideoMode :
+  
+end
+
+
+
+
+(** module VideoMode *)
+
+module VideoMode : 
   sig
+
     type t = { width : int; height : int; bits_per_pixel : int; }
+
     val create : ?w:int -> ?h:int -> ?bpp:int -> unit -> t
+
     external get_full_screen_modes : unit -> t array
       = "VideoMode_GetFullscreenModes__impl"
+
     external get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode__impl"
+
   end
-type context_settings = {
+
+
+(** context_settings *)
+
+type context_settings = { 
   depth_bits : int;
   stencil_bits : int;
   antialising_level : int;
   major_version : int;
   minor_version : int;
 }
-type window_style = Titlebar | Resize | Close | Fullscreen
+
+val mk_context_settings : 
+  depth_bits:int -> 
+  stencil_bits:int ->
+  antialising_level:int ->
+  major_version:int ->
+  minor_version:int ->
+  context_settings
+
+
+(** module Window & class window *)
+
+
 module Window :
   sig
-    type t
+    type style = Titlebar | Resize | Close | Fullscreen 
+    type t 
     external destroy : t -> unit = "sf_Window_destroy__impl"
     external default : unit -> t = "sf_Window_default_constructor__impl"
     external create_init :
-      ?style:window_style list ->
+      ?style:style list ->
       ?context:context_settings -> VideoMode.t -> string -> t
       = "sf_Window_constructor_create__impl"
     external create :
       t ->
-      ?style:window_style list ->
+      ?style:style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
       = "sf_Window_Create__impl"
     external close : t -> unit = "sf_Window_Close__impl"
@@ -240,24 +315,27 @@ module Window :
     external set_joystick_threshold : t -> float -> unit
       = "sf_Window_SetJoystickThreshold__impl"
   end
-class windowCpp :
-  Window.t ->
+
+
+class window :
+  ?style:Window.style list ->
+  ?context:context_settings -> VideoMode.t -> string ->
   object
     val t_windowCpp : Window.t
-    method close : unit -> unit
+    method close : unit
     method create :
-      ?style:window_style list ->
+      ?style:Window.style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
     method destroy : unit -> unit
-    method display : unit -> unit
+    method display : unit
     method enable_key_repeat : bool -> unit
     method enable_vertical_sync : bool -> unit
-    method get_height : unit -> int
-    method get_settings : unit -> context_settings
-    method get_size : unit -> int * int
-    method get_width : unit -> int
-    method is_open : unit -> bool
-    method poll_event : unit -> Event.t option
+    method get_height : int
+    method get_settings : context_settings
+    method get_size : int * int
+    method get_width : int
+    method is_open : bool
+    method poll_event : Event.t option
     method rep__sf_Window : Window.t
     method set_active : bool -> bool
     method set_framerate_limit : int -> unit
@@ -267,12 +345,15 @@ class windowCpp :
     method set_title : string -> unit
     method show : bool -> unit
     method show_mouse_cursor : bool -> unit
-    method wait_event : unit -> Event.t option
+    method wait_event : Event.t option
   end
-class window :
-  ?style:window_style list ->
-  ?context:context_settings -> VideoMode.t -> string -> windowCpp
-module Mouse :
+
+
+
+
+(** module Mouse *)
+
+module Mouse : 
   sig
     type button = Event.mouseButton
     external is_button_pressed : button -> bool

@@ -244,9 +244,19 @@ type context_settings =
   minor_version : int 
 }
 
+(* FIXME : add default values and check input values *)
+let mk_context_settings ~depth_bits ~stencil_bits ~antialising_level ~major_version ~minor_version =
+  {
+    depth_bits = depth_bits ;
+    stencil_bits = stencil_bits ;
+    antialising_level = antialising_level ;
+    major_version = major_version ;
+    minor_version = minor_version ;
+  }
+
 type window_style = Titlebar | Resize | Close | Fullscreen
 
-external class windowCpp (Window) : "sf_Window" =
+external class windowCpp : "sf_Window" =
 object (self)
   constructor default : unit = "default_constructor" 
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
@@ -255,7 +265,7 @@ object (self)
   external method is_open : bool = "IsOpen"
   external method get_width : int = "GetWidth"
   external method get_height : int = "GetHeight"
-  method get_size () = self#get_width (), self#get_height ()
+  method get_size = self#get_width , self#get_height 
   external method get_settings : context_settings = "GetSettings" 
   external method poll_event : Event.t option = "PollEvent"
   external method wait_event : Event.t option = "WaitEvent"
@@ -274,6 +284,12 @@ object (self)
   external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
 end
 
+module Window =
+struct
+  type style = window_style = Titlebar | Resize | Close | Fullscreen 
+  include WindowCpp
+end
+
 class window ?style ?context vm name = 
   let t = Window.create_init ?style ?context vm name in 
     windowCpp t
@@ -283,7 +299,7 @@ struct
   type button = Event.mouseButton
 
   external cpp is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
-  external cpp get_position : int*int = "Mouse_GetPosition"
+  external cpp get_position : unit -> int*int = "Mouse_GetPosition"
   external cpp get_relative_position :  (#window as 'a) -> int*int = "Mouse_GetRelativePosition"
   external cpp set_position : int * int -> unit = "Mouse_SetPosition"
   external cpp set_relative_position : int*int -> (#window as 'a) -> unit = "Mouse_SetRelativePosition"
