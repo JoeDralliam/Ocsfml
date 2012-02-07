@@ -26,6 +26,7 @@
 #include <boost/functional/factory.hpp>
 #include <boost/preprocessor/library.hpp>
 #include <boost/preprocessor/stringize.hpp>
+
 #include "conversion_management.hpp"
 #include "res_management.hpp"
 #include "memory_management.hpp"
@@ -399,6 +400,7 @@ struct constructor_traits<T*()>
   }
 
 
+
 #define camlpp__preregister_custom_class( class_name )			\
   template<>								\
   struct ConversionManagement< class_name * >				\
@@ -407,11 +409,11 @@ struct constructor_traits<T*()>
     {									\
       if( Tag_val( v ) == Object_tag )					\
 	{								\
-	  static value callback_method = 0; \
-	  if( !callback_method ) \
-	  { \
-		callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ; \
-	  } \
+	  static value callback_method = 0;				\
+	  if( !callback_method )					\
+	    {								\
+	      callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ; \
+	    }								\
 	  return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v,  callback_method), v), 0)); \
 	}								\
       assert( Tag_val( v ) == Abstract_tag );				\
@@ -629,9 +631,10 @@ struct constructor_traits<T*()>
   }									\
   extern "C"								\
   {									\
-    camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy ) )
-    
-    
+  camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy ) )
+  
+
+
 #define camlpp__register_custom_class( )			 \
   camlpp__preregister_custom_class( CAMLPP__CLASS_NAME() )	 \
   camlpp__register_preregistered_custom_class()
@@ -641,38 +644,6 @@ struct constructor_traits<T*()>
   camlpp__preregister_custom_class_and_ops( CAMLPP__CLASS_NAME() , finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
   camlpp__register_preregistered_custom_class()
 
-
-/*
- 	template<> \
-	struct ConversionManagement< CAMLPP__CLASS_NAME() * > \
-	{ \
-		CAMLPP__CLASS_NAME()* from_value( value const& v) \
-		{ \
-			if( Tag_val( v ) == Object_tag ) \
-			{ \
-				return reinterpret_cast< CAMLPP__CLASS_NAME()*>( Field(callback( caml_get_public_method( v, hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, CAMLPP__CLASS_NAME() ) ) ) ), v), 0)); \
-			} \
-			assert( Tag_val( v ) == Abstract_tag ); \
-			return reinterpret_cast< CAMLPP__CLASS_NAME() *>( Field(v, 0) ); \
-		} \
-	}; \
-	template<> \
-	struct ConversionManagement< CAMLPP__CLASS_NAME() & > : private ConversionManagement< CAMLPP__CLASS_NAME() * > \
-	{ \
-		CAMLPP__CLASS_NAME()& from_value( value const& v) \
-		{ \
-			return *ConversionManagement< CAMLPP__CLASS_NAME() * >::from_value( v ); \
-		} \
-	}; \
-	void  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _destroy) ( CAMLPP__CLASS_NAME() * sub ) \
-	{ \
-		delete sub; \
-	} \
-	extern "C" \
-	{ \
-		camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy) )
-
-*/
 
 #define camlpp__custom_class_registered() }
 
