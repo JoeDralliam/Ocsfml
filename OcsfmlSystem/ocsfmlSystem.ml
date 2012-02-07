@@ -31,8 +31,8 @@ end
 external class clockCpp (Clock): "sf_Clock" =
 object
   constructor create : unit = "default_constructor"
-  external method get_elapsed_time : unit -> Time.t = "GetElapsedTime"
-  external method restart : unit -> Time.t = "Restart"
+  external method get_elapsed_time : Time.t = "GetElapsedTime"
+  external method restart : Time.t = "Restart"
 end
 
 class clock_bis () = 
@@ -78,6 +78,6 @@ class virtual input_stream =
 object
   method virtual read : int -> string * int
   method virtual seek : int -> int
-  method virtual tell : unit -> int
-  method virtual get_size : unit -> int
+  method virtual tell : int
+  method virtual get_size : int
 end

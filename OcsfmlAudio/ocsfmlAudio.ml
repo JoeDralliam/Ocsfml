@@ -1,5 +1,9 @@
 open OcsfmlSystem
 
+let do_if f = function
+    | Some x -> f x
+    | None -> ()
+
 module Listener =
 struct
 

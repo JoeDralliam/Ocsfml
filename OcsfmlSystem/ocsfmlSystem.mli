@@ -1,8 +1,11 @@
+
+(** Raised when an object can't load its resources *)
 exception LoadFailure
-val do_if : ('a -> unit) -> 'a option -> unit
+
+(** module Time : time conversions utility *)
 module Time :
   sig
-    type t
+    type t 
     val as_seconds : t -> float
     val as_milliseconds : t -> int
     val as_microseconds : t -> int64
@@ -10,7 +13,11 @@ module Time :
     val milliseconds : int -> t
     val microseconds : int64 -> t
   end
-module Clock :
+
+
+(** Module Clock & class clock : basic time recording*)
+
+module Clock : 
   sig
     type t
     external destroy : t -> unit = "sf_Clock_destroy__impl"
@@ -18,22 +25,31 @@ module Clock :
     external get_elapsed_time : t -> Time.t = "sf_Clock_GetElapsedTime__impl"
     external restart : t -> Time.t = "sf_Clock_Restart__impl"
   end
-class clockCpp :
-  Clock.t ->
+
+class clock : 
   object
     val t_clockCpp : Clock.t
     method destroy : unit -> unit
-    method get_elapsed_time : unit -> Time.t
+    method get_elapsed_time : Time.t
     method rep__sf_Clock : Clock.t
-    method restart : unit -> Time.t
+    method restart : Time.t
   end
-class clock_bis : unit -> clockCpp
-class clock : clock_bis
+
+
+(** sleep s : wait during time s before waking up *)
+
+external sleep : Time.t -> unit = "sf_Sleep__impl" 
+
+
+(** common interface for all input streams
+ *  currently doesn't work properly (not used anywhere)
+ *)
+
 class virtual input_stream :
-  object
-    method virtual get_size : unit -> int
-    method virtual read : int -> string * int
-    method virtual seek : int -> int
-    method virtual tell : unit -> int
-  end
-val sleep : Time.t -> unit
+object 
+  method virtual get_size : int
+  method virtual read : int -> string * int
+  method virtual seek : int -> int
+  method virtual tell : int
+end
+
