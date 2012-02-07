@@ -1,10 +1,6 @@
 open OcsfmlSystem
 open OcsfmlWindow
 
-let do_if f = function
-    | Some x -> f x
-    | None -> ()
-
 type 'a rect =
     {
       left : 'a ;

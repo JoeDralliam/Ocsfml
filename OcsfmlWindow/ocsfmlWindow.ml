@@ -251,14 +251,14 @@ object (self)
   constructor default : unit = "default_constructor" 
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
   external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"
-  external method close : unit = "Close"
-  external method is_open : bool = "IsOpen"
-  external method get_width : int = "GetWidth"
-  external method get_height : int = "GetHeight"
+  external method close : unit -> unit = "Close"
+  external method is_open : unit -> bool = "IsOpen"
+  external method get_width : unit -> int = "GetWidth"
+  external method get_height : unit -> int = "GetHeight"
   method get_size () = self#get_width (), self#get_height ()
-  external method get_settings : context_settings = "GetSettings" 
-  external method poll_event : Event.t option = "PollEvent"
-  external method wait_event : Event.t option = "WaitEvent"
+  external method get_settings : unit -> context_settings = "GetSettings" 
+  external method poll_event : unit -> Event.t option = "PollEvent"
+  external method wait_event : unit -> Event.t option = "WaitEvent"
   external method enable_vertical_sync : bool -> unit = "EnableVerticalSync" 
   external method show_mouse_cursor : bool -> unit = "ShowMouseCursor"
   external method set_position : int -> int -> unit = "SetPosition" 
@@ -268,9 +268,9 @@ object (self)
   external method enable_key_repeat : bool -> unit = "EnableKeyRepeat"
   (* external method set_icon : int -> int -> char array -> unit = "window__set_icon" *)
   external method set_active : bool -> bool = "SetActive" 
-  external method display : unit = "Display"
+  external method display : unit -> unit = "Display"
   external method set_framerate_limit : int -> unit = "SetFramerateLimit"
-(*  external method get_frame_time : int = "GetFrameTime"  *)
+(*  external method get_frame_time : unit -> int = "GetFrameTime"  *)
   external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
 end
 
@@ -283,7 +283,7 @@ struct
   type button = Event.mouseButton
 
   external cpp is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
-  external cpp get_position : int*int = "Mouse_GetPosition"
+  external cpp get_position : unit -> int*int = "Mouse_GetPosition"
   external cpp get_relative_position :  (#window as 'a) -> int*int = "Mouse_GetRelativePosition"
   external cpp set_position : int * int -> unit = "Mouse_SetPosition"
   external cpp set_relative_position : int*int -> (#window as 'a) -> unit = "Mouse_SetRelativePosition"

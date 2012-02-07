@@ -11,11 +11,10 @@ struct
   open Sig 
   include Synthese.Make(Syntax)
 			
-  let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s 
+  let mk_anti ?(c = "") n s = "\\$"^n^c^":"^s;; 
 			
-  let string_list = Gram.Entry.mk "string_list"
+  let string_list = Gram.Entry.mk "string_list";;
 
-  let only_module = ref false ;;
   (* DELETE_RULE Gram str_item: "external"; a_LIDENT; ":"; ctyp; "="; string_list END;  *)
 
   EXTEND Gram   
@@ -29,15 +28,13 @@ struct
    str_item: 
    [ 
      [ "external"; "class" ; cpp = cpp_class_declaration -> 
-	 generate_all !only_module cpp
+	 generate_all cpp
      | "external" ; OPT "cpp" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = a_STRING -> 
 	 if arg_count t <= 5
 	 then <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__impl", Ast.LNil)$ >>  
 	 else <:str_item< external $i$ : $t$ = $Ast.LCons (s^"__byte", Ast.LCons (s^"__impl", Ast.LNil))$ >>
      | "external" ; "c" ; i = a_LIDENT ; ":" ; t = ctyp; "=" ; s = string_list -> 
 	 <:str_item<external $i$ : $t$ = $s$ >>  
-     | "GENERATE_ONLY_MODULE" -> only_module := true ; <:str_item<>>
-     | "GENERATE_CLASS" -> only_module := false ; <:str_item<>>
      ]
    ];
 
@@ -155,14 +152,14 @@ struct
      ] 
    ];
 
-   (*tous les items doivent avoir un type explicite *)
+   (*tous les items doivent avoir un type explicite -  ce n'est pas encore le cas *)
    full_class_str_item:
       [ LEFTA
         [ "inherit"; o = opt_override; 
 	  (ce,t) = class_and_class_type_longident_and_param ; 
 	  pb = opt_as_lident ->
             <:class_str_item< inherit $override:o$ $id:ce$ [$t$] as $pb$ >>,
-            <:class_sig_item< inherit $id:ce$ (* [$t$] as $pb$ *) >>
+<:class_sig_item< inherit $id:ce$ (* [$t$] as $pb$ *) >>
 
         | o = value_val_opt_override; mf = opt_mutable; 
 	  lab = label; ":" ; t = poly_type ; 

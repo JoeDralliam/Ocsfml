@@ -191,22 +191,11 @@ struct
 
     (** Création du module *)
 
-    (* ancienne version - à supprimer si ça marche *)
-    (* let rec adapt_to_module = function 
+    let rec adapt_to_module = function 
       | <:ctyp< ! $t0$ . $t1$  >> -> adapt_to_module t1
       | <:ctyp< unit -> $t0$ -> $t1$ >> as tot -> tot
       | <:ctyp< unit -> $t0$ >> -> <:ctyp< $t0$ >>
       | tot -> tot
-    in *)
-
-    let adapt_to_module t =  
-      let self = snd ce.class_self_patt in
-      let aux = function 
-	| <:ctyp< ! $t0$ . $t1$  >> -> t1
-	| typ when typ = self -> t
-	| typ -> typ
-      in
-      (Ast.map_ctyp aux)#ctyp
     in
 
     let make_string_list cpp_name ft =
@@ -220,8 +209,7 @@ struct
 
     let process_mod_str_item = function
       | Method (label, tf, cpp_name) ->
-	  let t = <:ctyp< $lid:"t"$ >> in
-	  let type_func = <:ctyp< $t$ -> $adapt_to_module t tf$>> in
+	  let type_func = <:ctyp< $lid:"t"$ -> $adapt_to_module tf$>> in
 	  let string_list = make_string_list cpp_name type_func in 
 	    <:str_item< external $label$ : $type_func$ = $string_list$ >> 
 
@@ -287,10 +275,8 @@ struct
       aprés un external cpp ( (class_info * class_expr) list )
       @return le str_item correspondant
   *)
-
-  (* FIXME : le paramètre only_module n'est pas employé *)
-  let generate_all only_module = function 
-    | [] -> failwith "empty class" 
+  let generate_all = function 
+    | [] -> failwith "empty class"
     | [x] -> 
 	let declaration = generate_class_and_module TypeMap.empty x in
 	  Ast.stSem_of_list
