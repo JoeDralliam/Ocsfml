@@ -311,3 +311,9 @@ add_dependencies(
   uninstall
   uninstall_tests
   )
+
+add_custom_target(
+  doc
+  ocamlbuild -use-ocamlfind ocsfml.docdir/index.html
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
