@@ -274,6 +274,67 @@ add_custom_target(
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 
+if(${DEV_MODE})
+  add_custom_target( 
+    test_clock_byte
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.byte
+    )
+  
+  add_custom_target(
+    test_clock_native
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.native
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_pong_byte    
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.byte
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_pong_native
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.native
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_shader_byte
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.byte
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_shader_native
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.native 
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_sockets_byte
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.byte
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_sockets_native
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.native 
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_graphicsClock_byte
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.byte
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  
+  add_custom_target(
+    test_graphicsClock_native
+    ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.native 
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+
+endif()
 
 add_custom_target(
   install_tests
