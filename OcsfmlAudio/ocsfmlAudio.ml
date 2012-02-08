@@ -32,12 +32,12 @@ object auto (_:'a)
   external method set_relative_to_listener : bool -> unit = "SetRelativeToListener" 
   external method set_min_distance : float -> unit = "SetMinDistance"
   external method set_attenuation : float -> unit = "SetAttenuation"
-  external method get_pitch : unit -> float = "GetPitch"
-  external method get_volume : unit -> float  = "GetVolume"
-  external method get_position : unit -> float * float * float = "GetPosition"
-  external method is_relative_to_listener : unit -> bool = "IsRelativeToListener"	     
-  external method get_min_distance : unit -> float = "GetMinDistance"
-  external method get_attenuation : unit -> float = "GetAttenuation"
+  external method get_pitch : float = "GetPitch"
+  external method get_volume : float  = "GetVolume"
+  external method get_position : float * float * float = "GetPosition"
+  external method is_relative_to_listener : bool = "IsRelativeToListener"	     
+  external method get_min_distance : float = "GetMinDistance"
+  external method get_attenuation : float = "GetAttenuation"
 end
 
 let mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (t: #sound_source) =
@@ -52,16 +52,16 @@ let mk_sound_source ?pitch ?volume ?position ?relative_to_listener ?min_distance
 external class virtual sound_stream : "sf_SoundStream" =
 object 
   external inherit sound_source : "sf_SoundSource"
-  external method play : unit -> unit  = "Play"
-  external method pause : unit -> unit = "Pause"
-  external method stop : unit -> unit = "Stop"
-  external method get_channel_count : unit -> int = "GetChannelCount"
-  external method get_sample_rate : unit -> int = "GetSampleRate"
-  external method get_status : unit -> status = "GetStatus"	     
-  external method set_playing_offset : int -> unit = "SetPlayingOffset"
-  external method get_playing_offset : unit -> int = "GetPlayingOffset"
+  external method play : unit  = "Play"
+  external method pause : unit = "Pause"
+  external method stop : unit = "Stop"
+  external method get_channel_count : int = "GetChannelCount"
+  external method get_sample_rate : int = "GetSampleRate"
+  external method get_status : status = "GetStatus"	     
+  external method set_playing_offset : Time.t -> unit = "SetPlayingOffset"
+  external method get_playing_offset : Time.t = "GetPlayingOffset"
   external method set_loop : bool -> unit = "SetLoop"
-  external method get_loop : unit -> bool = "GetLoop"
+  external method get_loop : bool = "GetLoop"
 end
 
 let mk_sound_stream ?playing_offset ?loop (t: #sound_stream) =
@@ -73,7 +73,7 @@ object
   external inherit sound_stream : "sf_SoundStream"
   constructor default : unit = "default_constructor"
   external method open_from_file : string -> bool = "OpenFromFile"
-  external method get_duration : unit -> int = "GetDuration"
+  external method get_duration : Time.t = "GetDuration"
 end
 
 class music_bis () = 
@@ -99,11 +99,11 @@ object auto (_ : 'a)
   external method load_from_stream : input_stream -> bool = "LoadFromStream" 
   external method load_from_samples :  samples_type -> int -> int -> bool = "LoadFromSamples"
   external method save_to_file : string -> bool = "SaveToFile"
-  external method get_samples : unit -> samples_type = "GetSamples" 
-  external method get_sample_count : unit -> int = "GetSampleCount"
-  external method get_sample_rate : unit -> int = "GetSampleRate"
-  external method get_channel_count : unit -> int = "GetChannelCount"
-  external method get_duration : unit -> int = "GetDuration"
+  external method get_samples : samples_type = "GetSamples" 
+  external method get_sample_count : int = "GetSampleCount"
+  external method get_sample_rate : int = "GetSampleRate"
+  external method get_channel_count : int = "GetChannelCount"
+  external method get_duration : Time.t = "GetDuration"
 end
 
 class sound_buffer_bis () = 
@@ -125,8 +125,8 @@ let mk_sound_buffer tag =
 external class virtual sound_recorder : "sf_SoundRecorder" =
 object
   external method start : ?sampleRate:int -> unit -> unit = "Start"
-  external method stop : unit -> unit = "Stop"
-  external method get_sample_rate : unit -> int = "GetSampleRate"
+  external method stop : unit = "Stop"
+  external method get_sample_rate : int = "GetSampleRate"
 end
 
 module SoundRecorder =
@@ -138,7 +138,7 @@ external class sound_buffer_recorderCpp (SoundBufferRecorder) : "sf_SoundBufferR
 object 
   external inherit sound_recorder : "sf_SoundRecorder"
   constructor default : unit = "default_constructor"
-  external method get_buffer : unit -> sound_buffer = "GetBuffer"
+  external method get_buffer : sound_buffer = "GetBuffer"
 end
 
 class sound_buffer_recorder_bis () = 
@@ -154,16 +154,16 @@ object
   constructor default : unit = "default_constructor"
   constructor create_from_sound_buffer : sound_buffer = "buffer_constructor"
    (* constructor copy *)
-  external method play : unit -> unit = "Play"
-  external method pause : unit -> unit = "Pause" 
-  external method stop : unit -> unit = "Stop"
+  external method play : unit = "Play"
+  external method pause : unit = "Pause" 
+  external method stop : unit = "Stop"
   external method set_buffer : sound_buffer -> unit = "SetBuffer"
   external method set_loop : bool -> unit = "SetLoop"
-  external method set_playing_offset : int -> unit = "SetPlayingOffset"	     
-  external method get_buffer : unit -> sound_buffer = "GetBuffer"
-  external method get_loop : unit -> bool = "GetLoop"
-  external method get_playing_offset : unit -> int = "GetPlayingOffset"
-  external method get_status : unit -> status = "GetStatus"
+  external method set_playing_offset : Time.t -> unit = "SetPlayingOffset"	     
+  external method get_buffer : sound_buffer = "GetBuffer"
+  external method get_loop : bool = "GetLoop"
+  external method get_playing_offset : Time.t = "GetPlayingOffset"
+  external method get_status : status = "GetStatus"
 end
 
 class sound_bis () = 

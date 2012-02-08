@@ -38,6 +38,7 @@ struct
 	 <:str_item<external $i$ : $t$ = $s$ >>  
      | "GENERATE_ONLY_MODULE" -> only_module := true ; <:str_item<>>
      | "GENERATE_CLASS" -> only_module := false ; <:str_item<>>
+     (* | "declare" ; "external" ; "class" ; n = a_LIDENT ; "as" ; n = a_LIDENT  -> *)
      ]
    ];
 

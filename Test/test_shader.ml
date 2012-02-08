@@ -2,15 +2,17 @@ open OcsfmlSystem
 open OcsfmlWindow
 open OcsfmlGraphics
 
+let ( & ) f x = f x
+
 class virtual effect (myName :string)  =
 object (this)
   inherit caml_drawable
   val mutable myIsLoaded = false
-  method virtual private on_load : unit -> bool
+  method virtual private on_load : bool
   method virtual private on_update : float -> float -> float -> unit
   method virtual private on_draw : render_target -> unit 
-  method get_name () = myName
-  method load () = myIsLoaded <- (this#on_load ())
+  method get_name = myName
+  method load = myIsLoaded <- this#on_load 
   method update time x y = if myIsLoaded then this#on_update time x y
   method draw target =
     if myIsLoaded
@@ -22,7 +24,7 @@ object (this)
 			    ~character_size:36 () in
 	target#draw error
       end
-  method virtual destroy : unit -> unit
+  method virtual destroy : unit
  
 end
 
@@ -33,12 +35,12 @@ object
   val mySprite = new sprite
   val myShader = new shader
 
-  method destroy () =
-    myTexture#destroy () ;
-    mySprite#destroy () ;
-    myShader#destroy ()
+  method destroy =
+    myTexture#destroy ;
+    mySprite#destroy ;
+    myShader#destroy
 
-  method private on_load () =
+  method private on_load =
     if myTexture#load_from_file "resources/background.jpg"
     then
       begin
@@ -52,8 +54,10 @@ object
 	else false
       end
     else false
+
   method private on_update time x y =
-    myShader#set_parameter "pixel_threshold" ((x +. y) /. 30.)
+    myShader#set_parameter "pixel_threshold" & (x +. y) /. 30.
+
   method private on_draw target = 
      target#draw ~shader:myShader mySprite
 end
@@ -64,11 +68,11 @@ object
   val myText = new text
   val myShader = new shader
 
-  method destroy () =
-    myText#destroy () ;
-    myShader#destroy ()
+  method destroy =
+    myText#destroy ;
+    myShader#destroy
 
-  method private on_load () =
+  method private on_load =
     myText#set_string 
       "Praesent suscipit augue in velit pulvinar hendrerit varius purus aliquam.\n\
    Mauris mi odio, bibendum quis fringilla a, laoreet vel orci. Proin vitae vulputate tortor.\n\
@@ -91,10 +95,12 @@ object
     myText#set_character_size 22 ;
     myText#set_position 30. 20. ;
     myShader#load_from_file ~vertex:"resources/wave.vert" ~fragment:"resources/blur.frag" ()
+
   method private on_update time x y =
     myShader#set_parameter "wave_phase" time ;
     myShader#set_parameter "wave_amplitude" ~x:(x *. 40.) (y *. 40.) ;
-    myShader#set_parameter "blur_radius" ((x +. y) *. 0.008)
+    myShader#set_parameter "blur_radius" & (x +. y) *. 0.008
+
   method private on_draw target =
     target#draw ~shader:myShader myText
 end
@@ -103,17 +109,18 @@ end
 class storm_blink =
 object
   inherit effect "storm + blink"
-  val myPoints = new vertex_array ()
+  val myPoints = new vertex_array 
   val myShader = new shader
-  method destroy () =
-    myPoints#destroy () ;
-    myShader#destroy () 
+  method destroy =
+    myPoints#destroy ;
+    myShader#destroy 
     
-  method private on_load () =
+  method private on_load =
     myPoints#set_primitive_type Points ;
     let create_point () =
-      let pos = (Random.float 800.,  Random.float 600.) in
-      let color = Color.rgb (Random.int 255) (Random.int 255) (Random.int 255) in
+      let open Random in 
+      let pos = (float 800.,  float 600.) in
+      let color = Color.rgb (int 255) (int 255) (int 255) in
       myPoints#append (mk_vertex ~position:pos ~color:color ())
     in
     for i = 0 to 40000
@@ -144,23 +151,23 @@ object
   val myShader = new shader
   val mySceneSprite = new sprite
 
-  method destroy () =
-    Array.iter (fun spr -> spr#destroy () ) myEntities ;
-    mySurface#destroy () ;
-    myBackgroundTexture#destroy () ;
-    myEntityTexture#destroy () ;
-    myBackgroundSprite#destroy () ;
-    myShader#destroy () ;
-	mySceneSprite#destroy ()
+  method destroy =
+    Array.iter (fun spr -> spr#destroy ) myEntities ;
+    mySurface#destroy ;
+    myBackgroundTexture#destroy ;
+    myEntityTexture#destroy ;
+    myBackgroundSprite#destroy ;
+    myShader#destroy ;
+	mySceneSprite#destroy
 
-  method private on_load () =
-    if (mySurface#create 800 600) 
-      && (myBackgroundTexture#load_from_file "resources/sfml.png")
-      && (myEntityTexture#load_from_file "resources/devices.png")
+  method private on_load =
+    if mySurface#create 800 600
+      && myBackgroundTexture#load_from_file "resources/sfml.png"
+      && myEntityTexture#load_from_file "resources/devices.png"
     then
       let init_entity i spr =
-	spr#destroy () ;
-	let texture_rect = { left= 96 * i; top= 0 ; width= 96 ; height= 96 } in
+	spr#destroy ;
+	let texture_rect = { left = 96 * i; top = 0 ; width = 96 ; height = 96 } in
 	  myEntities.(i) <- mk_sprite ~texture:myEntityTexture ~texture_rect ()
       in
 	mySurface#set_smooth true ;
@@ -175,7 +182,7 @@ object
 
 
   method on_update time x y =
-    myShader#set_parameter "edge_threshold" (1. -. (x +. y) /. 2.) ;
+    myShader#set_parameter "edge_threshold" & 1. -. (x +. y) /. 2. ;
     let entities_count = Array.length myEntities in
     let update_entity i entity =
       let i' = float_of_int i in
@@ -188,17 +195,17 @@ object
     mySurface#clear ~color:Color.white () ;
     mySurface#draw myBackgroundSprite ;
     Array.iteri update_entity myEntities ;
-    mySurface#display ()
+    mySurface#display
 
   method on_draw target =
-    let tex = mySurface#get_texture () in
+    let tex = mySurface#get_texture in
       mySceneSprite#set_texture tex;
       target#draw ~shader:myShader mySceneSprite 
 end
 
 let _ = 
   Random.self_init () ;
-  let app = new render_window VideoMode.({width=800 ; height=600 ; bits_per_pixel=32}) "Ocsfml Shader" in
+  let app = new render_window (VideoMode.create ()) "Ocsfml Shader" in
   let effects = 
     [| 
       ((new pixelate) :> effect) ; 
@@ -208,7 +215,7 @@ let _ =
     |] in
   let current = ref 0 in
 
-    Array.iter (fun eff -> eff#load () ) effects ;
+    Array.iter (fun eff -> eff#load ) effects ;
   
   
     let textBackgroundTexture = 
@@ -232,8 +239,9 @@ let _ =
 	then font
 	else failwith "Could not load font" 
     in
+
     let description = 
-      mk_text ~string:("Current effect: " ^ effects.(!current)#get_name ())
+      mk_text ~string:("Current effect: " ^ effects.(!current)#get_name )
         ~font ~character_size:20 ~position:(10., 530.) ~color:(Color.rgb 80 80 80) () 
     in
 	  
@@ -249,20 +257,20 @@ let _ =
     let timer = new clock in
 
     let rec event_loop () =
-      match app#poll_event () with
+      match app#poll_event with
 	| Some e ->
 	    let open Event in
 	      (match e with
 		| Closed | KeyPressed { code = KeyCode.Escape ; _ } -> 
-		    app#close ()
+		    app#close 
 		| KeyPressed { code = KeyCode.Left ; _ } ->
 		    decr current ;
 		    if !current < 0 then current := Array.length effects - 1;
-		    let current_name = effects.(!current)#get_name () in
+		    let current_name = effects.(!current)#get_name in
 		      description#set_string ("Current effect: " ^ current_name)
 		| KeyPressed { code = KeyCode.Right ; _ } ->
 		    current := (!current + 1) mod (Array.length effects) ;
-		    let current_name = effects.(!current)#get_name () in
+		    let current_name = effects.(!current)#get_name in
 		      description#set_string ("Current effect: " ^ current_name)
 		| _ -> ()  );
 	      event_loop ()
@@ -271,12 +279,12 @@ let _ =
 	  
     let update () =
       let x = 
-	(float_of_int (fst (Mouse.get_relative_position app))) /. 
-	  (float_of_int (app#get_width  ())) in
+	(float_of_int & fst & Mouse.get_relative_position app) /. 
+	  (float_of_int app#get_width) in
       let y = 
-	(float_of_int (snd (Mouse.get_relative_position app))) /. 
-	  (float_of_int ( app#get_height ())) in
-	effects.(!current)#update (Time.as_seconds (timer#get_elapsed_time ())) x y
+	(float_of_int & snd & Mouse.get_relative_position app) /. 
+	  (float_of_int & app#get_height) in
+	effects.(!current)#update (Time.as_seconds & timer#get_elapsed_time ) x y
     in
       
     let draw_scene () =
@@ -291,19 +299,19 @@ let _ =
       update () ;
       app#clear ~color:(Color.rgb 255 128 0 ) () ; 
       draw_scene () ;
-      app#display() ;
-      if app#is_open () then main_loop ()
+      app#display ;
+      if app#is_open then main_loop ()
     in
-      main_loop() ;
+      main_loop () ;
       
       
-      textBackgroundTexture#destroy () ;
-      textBackground#destroy () ;
-      font#destroy () ;
-      description#destroy () ;
-      instructions#destroy () ;
-      timer#destroy () ;
-      Array.iter (fun eff -> eff#destroy() ) effects;
-      app#destroy ()
+      textBackgroundTexture#destroy ;
+      textBackground#destroy ;
+      font#destroy ;
+      description#destroy ;
+      instructions#destroy ;
+      timer#destroy ;
+      Array.iter (fun eff -> eff#destroy ) effects;
+      app#destroy
 	
 	

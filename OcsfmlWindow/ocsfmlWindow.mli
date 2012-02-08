@@ -1,3 +1,5 @@
+(** basic windowing & event processing *)
+
 (** module KeyCode : *)
 
 module KeyCode : 
@@ -162,7 +164,7 @@ module Context :
 class context :
   object
     val t_contextCpp : Context.t
-    method destroy : unit -> unit
+    method destroy : unit
     method rep__sf_Context : Context.t
     method set_active : bool -> unit
   end
@@ -316,7 +318,6 @@ module Window :
       = "sf_Window_SetJoystickThreshold__impl"
   end
 
-
 class window :
   ?style:Window.style list ->
   ?context:context_settings -> VideoMode.t -> string ->
@@ -326,7 +327,7 @@ class window :
     method create :
       ?style:Window.style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
-    method destroy : unit -> unit
+    method destroy : unit
     method display : unit
     method enable_key_repeat : bool -> unit
     method enable_vertical_sync : bool -> unit
@@ -348,7 +349,7 @@ class window :
     method wait_event : Event.t option
   end
 
-
+class windowCpp : Window.t -> window
 
 
 (** module Mouse *)

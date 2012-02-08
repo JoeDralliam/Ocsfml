@@ -26,6 +26,14 @@ struct
       let compare = Pervasives.compare
     end)
 
+  let external_classes =
+    let module M = Map.Make(struct type t = string let compare = Pervasives.compare end) in
+  object 
+    val mutable c : string M.t = M.empty 
+    method add x y = c <- M.add x y c 
+    method get x = try Some (M.find x c) with Not_found -> None 
+  end
+
 
   let rec arg_count ?(acc=0) = function
     | <:ctyp< $t0$ -> $t1$ >> -> arg_count ~acc:(acc+1) t1
@@ -98,7 +106,7 @@ struct
           object ( $snd ce.class_self_patt$ )
             value $lid:t_name_str$ : t ;
 	    method $lid:"rep__"^ci.cpp_class_name$ : t ;
-	    method destroy : unit -> unit ;
+	    method destroy : unit ;
 	    $sig_items$ ;
 	  end >>
     in
@@ -108,6 +116,17 @@ struct
 
 
     (** Création de la class *)
+
+    let return_object typ = 
+      let self = snd ce.class_self_patt in
+      let rec get_return_type = function
+	| <:ctyp< ! $_$ . $t$ >> -> get_return_type t
+	| <:ctyp< $_$ -> $t$ >> -> get_return_type t
+	| t -> t
+      in
+      get_return_type typ = self
+    in
+
 
     let app_params_to_func func params = 
       List.fold_left (fun e x -> <:expr< $e$ $x$ >>) func params
@@ -150,7 +169,7 @@ struct
 
       let val_t = <:class_str_item< value $lid:t_name_str$ : $uid:ci.module_name$.$lid:"t"$ = $id:t_name'$ >> in
       let rep_method = <:class_str_item< method $lid:"rep__"^ci.cpp_class_name$ = $id:t_name$ >> in
-      let destroy_method = <:class_str_item< method destroy () =  $uid:ci.module_name$.destroy $id:t_name$ >> in
+      let destroy_method = <:class_str_item< method destroy =  $uid:ci.module_name$.destroy $id:t_name$ >> in
       let class_str_items = val_t::rep_method::destroy_method::
 	(List.map process_class_str_item auto_ce.str_items) in 
       let class_body = Ast.crSem_of_list class_str_items in 
@@ -293,17 +312,21 @@ struct
     | [] -> failwith "empty class" 
     | [x] -> 
 	let declaration = generate_class_and_module TypeMap.empty x in
+	if only_module
+	then <:str_item< module $declaration.mod_name$ = $declaration.mod_expr$ >>
+	else
 	  Ast.stSem_of_list
-	  [ <:str_item< module $declaration.mod_name$ = $declaration.mod_expr$ >> ;
-	    <:str_item< class $declaration.class_decl$ >> ;
-	    declaration.helper_decl ]
+	    [ <:str_item< module $declaration.mod_name$ = $declaration.mod_expr$ >> ;
+	      <:str_item< class $declaration.class_decl$ >> ;
+	      declaration.helper_decl ]
     | l -> 
 	let is_not_auto (ci,ce) = not ce.is_auto in
 	  if List.filter is_not_auto l <> []
 	  then 
-	    let error_msg = List.fold_left 
-	      (fun s (ci,ce) -> s ^ ", " ^ ci.caml_class_name )
-	      "some classes should be specified as auto : " l
+	    let error_msg = 
+	      String.concat ", " 
+		("some classes should be specified as auto : " ::
+		(List.map (fun (ci,_) -> ci.caml_class_name) l))
 	    in
 	    failwith error_msg
 	  else
@@ -314,11 +337,14 @@ struct
 	      let mk_module d = <:module_binding< $d.mod_name$ : $d.mod_type$ = $d.mod_expr$ >> in
 	      let bind mod_bind d = <:module_binding< $mod_bind$ and $mk_module d$ >> in
 		List.fold_left bind (mk_module head) tail in
-	    let class_binding =
-	      let bind class_bind d = <:class_expr< $class_bind$ and $d.class_decl$ >> in
+	    if only_module
+	    then <:str_item< module rec $module_binding$ >>
+	    else
+	      let class_binding =
+		let bind class_bind d = <:class_expr< $class_bind$ and $d.class_decl$ >> in
 		List.fold_left bind head.class_decl tail in
-	    let helpers_decl = Ast.stSem_of_list 
-	      (List.map (fun x -> x.helper_decl) declaration_list) in
+	      let helpers_decl = Ast.stSem_of_list 
+		(List.map (fun x -> x.helper_decl) declaration_list) in
 	      Ast.stSem_of_list
 		[ <:str_item< module rec $module_binding$ >> ;
 		  <:str_item< class $class_binding$ >> ;

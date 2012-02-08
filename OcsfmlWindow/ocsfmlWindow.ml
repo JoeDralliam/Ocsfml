@@ -256,7 +256,7 @@ let mk_context_settings ~depth_bits ~stencil_bits ~antialising_level ~major_vers
 
 type window_style = Titlebar | Resize | Close | Fullscreen
 
-external class windowCpp : "sf_Window" =
+external class windowCpp (WindowCpp) : "sf_Window" =
 object (self)
   constructor default : unit = "default_constructor" 
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"

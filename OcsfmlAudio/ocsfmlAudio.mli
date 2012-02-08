@@ -1,3 +1,7 @@
+(** sound manipulation primitives : playing and recording sound *)
+
+open OcsfmlSystem
+
 module Listener :
   sig
     external set_global_volume : float -> unit
@@ -24,13 +28,13 @@ module Sound_source :
     class type sound_source_class_type =
       object
         val t_sound_source : t
-        method destroy : unit -> unit
-        method get_attenuation : unit -> float
-        method get_min_distance : unit -> float
-        method get_pitch : unit -> float
-        method get_position : unit -> float * float * float
-        method get_volume : unit -> float
-        method is_relative_to_listener : unit -> bool
+        method destroy : unit
+        method get_attenuation : float
+        method get_min_distance : float
+        method get_pitch : float
+        method get_position : float * float * float
+        method get_volume : float
+        method is_relative_to_listener : bool
         method rep__sf_SoundSource : t
         method set_attenuation : float -> unit
         method set_min_distance : float -> unit
@@ -69,13 +73,13 @@ class sound_source :
   Sound_source.t ->
   object
     val t_sound_source : Sound_source.t
-    method destroy : unit -> unit
-    method get_attenuation : unit -> float
-    method get_min_distance : unit -> float
-    method get_pitch : unit -> float
-    method get_position : unit -> float * float * float
-    method get_volume : unit -> float
-    method is_relative_to_listener : unit -> bool
+    method destroy : unit
+    method get_attenuation : float
+    method get_min_distance : float
+    method get_pitch : float
+    method get_position : float * float * float
+    method get_volume : float
+    method is_relative_to_listener : bool
     method rep__sf_SoundSource : Sound_source.t
     method set_attenuation : float -> unit
     method set_min_distance : float -> unit
@@ -105,9 +109,9 @@ module Sound_stream :
     external get_sample_rate : t -> int
       = "sf_SoundStream_GetSampleRate__impl"
     external get_status : t -> status = "sf_SoundStream_GetStatus__impl"
-    external set_playing_offset : t -> int -> unit
+    external set_playing_offset : t -> Time.t -> unit
       = "sf_SoundStream_SetPlayingOffset__impl"
-    external get_playing_offset : t -> int
+    external get_playing_offset : t -> Time.t
       = "sf_SoundStream_GetPlayingOffset__impl"
     external set_loop : t -> bool -> unit = "sf_SoundStream_SetLoop__impl"
     external get_loop : t -> bool = "sf_SoundStream_GetLoop__impl"
@@ -117,35 +121,35 @@ class sound_stream :
   object
     val t_sound_source : Sound_source.t
     val t_sound_stream : Sound_stream.t
-    method destroy : unit -> unit
-    method get_attenuation : unit -> float
-    method get_channel_count : unit -> int
-    method get_loop : unit -> bool
-    method get_min_distance : unit -> float
-    method get_pitch : unit -> float
-    method get_playing_offset : unit -> int
-    method get_position : unit -> float * float * float
-    method get_sample_rate : unit -> int
-    method get_status : unit -> status
-    method get_volume : unit -> float
-    method is_relative_to_listener : unit -> bool
-    method pause : unit -> unit
-    method play : unit -> unit
+    method destroy : unit
+    method get_attenuation : float
+    method get_channel_count : int
+    method get_loop : bool
+    method get_min_distance : float
+    method get_pitch : float
+    method get_playing_offset : Time.t
+    method get_position : float * float * float
+    method get_sample_rate : int
+    method get_status : status
+    method get_volume : float
+    method is_relative_to_listener : bool
+    method pause : unit
+    method play : unit
     method rep__sf_SoundSource : Sound_source.t
     method rep__sf_SoundStream : Sound_stream.t
     method set_attenuation : float -> unit
     method set_loop : bool -> unit
     method set_min_distance : float -> unit
     method set_pitch : float -> unit
-    method set_playing_offset : int -> unit
+    method set_playing_offset : Time.t -> unit
     method set_position : float -> float -> float -> unit
     method set_position_v : float * float * float -> unit
     method set_relative_to_listener : bool -> unit
     method set_volume : float -> unit
-    method stop : unit -> unit
+    method stop : unit
   end
 val mk_sound_stream :
-  ?playing_offset:int -> ?loop:bool -> #sound_stream -> unit
+  ?playing_offset:Time.t -> ?loop:bool -> #sound_stream -> unit
 module Music :
   sig
     type t
@@ -155,7 +159,7 @@ module Music :
     external default : unit -> t = "sf_Music_default_constructor__impl"
     external open_from_file : t -> string -> bool
       = "sf_Music_OpenFromFile__impl"
-    external get_duration : t -> int = "sf_Music_GetDuration__impl"
+    external get_duration : t -> Time.t = "sf_Music_GetDuration__impl"
   end
 class musicCpp :
   Music.t ->
@@ -163,22 +167,22 @@ class musicCpp :
     val t_musicCpp : Music.t
     val t_sound_source : Sound_source.t
     val t_sound_stream : Sound_stream.t
-    method destroy : unit -> unit
-    method get_attenuation : unit -> float
-    method get_channel_count : unit -> int
-    method get_duration : unit -> int
-    method get_loop : unit -> bool
-    method get_min_distance : unit -> float
-    method get_pitch : unit -> float
-    method get_playing_offset : unit -> int
-    method get_position : unit -> float * float * float
-    method get_sample_rate : unit -> int
-    method get_status : unit -> status
-    method get_volume : unit -> float
-    method is_relative_to_listener : unit -> bool
+    method destroy : unit
+    method get_attenuation : float
+    method get_channel_count : int
+    method get_duration : Time.t
+    method get_loop : bool
+    method get_min_distance : float
+    method get_pitch : float
+    method get_playing_offset : Time.t
+    method get_position : float * float * float
+    method get_sample_rate : int
+    method get_status : status
+    method get_volume : float
+    method is_relative_to_listener : bool
     method open_from_file : string -> bool
-    method pause : unit -> unit
-    method play : unit -> unit
+    method pause : unit
+    method play : unit
     method rep__sf_Music : Music.t
     method rep__sf_SoundSource : Sound_source.t
     method rep__sf_SoundStream : Sound_stream.t
@@ -186,12 +190,12 @@ class musicCpp :
     method set_loop : bool -> unit
     method set_min_distance : float -> unit
     method set_pitch : float -> unit
-    method set_playing_offset : int -> unit
+    method set_playing_offset : Time.t -> unit
     method set_position : float -> float -> float -> unit
     method set_position_v : float * float * float -> unit
     method set_relative_to_listener : bool -> unit
     method set_volume : float -> unit
-    method stop : unit -> unit
+    method stop : unit
   end
 class music_bis : unit -> musicCpp
 class music : music_bis
@@ -211,12 +215,12 @@ module SoundBuffer :
     class type sound_bufferCpp_class_type =
       object
         val t_sound_bufferCpp : t
-        method destroy : unit -> unit
-        method get_channel_count : unit -> int
-        method get_duration : unit -> int
-        method get_sample_count : unit -> int
-        method get_sample_rate : unit -> int
-        method get_samples : unit -> samples_type
+        method destroy : unit
+        method get_channel_count : int
+        method get_duration : Time.t
+        method get_sample_count : int
+        method get_sample_rate : int
+        method get_samples : samples_type
         method load_from_file : string -> bool
         method load_from_samples : samples_type -> int -> int -> bool
         method load_from_stream : OcsfmlSystem.input_stream -> bool
@@ -241,18 +245,18 @@ module SoundBuffer :
       = "sf_SoundBuffer_GetSampleRate__impl"
     external get_channel_count : t -> int
       = "sf_SoundBuffer_GetChannelCount__impl"
-    external get_duration : t -> int = "sf_SoundBuffer_GetDuration__impl"
+    external get_duration : t -> Time.t = "sf_SoundBuffer_GetDuration__impl"
   end
 class sound_bufferCpp :
   SoundBuffer.t ->
   object
     val t_sound_bufferCpp : SoundBuffer.t
-    method destroy : unit -> unit
-    method get_channel_count : unit -> int
-    method get_duration : unit -> int
-    method get_sample_count : unit -> int
-    method get_sample_rate : unit -> int
-    method get_samples : unit -> samples_type
+    method destroy : unit
+    method get_channel_count : int
+    method get_duration : Time.t
+    method get_sample_count : int
+    method get_sample_rate : int
+    method get_samples : samples_type
     method load_from_file : string -> bool
     method load_from_samples : samples_type -> int -> int -> bool
     method load_from_stream : OcsfmlSystem.input_stream -> bool
@@ -280,11 +284,11 @@ class sound_recorder :
   Sound_recorder.t ->
   object
     val t_sound_recorder : Sound_recorder.t
-    method destroy : unit -> unit
-    method get_sample_rate : unit -> int
+    method destroy : unit
+    method get_sample_rate : int
     method rep__sf_SoundRecorder : Sound_recorder.t
     method start : ?sampleRate:int -> unit -> unit
-    method stop : unit -> unit
+    method stop : unit
   end
 module SoundRecorder :
   sig
@@ -306,13 +310,13 @@ class sound_buffer_recorderCpp :
   object
     val t_sound_buffer_recorderCpp : SoundBufferRecorder.t
     val t_sound_recorder : Sound_recorder.t
-    method destroy : unit -> unit
-    method get_buffer : unit -> sound_buffer
-    method get_sample_rate : unit -> int
+    method destroy : unit
+    method get_buffer : sound_buffer
+    method get_sample_rate : int
     method rep__sf_SoundBufferRecorder : SoundBufferRecorder.t
     method rep__sf_SoundRecorder : Sound_recorder.t
     method start : ?sampleRate:int -> unit -> unit
-    method stop : unit -> unit
+    method stop : unit
   end
 class sound_buffer_recorder_bis : unit -> sound_buffer_recorderCpp
 class sound_buffer_recorder : sound_buffer_recorder_bis
@@ -331,11 +335,11 @@ module Sound :
     external set_buffer : t -> sound_buffer -> unit
       = "sf_Sound_SetBuffer__impl"
     external set_loop : t -> bool -> unit = "sf_Sound_SetLoop__impl"
-    external set_playing_offset : t -> int -> unit
+    external set_playing_offset : t -> Time.t -> unit
       = "sf_Sound_SetPlayingOffset__impl"
     external get_buffer : t -> sound_buffer = "sf_Sound_GetBuffer__impl"
     external get_loop : t -> bool = "sf_Sound_GetLoop__impl"
-    external get_playing_offset : t -> int
+    external get_playing_offset : t -> Time.t
       = "sf_Sound_GetPlayingOffset__impl"
     external get_status : t -> status = "sf_Sound_GetStatus__impl"
   end
@@ -344,19 +348,19 @@ class soundCpp :
   object
     val t_soundCpp : Sound.t
     val t_sound_source : Sound_source.t
-    method destroy : unit -> unit
-    method get_attenuation : unit -> float
-    method get_buffer : unit -> sound_buffer
-    method get_loop : unit -> bool
-    method get_min_distance : unit -> float
-    method get_pitch : unit -> float
-    method get_playing_offset : unit -> int
-    method get_position : unit -> float * float * float
-    method get_status : unit -> status
-    method get_volume : unit -> float
-    method is_relative_to_listener : unit -> bool
-    method pause : unit -> unit
-    method play : unit -> unit
+    method destroy : unit
+    method get_attenuation : float
+    method get_buffer : sound_buffer
+    method get_loop : bool
+    method get_min_distance : float
+    method get_pitch : float
+    method get_playing_offset : Time.t
+    method get_position : float * float * float
+    method get_status : status
+    method get_volume : float
+    method is_relative_to_listener : bool
+    method pause : unit
+    method play : unit
     method rep__sf_Sound : Sound.t
     method rep__sf_SoundSource : Sound_source.t
     method set_attenuation : float -> unit
@@ -364,19 +368,19 @@ class soundCpp :
     method set_loop : bool -> unit
     method set_min_distance : float -> unit
     method set_pitch : float -> unit
-    method set_playing_offset : int -> unit
+    method set_playing_offset : Time.t -> unit
     method set_position : float -> float -> float -> unit
     method set_position_v : float * float * float -> unit
     method set_relative_to_listener : bool -> unit
     method set_volume : float -> unit
-    method stop : unit -> unit
+    method stop : unit
   end
 class sound_bis : unit -> soundCpp
 class sound : sound_bis
 val mk_sound :
   ?loop:bool ->
   ?buffer:sound_buffer ->
-  ?playing_offset:int ->
+  ?playing_offset:Time.t ->
   ?pitch:float ->
   ?volume:float ->
   ?position:float * float * float ->

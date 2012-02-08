@@ -1,8 +1,11 @@
+(** time management & input stream *)
+
 
 (** Raised when an object can't load its resources *)
 exception LoadFailure
 
 (** module Time : time conversions utility *)
+
 module Time :
   sig
     type t 
@@ -27,22 +30,25 @@ module Clock :
   end
 
 class clock : 
-  object
-    val t_clockCpp : Clock.t
-    method destroy : unit -> unit
-    method get_elapsed_time : Time.t
-    method rep__sf_Clock : Clock.t
-    method restart : Time.t
-  end
+object
+  (**/**)
+  val t_clockCpp : Clock.t
+    (**/**)
+  method destroy : unit
+  method get_elapsed_time : Time.t
+  (**/**)
+  method rep__sf_Clock : Clock.t
+  (**/**)
+  method restart : Time.t
+end
 
 
 (** sleep s : wait during time s before waking up *)
-
 external sleep : Time.t -> unit = "sf_Sleep__impl" 
-
+  
 
 (** common interface for all input streams
- *  currently doesn't work properly (not used anywhere)
+    currently doesn't work properly (not used anywhere)
  *)
 
 class virtual input_stream :

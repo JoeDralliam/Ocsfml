@@ -2,8 +2,10 @@ open OcsfmlSystem
 open OcsfmlWindow
 open OcsfmlGraphics
 
+let ( & ) f x = f x
+
 let set_time s m h =
-  let tm = Unix.localtime (Unix.time ()) in
+  let tm = Unix.localtime & Unix.time () in
   let sec = float_of_int tm.Unix.tm_sec in
   let min = (float_of_int tm.Unix.tm_min) +. (sec /. 60.) in
   let hour = (float_of_int (tm.Unix.tm_hour - 12)) +. (min /. (12.*.60.)) in
@@ -31,7 +33,7 @@ let _ =
   let update_time () = set_time seconds minutes hours in
 
   let place x w = 
-    let rect = x # get_local_bounds () in
+    let rect = x # get_local_bounds in
     let factor = w /. rect.width in
     let delta_y = rect.height /. 2. in
       x # set_origin 0. delta_y ; 
@@ -40,11 +42,11 @@ let _ =
   in
 
   let clean_all () = 
-    hours # destroy () ;
-    minutes # destroy () ;
-    seconds # destroy () ;
-    clock_display # destroy () ;
-    app # destroy ()
+    hours # destroy ;
+    minutes # destroy ;
+    seconds # destroy ;
+    clock_display # destroy ;
+    app # destroy
   in
 
 
@@ -55,20 +57,20 @@ let _ =
     app # draw seconds ;
     app # draw minutes ;
     app # draw hours ;
-    app # display ()
+    app # display
   in
 
   let rec process_event () = 
     let open Event in
-    match app # poll_event () with
+    match app # poll_event with
       | Some (Closed) | Some (KeyPressed { code = KeyCode.Escape ; _ }) ->
-	  app # close ()
+	  app # close
       | None -> () 
       | _ -> process_event ()
   in
 
   let run () =
-    while app # is_open () do
+    while app # is_open do
       update_time () ;
       display () ;
       process_event ()  

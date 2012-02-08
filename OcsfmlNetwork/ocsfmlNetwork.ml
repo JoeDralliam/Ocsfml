@@ -1,13 +1,12 @@
 
-
 external class ip_address (IPAddressCPP) : "sf_IpAddress" =
 object
   constructor default : unit = "default_constructor"
   constructor from_string : string = "string_constructor"
   constructor from_bytes : int -> int -> int -> int = "bytes_constructor"
   constructor from_int : int = "integer_constructor"
-  external method to_string : unit -> string = "ToString"
-  external method to_integer : unit -> int = "ToInteger"
+  external method to_string : string = "ToString"
+  external method to_integer : int = "ToInteger"
 end
 
 module IPAddress =
@@ -100,35 +99,35 @@ struct
   external class response : "sf_Ftp_Response" = 
   object
     constructor default : ?code:Status.t -> ?msg:string -> unit = "default_constructor" 
-    external method get_status : unit -> Status.t = "GetStatus" 
-    external method get_message : unit -> string = "GetMessage" 
+    external method get_status : Status.t = "GetStatus" 
+    external method get_message : string = "GetMessage" 
   end
     
   external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse" = 
   object
     external inherit response : "sf_Ftp_Response" 
     constructor default : response = "default_constructor"
-    external method get_directory : unit -> string = "GetDirectory" 
+    external method get_directory : string = "GetDirectory" 
   end
 
   external class listing_response (ListingResponse) : "sf_Ftp_ListingResponse" = 
   object
     external inherit response : "sf_Ftp_Response" 
     constructor default : response -> char list (* ou char array ? *) = "default_constructor"
-    external method get_filenames : unit -> string list (* ou string array ? *) = "GetFilenames" 
+    external method get_filenames : string list (* ou string array ? *) = "GetFilenames" 
   end 
 
   external class ftp (Ftp) : "sf_Ftp" =
   object 
     constructor default : unit = "default_constructor"
     external method connect : ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response = "Connect"
-    external method disconnect : unit -> response = "Disconnect"
+    external method disconnect : response = "Disconnect"
     external method login : ?log:string*string -> unit -> response = "Login"
-    external method keep_alive : unit -> response = "KeepAlive"
-    external method get_working_directory : unit -> directory_response = "GetWorkingDirectory"
+    external method keep_alive : response = "KeepAlive"
+    external method get_working_directory : directory_response = "GetWorkingDirectory"
     external method get_directory_listing : ?dir:string -> unit -> listing_response = "GetDirectoryListing"
     external method change_directory : string -> response = "ChangeDirectory"
-    external method parent_directory : unit -> response = "ParentDirectory"
+    external method parent_directory : response = "ParentDirectory"
     external method create_directory : string -> response = "CreateDirectory"
     external method delete_directory : string -> response = "DeleteDirectory"
     external method rename_file : string -> string -> response = "RenameFile"
@@ -198,10 +197,10 @@ struct
   object
     constructor default : unit = "default_constructor"
     external method get_field : string -> string = "GetField"
-    external method get_status : unit -> Status.t = "GetStatus"
-    external method get_major_http_version : unit -> int = "GetMajorHttpVersion"
-    external method get_minor_http_version : unit -> int = "GetMinorHttpVersion"
-    external method get_body : unit -> string = "GetBody"
+    external method get_status : Status.t = "GetStatus"
+    external method get_major_http_version : int = "GetMajorHttpVersion"
+    external method get_minor_http_version : int = "GetMinorHttpVersion"
+    external method get_body : string = "GetBody"
   end
 
   external class http : "sf_Http" =
@@ -219,19 +218,19 @@ end
 external class packetCpp (Packet) : "sf_Packet" =
 object
   constructor default : unit = "default_constructor"
-  external method clear : unit -> unit = "Clear"
-  external method get_data_size : unit -> int = "GetDataSize"
-  external method end_of_packet : unit -> bool = "EndOfPacket"
-  external method is_valid : unit -> bool = "IsValid"
-  external method read_bool : unit -> bool = "ReadBool"
-  external method read_int8 : unit -> int = "ReadInt8"
-  external method read_uint8 : unit -> int = "ReadUint8"
-  external method read_int16 : unit -> int = "ReadInt16"
-  external method read_uint16 : unit -> int = "ReadUint16"
-  external method read_int32 : unit -> int = "ReadInt32"
-  external method read_uint32 : unit -> int = "ReadUint32"
-  external method read_float : unit -> float = "ReadFloat"
-  external method read_string : unit -> string = "ReadString"
+  external method clear : unit = "Clear"
+  external method get_data_size : int = "GetDataSize"
+  external method end_of_packet : bool = "EndOfPacket"
+  external method is_valid : bool = "IsValid"
+  external method read_bool : bool = "ReadBool"
+  external method read_int8 : int = "ReadInt8"
+  external method read_uint8 : int = "ReadUint8"
+  external method read_int16 : int = "ReadInt16"
+  external method read_uint16 : int = "ReadUint16"
+  external method read_int32 : int = "ReadInt32"
+  external method read_uint32 : int = "ReadUint32"
+  external method read_float : float = "ReadFloat"
+  external method read_string : string = "ReadString"
   external method write_bool : bool -> unit = "WriteBool"
   external method write_int8 : int -> unit = "WriteInt8"
   external method write_uint8 : int -> unit = "WriteUint8"
@@ -279,15 +278,15 @@ type write_val =
     ]
 
 let (>>) (p:#packet) = function
-    `Int8 i -> i := p#read_int8 () ; p
-  | `UInt8 i -> i := p#read_uint8 () ; p
-  | `Int16 i -> i := p#read_int16 () ; p
-  | `UInt16 i -> i := p#read_uint16 () ; p
-  | `Int32 i -> i := p#read_int32 () ; p
-  | `UInt32 i -> i := p#read_uint32 () ; p
-  | `Float f -> f := p#read_float () ; p
-  | `Bool b -> b := p#read_bool () ; p
-  | `String s -> s := p#read_string () ; p
+    `Int8 i -> i := p#read_int8 ; p
+  | `UInt8 i -> i := p#read_uint8 ; p
+  | `Int16 i -> i := p#read_int16 ; p
+  | `UInt16 i -> i := p#read_uint16 ; p
+  | `Int32 i -> i := p#read_int32 ; p
+  | `UInt32 i -> i := p#read_uint32 ; p
+  | `Float f -> f := p#read_float ; p
+  | `Bool b -> b := p#read_bool ; p
+  | `String s -> s := p#read_string ; p
 
 let (<<) (p:#packet) = function
     `Int8 i -> p#write_int8 i ; p
@@ -310,7 +309,7 @@ type socket_status =
 external class virtual socket : "sf_Socket" =
 object
   external method set_blocking : bool -> unit = "SetBlocking"
-  external method is_blocking : unit -> bool = "IsBlocking"
+  external method is_blocking : bool = "IsBlocking"
 end
 
 external class socket_selector (SocketSelector) : "sf_SocketSelector" =
@@ -319,7 +318,7 @@ object auto (_:'self)
   (* constructor copy : 'self = "copy_constructor" *)
   external method add : 'a. (#socket as 'a) -> unit = "Add"
   external method remove : 'a. (#socket as 'a) -> unit = "Remove"
-  external method clear : unit -> unit = "Clear"
+  external method clear : unit = "Clear"
   external method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit = "Wait"
   external method is_ready : 'a. (#socket as 'a) -> bool = "IsReady"
   external method set : 'self -> 'self = "Affect"
@@ -329,11 +328,11 @@ external class tcp_socketCpp (TcpSocket) : "sf_TcpSocket" =
 object
   external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
-  external method get_local_port : unit -> int = "GetLocalPort"
-  external method get_remote_address : unit -> ip_address = "GetRemoteAddress"
-  external method get_remote_port : unit -> int = "GetRemotePort"
+  external method get_local_port : int = "GetLocalPort"
+  external method get_remote_address : ip_address = "GetRemoteAddress"
+  external method get_remote_port : int = "GetRemotePort"
   external method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status = "Connect"
-  external method disconnect : unit -> unit = "Disconnect"
+  external method disconnect : unit = "Disconnect"
   external method send_packet : 'a. (#packet as 'a) -> socket_status = "SendPacket"
   external method receive_packet :'a. (#packet as 'a) -> socket_status = "ReceivePacket"
 end
@@ -349,9 +348,9 @@ external class tcp_listenerCpp (TcpListener) : "sf_TcpListener" =
 object
   external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
-  external method get_local_port : unit -> int = "GetLocalPort"
+  external method get_local_port : int = "GetLocalPort"
   external method listen : int -> socket_status = "Listen"
-  external method close : unit -> unit = "Close"
+  external method close : unit = "Close"
   external method accept : tcp_socket -> socket_status = "Accept"
 end
 
@@ -369,7 +368,7 @@ object
 external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
   external method bind : int -> socket_status = "Bind"
-  external method unbind : unit -> unit = "Unbind"	     
+  external method unbind : unit = "Unbind"	     
   external method send_packet : 'a. (#packet as 'a) -> ip_address -> int -> socket_status = "SendPacket"
   external method receive_packet : 'a. (#packet as 'a) -> ip_address -> socket_status * int = "ReceivePacket"
 end

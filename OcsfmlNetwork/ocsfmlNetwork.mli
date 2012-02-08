@@ -1,4 +1,6 @@
-module IPAddressCPP :
+(** network low and high level objects *)
+
+module IPAddressCPP : 
   sig
     type t
     external destroy : t -> unit = "sf_IpAddress_destroy__impl"
@@ -15,10 +17,10 @@ class ip_address :
   IPAddressCPP.t ->
   object
     val t_ip_address : IPAddressCPP.t
-    method destroy : unit -> unit
+    method destroy : unit
     method rep__sf_IpAddress : IPAddressCPP.t
-    method to_integer : unit -> int
-    method to_string : unit -> string
+    method to_integer : int
+    method to_string : string
   end
 module IPAddress :
   sig
@@ -114,9 +116,9 @@ module FTP :
       Response.t ->
       object
         val t_response : Response.t
-        method destroy : unit -> unit
-        method get_message : unit -> string
-        method get_status : unit -> Status.t
+        method destroy : unit
+        method get_message : string
+        method get_status : Status.t
         method rep__sf_Ftp_Response : Response.t
       end
     module DirectoryResponse :
@@ -136,10 +138,10 @@ module FTP :
       object
         val t_directory_response : DirectoryResponse.t
         val t_response : Response.t
-        method destroy : unit -> unit
-        method get_directory : unit -> string
-        method get_message : unit -> string
-        method get_status : unit -> Status.t
+        method destroy : unit
+        method get_directory : string
+        method get_message : string
+        method get_status : Status.t
         method rep__sf_Ftp_DirectoryResponse : DirectoryResponse.t
         method rep__sf_Ftp_Response : Response.t
       end
@@ -159,10 +161,10 @@ module FTP :
       object
         val t_listing_response : ListingResponse.t
         val t_response : Response.t
-        method destroy : unit -> unit
-        method get_filenames : unit -> string list
-        method get_message : unit -> string
-        method get_status : unit -> Status.t
+        method destroy : unit
+        method get_filenames : string list
+        method get_message : string
+        method get_status : Status.t
         method rep__sf_Ftp_ListingResponse : ListingResponse.t
         method rep__sf_Ftp_Response : Response.t
       end
@@ -211,15 +213,15 @@ module FTP :
         method create_directory : string -> response
         method delete_directory : string -> response
         method delete_file : string -> response
-        method destroy : unit -> unit
-        method disconnect : unit -> response
+        method destroy : unit
+        method disconnect : response
         method download : ?mode:transfer_mode -> string -> string
         method get_directory_listing :
           ?dir:string -> unit -> listing_response
-        method get_working_directory : unit -> directory_response
-        method keep_alive : unit -> response
+        method get_working_directory : directory_response
+        method keep_alive : response
         method login : ?log:string * string -> unit -> response
-        method parent_directory : unit -> response
+        method parent_directory : response
         method rename_file : string -> string -> response
         method rep__sf_Ftp : Ftp.t
         method upload : ?mode:transfer_mode -> string -> string
@@ -277,7 +279,7 @@ module HTTP :
       Request.t ->
       object
         val t_request : Request.t
-        method destroy : unit -> unit
+        method destroy : unit
         method rep__sf_Http_Request : Request.t
         method set_body : string -> unit
         method set_field : string -> string -> unit
@@ -305,12 +307,12 @@ module HTTP :
       Response.t ->
       object
         val t_response : Response.t
-        method destroy : unit -> unit
-        method get_body : unit -> string
+        method destroy : unit
+        method get_body : string
         method get_field : string -> string
-        method get_major_http_version : unit -> int
-        method get_minor_http_version : unit -> int
-        method get_status : unit -> Status.t
+        method get_major_http_version : int
+        method get_minor_http_version : int
+        method get_status : Status.t
         method rep__sf_Http_Response : Response.t
       end
     module Http :
@@ -331,7 +333,7 @@ module HTTP :
       Http.t ->
       object
         val t_http : Http.t
-        method destroy : unit -> unit
+        method destroy : unit
         method rep__sf_Http : Http.t
         method send_request :
           ?timeout:OcsfmlSystem.Time.t -> request -> response
@@ -371,20 +373,20 @@ class packetCpp :
   Packet.t ->
   object
     val t_packetCpp : Packet.t
-    method clear : unit -> unit
-    method destroy : unit -> unit
-    method end_of_packet : unit -> bool
-    method get_data_size : unit -> int
-    method is_valid : unit -> bool
-    method read_bool : unit -> bool
-    method read_float : unit -> float
-    method read_int16 : unit -> int
-    method read_int32 : unit -> int
-    method read_int8 : unit -> int
-    method read_string : unit -> string
-    method read_uint16 : unit -> int
-    method read_uint32 : unit -> int
-    method read_uint8 : unit -> int
+    method clear : unit
+    method destroy : unit
+    method end_of_packet : bool
+    method get_data_size : int
+    method is_valid : bool
+    method read_bool : bool
+    method read_float : float
+    method read_int16 : int
+    method read_int32 : int
+    method read_int8 : int
+    method read_string : string
+    method read_uint16 : int
+    method read_uint32 : int
+    method read_uint8 : int
     method rep__sf_Packet : Packet.t
     method write_bool : bool -> unit
     method write_float : float -> unit
@@ -454,8 +456,8 @@ class socket :
   Socket.t ->
   object
     val t_socket : Socket.t
-    method destroy : unit -> unit
-    method is_blocking : unit -> bool
+    method destroy : unit
+    method is_blocking : bool
     method rep__sf_Socket : Socket.t
     method set_blocking : bool -> unit
   end
@@ -466,8 +468,8 @@ module SocketSelector :
       object ('a)
         val t_socket_selector : t
         method add : #socket -> unit
-        method clear : unit -> unit
-        method destroy : unit -> unit
+        method clear : unit
+        method destroy : unit
         method is_ready : #socket -> bool
         method remove : #socket -> unit
         method rep__sf_SocketSelector : t
@@ -491,8 +493,8 @@ class socket_selector :
   object ('a)
     val t_socket_selector : SocketSelector.t
     method add : #socket -> unit
-    method clear : unit -> unit
-    method destroy : unit -> unit
+    method clear : unit
+    method destroy : unit
     method is_ready : #socket -> bool
     method remove : #socket -> unit
     method rep__sf_SocketSelector : SocketSelector.t
@@ -526,12 +528,12 @@ class tcp_socketCpp :
     val t_tcp_socketCpp : TcpSocket.t
     method connect :
       ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
-    method destroy : unit -> unit
-    method disconnect : unit -> unit
-    method get_local_port : unit -> int
-    method get_remote_address : unit -> ip_address
-    method get_remote_port : unit -> int
-    method is_blocking : unit -> bool
+    method destroy : unit
+    method disconnect : unit
+    method get_local_port : int
+    method get_remote_address : ip_address
+    method get_remote_port : int
+    method is_blocking : bool
     method receive_packet : #packet -> socket_status
     method rep__sf_Socket : Socket.t
     method rep__sf_TcpSocket : TcpSocket.t
@@ -560,10 +562,10 @@ class tcp_listenerCpp :
     val t_socket : Socket.t
     val t_tcp_listenerCpp : TcpListener.t
     method accept : tcp_socket -> socket_status
-    method close : unit -> unit
-    method destroy : unit -> unit
-    method get_local_port : unit -> int
-    method is_blocking : unit -> bool
+    method close : unit
+    method destroy : unit
+    method get_local_port : int
+    method is_blocking : bool
     method listen : int -> socket_status
     method rep__sf_Socket : Socket.t
     method rep__sf_TcpListener : TcpListener.t
@@ -593,14 +595,14 @@ class udp_socketCpp :
     val t_socket : Socket.t
     val t_udp_socketCpp : UdpSocket.t
     method bind : int -> socket_status
-    method destroy : unit -> unit
-    method is_blocking : unit -> bool
+    method destroy : unit
+    method is_blocking : bool
     method receive_packet : #packet -> ip_address -> socket_status * int
     method rep__sf_Socket : Socket.t
     method rep__sf_UdpSocket : UdpSocket.t
     method send_packet : #packet -> ip_address -> int -> socket_status
     method set_blocking : bool -> unit
-    method unbind : unit -> unit
+    method unbind : unit
   end
 class udp_socket_bis : unit -> udp_socketCpp
 class udp_socket : udp_socket_bis
