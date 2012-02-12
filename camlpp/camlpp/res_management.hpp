@@ -29,7 +29,7 @@ extern "C"
 
 #ifndef _MSC_VER
 
-template<class T, bool shouldReturnObject = true>
+template<class T>
 struct ResManagement 
 {
     template<class Func,class... Args>
@@ -38,7 +38,7 @@ struct ResManagement
 		caml_release_runtime_system();
 		auto&& tmpRes( f(std::forward<Args>(args)...) );
 		caml_acquire_runtime_system();
-		AffectationManagement<T, shouldReturnObject>::affect(res, tmpRes);
+		AffectationManagement<T>::affect(res, tmpRes);
     }
 };
 
@@ -71,7 +71,7 @@ struct ResManagement<void>
 
 #else
 
-template<class T, bool shouldReturnObject = true>
+template<class T>
 struct ResManagement {
 
 	template<class Func>
@@ -80,7 +80,7 @@ struct ResManagement {
 		caml_release_runtime_system();
 		auto tmpRes(ret());
 		caml_acquire_runtime_system();
-		caml_cpp__affect<shouldReturnObject, T>(res, tmpRes);
+		AffectationManagement<T>::affect(res, tmpRes);
 	}
 };
 

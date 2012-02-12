@@ -34,9 +34,9 @@ extern "C"
 #include <vector>
 #include <list>
 
-
-template< class T, bool shouldReturnObject = true>
+template<class T>
 class AffectationManagement;
+
 
 template<class T, bool cpConstructor>
 struct copy_instance_helper2
@@ -44,13 +44,13 @@ struct copy_instance_helper2
   template< class T2 >
   static void affect( value& v, T2&& obj )
   {
-    AffectationManagement< T const*, true >::affect( v, new T( std::forward<T2>(obj) ) );
+    AffectationManagement< T const*>::affect( v, new T( std::forward<T2>(obj) ) );
   }
 	
   template<class T2>
   static void affect_field( value& v, int field, T2&& obj)
   {
-    AffectationManagement< T const*, true>::affect_field(v, field, new T( std::forward<T2>(obj) ));
+    AffectationManagement< T const*>::affect_field(v, field, new T( std::forward<T2>(obj) ));
   }
 };
 
@@ -136,15 +136,21 @@ public:
 #endif
 
 template< class T >
-struct AffectationManagement<T*, false>
+struct AffectationManagement : public copy_instance_helper< T, boost::is_abstract<T>::value > 
+{ 
+};
+
+
+template< class T >
+struct AffectationManagement<T const*>
 {
-  static void affect(value& v, T* t)
+  static void affect(value& v, T const* t)
   {
     v = caml_alloc(1, Abstract_tag);
     Store_field(v, 0,reinterpret_cast<value>(t));
   }
   
-  static void affect_field(value& v, int field, T* t)
+  static void affect_field(value& v, int field, T const* t)
   {
     CAMLparam0();
     CAMLlocal1( tmp );
@@ -156,35 +162,30 @@ struct AffectationManagement<T*, false>
 
 
 template<class T>
-struct AffectationManagement< T*, true > 
-{ 
+struct AffectationManagement< T*> 
+{
   static void affect( value& v, T* obj ) 
   { 
-    AffectationManagement< T const*, true >::affect( v, obj ); 
+    AffectationManagement< T const*>::affect( v, obj ); 
   } 
   static void affect_field( value& v, int field, T* obj) 
   { 
-    AffectationManagement< T const*, true>::affect_field(v, field, obj);
+    AffectationManagement< T const*>::affect_field(v, field, obj);
   } 
 }; 
 
 template<class T>
-struct AffectationManagement< T&, true > 
+struct AffectationManagement< T&> 
 { 
   static void affect( value& v, T& obj ) 
   { 
-    AffectationManagement< T const*, true >::affect( v, &obj ); 
+    AffectationManagement< T const*>::affect( v, &obj ); 
   } 
   static void affect_field( value& v, int field, T& obj) 
   { 
-    AffectationManagement< T const*, true>::affect_field(v, field, &obj);
+    AffectationManagement< T const*>::affect_field(v, field, &obj);
   } 
 }; 
-
-template<class T> 
-struct AffectationManagement< T, true > : public copy_instance_helper< T, boost::is_abstract<T>::value > 
-{ 
-};
 
 template< class T >
 struct AffectationManagement<T const&> : AffectationManagement<T>
@@ -544,10 +545,10 @@ struct AffectationManagement< std::list< T > >
   }
 };
 
-template<bool shouldReturnObject, class T>
+template< class T>
 inline void caml_cpp__affect(value& v, T const& t)
 {
-  AffectationManagement< T, shouldReturnObject >::affect(v,t);
+  AffectationManagement< T >::affect(v,t);
 }
 
 template<class T>

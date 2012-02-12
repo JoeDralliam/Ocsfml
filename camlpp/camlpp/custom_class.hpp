@@ -126,7 +126,7 @@ using boost::mpl::int_;
     std::placeholders::_9 )
 
 #define CAMLPP__METHOD_BODY(func, values_name, params_count)		\
-  CAMLPP__BODY( method_traits, decltype(func), std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE, true)
+  CAMLPP__BODY( method_traits, decltype(func), std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
 
 
 
@@ -219,7 +219,7 @@ using boost::mpl::int_;
 
 
 #define CAMLPP__EXTERNAL_CONSTRUCTOR_BODY(func, values_name, params_count) \
-  CAMLPP__BODY( method_traits, decltype(func), func, values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE, false)
+  CAMLPP__BODY( method_traits, decltype(func), func, values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
 
 
 #define camlpp__register_external_constructor0( constructor_name, func) \
@@ -264,7 +264,7 @@ using boost::mpl::int_;
 
 #define camlpp__register_external_constructor5( constructor_name, func) \
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
-  {									\
+  {								\
     CAMLPP__EXTERNAL_CONSTRUCTOR_BODY( func, (param1, param2, param3, param4, param5), 5); \
   }
 
@@ -277,7 +277,7 @@ using boost::mpl::int_;
 #define CAMLPP__IGNORE7(x) 
 #define CAMLPP__IGNORE8(x) 
 #define CAMLPP__IGNORE9(x)
- 
+
 template<class Func>
 struct constructor_traits;
 
@@ -292,14 +292,14 @@ struct constructor_traits<T*()>
 		class_name* (*)(),					\
 		boost::factory<class_name*>(),				\
 		values_name, params_count,				\
-		params_type CAMLPP__IGNORE, false)
+		params_type CAMLPP__IGNORE)
 
 
 #define camlpp__register_constructor0( constructor_name)		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
   {									\
     CAMLparam1( unit );							\
-    ResManagement< CAMLPP__CLASS_NAME() *, false > rm;			\
+    ResManagement< CAMLPP__CLASS_NAME() *> rm;			\
     CAMLlocal1(res);							\
     CAMLPP__INVOKE							\
       (									\
@@ -386,7 +386,7 @@ struct constructor_traits<T*()>
   CAMLprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
   {									\
     CAMLparam1( param1 );						\
-    ResManagement< superclass_name *, false> rm;			\
+    ResManagement< superclass_name *> rm;				\
     ConversionManagement< CAMLPP__CLASS_NAME() * > cm1;			\
     CAMLPP__CLASS_NAME() * p1 = cm1.from_value( param1 );		\
     CAMLlocal1(res);							\
@@ -407,15 +407,6 @@ struct constructor_traits<T*()>
   {									\
     class_name* from_value( value const& v)				\
     {									\
-      if( Tag_val( v ) == Object_tag )					\
-	{								\
-	  static value callback_method = 0;				\
-	  if( !callback_method )					\
-	    {								\
-	      callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ) ; \
-	    }								\
-	  return reinterpret_cast< class_name*>( Field(callback( caml_get_public_method( v,  callback_method), v), 0)); \
-	}								\
       assert( Tag_val( v ) == Abstract_tag );				\
       return reinterpret_cast< class_name *>( Field(v, 0) );		\
     }									\
@@ -445,41 +436,15 @@ struct constructor_traits<T*()>
     }									\
   };									\
   template<>								\
-  struct AffectationManagement< class_name const*, true >		\
-  {									\
-    static void affect( value& v, class_name const* obj )		\
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( objPtrVal );						\
-      AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-      static value* callback_function = 0;				\
-      if(!callback_function)						\
-	{								\
-	  callback_function = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
-	}								\
-      assert( callback_function );					\
-      v = callback( *callback_function  ,  objPtrVal );			\
-      CAMLreturn0;							\
-    }									\
-    static void affect_field( value& v, int field, class_name const* obj) \
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( objVal );						\
-      affect( objVal, obj );						\
-      Store_field(v, 0, objVal);					\
-      CAMLreturn0;							\
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< class_name const&, true >		\
+  struct AffectationManagement< class_name const&>			\
   {									\
     static void affect( value& v, class_name const& obj )		\
     {									\
-      AffectationManagement< class_name const*, true >::affect( v, &obj ); \
+      AffectationManagement< class_name const*>::affect( v, &obj ); \
     }									\
     static void affect_field( value& v, int field, class_name const& obj) \
     {									\
-      AffectationManagement< class_name const*, true>::affect_field(v, field, &obj); \
+      AffectationManagement< class_name const*>::affect_field(v, field, &obj); \
     }									\
   }; 
 
@@ -501,16 +466,6 @@ struct constructor_traits<T*()>
   {									\
     class_name* from_value( value const& v)				\
     {									\
-      if( Tag_val( v ) == Object_tag )					\
-	{								\
-	  static value callback_method = 0;				\
-	  if( !callback_method )					\
-	    {								\
-	      callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
-	    }								\
-	  return *reinterpret_cast< class_name**>			\
-	    (Data_custom_val(callback(caml_get_public_method( v, callback_method),v))); \
-	}								\
       assert( Tag_val( v ) == Custom_tag );				\
       return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
     }									\
@@ -540,7 +495,7 @@ struct constructor_traits<T*()>
     }									\
   };									\
   template<>								\
-  struct AffectationManagement< class_name const*, false >		\
+  struct AffectationManagement< class_name const*>			\
   {									\
     static void affect( value& v, class_name const* objPtr )		\
     {									\
@@ -562,7 +517,7 @@ struct constructor_traits<T*()>
     }									\
   };								        \
   template<>								\
-  struct AffectationManagement< class_name*, false >			\
+  struct AffectationManagement< class_name*>				\
   {									\
     static void affect( value& v, class_name* objPtr )			\
     {									\
@@ -584,40 +539,15 @@ struct constructor_traits<T*()>
     }									\
   };									\
   template<>								\
-  struct AffectationManagement< class_name const*, true >		\
-  {									\
-    static void affect( value& v, class_name const* obj )		\
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( objPtrVal );						\
-      AffectationManagement< class_name const*, false >::affect(objPtrVal, obj); \
-	  static value* callback_function = 0; \
-	  if(!callback_function) \
-	  { \
-		callback_function = caml_named_value( BOOST_PP_STRINGIZE( BOOST_PP_CAT(external_cpp_create_, class_name ) ) ); \
-	  } \
-      v = callback( *callback_function ,  objPtrVal ); \
-      CAMLreturn0;							\
-    }									\
-    static void affect_field( value& v, int field, class_name const* obj) \
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( objVal );						\
-      affect( objVal, obj );						\
-      Store_field(v, 0, objVal);					\
-      CAMLreturn0;							\
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< class_name const&, true >		\
+  struct AffectationManagement< class_name const&>			\
   {									\
     static void affect( value& v, class_name const& obj )		\
     {									\
-      AffectationManagement< class_name const*, true >::affect( v, &obj ); \
+      AffectationManagement< class_name const*>::affect( v, &obj );	\
     }									\
     static void affect_field( value& v, int field, class_name const& obj) \
     {									\
-      AffectationManagement< class_name const*, true>::affect_field(v, field, &obj); \
+      AffectationManagement< class_name const*>::affect_field(v, field, &obj); \
     }									\
   };
 
