@@ -56,6 +56,9 @@ long camlpp__default_hash( value v )
 #define CAMLPP__DEFAULT_FINALIZE() 	&camlpp__default_finalize< CAMLPP__CLASS_NAME() >
 #define CAMLPP__DEFAULT_COMPARE() 	&camlpp__default_compare< CAMLPP__CLASS_NAME() >
 #define CAMLPP__DEFAULT_HASH() 		&camlpp__default_hash< CAMLPP__CLASS_NAME() >
+#define CAMLPP__NO_FINALIZE() 	custom_finalize_default
+#define CAMLPP__NO_COMPARE() 	custom_compare_default
+#define CAMLPP__NO_HASH() 	custom_hash_default
 
 #endif
 
