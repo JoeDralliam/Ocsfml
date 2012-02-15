@@ -1234,7 +1234,7 @@ class vertex_array :
     method set_primitive_type : primitive_type -> unit
   end
 
-type draw_func_type = render_target -> unit
+type draw_func_type = RenderTarget.t -> unit
 module CamlDrawable :
   sig
     type t
@@ -1262,7 +1262,7 @@ class virtual caml_drawable :
     val t_caml_drawableCpp : CamlDrawable.t
     val t_drawable : Drawable.t
     method destroy : unit
-    method virtual draw : draw_func_type
+    method virtual draw : render_target -> unit
     method rep__CamlDrawable : CamlDrawable.t
     method rep__sf_Drawable : Drawable.t
     method set_callback : draw_func_type -> unit

@@ -80,11 +80,11 @@ public:
 template<class T>
 struct AffectClass
 {
-  void affect_new( value& v, T const* t)
+  static void affect_new( value& v, T const* t)
   {
     AffectationManagement<T const*>::affect( v, t);
   }
-  void affect_field_new( value& v, size_t field, T const* t)
+  static void affect_field_new( value& v, size_t field, T const* t)
   {
     AffectationManagement<T const*>::affect_field( v, field, t);
   }
@@ -439,6 +439,15 @@ using boost::mpl::int_;
   {									\
     class_name* from_value( value const& v)				\
     {									\
+      if( Tag_val( v ) == Object_tag )					\
+	{								\
+	  static value callback_method = 0;				\
+	  if( !callback_method )					\
+	    {								\
+	      callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
+	    }								\
+	  return from_value(callback(caml_get_public_method( v, callback_method),v)); \
+	}								\
       if( Tag_val( v ) == Abstract_tag )				\
 	{								\
 	  return reinterpret_cast< class_name *>( Field(v, 0) );	\

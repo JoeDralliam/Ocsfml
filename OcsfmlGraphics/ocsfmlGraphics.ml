@@ -607,7 +607,7 @@ class vertex_array_bis () =
 class vertex_array =
   vertex_array_bis ()
 
-type draw_func_type = render_target -> unit 
+type draw_func_type = RenderTarget.t -> unit 
 
 external class caml_drawableCpp (CamlDrawable) : "CamlDrawable" =
 object
@@ -621,5 +621,5 @@ class virtual caml_drawable =
 object (self)
   inherit caml_drawableCpp (CamlDrawable.default ()) as super
   method virtual draw : render_target -> unit
-  initializer super#set_callback self#draw
+  initializer super#set_callback (fun t -> self#draw (new render_target t))
 end
