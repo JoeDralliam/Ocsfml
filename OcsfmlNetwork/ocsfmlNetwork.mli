@@ -1,6 +1,4 @@
-(** network low and high level objects *)
-
-module IPAddressCPP : 
+module IPAddressCPP :
   sig
     type t
     external destroy : t -> unit = "sf_IpAddress_destroy__impl"
@@ -10,8 +8,8 @@ module IPAddressCPP :
     external from_bytes : int -> int -> int -> int -> t
       = "sf_IpAddress_bytes_constructor__impl"
     external from_int : int -> t = "sf_IpAddress_integer_constructor__impl"
-    external to_string : t -> string = "sf_IpAddress_ToString__impl"
-    external to_integer : t -> int = "sf_IpAddress_ToInteger__impl"
+    external to_string : t -> string = "sf_IpAddress_toString__impl"
+    external to_integer : t -> int = "sf_IpAddress_toInteger__impl"
   end
 class ip_address :
   IPAddressCPP.t ->
@@ -32,13 +30,13 @@ module IPAddress :
     external from_bytes : int -> int -> int -> int -> t
       = "sf_IpAddress_bytes_constructor__impl"
     external from_int : int -> t = "sf_IpAddress_integer_constructor__impl"
-    external to_string : t -> string = "sf_IpAddress_ToString__impl"
-    external to_integer : t -> int = "sf_IpAddress_ToInteger__impl"
+    external to_string : t -> string = "sf_IpAddress_toString__impl"
+    external to_integer : t -> int = "sf_IpAddress_toInteger__impl"
     external get_local_address : unit -> ip_address
-      = "sf_IpAddress_GetLocalAddress__impl"
+      = "sf_IpAddress_getLocalAddress__impl"
     external get_public_address :
       ?timeout:OcsfmlSystem.Time.t -> unit -> ip_address
-      = "sf_IpAddress_GetPublicAddress__impl"
+      = "sf_IpAddress_getPublicAddress__impl"
     val none : ip_address
     val localhost : ip_address
     val equal :
@@ -108,9 +106,9 @@ module FTP :
         external default : ?code:Status.t -> ?msg:string -> unit -> t
           = "sf_Ftp_Response_default_constructor__impl"
         external get_status : t -> Status.t
-          = "sf_Ftp_Response_GetStatus__impl"
+          = "sf_Ftp_Response_getStatus__impl"
         external get_message : t -> string
-          = "sf_Ftp_Response_GetMessage__impl"
+          = "sf_Ftp_Response_getMessage__impl"
       end
     class response :
       Response.t ->
@@ -131,7 +129,7 @@ module FTP :
         external default : response -> t
           = "sf_Ftp_DirectoryResponse_default_constructor__impl"
         external get_directory : t -> string
-          = "sf_Ftp_DirectoryResponse_GetDirectory__impl"
+          = "sf_Ftp_DirectoryResponse_getDirectory__impl"
       end
     class directory_response :
       DirectoryResponse.t ->
@@ -154,7 +152,7 @@ module FTP :
         external default : response -> char list -> t
           = "sf_Ftp_ListingResponse_default_constructor__impl"
         external get_filenames : t -> string list
-          = "sf_Ftp_ListingResponse_GetFilenames__impl"
+          = "sf_Ftp_ListingResponse_getFilenames__impl"
       end
     class listing_response :
       ListingResponse.t ->
@@ -176,32 +174,32 @@ module FTP :
         external connect :
           t ->
           ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response
-          = "sf_Ftp_Connect__impl"
-        external disconnect : t -> response = "sf_Ftp_Disconnect__impl"
+          = "sf_Ftp_connect__impl"
+        external disconnect : t -> response = "sf_Ftp_disconnect__impl"
         external login : t -> ?log:string * string -> unit -> response
-          = "sf_Ftp_Login__impl"
-        external keep_alive : t -> response = "sf_Ftp_KeepAlive__impl"
+          = "sf_Ftp_login__impl"
+        external keep_alive : t -> response = "sf_Ftp_keepAlive__impl"
         external get_working_directory : t -> directory_response
-          = "sf_Ftp_GetWorkingDirectory__impl"
+          = "sf_Ftp_getWorkingDirectory__impl"
         external get_directory_listing :
           t -> ?dir:string -> unit -> listing_response
-          = "sf_Ftp_GetDirectoryListing__impl"
+          = "sf_Ftp_getDirectoryListing__impl"
         external change_directory : t -> string -> response
-          = "sf_Ftp_ChangeDirectory__impl"
+          = "sf_Ftp_changeDirectory__impl"
         external parent_directory : t -> response
-          = "sf_Ftp_ParentDirectory__impl"
+          = "sf_Ftp_parentDirectory__impl"
         external create_directory : t -> string -> response
-          = "sf_Ftp_CreateDirectory__impl"
+          = "sf_Ftp_createDirectory__impl"
         external delete_directory : t -> string -> response
-          = "sf_Ftp_DeleteDirectory__impl"
+          = "sf_Ftp_deleteDirectory__impl"
         external rename_file : t -> string -> string -> response
-          = "sf_Ftp_RenameFile__impl"
+          = "sf_Ftp_renameFile__impl"
         external delete_file : t -> string -> response
-          = "sf_Ftp_DeleteFile__impl"
+          = "sf_Ftp_deleteFile__impl"
         external download : t -> ?mode:transfer_mode -> string -> string
-          = "sf_Ftp_Download__impl"
+          = "sf_Ftp_download__impl"
         external upload : t -> ?mode:transfer_mode -> string -> string
-          = "sf_Ftp_Upload__impl"
+          = "sf_Ftp_upload__impl"
       end
     class ftp :
       Ftp.t ->
@@ -265,15 +263,15 @@ module HTTP :
           ?uri:string -> ?meth:request_method -> ?body:string -> unit -> t
           = "sf_Http_Request_default_constructor__impl"
         external set_field : t -> string -> string -> unit
-          = "sf_Http_Request_SetField__impl"
+          = "sf_Http_Request_setField__impl"
         external set_method : t -> request_method -> unit
-          = "sf_Http_Request_SetMethod__impl"
+          = "sf_Http_Request_setMethod__impl"
         external set_uri : t -> string -> unit
-          = "sf_Http_Request_SetUri__impl"
+          = "sf_Http_Request_setUri__impl"
         external set_http_version : t -> int -> int -> unit
-          = "sf_Http_Request_SetHttpVersion__impl"
+          = "sf_Http_Request_setHttpVersion__impl"
         external set_body : t -> string -> unit
-          = "sf_Http_Request_SetBody__impl"
+          = "sf_Http_Request_setBody__impl"
       end
     class request :
       Request.t ->
@@ -294,14 +292,14 @@ module HTTP :
         external default : unit -> t
           = "sf_Http_Response_default_constructor__impl"
         external get_field : t -> string -> string
-          = "sf_Http_Response_GetField__impl"
+          = "sf_Http_Response_getField__impl"
         external get_status : t -> Status.t
-          = "sf_Http_Response_GetStatus__impl"
+          = "sf_Http_Response_getStatus__impl"
         external get_major_http_version : t -> int
-          = "sf_Http_Response_GetMajorHttpVersion__impl"
+          = "sf_Http_Response_getMajorHttpVersion__impl"
         external get_minor_http_version : t -> int
-          = "sf_Http_Response_GetMinorHttpVersion__impl"
-        external get_body : t -> string = "sf_Http_Response_GetBody__impl"
+          = "sf_Http_Response_getMinorHttpVersion__impl"
+        external get_body : t -> string = "sf_Http_Response_getBody__impl"
       end
     class response :
       Response.t ->
@@ -324,10 +322,10 @@ module HTTP :
         external from_host_and_port : string -> int -> t
           = "sf_Http_host_and_port_constructor__impl"
         external set_host : t -> ?port:int -> string -> unit
-          = "sf_Http_SetHost__impl"
+          = "sf_Http_setHost__impl"
         external send_request :
           t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
-          = "sf_Http_SendRequest__impl"
+          = "sf_Http_sendRequest__impl"
       end
     class http :
       Http.t ->
@@ -345,29 +343,29 @@ module Packet :
     type t
     external destroy : t -> unit = "sf_Packet_destroy__impl"
     external default : unit -> t = "sf_Packet_default_constructor__impl"
-    external clear : t -> unit = "sf_Packet_Clear__impl"
-    external get_data_size : t -> int = "sf_Packet_GetDataSize__impl"
-    external end_of_packet : t -> bool = "sf_Packet_EndOfPacket__impl"
-    external is_valid : t -> bool = "sf_Packet_IsValid__impl"
-    external read_bool : t -> bool = "sf_Packet_ReadBool__impl"
-    external read_int8 : t -> int = "sf_Packet_ReadInt8__impl"
-    external read_uint8 : t -> int = "sf_Packet_ReadUint8__impl"
-    external read_int16 : t -> int = "sf_Packet_ReadInt16__impl"
-    external read_uint16 : t -> int = "sf_Packet_ReadUint16__impl"
-    external read_int32 : t -> int = "sf_Packet_ReadInt32__impl"
-    external read_uint32 : t -> int = "sf_Packet_ReadUint32__impl"
-    external read_float : t -> float = "sf_Packet_ReadFloat__impl"
-    external read_string : t -> string = "sf_Packet_ReadString__impl"
-    external write_bool : t -> bool -> unit = "sf_Packet_WriteBool__impl"
-    external write_int8 : t -> int -> unit = "sf_Packet_WriteInt8__impl"
-    external write_uint8 : t -> int -> unit = "sf_Packet_WriteUint8__impl"
-    external write_int16 : t -> int -> unit = "sf_Packet_WriteInt16__impl"
-    external write_uint16 : t -> int -> unit = "sf_Packet_WriteUint16__impl"
-    external write_int32 : t -> int -> unit = "sf_Packet_WriteInt32__impl"
-    external write_uint32 : t -> int -> unit = "sf_Packet_WriteUint32__impl"
-    external write_float : t -> float -> unit = "sf_Packet_WriteFloat__impl"
+    external clear : t -> unit = "sf_Packet_clear__impl"
+    external get_data_size : t -> int = "sf_Packet_getDataSize__impl"
+    external end_of_packet : t -> bool = "sf_Packet_endOfPacket__impl"
+    external is_valid : t -> bool = "sf_Packet_isValid__impl"
+    external read_bool : t -> bool = "sf_Packet_readBool__impl"
+    external read_int8 : t -> int = "sf_Packet_readInt8__impl"
+    external read_uint8 : t -> int = "sf_Packet_readUint8__impl"
+    external read_int16 : t -> int = "sf_Packet_readInt16__impl"
+    external read_uint16 : t -> int = "sf_Packet_readUint16__impl"
+    external read_int32 : t -> int = "sf_Packet_readInt32__impl"
+    external read_uint32 : t -> int = "sf_Packet_readUint32__impl"
+    external read_float : t -> float = "sf_Packet_readFloat__impl"
+    external read_string : t -> string = "sf_Packet_readString__impl"
+    external write_bool : t -> bool -> unit = "sf_Packet_writeBool__impl"
+    external write_int8 : t -> int -> unit = "sf_Packet_writeInt8__impl"
+    external write_uint8 : t -> int -> unit = "sf_Packet_writeUint8__impl"
+    external write_int16 : t -> int -> unit = "sf_Packet_writeInt16__impl"
+    external write_uint16 : t -> int -> unit = "sf_Packet_writeUint16__impl"
+    external write_int32 : t -> int -> unit = "sf_Packet_writeInt32__impl"
+    external write_uint32 : t -> int -> unit = "sf_Packet_writeUint32__impl"
+    external write_float : t -> float -> unit = "sf_Packet_writeFloat__impl"
     external write_string : t -> string -> unit
-      = "sf_Packet_WriteString__impl"
+      = "sf_Packet_writeString__impl"
   end
 class packetCpp :
   Packet.t ->
@@ -449,8 +447,8 @@ module Socket :
   sig
     type t
     external destroy : t -> unit = "sf_Socket_destroy__impl"
-    external set_blocking : t -> bool -> unit = "sf_Socket_SetBlocking__impl"
-    external is_blocking : t -> bool = "sf_Socket_IsBlocking__impl"
+    external set_blocking : t -> bool -> unit = "sf_Socket_setBlocking__impl"
+    external is_blocking : t -> bool = "sf_Socket_isBlocking__impl"
   end
 class socket :
   Socket.t ->
@@ -479,14 +477,14 @@ module SocketSelector :
     external destroy : t -> unit = "sf_SocketSelector_destroy__impl"
     external default : unit -> t
       = "sf_SocketSelector_default_constructor__impl"
-    external add : t -> #socket -> unit = "sf_SocketSelector_Add__impl"
-    external remove : t -> #socket -> unit = "sf_SocketSelector_Remove__impl"
-    external clear : t -> unit = "sf_SocketSelector_Clear__impl"
+    external add : t -> #socket -> unit = "sf_SocketSelector_add__impl"
+    external remove : t -> #socket -> unit = "sf_SocketSelector_remove__impl"
+    external clear : t -> unit = "sf_SocketSelector_clear__impl"
     external wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> unit
-      = "sf_SocketSelector_Wait__impl"
+      = "sf_SocketSelector_wait__impl"
     external is_ready : t -> #socket -> bool
-      = "sf_SocketSelector_IsReady__impl"
-    external set : t -> 'a -> 'a = "sf_SocketSelector_Affect__impl"
+      = "sf_SocketSelector_isReady__impl"
+    external set : t -> 'a -> 'a = "sf_SocketSelector_affect__impl"
   end
 class socket_selector :
   SocketSelector.t ->
@@ -508,18 +506,18 @@ module TcpSocket :
     external to_socket : t -> Socket.t
       = "upcast__sf_Socket_of_sf_TcpSocket__impl"
     external default : unit -> t = "sf_TcpSocket_default_constructor__impl"
-    external get_local_port : t -> int = "sf_TcpSocket_GetLocalPort__impl"
+    external get_local_port : t -> int = "sf_TcpSocket_getLocalPort__impl"
     external get_remote_address : t -> ip_address
-      = "sf_TcpSocket_GetRemoteAddress__impl"
-    external get_remote_port : t -> int = "sf_TcpSocket_GetRemotePort__impl"
+      = "sf_TcpSocket_getRemoteAddress__impl"
+    external get_remote_port : t -> int = "sf_TcpSocket_getRemotePort__impl"
     external connect :
       t -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
-      = "sf_TcpSocket_Connect__impl"
-    external disconnect : t -> unit = "sf_TcpSocket_Disconnect__impl"
+      = "sf_TcpSocket_connect__impl"
+    external disconnect : t -> unit = "sf_TcpSocket_disconnect__impl"
     external send_packet : t -> #packet -> socket_status
-      = "sf_TcpSocket_SendPacket__impl"
+      = "sf_TcpSocket_sendPacket__impl"
     external receive_packet : t -> #packet -> socket_status
-      = "sf_TcpSocket_ReceivePacket__impl"
+      = "sf_TcpSocket_receivePacket__impl"
   end
 class tcp_socketCpp :
   TcpSocket.t ->
@@ -549,12 +547,12 @@ module TcpListener :
     external to_socket : t -> Socket.t
       = "upcast__sf_Socket_of_sf_TcpListener__impl"
     external default : unit -> t = "sf_TcpListener_default_constructor__impl"
-    external get_local_port : t -> int = "sf_TcpListener_GetLocalPort__impl"
+    external get_local_port : t -> int = "sf_TcpListener_getLocalPort__impl"
     external listen : t -> int -> socket_status
-      = "sf_TcpListener_Listen__impl"
-    external close : t -> unit = "sf_TcpListener_Close__impl"
+      = "sf_TcpListener_listen__impl"
+    external close : t -> unit = "sf_TcpListener_close__impl"
     external accept : t -> tcp_socket -> socket_status
-      = "sf_TcpListener_Accept__impl"
+      = "sf_TcpListener_accept__impl"
   end
 class tcp_listenerCpp :
   TcpListener.t ->
@@ -581,13 +579,13 @@ module UdpSocket :
     external to_socket : t -> Socket.t
       = "upcast__sf_Socket_of_sf_UdpSocket__impl"
     external default : unit -> t = "sf_UdpSocket_default_constructor__impl"
-    external bind : t -> int -> socket_status = "sf_UdpSocket_Bind__impl"
-    external unbind : t -> unit = "sf_UdpSocket_Unbind__impl"
+    external bind : t -> int -> socket_status = "sf_UdpSocket_bind__impl"
+    external unbind : t -> unit = "sf_UdpSocket_unbind__impl"
     external send_packet : t -> #packet -> ip_address -> int -> socket_status
-      = "sf_UdpSocket_SendPacket__impl"
+      = "sf_UdpSocket_sendPacket__impl"
     external receive_packet :
       t -> #packet -> ip_address -> socket_status * int
-      = "sf_UdpSocket_ReceivePacket__impl"
+      = "sf_UdpSocket_receivePacket__impl"
   end
 class udp_socketCpp :
   UdpSocket.t ->

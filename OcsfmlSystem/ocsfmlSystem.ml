@@ -32,8 +32,8 @@ end
 external class clockCpp (Clock): "sf_Clock" =
 object
   constructor create : unit = "default_constructor"
-  external method get_elapsed_time : Time.t = "GetElapsedTime"
-  external method restart : Time.t = "Restart"
+  external method get_elapsed_time : Time.t = "getElapsedTime"
+  external method restart : Time.t = "restart"
 end
 
 class clock_bis () = 
@@ -43,7 +43,7 @@ class clock_bis () =
 class clock =
   clock_bis ()
 
-external cpp sleep : Time.t -> unit = "sf_Sleep"
+external cpp sleep : Time.t -> unit = "sf_sleep"
 (*
 type func0 = unit -> unit
 

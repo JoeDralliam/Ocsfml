@@ -36,9 +36,9 @@ object
   val myShader = new shader
 
   method destroy =
-    myTexture#destroy ;
-    mySprite#destroy ;
-    myShader#destroy
+    myTexture#destroy
+    (* mySprite#destroy ;
+    myShader#destroy *)
 
   method private on_load =
     if myTexture#load_from_file "resources/background.jpg"
@@ -68,9 +68,9 @@ object
   val myText = new text
   val myShader = new shader
 
-  method destroy =
-    myText#destroy ;
-    myShader#destroy
+  method destroy = ()
+(*    myText#destroy ;
+    myShader#destroy *)
 
   method private on_load =
     myText#set_string 
@@ -111,9 +111,9 @@ object
   inherit effect "storm + blink"
   val myPoints = new vertex_array 
   val myShader = new shader
-  method destroy =
-    myPoints#destroy ;
-    myShader#destroy 
+  method destroy = () 
+ (*   myPoints#destroy ;
+    myShader#destroy *)
     
   method private on_load =
     myPoints#set_primitive_type Points ;
@@ -151,14 +151,14 @@ object
   val myShader = new shader
   val mySceneSprite = new sprite
 
-  method destroy =
-    Array.iter (fun spr -> spr#destroy ) myEntities ;
-    mySurface#destroy ;
+  method destroy = 
+(*    Array.iter (fun spr -> spr#destroy ) myEntities ;
+    mySurface#destroy ; *)
     myBackgroundTexture#destroy ;
-    myEntityTexture#destroy ;
+    myEntityTexture#destroy (* ;
     myBackgroundSprite#destroy ;
     myShader#destroy ;
-	mySceneSprite#destroy
+	mySceneSprite#destroy *)
 
   method private on_load =
     if mySurface#create 800 600
@@ -166,7 +166,7 @@ object
       && myEntityTexture#load_from_file "resources/devices.png"
     then
       let init_entity i spr =
-	spr#destroy ;
+	(* spr#destroy ; *)
 	let texture_rect = { left = 96 * i; top = 0 ; width = 96 ; height = 96 } in
 	  myEntities.(i) <- mk_sprite ~texture:myEntityTexture ~texture_rect ()
       in
@@ -304,14 +304,19 @@ let _ =
     in
       main_loop () ;
       
-      
       textBackgroundTexture#destroy ;
-      textBackground#destroy ;
+  (*    textBackground#destroy ; *)
       font#destroy ;
-      description#destroy ;
+(*      description#destroy ;
       instructions#destroy ;
-      timer#destroy ;
+      timer#destroy ; *)
       Array.iter (fun eff -> eff#destroy ) effects;
-      app#destroy
+      (* app#destroy *)
+      print_newline () ;
+      Gc.full_major () ;
+      print_newline () ;
+      print_string "Ok!" ;
+      Gc.full_major () 
+      
 	
 	

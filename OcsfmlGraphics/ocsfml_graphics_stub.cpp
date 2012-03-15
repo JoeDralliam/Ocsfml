@@ -5,31 +5,31 @@
 #include <camlpp/custom_class.hpp>
 #include <camlpp/type_option.hpp>
 #include <camlpp/unit.hpp>
-
+#include <camlpp/custom_ops.hpp>
 
 custom_struct_affectation(	 sf::FloatRect,
-				&sf::FloatRect::Left,
-				&sf::FloatRect::Top,
-				&sf::FloatRect::Width,
-				&sf::FloatRect::Height ); 
+				&sf::FloatRect::left,
+				&sf::FloatRect::top,
+				&sf::FloatRect::width,
+				&sf::FloatRect::height ); 
 
 custom_struct_conversion(	 sf::FloatRect,
-				&sf::FloatRect::Left,
-				&sf::FloatRect::Top,
-				&sf::FloatRect::Width,
-				&sf::FloatRect::Height );
+				&sf::FloatRect::left,
+				&sf::FloatRect::top,
+				&sf::FloatRect::width,
+				&sf::FloatRect::height );
 
 custom_struct_affectation(	 sf::IntRect,
-				&sf::IntRect::Left,
-				&sf::IntRect::Top,
-				&sf::IntRect::Width,
-				&sf::IntRect::Height );
+				&sf::IntRect::left,
+				&sf::IntRect::top,
+				&sf::IntRect::width,
+				&sf::IntRect::height );
 
 custom_struct_conversion(	 sf::IntRect,
-				&sf::IntRect::Left,
-				&sf::IntRect::Top,
-				&sf::IntRect::Width,
-				&sf::IntRect::Height );
+				&sf::IntRect::left,
+				&sf::IntRect::top,
+				&sf::IntRect::width,
+				&sf::IntRect::height );
 
 custom_struct_affectation(	 sf::Color,
 				&sf::Color::r,
@@ -45,70 +45,72 @@ custom_struct_conversion(	 sf::Color,
 
 bool color_is_equal( sf::Color const& a, sf::Color const& b)
 {
-	return a == b;
+  return a == b;
 }
 
 bool color_is_not_equal( sf::Color const& a, sf::Color const& b)
 {
-	return a != b;
+  return a != b;
 }
 
 sf::Color color_add( sf::Color const& a, sf::Color const& b)
 {
-	return a + b;
+  return a + b;
 }
 
 sf::Color color_multiply( sf::Color const& a, sf::Color const& b)
 {
-	return a * b;
+  return a * b;
 }
 
 extern "C"
 {
-	camlpp__register_free_function2( color_is_equal )
-	camlpp__register_free_function2( color_is_not_equal )
-	camlpp__register_free_function2( color_add )
-	camlpp__register_free_function2( color_multiply )
+  camlpp__register_free_function2( color_is_equal )
+  camlpp__register_free_function2( color_is_not_equal )
+  camlpp__register_free_function2( color_add )
+  camlpp__register_free_function2( color_multiply )
 }
 
 #include <SFML/Graphics/Transformable.hpp>
 
 void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
 {
-	image->Create(w, h, color.get_value_no_fail( sf::Color(0, 0, 0) ) );
+  image->create(w, h, color.get_value_no_fail( sf::Color(0, 0, 0) ) );
 }
 
 void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> alpha, sf::Color color)
 {
-	image->CreateMaskFromColor( color, alpha.get_value_no_fail( 0 ) );
+  image->createMaskFromColor( color, alpha.get_value_no_fail( 0 ) );
 }
 
 void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
 {
-	img->Copy( 	src, destX, destY, 
-			srcRect.get_value_no_fail( sf::IntRect(0,0,0,0) ),
-			applyAlpha.get_value_no_fail( false ) );
+  img->copy( 	src, destX, destY, 
+		srcRect.get_value_no_fail( sf::IntRect(0,0,0,0) ),
+		applyAlpha.get_value_no_fail( false ) );
 }
 
 typedef sf::Image sf_Image;
 #define CAMLPP__CLASS_NAME() sf_Image
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_method3( CreateFromColor, &image_create_with_opt_color_helper )
-//	camlpp__register_method3( CreateFromPixels
-	camlpp__register_method1( LoadFromFile, &sf::Image::LoadFromFile )
-//	camlpp__register_method1( LoadFromMemory, &sf::Image::LoadFromMemory )
-	camlpp__register_method1( LoadFromStream, &sf::Image::LoadFromStream )
-	camlpp__register_method1( SaveToFile, &sf::Image::SaveToFile )
-	camlpp__register_method0( GetWidth, &sf::Image::GetWidth )
-	camlpp__register_method0( GetHeight, &sf::Image::GetHeight )
-	camlpp__register_method2( CreateMaskFromColor, &image_create_mask_from_color_helper )
-	camlpp__register_method5( Copy, &image_copy_helper )
-	camlpp__register_method3( SetPixel, &sf::Image::SetPixel )
-	camlpp__register_method2( GetPixel, &sf::Image::GetPixel )
-	camlpp__register_method0( FlipHorizontally, &sf::Image::FlipHorizontally )
-	camlpp__register_method0( FlipVertically, &sf::Image::FlipVertically )
-camlpp__custom_class_registered()
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_external_method3( createFromColor, &image_create_with_opt_color_helper );
+  //	camlpp__register_method3( CreateFromPixels;
+  camlpp__register_method1( loadFromFile );
+//	camlpp__register_method1( LoadFromMemory, &sf::Image::LoadFromMemory );
+  camlpp__register_method1( loadFromStream );
+  camlpp__register_method1( saveToFile );
+  camlpp__register_method0( getWidth );
+  camlpp__register_method0( getHeight );
+  camlpp__register_external_method2( createMaskFromColor, &image_create_mask_from_color_helper );
+  camlpp__register_external_method5( copy, &image_copy_helper );
+  camlpp__register_method3( setPixel );
+  camlpp__register_method2( getPixel );
+  camlpp__register_method0( flipHorizontally );
+  camlpp__register_method0( flipVertically );
+}
 #undef CAMLPP__CLASS_NAME
 
 custom_enum_conversion( sf::Texture::CoordinateType );
@@ -118,78 +120,78 @@ custom_enum_affectation(sf::Texture::CoordinateType );
 
 bool texture_load_from_file_helper( sf::Texture* text, Optional<sf::IntRect> area, std::string filename )
 {
-	return text->LoadFromFile( filename, area.get_value_no_fail( sf::IntRect() ) );
+  return text->loadFromFile( filename, area.get_value_no_fail( sf::IntRect() ) );
 }
 
 bool texture_load_from_stream_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::InputStream& stream )
 {
-	return text->LoadFromStream( stream, area.get_value_no_fail( sf::IntRect() ) );
+  return text->loadFromStream( stream, area.get_value_no_fail( sf::IntRect() ) );
 }
 
 bool texture_load_from_image_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::Image const& image)
 {
-	return text->LoadFromImage( image , area.get_value_no_fail( sf::IntRect() ) );
+  return text->loadFromImage( image , area.get_value_no_fail( sf::IntRect() ) );
 }
 
 void texture_update_from_image_helper( sf::Texture* tex, sf::Image const& img, Optional<sf::Vector2<unsigned int> > p)
 {
-	if(p.is_some())
-	{
-		tex->Update( img, p.get_value().x, p.get_value().y );
-	}
-	else
-	{
-		tex->Update( img );
-	}
+  if(p.is_some())
+    {
+      tex->update( img, p.get_value().x, p.get_value().y );
+    }
+  else
+    {
+      tex->update( img );
+    }
 }
 
 void texture_update_from_window_helper( sf::Texture* tex, sf::Window const& img, Optional<sf::Vector2<unsigned int> > p)
 {
-	if(p.is_some())
-	{
-		tex->Update( img, p.get_value().x, p.get_value().y );
-	}
-	else
-	{
-		tex->Update( img );
-	}
+  if(p.is_some())
+    {
+      tex->update( img, p.get_value().x, p.get_value().y );
+    }
+  else
+    {
+      tex->update( img );
+    }
 }
 void texture_bind_helper( sf::Texture* tex, Optional<sf::Texture::CoordinateType> coordinateType )
 {
-	tex->Bind( coordinateType.get_value_no_fail( sf::Texture::Normalized ) );
+  tex->bind( coordinateType.get_value_no_fail( sf::Texture::Normalized ) );
 }
 typedef sf::Texture sf_Texture;
 #define CAMLPP__CLASS_NAME() sf_Texture
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( copy_constructor, sf::Texture const& )
-	camlpp__register_method2( Create, &sf::Texture::Create )
-	camlpp__register_method2( LoadFromFile, &texture_load_from_file_helper )
-	camlpp__register_method2( LoadFromStream, &texture_load_from_stream_helper )
-	camlpp__register_method2( LoadFromImage, &texture_load_from_image_helper )	
-	camlpp__register_method0( GetWidth, &sf::Texture::GetWidth )
-	camlpp__register_method0( GetHeight, &sf::Texture::GetHeight )
-	camlpp__register_method0( CopyToImage, &sf::Texture::CopyToImage )
-//	camlpp__register_method2( UpdateFromPixels, &texture_update_from_pixels_helper )
-	camlpp__register_method2( UpdateFromImage, &texture_update_from_image_helper )
-	camlpp__register_method2( UpdateFromWindow, &texture_update_from_window_helper )
-	camlpp__register_method1( Bind, &sf::Texture::Bind )
-	camlpp__register_method1( SetSmooth, &sf::Texture::SetSmooth )
-	camlpp__register_method0( IsSmooth, &sf::Texture::IsSmooth )
-	camlpp__register_method1( SetRepeated, &sf::Texture::SetRepeated )
-	camlpp__register_method0( IsRepeated, &sf::Texture::IsRepeated )
-camlpp__custom_class_registered() 
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( copy_constructor, sf::Texture const& );
+  camlpp__register_method2( create );
+  camlpp__register_external_method2( loadFromFile, &texture_load_from_file_helper );
+  camlpp__register_external_method2( loadFromStream, &texture_load_from_stream_helper );
+  camlpp__register_external_method2( loadFromImage, &texture_load_from_image_helper );
+  camlpp__register_method0( getWidth );
+  camlpp__register_method0( getHeight );
+  camlpp__register_method0( copyToImage );
+  //	camlpp__register_method2( UpdateFromPixels, &texture_update_from_pixels_helper );
+  camlpp__register_external_method2( updateFromImage, &texture_update_from_image_helper );
+  camlpp__register_external_method2( updateFromWindow, &texture_update_from_window_helper );
+  camlpp__register_method1( bind );
+  camlpp__register_method1( setSmooth );
+  camlpp__register_method0( isSmooth );
+  camlpp__register_method1( setRepeated );
+  camlpp__register_method0( isRepeated );
+} 
 #undef CAMLPP__CLASS_NAME
 
 extern "C"
 {
-	camlpp__register_overloaded_free_function0( Texture_GetMaximumSize, &sf::Texture::GetMaximumSize)
+  camlpp__register_overloaded_free_function0( Texture_getMaximumSize, &sf::Texture::getMaximumSize)
 }
 
 
 
-custom_enum_affectation( sf::BlendMode );
-
+custom_enum_affectation(sf::BlendMode );
 custom_enum_conversion( sf::BlendMode );
 
 typedef sf::Vector2f (sf::Transform::*TransformPointFunc)(float,float) const;
@@ -197,82 +199,84 @@ typedef sf::Vector2f (sf::Transform::*TransformPointVFunc)(sf::Vector2f const&) 
 
 void transform_translate_helper(sf::Transform* t, float x, float y)
 {
-	t->Translate(x,y);
+  t->translate(x,y);
 }
 
 void transform_translateV_helper(sf::Transform* t, sf::Vector2f v)
 {
-	t->Translate(v);
+  t->translate(v);
 }
 
 void transform_rotate_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float degrees)
 {
-	if(x.is_some() && y.is_some())
-	{
-		t->Rotate(degrees, x.get_value(), y.get_value());
-	}
-	else
-	{
-		t->Rotate(degrees);
-	}
+  if(x.is_some() && y.is_some())
+    {
+      t->rotate(degrees, x.get_value(), y.get_value());
+    }
+  else
+    {
+      t->rotate(degrees);
+    }
 }
 
 void transform_rotateV_helper(sf::Transform* t, Optional< sf::Vector2f > v, float degrees)
 {
-	if(v.is_some())
-	{
-		t->Rotate(degrees, v.get_value());
-	}
-	else
-	{
-		t->Rotate(degrees);
-	}
+  if(v.is_some())
+    {
+      t->rotate(degrees, v.get_value());
+    }
+  else
+    {
+      t->rotate(degrees);
+    }
 }
 
 void transform_scale_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float scaleX, float scaleY)
 {
-	if(x.is_some() && y.is_some())
-	{
-		t->Scale(scaleX, scaleY, x.get_value(), y.get_value());
-	}
-	else
-	{
-		t->Scale(scaleX, scaleY);
-	}
+  if(x.is_some() && y.is_some())
+    {
+      t->scale(scaleX, scaleY, x.get_value(), y.get_value());
+    }
+  else
+    {
+      t->scale(scaleX, scaleY);
+    }
 }
 
 void transform_scaleV_helper(sf::Transform* t, Optional< sf::Vector2f > v, sf::Vector2f scale)
 {
-	if(v.is_some())
-	{
-		t->Scale(scale, v.get_value());
-	}
-	else
-	{
-		t->Scale(scale);
-	}
+  if(v.is_some())
+    {
+      t->scale(scale, v.get_value());
+    }
+  else
+    {
+      t->scale(scale);
+    }
 }
 
 typedef sf::Transform sf_Transform;
 #define CAMLPP__CLASS_NAME() sf_Transform
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor9( matrix_constructor,
-					float, float, float,
-					float, float, float,
-					float, float, float )
-	camlpp__register_method0( GetInverse, &sf::Transform::GetInverse )
-	camlpp__register_method2( TransformPoint, ((TransformPointFunc) &sf::Transform::TransformPoint) )
-	camlpp__register_method1( TransformPointV, ((TransformPointVFunc) &sf::Transform::TransformPoint) )
-	camlpp__register_method1( TransformRect, &sf::Transform::TransformRect )
-	camlpp__register_method1( Combine, &sf::Transform::Combine )
-	camlpp__register_method2( Translate, &transform_translate_helper )
-	camlpp__register_method1( TranslateV, &transform_translateV_helper )
-	camlpp__register_method3( Rotate, &transform_rotate_helper )
-	camlpp__register_method2( RotateV, &transform_rotateV_helper )
-	camlpp__register_method4( Scale, &transform_scale_helper )
-	camlpp__register_method2( ScaleV, &transform_scaleV_helper )
-camlpp__custom_class_registered()
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor9( matrix_constructor,
+				 float, float, float,
+				 float, float, float,
+				 float, float, float );
+  camlpp__register_method0( getInverse );
+  camlpp__register_external_method2( transformPoint, ((TransformPointFunc) &sf::Transform::transformPoint) );
+  camlpp__register_external_method1( transformPointV, ((TransformPointVFunc) &sf::Transform::transformPoint) );
+  camlpp__register_method1( transformRect );
+  camlpp__register_method1( combine );
+  camlpp__register_external_method2( translate, &transform_translate_helper );
+  camlpp__register_external_method1( translateV, &transform_translateV_helper );
+  camlpp__register_external_method3( rotate, &transform_rotate_helper );
+  camlpp__register_external_method2( rotateV, &transform_rotateV_helper );
+  camlpp__register_external_method4( scale, &transform_scale_helper );
+  camlpp__register_external_method2( scaleV, &transform_scaleV_helper );
+}
 #undef CAMLPP__CLASS_NAME
 
 
@@ -280,7 +284,7 @@ camlpp__custom_class_registered()
 typedef sf::Drawable sf_Drawable;
 #define CAMLPP__CLASS_NAME() sf_Drawable
 camlpp__register_custom_class()
-camlpp__custom_class_registered()
+{}
 #undef CAMLPP__CLASS_NAME
 
 
@@ -290,90 +294,99 @@ typedef void (sf_Transformable::* TransfoVf)(sf::Vector2f const&);
 
 
 #define CAMLPP__CLASS_NAME() sf_Transformable
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_method2( SetPosition, ((Transfo2f)&sf::Transformable::SetPosition) )
-	camlpp__register_method1( SetPositionV, ((TransfoVf)&sf::Transformable::SetPosition) )
-	camlpp__register_method2( SetScale, ((Transfo2f)&sf::Transformable::SetScale) )
-	camlpp__register_method1( SetScaleV, ((TransfoVf)&sf::Transformable::SetScale) )
-	camlpp__register_method2( SetOrigin, ((Transfo2f)&sf::Transformable::SetOrigin) )
-	camlpp__register_method1( SetOriginV, ((TransfoVf)&sf::Transformable::SetOrigin) )
-	camlpp__register_method1( SetRotation, &sf::Transformable::SetRotation)
-	camlpp__register_method0( GetPosition, &sf::Transformable::GetPosition )
-	camlpp__register_method0( GetScale, &sf::Transformable::GetScale )
-	camlpp__register_method0( GetOrigin, &sf::Transformable::GetOrigin )
-	camlpp__register_method0( GetRotation, &sf::Transformable::GetRotation )
-	camlpp__register_method2( Move, ((Transfo2f)&sf::Transformable::Move) )
-	camlpp__register_method1( MoveV, ((TransfoVf)&sf::Transformable::Move) )
-	camlpp__register_method2( Scale, ((Transfo2f)&sf::Transformable::Scale) )
-	camlpp__register_method1( ScaleV, ((TransfoVf)&sf::Transformable::Scale) )
-	camlpp__register_method1( Rotate, &sf::Transformable::Rotate )
-	camlpp__register_method0( GetTransform, &sf::Transformable::GetTransform )
-	camlpp__register_method0( GetInverseTransform, &sf::Transformable::GetInverseTransform )	
-camlpp__custom_class_registered()
+{
+  camlpp__register_external_method2( setPosition, ((Transfo2f)&sf::Transformable::setPosition) );
+  camlpp__register_external_method1( setPositionV, ((TransfoVf)&sf::Transformable::setPosition) );
+  camlpp__register_external_method2( setScale, ((Transfo2f)&sf::Transformable::setScale) );
+  camlpp__register_external_method1( setScaleV, ((TransfoVf)&sf::Transformable::setScale) );
+  camlpp__register_external_method2( setOrigin, ((Transfo2f)&sf::Transformable::setOrigin) );
+  camlpp__register_external_method1( setOriginV, ((TransfoVf)&sf::Transformable::setOrigin) );
+  camlpp__register_method1( setRotation );
+  camlpp__register_method0( getPosition );
+  camlpp__register_method0( getScale );
+  camlpp__register_method0( getOrigin );
+  camlpp__register_method0( getRotation );
+  camlpp__register_external_method2( move, ((Transfo2f)&sf::Transformable::move) );
+  camlpp__register_external_method1( moveV, ((TransfoVf)&sf::Transformable::move) );
+  camlpp__register_external_method2( scale, ((Transfo2f)&sf::Transformable::scale) );
+  camlpp__register_external_method1( scaleV, ((TransfoVf)&sf::Transformable::scale) );
+  camlpp__register_method1( rotate );
+  camlpp__register_method0( getTransform );
+  camlpp__register_method0( getInverseTransform );
+}
 #undef CAMLPP__CLASS_NAME
 
 void shape_set_texture_helper( sf::Shape* shape, Optional<sf::Texture const*> texture, Optional<bool> resetRect, UnitTypeHolder)
 {
-	shape->SetTexture( 	texture.get_value_no_fail( 0 ),
-				resetRect.get_value_no_fail( false ) );
+  shape->setTexture( 	texture.get_value_no_fail( 0 ),
+			resetRect.get_value_no_fail( false ) );
 }
 
 typedef sf::Shape sf_Shape;
 #define CAMLPP__CLASS_NAME() sf_Shape
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_Drawable )
-	camlpp__register_inheritance_relationship( sf_Transformable )
-	camlpp__register_method3( SetTexture, &shape_set_texture_helper )
-	camlpp__register_method1( SetTextureRect, &sf::Shape::SetTextureRect )
-	camlpp__register_method1( SetFillColor, &sf::Shape::SetFillColor )
-	camlpp__register_method1( SetOutlineColor, &sf::Shape::SetOutlineColor )
-	camlpp__register_method1( SetOutlineThickness, &sf::Shape::SetOutlineThickness )
-	camlpp__register_method0( GetTexture, &sf::Shape::GetTexture )
-	camlpp__register_method0( GetTextureRect, &sf::Shape::GetTextureRect )
-	camlpp__register_method0( GetFillColor, &sf::Shape::GetFillColor )
-	camlpp__register_method0( GetOutlineColor, &sf::Shape::GetOutlineColor )
-	camlpp__register_method0( GetOutlineThickness, &sf::Shape::GetOutlineThickness )
-	camlpp__register_method0( GetPointCount, &sf::Shape::GetPointCount ) // pure virtual
-	camlpp__register_method1( GetPoint, &sf::Shape::GetPoint ) // pure virtual
-	camlpp__register_method0( GetLocalBounds, &sf::Shape::GetLocalBounds )
-	camlpp__register_method0( GetGlobalBounds, &sf::Shape::GetGlobalBounds )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Drawable );
+  camlpp__register_inheritance_relationship( sf_Transformable );
+  camlpp__register_external_method3( setTexture, &shape_set_texture_helper );
+  camlpp__register_method1( setTextureRect );
+  camlpp__register_method1( setFillColor );
+  camlpp__register_method1( setOutlineColor );
+  camlpp__register_method1( setOutlineThickness );
+  camlpp__register_method0( getTexture );
+  camlpp__register_method0( getTextureRect );
+  camlpp__register_method0( getFillColor );
+  camlpp__register_method0( getOutlineColor );
+  camlpp__register_method0( getOutlineThickness );
+  camlpp__register_method0( getPointCount ); // pure virtual
+  camlpp__register_method1( getPoint ); // pure virtual
+  camlpp__register_method0( getLocalBounds );
+  camlpp__register_method0( getGlobalBounds );
+}
 #undef CAMLPP__CLASS_NAME
 
 
 typedef sf::RectangleShape sf_RectangleShape;
 #define CAMLPP__CLASS_NAME() sf_RectangleShape
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_Shape )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( size_constructor, sf::Vector2f )
-	camlpp__register_method1( SetSize, &sf::RectangleShape::SetSize )
-	camlpp__register_method0( GetSize, &sf::RectangleShape::GetSize )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Shape );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( size_constructor, sf::Vector2f );
+  camlpp__register_method1( setSize );
+  camlpp__register_method0( getSize );
+}
 #undef CAMLPP__CLASS_NAME
 
 typedef sf::CircleShape sf_CircleShape;
 #define CAMLPP__CLASS_NAME() sf_CircleShape
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_Shape )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( radius_constructor, float )
-	camlpp__register_method1( SetRadius, &sf::CircleShape::SetRadius )
-	camlpp__register_method0( GetRadius, &sf::CircleShape::GetRadius )
-	camlpp__register_method1( SetPointCount, &sf::CircleShape::SetPointCount )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Shape );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( radius_constructor, float );
+  camlpp__register_method1( setRadius );
+  camlpp__register_method0( getRadius );
+  camlpp__register_method1( setPointCount );
+}
 #undef CAMLPP__CLASS_NAME
 
 
 typedef sf::ConvexShape sf_ConvexShape;
 #define CAMLPP__CLASS_NAME() sf_ConvexShape
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_Shape )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( point_constructor, int )
-	camlpp__register_method1( SetPointCount, &sf::ConvexShape::SetPointCount )
-	camlpp__register_method2( SetPoint, &sf::ConvexShape::SetPoint )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Shape );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( point_constructor, int );
+  camlpp__register_method1( setPointCount );
+  camlpp__register_method2( setPoint );
+}
 #undef CAMLPP__CLASS_NAME
 
 
@@ -381,96 +394,98 @@ camlpp__custom_class_registered()
 
 void sprite_set_texture_helper( sf::Sprite* spr, Optional<bool> resize, sf::Texture const& texture )
 {
-	spr->SetTexture( texture, resize.get_value_no_fail( false ) );
+  spr->setTexture( texture, resize.get_value_no_fail( false ) );
 }
 
 Optional<sf::Texture const*> sprite_get_texture_helper( sf::Sprite const* spr )
 {
-	sf::Texture const* res = spr->GetTexture();
-	return (res ? some(res) : none<sf::Texture const*>());
+  sf::Texture const* res = spr->getTexture();
+  return (res ? some(res) : none<sf::Texture const*>());
 }
 
 typedef sf::Sprite sf_Sprite;
 #define CAMLPP__CLASS_NAME() sf_Sprite
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_Drawable )
-	camlpp__register_inheritance_relationship( sf_Transformable )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( texture_constructor, sf::Texture const&)
-	camlpp__register_method2( SetTexture, &sprite_set_texture_helper )
-	camlpp__register_method1( SetTextureRect, &sf::Sprite::SetTextureRect )
-	camlpp__register_method1( SetColor, &sf::Sprite::SetColor )
-	camlpp__register_method0( GetTexture, &sprite_get_texture_helper )
-	camlpp__register_method0( GetTextureRect, &sf::Sprite::GetTextureRect )
-	camlpp__register_method0( GetColor, &sf::Sprite::GetColor )
-	camlpp__register_method0( GetLocalBounds, &sf::Sprite::GetLocalBounds )
-	camlpp__register_method0( GetGlobalBounds, &sf::Sprite::GetGlobalBounds )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Drawable );
+  camlpp__register_inheritance_relationship( sf_Transformable );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( texture_constructor, sf::Texture const&);
+  camlpp__register_external_method2( setTexture, &sprite_set_texture_helper );
+  camlpp__register_method1( setTextureRect );
+  camlpp__register_method1( setColor );
+  camlpp__register_external_method0( getTexture, &sprite_get_texture_helper );
+  camlpp__register_method0( getTextureRect );
+  camlpp__register_method0( getColor );
+  camlpp__register_method0( getLocalBounds );
+  camlpp__register_method0( getGlobalBounds );
+}
 #undef CAMLPP__CLASS_NAME
 
 
 
-custom_struct_affectation(	 sf::Glyph,
-				&sf::Glyph::Advance,
-				&sf::Glyph::Bounds,
-				&sf::Glyph::TextureRect );
+custom_struct_affectation(sf::Glyph,
+			  &sf::Glyph::advance,
+			  &sf::Glyph::bounds,
+			  &sf::Glyph::textureRect );
 
-custom_struct_conversion(	 sf::Glyph,
-				&sf::Glyph::Advance,
-				&sf::Glyph::Bounds,
-				&sf::Glyph::TextureRect );
+custom_struct_conversion(sf::Glyph,
+			 &sf::Glyph::advance,
+			 &sf::Glyph::bounds,
+			 &sf::Glyph::textureRect );
 
 
 typedef sf::Font sf_Font;
 #define CAMLPP__CLASS_NAME() sf_Font
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_constructor1( copy_constructor, sf::Font const& )
-	camlpp__register_method1( LoadFromFile, &sf::Font::LoadFromFile )
-//	camlpp__register_method1( LoadFromMemory, &sf::Font::LoadFromMemory )
-	camlpp__register_method1( LoadFromStream, &sf::Font::LoadFromStream )
-	camlpp__register_method3( GetGlyph, &sf::Font::GetGlyph )
-	camlpp__register_method3( GetKerning, &sf::Font::GetKerning )
-	camlpp__register_method1( GetLineSpacing, &sf::Font::GetLineSpacing )
-	camlpp__register_method1( GetTexture, &sf::Font::GetTexture )
-	camlpp__register_method1( Affect, &sf::Font::operator= )
-camlpp__custom_class_registered()
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( copy_constructor, sf::Font const& );
+  camlpp__register_method1( loadFromFile );
+  //	camlpp__register_method1( loadFromMemory, &sf::Font::LoadFromMemory );
+  camlpp__register_method1( loadFromStream );
+  camlpp__register_method3( getGlyph );
+  camlpp__register_method3( getKerning );
+  camlpp__register_method1( getLineSpacing );
+  camlpp__register_method1( getTexture );
+  camlpp__register_external_method1( affect, &sf::Font::operator= );
+}
 #undef CAMLPP__CLASS_NAME
 
 extern "C"
 {
-	camlpp__register_overloaded_free_function0( GetDefaultFont, &sf::Font::GetDefaultFont)
+  camlpp__register_overloaded_free_function0( getDefaultFont, &sf::Font::getDefaultFont)
 }
 
-custom_enum_affectation( sf::Text::Style );
-
+custom_enum_affectation(sf::Text::Style );
 custom_enum_conversion( sf::Text::Style );
 
 sf::Text* text_constructor_helper( Optional<sf::Font const*> font, Optional<unsigned> characterSize, char* str)
 {
-	return new sf::Text( 	sf::String(str),
-				font.is_some() ? *font.get_value() : sf::Font::GetDefaultFont(), 
-				characterSize.get_value_no_fail( 30 ) );
+  return new sf::Text( 	sf::String(str),
+			font.is_some() ? *font.get_value() : sf::Font::getDefaultFont(), 
+			characterSize.get_value_no_fail( 30 ) );
 }
 
 void text_set_string_helper( sf::Text* txt, char* str)
 {
-	txt->SetString( sf::String( str ) );
+	txt->setString( sf::String( str ) );
 }
 
 std::string text_get_string_helper( sf::Text const* txt )
 {
-	return txt->GetString().ToAnsiString();
+	return txt->getString().toAnsiString();
 }
 
 void text_set_style_helper( sf::Text* txt, std::list<unsigned long> style)
 {
-	txt->SetStyle( style_of_list_unsigned( style ) );
+	txt->setStyle( style_of_list_unsigned( style ) );
 }
 
 std::list<unsigned long> text_get_style_helper( sf::Text* txt )
 {
-	unsigned long style = txt->GetStyle();
+	unsigned long style = txt->getStyle();
 	std::list<unsigned long> res;
 	for(int i = 0; i < 2; ++i)
 	{
@@ -484,36 +499,38 @@ std::list<unsigned long> text_get_style_helper( sf::Text* txt )
 
 typedef sf::Text sf_Text;
 #define CAMLPP__CLASS_NAME() sf_Text
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_Drawable )
-	camlpp__register_inheritance_relationship( sf_Transformable )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_external_constructor3( init_constructor, &text_constructor_helper )
-	camlpp__register_method1( SetString, &text_set_string_helper )
-	camlpp__register_method1( SetFont, &sf::Text::SetFont )
-	camlpp__register_method1( SetCharacterSize, &sf::Text::SetCharacterSize )
-	camlpp__register_method1( SetStyle, &text_set_style_helper )
-	camlpp__register_method1( SetColor, &sf::Text::SetColor )
-	camlpp__register_method0( GetString, &text_get_string_helper )
-	camlpp__register_method0( GetFont, &sf::Text::GetFont )
-	camlpp__register_method0( GetCharacterSize, &sf::Text::GetCharacterSize )
-	camlpp__register_method0( GetStyle, &text_get_style_helper )
-	camlpp__register_method0( GetColor, &sf::Text::GetColor )
-	camlpp__register_method1( FindCharacterPos, &sf::Text::FindCharacterPos )
-	camlpp__register_method0( GetLocalBounds, &sf::Text::GetLocalBounds )
-	camlpp__register_method0( GetGlobalBounds, &sf::Text::GetGlobalBounds )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Drawable );
+  camlpp__register_inheritance_relationship( sf_Transformable );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_external_constructor3( init_constructor, &text_constructor_helper );
+  camlpp__register_external_method1( setString, &text_set_string_helper );
+  camlpp__register_method1( setFont );
+  camlpp__register_method1( setCharacterSize );
+  camlpp__register_external_method1( setStyle, &text_set_style_helper );
+  camlpp__register_method1( setColor );
+  camlpp__register_external_method0( getString, &text_get_string_helper );
+  camlpp__register_method0( getFont );
+  camlpp__register_method0( getCharacterSize );
+  camlpp__register_external_method0( getStyle, &text_get_style_helper );
+  camlpp__register_method0( getColor );
+  camlpp__register_method1( findCharacterPos );
+  camlpp__register_method0( getLocalBounds );
+  camlpp__register_method0( getGlobalBounds );
+}
 #undef CAMLPP__CLASS_NAME
 
-custom_struct_affectation(	 sf::Vertex,
-				&sf::Vertex::Position,
-				&sf::Vertex::Color,
-				&sf::Vertex::TexCoords );
+custom_struct_affectation(sf::Vertex,
+			  &sf::Vertex::position,
+			  &sf::Vertex::color,
+			  &sf::Vertex::texCoords );
 
-custom_struct_conversion(	 sf::Vertex,
-				&sf::Vertex::Position,
-				&sf::Vertex::Color,
-				&sf::Vertex::TexCoords );
+custom_struct_conversion(sf::Vertex,
+			 &sf::Vertex::position,
+			 &sf::Vertex::color,
+			 &sf::Vertex::texCoords );
 
 custom_enum_affectation( sf::PrimitiveType ) ;
 custom_enum_conversion ( sf::PrimitiveType ) ;
@@ -527,19 +544,21 @@ void vertex_array_set_at_index_helper(sf::VertexArray* va, unsigned int i, sf::V
 
 typedef sf::VertexArray sf_VertexArray;
 #define CAMLPP__CLASS_NAME() sf_VertexArray
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-camlpp__register_inheritance_relationship( sf_Drawable )
-camlpp__register_constructor0( default_constructor )
-camlpp__register_method0( GetVertexCount, &sf::VertexArray::GetVertexCount )
-camlpp__register_method2( SetAtIndex , &vertex_array_set_at_index_helper )
-camlpp__register_method1( GetAtIndex , ((GetAtIndexFunc)&sf::VertexArray::operator[]) )
-camlpp__register_method0( Clear, &sf::VertexArray::Clear )
-camlpp__register_method1( Resize, &sf::VertexArray::Resize )
-camlpp__register_method1( Append, &sf::VertexArray::Append )
-camlpp__register_method1( SetPrimitiveType, &sf::VertexArray::SetPrimitiveType )
-camlpp__register_method0( GetPrimitiveType, &sf::VertexArray::GetPrimitiveType )
-camlpp__register_method0( GetBounds, &sf::VertexArray::GetBounds )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Drawable );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_method0( getVertexCount );
+  camlpp__register_external_method2( setAtIndex , &vertex_array_set_at_index_helper );
+  camlpp__register_external_method1( getAtIndex , ((GetAtIndexFunc)&sf::VertexArray::operator[]) );
+  camlpp__register_method0( clear );
+  camlpp__register_method1( resize );
+  camlpp__register_method1( append );
+  camlpp__register_method1( setPrimitiveType );
+  camlpp__register_method0( getPrimitiveType );
+  camlpp__register_method0( getBounds );
+}
 #undef CAMLPP__CLASS_NAME
 
 
@@ -555,61 +574,63 @@ typedef void (sf::Shader::*SetTextureParameterType)(std::string const&, sf::Text
 
 
 #define SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( ResourceName, ResourceType, MemFunc) \
-	bool shader__load_from_ ## ResourceName ## _helper( 	sf::Shader* shader, \
-					Optional<ResourceType> vertex, \
-					Optional<ResourceType> frag, \
-					UnitTypeHolder ) \
-	{ \
-		if( vertex.is_some() && frag.is_some() ) \
-		{ \
-			return shader->MemFunc( vertex.get_value(), frag.get_value() ); \
-		} \
-		else if( vertex.is_some() ) \
-		{ \
-			return shader->MemFunc( vertex.get_value(), sf::Shader::Vertex ); \
-		} \
-		else if( frag.is_some() ) \
-		{ \
-			return shader->MemFunc( frag.get_value(), sf::Shader::Fragment ); \
-		} \
-		else \
-		{ \
-		} \
-	}
+  bool shader__load_from_ ## ResourceName ## _helper( 	sf::Shader* shader, \
+							Optional<ResourceType> vertex, \
+							Optional<ResourceType> frag, \
+							UnitTypeHolder ) \
+  {									\
+    if( vertex.is_some() && frag.is_some() )				\
+      {									\
+	return shader->MemFunc( vertex.get_value(), frag.get_value() ); \
+      }									\
+    else if( vertex.is_some() )						\
+      {									\
+	return shader->MemFunc( vertex.get_value(), sf::Shader::Vertex ); \
+      }									\
+    else if( frag.is_some() )						\
+      {									\
+	return shader->MemFunc( frag.get_value(), sf::Shader::Fragment ); \
+      }									\
+    else								\
+      {									\
+      }									\
+  }
 
-SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( file, std::string, LoadFromFile )
-SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( stream, sf::InputStream&, LoadFromStream )
+SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( file, std::string, loadFromFile )
+SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( stream, sf::InputStream&, loadFromStream )
 
 void shader_set_current_texture_helper( sf::Shader* s, std::string str )
 {
-  s->SetParameter( str, sf::Shader::CurrentTexture );
+  s->setParameter( str, sf::Shader::CurrentTexture );
 }
 
 typedef sf::Shader sf_Shader;
 #define CAMLPP__CLASS_NAME() sf_Shader
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_method3( LoadFromFile, &shader__load_from_file_helper )
-//	camlpp__register_method1( LoadFromMemory
-	camlpp__register_method3( LoadFromStream, &shader__load_from_stream_helper )
-	camlpp__register_method2( SetFloatParameter, ((SetFloatParameterType) &sf::Shader::SetParameter) )
-	camlpp__register_method3( SetVec2Parameter, ((SetVec2ParameterType) &sf::Shader::SetParameter) )
-	camlpp__register_method4( SetVec3Parameter, ((SetVec3ParameterType) &sf::Shader::SetParameter) )
-	camlpp__register_method5( SetVec4Parameter, ((SetVec4ParameterType) &sf::Shader::SetParameter) )
-	camlpp__register_method2( SetVec2ParameterV, ((SetVec2ParameterTypeV) &sf::Shader::SetParameter) )
-	camlpp__register_method2( SetVec3ParameterV, ((SetVec3ParameterTypeV) &sf::Shader::SetParameter) )
-	camlpp__register_method2( SetColorParameter, ((SetColorParameterType) &sf::Shader::SetParameter)  )
-	camlpp__register_method2( SetTransformParameter, ((SetTransformParameterType) &sf::Shader::SetParameter) )
-	camlpp__register_method2( SetTextureParameter, ((SetTextureParameterType) &sf::Shader::SetParameter) ) 
-	camlpp__register_method1( SetCurrentTexture, &shader_set_current_texture_helper)
-	camlpp__register_method0( Bind, &sf::Shader::Bind )
-	camlpp__register_method0( Unbind, &sf::Shader::Unbind )
-camlpp__custom_class_registered()
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_external_method3( loadFromFile, &shader__load_from_file_helper );
+  //	camlpp__register_method1( LoadFromMemory
+  camlpp__register_external_method3( loadFromStream, &shader__load_from_stream_helper );
+  camlpp__register_external_method2( setFloatParameter, ((SetFloatParameterType) &sf::Shader::setParameter) );
+  camlpp__register_external_method3( setVec2Parameter, ((SetVec2ParameterType) &sf::Shader::setParameter) );
+  camlpp__register_external_method4( setVec3Parameter, ((SetVec3ParameterType) &sf::Shader::setParameter) );
+  camlpp__register_external_method5( setVec4Parameter, ((SetVec4ParameterType) &sf::Shader::setParameter) );
+  camlpp__register_external_method2( setVec2ParameterV, ((SetVec2ParameterTypeV) &sf::Shader::setParameter) );
+  camlpp__register_external_method2( setVec3ParameterV, ((SetVec3ParameterTypeV) &sf::Shader::setParameter) );
+  camlpp__register_external_method2( setColorParameter, ((SetColorParameterType) &sf::Shader::setParameter)  );
+  camlpp__register_external_method2( setTransformParameter, ((SetTransformParameterType) &sf::Shader::setParameter) );
+  camlpp__register_external_method2( setTextureParameter, ((SetTextureParameterType) &sf::Shader::setParameter) );
+  camlpp__register_external_method1( setCurrentTexture, &shader_set_current_texture_helper);
+  camlpp__register_method0( bind );
+  camlpp__register_method0( unbind );
+}
 #undef CAMLPP__CLASS_NAME
 
 extern "C"
 {
-	camlpp__register_overloaded_free_function0( Shader_IsAvailable, &sf::Shader::IsAvailable )
+  camlpp__register_overloaded_free_function0( Shader_isAvailable, &sf::Shader::isAvailable )
 }
 
 sf::View* view_rectangle_constructor_helper( sf::FloatRect const& rec)
@@ -624,94 +645,96 @@ sf::View* view_center_and_size_constructor_helper( sf::Vector2f const& center, s
 
 typedef sf::View sf_View;
 #define CAMLPP__CLASS_NAME() sf_View
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_external_constructor1( rectangle_constructor, &view_rectangle_constructor_helper )
-	camlpp__register_external_constructor2( center_and_size_constructor, &view_center_and_size_constructor_helper )
-	camlpp__register_method2( SetCenter, ((void (sf::View::*)(float, float)) &sf::View::SetCenter) )
-	camlpp__register_method1( SetCenterV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::SetCenter) )
-	camlpp__register_method2( SetSize, ((void (sf::View::*)(float, float)) &sf::View::SetSize) )
-	camlpp__register_method1( SetSizeV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::SetSize) )
-	camlpp__register_method1( SetRotation, &sf::View::SetRotation )
-	camlpp__register_method1( SetViewport, &sf::View::SetViewport )
-	camlpp__register_method1( Reset, &sf::View::Reset )
-	camlpp__register_method0( GetCenter, &sf::View::GetCenter )
-	camlpp__register_method0( GetSize, &sf::View::GetSize )
-	camlpp__register_method0( GetRotation, &sf::View::GetRotation )
-	camlpp__register_method0( GetViewport, &sf::View::GetViewport )
-	camlpp__register_method2( Move, ((void (sf::View::*)(float, float)) &sf::View::Move) )
-	camlpp__register_method1( MoveV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::Move) )
-	camlpp__register_method1( Rotate, &sf::View::Rotate )
-	camlpp__register_method1( Zoom, &sf::View::Zoom )
-//	camlpp__register_method0( GetMatrix, &sf::View::GetMatrix )
-//	camlpp__register_method0( GetInverseMatrix, &sf::View::GetInverseMatrix )
-camlpp__custom_class_registered()
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_external_constructor1( rectangle_constructor, &view_rectangle_constructor_helper );
+  camlpp__register_external_constructor2( center_and_size_constructor, &view_center_and_size_constructor_helper );
+  camlpp__register_external_method2( setCenter, ((void (sf::View::*)(float, float)) &sf::View::setCenter) );
+  camlpp__register_external_method1( setCenterV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::setCenter) );
+  camlpp__register_external_method2( setSize, ((void (sf::View::*)(float, float)) &sf::View::setSize) );
+  camlpp__register_external_method1( setSizeV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::setSize) );
+  camlpp__register_method1( setRotation );
+  camlpp__register_method1( setViewport );
+  camlpp__register_method1( reset );
+  camlpp__register_method0( getCenter );
+  camlpp__register_method0( getSize );
+  camlpp__register_method0( getRotation );
+  camlpp__register_method0( getViewport );
+  camlpp__register_external_method2( move, ((void (sf::View::*)(float, float)) &sf::View::move) );
+  camlpp__register_external_method1( moveV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::move) );
+  camlpp__register_method1( rotate );
+  camlpp__register_method1( zoom );
+  //	camlpp__register_method0( GetMatrix, &sf::View::GetMatrix );
+  //	camlpp__register_method0( GetInverseMatrix, &sf::View::GetInverseMatrix );
+}
 #undef CAMLPP__CLASS_NAME
 
 
 void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color, UnitTypeHolder )
 {
-	return target->Clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
+  return target->clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
 }
 
 sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Optional<sf::View const*> opt, unsigned int x, unsigned int y)
 {
-	if( opt.is_some() )
-	{
-		return target->ConvertCoords(x, y, *opt.get_value() );
-	}
-	return target->ConvertCoords(x, y);
+  if( opt.is_some() )
+    {
+      return target->convertCoords(x, y, *opt.get_value() );
+    }
+  return target->convertCoords(x, y);
 }
 
 
 void render_target_draw_helper( sf::RenderTarget* target, 
 				Optional< sf::BlendMode > blend,
-				Optional< sf::Transform const* > Transform,
+				Optional< sf::Transform const* > transform,
 				Optional< sf::Texture const* > text,
 				Optional< sf::Shader const* > shader,
 				sf::Drawable const& drawable)
 {
-	sf::RenderStates const& def = sf::RenderStates::Default;
-	target->Draw
-	(
-		drawable,
-		sf::RenderStates
-		(
-			blend.get_value_no_fail( def.BlendMode ),
-			*Transform.get_value_no_fail( &def.Transform ),
-			text.get_value_no_fail( def.Texture ),
-			shader.get_value_no_fail( def.Shader )
-		)
-	);
+  sf::RenderStates const& def = sf::RenderStates::Default;
+  target->draw
+    (
+     drawable,
+     sf::RenderStates
+     (
+      blend.get_value_no_fail( def.blendMode ),
+      *transform.get_value_no_fail( &def.transform ),
+      text.get_value_no_fail( def.texture ),
+      shader.get_value_no_fail( def.shader )
+      )
+     );
 }
 
 /*  
-void render_target_draw_prim_helper( sf::RenderTarget* target, 
-				     const 
-				     unsigned verticesCount,
-				     PrimitiveType type, 
-                                     Optional< sf::RenderStates const* > states )
-{
-}
-
+    void render_target_draw_prim_helper( sf::RenderTarget* target, 
+    const 
+    unsigned verticesCount,
+    PrimitiveType type, 
+    Optional< sf::RenderStates const* > states )
+    {
+    }  
 */
 
 typedef sf::RenderTarget sf_RenderTarget;
 #define CAMLPP__CLASS_NAME() sf_RenderTarget
 camlpp__register_custom_class()
-	camlpp__register_method2( Clear, &render_target_clear_helper )
-	camlpp__register_method5( Draw, &render_target_draw_helper )
-//	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper )
-	camlpp__register_method0( GetWidth, &sf::RenderTarget::GetWidth )
-	camlpp__register_method0( GetHeight, &sf::RenderTarget::GetHeight )
-	camlpp__register_method1( SetView, &sf::RenderTarget::SetView )
-	camlpp__register_method0( GetView, &sf::RenderTarget::GetView )
-	camlpp__register_method0( GetDefaultView, &sf::RenderTarget::GetDefaultView )
-	camlpp__register_method1( GetViewport, &sf::RenderTarget::GetViewport )
-	camlpp__register_method3( ConvertCoords, &render_target_convert_coords_helper )
-	camlpp__register_method0( PushGLStates, &sf::RenderTarget::PushGLStates)
-	camlpp__register_method0( PopGLStates, &sf::RenderTarget::PopGLStates )	
-camlpp__custom_class_registered()
+{
+  camlpp__register_external_method2( clear, &render_target_clear_helper );
+  camlpp__register_external_method5( draw, &render_target_draw_helper );
+  //	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper );
+  camlpp__register_method0( getSize );
+  camlpp__register_method1( setView );
+  camlpp__register_method0( getView );
+  camlpp__register_method0( getDefaultView );
+  camlpp__register_method1( getViewport );
+  camlpp__register_external_method3( convertCoords, &render_target_convert_coords_helper );
+  camlpp__register_method0( pushGLStates );
+  camlpp__register_method0( popGLStates );
+  camlpp__register_method0( resetGLStates );
+}
 #undef CAMLPP__CLASS_NAME
 /* 
 
@@ -744,51 +767,55 @@ camlpp__custom_class_registered()
 
 bool render_texture_create_helper( sf::RenderTexture* rI, Optional<bool> depthBfr, unsigned w, unsigned h)
 {
-	return rI->Create( w, h, depthBfr.get_value_no_fail( false ) );
+  return rI->create( w, h, depthBfr.get_value_no_fail( false ) );
 }
 
 bool render_texture_set_active_helper( sf::RenderTexture* rI, Optional<bool> active, UnitTypeHolder )
 {
-	return rI->SetActive( active.get_value_no_fail( true ) );
+  return rI->setActive( active.get_value_no_fail( true ) );
 }
 
 sf::Texture const* render_texture_get_texture_helper(sf::RenderTexture* rT )
 {
-  return &rT->GetTexture();
+  return &rT->getTexture();
 }
 
 typedef sf::RenderTexture sf_RenderTexture;
 #define CAMLPP__CLASS_NAME() sf_RenderTexture
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_RenderTarget )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_method3( Create, &render_texture_create_helper )
-	camlpp__register_method1( SetSmooth, &sf::RenderTexture::SetSmooth )
-	camlpp__register_method0( IsSmooth, &sf::RenderTexture::IsSmooth )
-	camlpp__register_method2( SetActive, &render_texture_set_active_helper )
-	camlpp__register_method0( Display, &sf::RenderTexture::Display )
-	camlpp__register_method0( GetTexture, &render_texture_get_texture_helper )	
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_RenderTarget );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_external_method3( create, &render_texture_create_helper );
+  camlpp__register_method1( setSmooth );
+  camlpp__register_method0( isSmooth );
+  camlpp__register_external_method2( setActive, &render_texture_set_active_helper );
+  camlpp__register_method0( display );
+  camlpp__register_external_method0( getTexture, &render_texture_get_texture_helper );
+}
 #undef CAMLPP__CLASS_NAME
 
 sf::RenderWindow* render_window_constructor_helper(Optional<std::list<unsigned long> > style , Optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
 {
-	unsigned long actualStyle =  style.is_some() ? style_of_list_unsigned( style.get_value() )
-						    : sf::Style::Default;
-	sf::ContextSettings actualSettings = cs.get_value_no_fail( sf::ContextSettings() );
-	return new sf::RenderWindow( vm, title, actualStyle, actualSettings );
+  unsigned long actualStyle =  
+    style.is_some() ? style_of_list_unsigned( style.get_value() ) : sf::Style::Default;
+  sf::ContextSettings actualSettings = cs.get_value_no_fail( sf::ContextSettings() );
+  return new sf::RenderWindow( vm, title, actualStyle, actualSettings );
 }
 
 typedef sf::Window sf_Window;
 typedef sf::RenderWindow sf_RenderWindow;
 #define CAMLPP__CLASS_NAME() sf_RenderWindow
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_inheritance_relationship( sf_RenderTarget )
-	camlpp__register_inheritance_relationship( sf_Window )
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper)
-	camlpp__register_method0( Capture, &sf::RenderWindow::Capture)
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_RenderTarget );
+  camlpp__register_inheritance_relationship( sf_Window );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper);
+  camlpp__register_method0( capture );
+}
 #undef CAMLPP__CLASS_NAME
 
 class CamlDrawable : public sf::Drawable
@@ -797,7 +824,7 @@ private:
   typedef std::function<void(sf::RenderTarget* /* , sf::RenderStates*/ )> CallbackType;
   CallbackType callback_; 
 private:
-  virtual void Draw(sf::RenderTarget& target, sf::RenderStates states) const
+  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
   {
     callback_(&target /* , states */ );
   }
@@ -810,7 +837,7 @@ public:
   {
   }
 
-  void SetCallback(CallbackType c)
+  void setCallback(CallbackType c)
   {
     callback_ = c;
   }
@@ -818,12 +845,13 @@ public:
 
 #define CAMLPP__CLASS_NAME() CamlDrawable
 camlpp__register_custom_class()
-camlpp__register_inheritance_relationship( sf_Drawable )
-camlpp__register_constructor0( default_constructor )
-camlpp__register_constructor1( callback_constructor, 
-			       std::function<void(sf::RenderTarget* /* , sf::RenderStates */ )> )
-camlpp__register_method1( SetCallback, &CamlDrawable::SetCallback )
-camlpp__custom_class_registered()
+{
+  camlpp__register_inheritance_relationship( sf_Drawable );
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor1( callback_constructor, 
+				 std::function<void(sf::RenderTarget* /* , sf::RenderStates */ )> );
+  camlpp__register_method1( setCallback );
+}
 #undef CAMLPP__CLASS_NAME
 
 

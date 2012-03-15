@@ -45,7 +45,7 @@ public:
 	  caml_remove_generational_global_root( inputStreamInst_.get() );
 	}
 
-        virtual sf::Int64 Read(char* data, sf::Int64 size)
+        virtual sf::Int64 read(char* data, sf::Int64 size)
 	{
 	  CAMLparam0();
 		CAMLlocal1( res );
@@ -59,7 +59,7 @@ public:
 		CAMLreturnT(sf::Int64, tup.second);
 	}
 
-        virtual sf::Int64 Seek(sf::Int64 position)
+        virtual sf::Int64 seek(sf::Int64 position)
 	{
 		return Int_val( callback2( caml_get_public_method(*inputStreamInst_, 
 								  hash_variant("seek") ), 
@@ -67,14 +67,14 @@ public:
 					   Val_int( position ) ) );
 	}
     
-        virtual sf::Int64 Tell()
+        virtual sf::Int64 tell()
 	{
 		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
 								 hash_variant("tell") ), 
 					  *inputStreamInst_ ) );
 	}
 		
-        virtual sf::Int64 GetSize()
+        virtual sf::Int64 getSize()
 	{
 		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
 								 hash_variant("get_size") ), 
@@ -100,7 +100,7 @@ struct ConversionManagement< sf::Time >
 {
   sf::Time from_value( value & v)
   {
-    return sf::Microseconds( Int64_val(v));
+    return sf::microseconds( Int64_val(v));
   }
 };
 
@@ -109,12 +109,12 @@ struct AffectationManagement< sf::Time >
 {
   static void affect( value & v, sf::Time t )
   {
-    v = caml_copy_int64(t.AsMicroseconds());
+    v = caml_copy_int64(t.asMicroseconds());
   }
 
   static void affect_field( value & v, int field, sf::Time t )
   {
-    v = caml_copy_int64(t.AsMicroseconds());
+    v = caml_copy_int64(t.asMicroseconds());
   }
 };
 

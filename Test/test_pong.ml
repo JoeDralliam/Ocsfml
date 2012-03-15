@@ -179,7 +179,7 @@ let test_pong () =
 		    end
 	end
 		
-    in			
+    in		
 	
     let draw () =
       app#clear ~color:(Color.rgb 50 200 50) () ;
@@ -207,14 +207,17 @@ let test_pong () =
     in
       
       main_loop ();
-      ball_sound#destroy ;
+      
+    Gc.full_major () ;
+    (* ball_sound#destroy ;
       ball#destroy ;
       right_paddle#destroy ;
       left_paddle#destroy ; 
       pauseMessage#destroy ;
-      ball_sound_buffer#destroy ;
-      font#destroy ;
-      app#destroy 
+    *)
+       ball_sound_buffer#destroy ;
+      font#destroy (*;
+      app#destroy *)
 
 let _ = test_pong ()
   

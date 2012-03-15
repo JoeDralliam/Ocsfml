@@ -105,7 +105,7 @@ struct
     | Count
 end
 
-external cpp is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed"
+external cpp is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed"
 
 module Joystick =
 struct
@@ -123,18 +123,18 @@ struct
     | PovX  (* The X axis of the point-of-view hat *)
     | PovY  (* The Y axis of the point-of-view hat *)
 	
-  external cpp is_connected : int -> bool = "Joystick_IsConnected"
-  external cpp get_button_count : int -> int = "Joystick_GetButtonCount"
-  external cpp has_axis : int -> axis -> bool = "Joystick_HasAxis"
-  external cpp is_button_pressed : int -> int -> bool = "Joystick_IsButtonPressed"
-  external cpp get_axis_position : int -> axis -> float = "Joystick_GetAxisPosition"
-  external cpp update : unit -> unit = "Joystick_Update"
+  external cpp is_connected : int -> bool = "Joystick_isConnected"
+  external cpp get_button_count : int -> int = "Joystick_getButtonCount"
+  external cpp has_axis : int -> axis -> bool = "Joystick_hasAxis"
+  external cpp is_button_pressed : int -> int -> bool = "Joystick_isButtonPressed"
+  external cpp get_axis_position : int -> axis -> float = "Joystick_getAxisPosition"
+  external cpp update : unit -> unit = "Joystick_update"
 end 
 
 external class contextCpp (Context) : "sf_Context" = 
 object
   constructor default : unit = "default_constructor"
-  external method set_active : bool -> unit = "SetActive"
+  external method set_active : bool -> unit = "setActive"
 end
 
 class context = let d = Context.default () in contextCpp d
@@ -231,8 +231,8 @@ struct
       }
   let create ?(w=800) ?(h=600) ?(bpp=32) () =
     { width = w ; height = h ; bits_per_pixel = bpp }
-  external cpp get_full_screen_modes : unit -> t array = "VideoMode_GetFullscreenModes"
-  external cpp get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode"
+  external cpp get_full_screen_modes : unit -> t array = "VideoMode_getFullscreenModes"
+  external cpp get_desktop_mode : unit -> t = "VideoMode_getDesktopMode"
 end
 
 type context_settings =
@@ -260,28 +260,28 @@ external class windowCpp (WindowCpp) : "sf_Window" =
 object (self)
   constructor default : unit = "default_constructor" 
   constructor create_init : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "constructor_create"
-  external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "Create"
-  external method close : unit = "Close"
-  external method is_open : bool = "IsOpen"
-  external method get_width : int = "GetWidth"
-  external method get_height : int = "GetHeight"
-  method get_size = self#get_width , self#get_height 
-  external method get_settings : context_settings = "GetSettings" 
-  external method poll_event : Event.t option = "PollEvent"
-  external method wait_event : Event.t option = "WaitEvent"
-  external method enable_vertical_sync : bool -> unit = "EnableVerticalSync" 
-  external method show_mouse_cursor : bool -> unit = "ShowMouseCursor"
-  external method set_position : int -> int -> unit = "SetPosition" 
-  external method set_size : int -> int -> unit = "SetSize"
-  external method set_title : string -> unit = "SetTitle"
-  external method show : bool -> unit = "Show" 
-  external method enable_key_repeat : bool -> unit = "EnableKeyRepeat"
+  external method create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string -> unit = "create"
+  external method close : unit = "close"
+  external method is_open : bool = "isOpen"
+  external method get_size : int*int = "getSize"
+  method get_width = fst self#get_size
+  method get_height = snd self#get_size 
+  external method get_settings : context_settings = "getSettings" 
+  external method poll_event : Event.t option = "pollEvent"
+  external method wait_event : Event.t option = "waitEvent"
+  external method set_vertical_sync_enabled : bool -> unit = "setVerticalSyncEnabled" 
+  external method set_mouse_cursor_visible : bool -> unit = "setMouseCursorVisible"
+  external method set_position : int -> int -> unit = "setPosition" 
+  external method set_size : int -> int -> unit = "setSize"
+  external method set_title : string -> unit = "setTitle"
+  external method set_visible : bool -> unit = "setVisible" 
+  external method set_key_repeat_enabled : bool -> unit = "setKeyRepeatEnabled"
   (* external method set_icon : int -> int -> char array -> unit = "window__set_icon" *)
-  external method set_active : bool -> bool = "SetActive" 
-  external method display : unit = "Display"
-  external method set_framerate_limit : int -> unit = "SetFramerateLimit"
-(*  external method get_frame_time : int = "GetFrameTime"  *)
-  external method set_joystick_threshold : float -> unit = "SetJoystickThreshold"
+  external method set_active : bool -> bool = "setActive" 
+  external method display : unit = "display"
+  external method set_framerate_limit : int -> unit = "setFramerateLimit"
+(*  external method get_frame_time : int = "getFrameTime"  *)
+  external method set_joystick_threshold : float -> unit = "setJoystickThreshold"
 end
 
 module Window =
@@ -298,9 +298,9 @@ module Mouse =
 struct
   type button = Event.mouseButton
 
-  external cpp is_button_pressed : button -> bool = "Mouse_IsButtonPressed"
-  external cpp get_position : unit -> int*int = "Mouse_GetPosition"
-  external cpp get_relative_position :  (#window as 'a) -> int*int = "Mouse_GetRelativePosition"
-  external cpp set_position : int * int -> unit = "Mouse_SetPosition"
-  external cpp set_relative_position : int*int -> (#window as 'a) -> unit = "Mouse_SetRelativePosition"
+  external cpp is_button_pressed : button -> bool = "Mouse_isButtonPressed"
+  external cpp get_position : unit -> int*int = "Mouse_getPosition"
+  external cpp get_relative_position :  (#window as 'a) -> int*int = "Mouse_getRelativePosition"
+  external cpp set_position : int * int -> unit = "Mouse_setPosition"
+  external cpp set_relative_position : int*int -> (#window as 'a) -> unit = "Mouse_setRelativePosition"
 end

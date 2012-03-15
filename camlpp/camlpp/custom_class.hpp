@@ -169,23 +169,21 @@ using boost::mpl::int_;
   CAMLPP__BODY( method_traits, decltype(func), std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
 
 
-
-
-#define camlpp__register_method0( method_name, func )			\
+#define camlpp__register_external_method0( method_name, func )			\
   CAMLprim value  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _  ## method_name  ## __impl) ( value obj) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj), 1);					\
   }
 
-#define camlpp__register_method1( method_name, func )			\
+#define camlpp__register_external_method1( method_name, func )			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1), 2);				\
   }
    
-#define camlpp__register_method2( method_name, func )			\
+#define camlpp__register_external_method2( method_name, func )			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -193,7 +191,7 @@ using boost::mpl::int_;
   }									\
   
 
-#define camlpp__register_method3( method_name, func )			\
+#define camlpp__register_external_method3( method_name, func )			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -201,7 +199,7 @@ using boost::mpl::int_;
   }									
 
 
-#define camlpp__register_method4( method_name, func )			\
+#define camlpp__register_external_method4( method_name, func )			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -209,7 +207,7 @@ using boost::mpl::int_;
   }									
 
 
-#define camlpp__register_method5( method_name, func )			\
+#define camlpp__register_external_method5( method_name, func )			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -221,7 +219,7 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
   }
 
-#define camlpp__register_method6( method_name, func )			\
+#define camlpp__register_external_method6( method_name, func )			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -233,7 +231,7 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6] ); \
   }
 
-#define camlpp__register_method7( method_name, func)			\
+#define camlpp__register_external_method7( method_name, func)			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -245,7 +243,7 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7]); \
   }
 
-#define camlpp__register_method8( method_name, func)			\
+#define camlpp__register_external_method8( method_name, func)			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -257,6 +255,32 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7], v[8] ); \
   }
 
+#define camlpp__register_method0( method_name )				\
+  camlpp__register_external_method0( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+
+#define camlpp__register_method1( method_name )				\
+  camlpp__register_external_method1( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+   
+#define camlpp__register_method2( method_name )				\
+  camlpp__register_external_method2( method_name, & CAMLPP__CLASS_NAME() :: method_name )  
+
+#define camlpp__register_method3( method_name )				\
+  camlpp__register_external_method3( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+
+#define camlpp__register_method4( method_name )				\
+  camlpp__register_external_method4( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+
+#define camlpp__register_method5( method_name )				\
+  camlpp__register_external_method5( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+
+#define camlpp__register_method6( method_name )				\
+  camlpp__register_external_method6( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+
+#define camlpp__register_method7( method_name )				\
+  camlpp__register_external_method7( method_name, & CAMLPP__CLASS_NAME() :: method_name )
+
+#define camlpp__register_method8( method_name )				\
+  camlpp__register_external_method8( method_name, & CAMLPP__CLASS_NAME() :: method_name )
 
 #define CAMLPP__EXTERNAL_CONSTRUCTOR_BODY(func, values_name, params_count) \
   CAMLPP__BODY( constructor_traits, decltype(func), func, values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
@@ -518,33 +542,22 @@ using boost::mpl::int_;
   };
 
 
-
-#define camlpp__set_custom_operations(finalize_func, compare_func, hash_func) \
-  extern "C"								\
-  {									\
-    static struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
-      const_cast<char*>(BOOST_PP_STRINGIZE( org.camlpp.CAMLPP__CLASS_NAME())), \
-      finalize_func,							\
-      compare_func,							\
-      hash_func,							\
-      custom_serialize_default,						\
-      custom_deserialize_default					\
-    };									\
-  }									\
+#define camlpp__preregister_custom_operations( class_name ) \
+  extern "C" struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, class_name ), _custom_operations ); \
   template<>								\
-  struct AffectClass< CAMLPP__CLASS_NAME()>				\
+  struct AffectClass< class_name >					\
   {									\
-    static void affect_new ( value& v, CAMLPP__CLASS_NAME() const* objPtr )	\
+    static void affect_new ( value& v, class_name const* objPtr )	\
     {									\
       v = caml_alloc_custom						\
 	(								\
-	 &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
-	 sizeof( CAMLPP__CLASS_NAME() * ),				\
+	 &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, class_name ), _custom_operations ), \
+	 sizeof( class_name * ),					\
 	 0, 1								\
 									); \
       std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
     }									\
-    static void affect_field_new( value& v, int field, CAMLPP__CLASS_NAME() const* objPtr ) \
+    static void affect_field_new( value& v, int field, class_name const* objPtr ) \
     {									\
       CAMLparam0();							\
       CAMLlocal1( tmp );						\
@@ -553,6 +566,24 @@ using boost::mpl::int_;
       CAMLreturn0;							\
     }									\
   };
+
+#define camlpp__register_preregistered_custom_operations(finalize_func, compare_func, hash_func) \
+  extern "C"								\
+  {									\
+    struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ) = { \
+      const_cast<char*>(BOOST_PP_STRINGIZE(org.camlpp.CAMLPP__CLASS_NAME())), \
+      finalize_func,							\
+      compare_func,							\
+      hash_func,							\
+      custom_serialize_default,						\
+      custom_deserialize_default					\
+    };									\
+  }									\
+
+#define camlpp__register_custom_operations(finalize_func, compare_func, hash_func) \
+  camlpp__preregister_custom_operations( CAMLPP__CLASS_NAME() ) \
+  camlpp__register_preregistered_custom_operations( finalize_func, compare_func, hash_func ) 
+
 
 /*
 
@@ -660,8 +691,9 @@ using boost::mpl::int_;
   }									\
   extern "C"								\
   {									\
-  camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy ) )
-  
+    camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy ) ) \
+      }									\
+  extern "C"
 
 
 #define camlpp__register_custom_class( )			\
@@ -674,7 +706,7 @@ using boost::mpl::int_;
   camlpp__register_preregistered_custom_class()
 */
 
-#define camlpp__custom_class_registered() }
+
 
 //#undef CAMLPP__CLASS_NAME
 #endif

@@ -1,7 +1,7 @@
 #ifndef CAMLPP_COMMON_HPP_INCLUDED
 #define CAMLPP_COMMON_HPP_INCLUDED
 
-
+#include <boost/preprocessor/expand.hpp>
 
 #define CAMLPP__CONVERT_PARAM1( param1_name, value1_name, type1 )	\
   ConversionManagement< type1 > BOOST_PP_CAT(cm_, param1_name);		\
@@ -124,7 +124,7 @@
   (CAMLPP__EXPAND CAMLPP__GENERATE_PARAMS_NAME8(), camlpp__p9)
 
 #define CAMLPP__OBTAIN_PARAMS_HELPER(params_name, values_name , params_type) \
-  ( CAMLPP__EXPAND params_name,  CAMLPP__EXPAND values_name, CAMLPP__EXPAND params_type )
+  (CAMLPP__EXPAND params_name,  CAMLPP__EXPAND values_name, CAMLPP__EXPAND params_type)
 
 #define CAMLPP__OBTAIN_PARAMS( params_count, params_name, values_name , params_type) \
   BOOST_PP_EXPAND( CAMLPP__CONVERT_PARAM ## params_count CAMLPP__OBTAIN_PARAMS_HELPER(params_name, values_name , params_type) )

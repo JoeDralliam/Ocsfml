@@ -29,15 +29,13 @@ extern "C"
 typedef sf::Clock sf_Clock;
 
 #define CAMLPP__CLASS_NAME() sf_Clock
-camlpp__set_custom_operations( CAMLPP__DEFAULT_FINALIZE(),
-			       CAMLPP__NO_COMPARE(),
-			       CAMLPP__NO_HASH() 
-			       )
+camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
-	camlpp__register_constructor0( default_constructor )
-	camlpp__register_method0( GetElapsedTime, &sf::Clock::GetElapsedTime )
-	camlpp__register_method0( Restart, &sf::Clock::Restart )
-camlpp__custom_class_registered()
+{
+  camlpp__register_constructor0( default_constructor );
+  camlpp__register_method0( getElapsedTime );
+  camlpp__register_method0( restart );
+}
 #undef CAMLPP__CLASS_NAME
 
   
@@ -47,7 +45,7 @@ camlpp__custom_class_registered()
 
 extern "C"
 {
-	camlpp__register_overloaded_free_function1( sf_Sleep, &sf::Sleep )
+  camlpp__register_overloaded_free_function1( sf_sleep, &sf::sleep)
 }
 
 /*
