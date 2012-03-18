@@ -104,34 +104,34 @@ module KeyCode :
       | Pause
       | Count
   end
-external is_key_pressed : KeyCode.t -> bool = "Keyboard_IsKeyPressed__impl"
+external is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed__impl"
 module Joystick :
   sig
     val count : int
     val buttonCount : int
     val axisCount : int
     type axis = X | Y | Z | R | U | V | PovX | PovY
-    external is_connected : int -> bool = "Joystick_IsConnected__impl"
-    external get_button_count : int -> int = "Joystick_GetButtonCount__impl"
-    external has_axis : int -> axis -> bool = "Joystick_HasAxis__impl"
+    external is_connected : int -> bool = "Joystick_isConnected__impl"
+    external get_button_count : int -> int = "Joystick_getButtonCount__impl"
+    external has_axis : int -> axis -> bool = "Joystick_hasAxis__impl"
     external is_button_pressed : int -> int -> bool
-      = "Joystick_IsButtonPressed__impl"
+      = "Joystick_isButtonPressed__impl"
     external get_axis_position : int -> axis -> float
-      = "Joystick_GetAxisPosition__impl"
-    external update : unit -> unit = "Joystick_Update__impl"
+      = "Joystick_getAxisPosition__impl"
+    external update : unit -> unit = "Joystick_update__impl"
   end
 module Context :
   sig
     type t
     external destroy : t -> unit = "sf_Context_destroy__impl"
     external default : unit -> t = "sf_Context_default_constructor__impl"
-    external set_active : t -> bool -> unit = "sf_Context_SetActive__impl"
+    external set_active : t -> bool -> unit = "sf_Context_setActive__impl"
   end
 class contextCpp :
   Context.t ->
   object
     val t_contextCpp : Context.t
-    method destroy : unit -> unit
+    method destroy : unit
     method rep__sf_Context : Context.t
     method set_active : bool -> unit
   end
@@ -189,8 +189,8 @@ module VideoMode :
     type t = { width : int; height : int; bits_per_pixel : int; }
     val create : ?w:int -> ?h:int -> ?bpp:int -> unit -> t
     external get_full_screen_modes : unit -> t array
-      = "VideoMode_GetFullscreenModes__impl"
-    external get_desktop_mode : unit -> t = "VideoMode_GetDesktopMode__impl"
+      = "VideoMode_getFullscreenModes__impl"
+    external get_desktop_mode : unit -> t = "VideoMode_getDesktopMode__impl"
   end
 type context_settings = {
   depth_bits : int;
@@ -199,8 +199,13 @@ type context_settings = {
   major_version : int;
   minor_version : int;
 }
+val mk_context_settings :
+  depth_bits:int ->
+  stencil_bits:int ->
+  antialising_level:int ->
+  major_version:int -> minor_version:int -> context_settings
 type window_style = Titlebar | Resize | Close | Fullscreen
-module Window :
+module WindowCpp :
   sig
     type t
     external destroy : t -> unit = "sf_Window_destroy__impl"
@@ -213,61 +218,100 @@ module Window :
       t ->
       ?style:window_style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
-      = "sf_Window_Create__impl"
-    external close : t -> unit = "sf_Window_Close__impl"
-    external is_open : t -> bool = "sf_Window_IsOpen__impl"
-    external get_width : t -> int = "sf_Window_GetWidth__impl"
-    external get_height : t -> int = "sf_Window_GetHeight__impl"
+      = "sf_Window_create__impl"
+    external close : t -> unit = "sf_Window_close__impl"
+    external is_open : t -> bool = "sf_Window_isOpen__impl"
+    external get_size : t -> int * int = "sf_Window_getSize__impl"
     external get_settings : t -> context_settings
-      = "sf_Window_GetSettings__impl"
-    external poll_event : t -> Event.t option = "sf_Window_PollEvent__impl"
-    external wait_event : t -> Event.t option = "sf_Window_WaitEvent__impl"
-    external enable_vertical_sync : t -> bool -> unit
-      = "sf_Window_EnableVerticalSync__impl"
-    external show_mouse_cursor : t -> bool -> unit
-      = "sf_Window_ShowMouseCursor__impl"
+      = "sf_Window_getSettings__impl"
+    external poll_event : t -> Event.t option = "sf_Window_pollEvent__impl"
+    external wait_event : t -> Event.t option = "sf_Window_waitEvent__impl"
+    external set_vertical_sync_enabled : t -> bool -> unit
+      = "sf_Window_setVerticalSyncEnabled__impl"
+    external set_mouse_cursor_visible : t -> bool -> unit
+      = "sf_Window_setMouseCursorVisible__impl"
     external set_position : t -> int -> int -> unit
-      = "sf_Window_SetPosition__impl"
-    external set_size : t -> int -> int -> unit = "sf_Window_SetSize__impl"
-    external set_title : t -> string -> unit = "sf_Window_SetTitle__impl"
-    external show : t -> bool -> unit = "sf_Window_Show__impl"
-    external enable_key_repeat : t -> bool -> unit
-      = "sf_Window_EnableKeyRepeat__impl"
-    external set_active : t -> bool -> bool = "sf_Window_SetActive__impl"
-    external display : t -> unit = "sf_Window_Display__impl"
+      = "sf_Window_setPosition__impl"
+    external set_size : t -> int -> int -> unit = "sf_Window_setSize__impl"
+    external set_title : t -> string -> unit = "sf_Window_setTitle__impl"
+    external set_visible : t -> bool -> unit = "sf_Window_setVisible__impl"
+    external set_key_repeat_enabled : t -> bool -> unit
+      = "sf_Window_setKeyRepeatEnabled__impl"
+    external set_active : t -> bool -> bool = "sf_Window_setActive__impl"
+    external display : t -> unit = "sf_Window_display__impl"
     external set_framerate_limit : t -> int -> unit
-      = "sf_Window_SetFramerateLimit__impl"
+      = "sf_Window_setFramerateLimit__impl"
     external set_joystick_threshold : t -> float -> unit
-      = "sf_Window_SetJoystickThreshold__impl"
+      = "sf_Window_setJoystickThreshold__impl"
   end
 class windowCpp :
-  Window.t ->
+  WindowCpp.t ->
   object
-    val t_windowCpp : Window.t
-    method close : unit -> unit
+    val t_windowCpp : WindowCpp.t
+    method close : unit
     method create :
       ?style:window_style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
-    method destroy : unit -> unit
-    method display : unit -> unit
-    method enable_key_repeat : bool -> unit
-    method enable_vertical_sync : bool -> unit
-    method get_height : unit -> int
-    method get_settings : unit -> context_settings
-    method get_size : unit -> int * int
-    method get_width : unit -> int
-    method is_open : unit -> bool
-    method poll_event : unit -> Event.t option
-    method rep__sf_Window : Window.t
+    method destroy : unit
+    method display : unit
+    method get_height : int
+    method get_settings : context_settings
+    method get_size : int * int
+    method get_width : int
+    method is_open : bool
+    method poll_event : Event.t option
+    method rep__sf_Window : WindowCpp.t
     method set_active : bool -> bool
     method set_framerate_limit : int -> unit
     method set_joystick_threshold : float -> unit
+    method set_key_repeat_enabled : bool -> unit
+    method set_mouse_cursor_visible : bool -> unit
     method set_position : int -> int -> unit
     method set_size : int -> int -> unit
     method set_title : string -> unit
-    method show : bool -> unit
-    method show_mouse_cursor : bool -> unit
-    method wait_event : unit -> Event.t option
+    method set_vertical_sync_enabled : bool -> unit
+    method set_visible : bool -> unit
+    method wait_event : Event.t option
+  end
+module Window :
+  sig
+    type style = window_style = Titlebar | Resize | Close | Fullscreen
+    type t = WindowCpp.t
+    external destroy : t -> unit = "sf_Window_destroy__impl"
+    external default : unit -> t = "sf_Window_default_constructor__impl"
+    external create_init :
+      ?style:window_style list ->
+      ?context:context_settings -> VideoMode.t -> string -> t
+      = "sf_Window_constructor_create__impl"
+    external create :
+      t ->
+      ?style:window_style list ->
+      ?context:context_settings -> VideoMode.t -> string -> unit
+      = "sf_Window_create__impl"
+    external close : t -> unit = "sf_Window_close__impl"
+    external is_open : t -> bool = "sf_Window_isOpen__impl"
+    external get_size : t -> int * int = "sf_Window_getSize__impl"
+    external get_settings : t -> context_settings
+      = "sf_Window_getSettings__impl"
+    external poll_event : t -> Event.t option = "sf_Window_pollEvent__impl"
+    external wait_event : t -> Event.t option = "sf_Window_waitEvent__impl"
+    external set_vertical_sync_enabled : t -> bool -> unit
+      = "sf_Window_setVerticalSyncEnabled__impl"
+    external set_mouse_cursor_visible : t -> bool -> unit
+      = "sf_Window_setMouseCursorVisible__impl"
+    external set_position : t -> int -> int -> unit
+      = "sf_Window_setPosition__impl"
+    external set_size : t -> int -> int -> unit = "sf_Window_setSize__impl"
+    external set_title : t -> string -> unit = "sf_Window_setTitle__impl"
+    external set_visible : t -> bool -> unit = "sf_Window_setVisible__impl"
+    external set_key_repeat_enabled : t -> bool -> unit
+      = "sf_Window_setKeyRepeatEnabled__impl"
+    external set_active : t -> bool -> bool = "sf_Window_setActive__impl"
+    external display : t -> unit = "sf_Window_display__impl"
+    external set_framerate_limit : t -> int -> unit
+      = "sf_Window_setFramerateLimit__impl"
+    external set_joystick_threshold : t -> float -> unit
+      = "sf_Window_setJoystickThreshold__impl"
   end
 class window :
   ?style:window_style list ->
@@ -276,11 +320,11 @@ module Mouse :
   sig
     type button = Event.mouseButton
     external is_button_pressed : button -> bool
-      = "Mouse_IsButtonPressed__impl"
-    external get_position : unit -> int * int = "Mouse_GetPosition__impl"
+      = "Mouse_isButtonPressed__impl"
+    external get_position : unit -> int * int = "Mouse_getPosition__impl"
     external get_relative_position : #window -> int * int
-      = "Mouse_GetRelativePosition__impl"
-    external set_position : int * int -> unit = "Mouse_SetPosition__impl"
+      = "Mouse_getRelativePosition__impl"
+    external set_position : int * int -> unit = "Mouse_setPosition__impl"
     external set_relative_position : int * int -> #window -> unit
-      = "Mouse_SetRelativePosition__impl"
+      = "Mouse_setRelativePosition__impl"
   end

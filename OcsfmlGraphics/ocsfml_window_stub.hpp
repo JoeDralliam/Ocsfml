@@ -22,45 +22,45 @@ custom_enum_affectation( sf::Joystick::Axis );
 
 
 custom_struct_affectation( 	sf::Event::SizeEvent, 
-				&sf::Event::SizeEvent::Width, 
-				&sf::Event::SizeEvent::Height );
+				&sf::Event::SizeEvent::width, 
+				&sf::Event::SizeEvent::height );
 
 custom_struct_affectation( 	sf::Event::KeyEvent, 
-				&sf::Event::KeyEvent::Code, 
-				&sf::Event::KeyEvent::Alt,
-				&sf::Event::KeyEvent::Control,
-				&sf::Event::KeyEvent::Shift,
-				&sf::Event::KeyEvent::System );
+				&sf::Event::KeyEvent::code, 
+				&sf::Event::KeyEvent::alt,
+				&sf::Event::KeyEvent::control,
+				&sf::Event::KeyEvent::shift,
+				&sf::Event::KeyEvent::system );
 
 custom_struct_affectation( 	sf::Event::TextEvent, 
-				&sf::Event::TextEvent::Unicode );
+				&sf::Event::TextEvent::unicode );
 
 
 custom_struct_affectation( 	sf::Event::MouseMoveEvent, 
-				&sf::Event::MouseMoveEvent::X, 
-				&sf::Event::MouseMoveEvent::Y );
+				&sf::Event::MouseMoveEvent::x, 
+				&sf::Event::MouseMoveEvent::y );
 
 custom_struct_affectation( 	sf::Event::MouseButtonEvent, 
-				&sf::Event::MouseButtonEvent::Button, 
-				&sf::Event::MouseButtonEvent::X,
-				&sf::Event::MouseButtonEvent::Y );
+				&sf::Event::MouseButtonEvent::button, 
+				&sf::Event::MouseButtonEvent::x,
+				&sf::Event::MouseButtonEvent::y );
 
 custom_struct_affectation( 	sf::Event::MouseWheelEvent, 
-				&sf::Event::MouseWheelEvent::Delta,
-				&sf::Event::MouseWheelEvent::X,
-				&sf::Event::MouseWheelEvent::Y );
+				&sf::Event::MouseWheelEvent::delta,
+				&sf::Event::MouseWheelEvent::x,
+				&sf::Event::MouseWheelEvent::y );
 
 custom_struct_affectation( 	sf::Event::JoystickConnectEvent, 
-				&sf::Event::JoystickConnectEvent::JoystickId );
+				&sf::Event::JoystickConnectEvent::joystickId );
 
 custom_struct_affectation( 	sf::Event::JoystickMoveEvent, 
-				&sf::Event::JoystickMoveEvent::JoystickId, 
-				&sf::Event::JoystickMoveEvent::Axis,
-				&sf::Event::JoystickMoveEvent::Position );
+				&sf::Event::JoystickMoveEvent::joystickId, 
+				&sf::Event::JoystickMoveEvent::axis,
+				&sf::Event::JoystickMoveEvent::position );
 
 custom_struct_affectation( 	sf::Event::JoystickButtonEvent, 
-				&sf::Event::JoystickButtonEvent::JoystickId, 
-				&sf::Event::JoystickButtonEvent::Button );
+				&sf::Event::JoystickButtonEvent::joystickId, 
+				&sf::Event::JoystickButtonEvent::button );
 
 template<>
 struct ConversionManagement<sf::Event>
@@ -71,7 +71,7 @@ struct AffectationManagement< sf::Event >
 {
 	static void affect( value& v, sf::Event const& e)
 	{
-		switch( e.Type )
+		switch( e.type )
 		{
 			case sf::Event::Closed:
 			case sf::Event::LostFocus:
@@ -82,55 +82,55 @@ struct AffectationManagement< sf::Event >
 				break;
 			case sf::Event::Resized:
 				v = caml_alloc( 1, 0 );
-				caml_cpp__affect_field( v, 0, e.Size );
+				caml_cpp__affect_field( v, 0, e.size );
 				break;
 			case sf::Event::TextEntered:
 				v = caml_alloc( 1, 1 );
-				caml_cpp__affect_field( v, 0, e.Text );
+				caml_cpp__affect_field( v, 0, e.text );
 				break;
 			case sf::Event::KeyPressed:
 				v = caml_alloc( 1, 2 );
-				caml_cpp__affect_field( v, 0, e.Key );
+				caml_cpp__affect_field( v, 0, e.key );
 				break;
 			case sf::Event::KeyReleased:
 				v = caml_alloc( 1, 3 );
-				caml_cpp__affect_field( v, 0, e.Key );
+				caml_cpp__affect_field( v, 0, e.key );
 				break;
 			case sf::Event::MouseWheelMoved:
 				v = caml_alloc( 1, 4 );
-				caml_cpp__affect_field( v, 0, e.MouseWheel );
+				caml_cpp__affect_field( v, 0, e.mouseWheel );
 				break;
         		case sf::Event::MouseButtonPressed:
 				v = caml_alloc( 1, 5 );
-				caml_cpp__affect_field( v, 0, e.MouseButton );
+				caml_cpp__affect_field( v, 0, e.mouseButton );
 				break;
         		case sf::Event::MouseButtonReleased:
 				v = caml_alloc( 1, 6 );
-				caml_cpp__affect_field( v, 0, e.MouseButton );
+				caml_cpp__affect_field( v, 0, e.mouseButton );
 				break;
         		case sf::Event::MouseMoved: 
 				v = caml_alloc( 1, 7 );
-				caml_cpp__affect_field( v, 0, e.MouseMove );
+				caml_cpp__affect_field( v, 0, e.mouseMove );
 				break;
         		case sf::Event::JoystickButtonPressed:
 				v = caml_alloc( 1, 8 );
-				caml_cpp__affect_field( v, 0, e.JoystickButton );
+				caml_cpp__affect_field( v, 0, e.joystickButton );
 				break;
         		case sf::Event::JoystickButtonReleased:
 				v = caml_alloc( 1, 9 );
-				caml_cpp__affect_field( v, 0, e.JoystickButton );
+				caml_cpp__affect_field( v, 0, e.joystickButton );
 				break;
         		case sf::Event::JoystickMoved:
 				v = caml_alloc( 1, 10 );
-				caml_cpp__affect_field( v, 0, e.JoystickMove );
+				caml_cpp__affect_field( v, 0, e.joystickMove );
 				break;
         		case sf::Event::JoystickConnected:
 				v = caml_alloc( 1, 11 );
-				caml_cpp__affect_field( v, 0, e.JoystickConnect );
+				caml_cpp__affect_field( v, 0, e.joystickConnect );
 				break;
         		case sf::Event::JoystickDisconnected:
 				v = caml_alloc( 1, 12 );
-				caml_cpp__affect_field( v, 0, e.JoystickConnect );
+				caml_cpp__affect_field( v, 0, e.joystickConnect );
 				break;
 		}
 	}
@@ -146,7 +146,7 @@ struct AffectationManagement< sf::Event >
 private:
 	static int constant_index( sf::Event const& e )
 	{
-		switch( e.Type )
+		switch( e.type )
 		{
 			case sf::Event::Closed:
 				return 0;
@@ -166,31 +166,32 @@ private:
 };
 
 custom_struct_conversion(	 sf::VideoMode,
-				&sf::VideoMode::Width,
-				&sf::VideoMode::Height,
-				 &sf::VideoMode::BitsPerPixel );
+				 &sf::VideoMode::width,
+				 &sf::VideoMode::height,
+				 &sf::VideoMode::bitsPerPixel );
 
 custom_struct_affectation(	 sf::VideoMode,
-				&sf::VideoMode::Width,
-				&sf::VideoMode::Height,
-				 &sf::VideoMode::BitsPerPixel );
+				 &sf::VideoMode::width,
+				 &sf::VideoMode::height,
+				 &sf::VideoMode::bitsPerPixel );
 
 custom_struct_conversion(	 sf::ContextSettings,
-				&sf::ContextSettings::DepthBits,
-				&sf::ContextSettings::StencilBits,
-				&sf::ContextSettings::AntialiasingLevel,
-				&sf::ContextSettings::MajorVersion,
-				 &sf::ContextSettings::MinorVersion );
+				 &sf::ContextSettings::depthBits,
+				 &sf::ContextSettings::stencilBits,
+				 &sf::ContextSettings::antialiasingLevel,
+				 &sf::ContextSettings::majorVersion,
+				 &sf::ContextSettings::minorVersion );
 
 custom_struct_affectation(	 sf::ContextSettings,
-				&sf::ContextSettings::DepthBits,
-				&sf::ContextSettings::StencilBits,
-				&sf::ContextSettings::AntialiasingLevel,
-				&sf::ContextSettings::MajorVersion,
-				 &sf::ContextSettings::MinorVersion );
+				 &sf::ContextSettings::depthBits,
+				 &sf::ContextSettings::stencilBits,
+				 &sf::ContextSettings::antialiasingLevel,
+				 &sf::ContextSettings::majorVersion,
+				 &sf::ContextSettings::minorVersion );
 
 unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst );
 
 typedef sf::Window sf_Window;
+camlpp__preregister_custom_operations( sf_Window )
 camlpp__preregister_custom_class( sf_Window );
 #endif

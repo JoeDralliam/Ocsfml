@@ -385,7 +385,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 
 #endif // 0
 
-template< class... Args>
+template<class... Args>
 struct ConversionManagement< std::function< void(Args...) > >
 {
   class CamlCallback

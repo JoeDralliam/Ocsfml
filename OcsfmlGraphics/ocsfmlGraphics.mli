@@ -1,3 +1,4 @@
+val do_if : ('a -> unit) -> 'a option -> unit
 type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a; }
 module type RECT_VAL =
   sig type t val add : t -> t -> t val sub : t -> t -> t end
@@ -8,14 +9,16 @@ module Rect :
       val contains_v : M.t rect -> M.t * M.t -> bool
       val intersects : M.t rect -> M.t rect -> M.t rect option
     end
-module MyInt : RECT_VAL
+module MyInt :
+  sig type t = int val add : t -> t -> t val sub : t -> t -> t end
 module IntRect :
   sig
     val contains : MyInt.t rect -> MyInt.t -> MyInt.t -> bool
     val contains_v : MyInt.t rect -> MyInt.t * MyInt.t -> bool
     val intersects : MyInt.t rect -> MyInt.t rect -> MyInt.t rect option
   end
-module MyFloat : RECT_VAL
+module MyFloat :
+  sig type t = float val add : t -> t -> t val sub : t -> t -> t end
 module FloatRect :
   sig
     val contains : MyFloat.t rect -> MyFloat.t -> MyFloat.t -> bool
@@ -38,6 +41,7 @@ module Color :
     val yellow : t
     val magenta : t
     val cyan : t
+    module Infix : sig val ( +% ) : t -> t -> t val ( *% ) : t -> t -> t end
   end
 type blend_mode = BlendAlpha | BlendAdd | BlendMultiply | BlendNone
 module Transform :
@@ -47,8 +51,8 @@ module Transform :
       object ('a)
         val t_transform : t
         method combine : 'a -> 'a
-        method destroy : unit -> unit
-        method get_inverse : unit -> 'a
+        method destroy : unit
+        method get_inverse : 'a
         method rep__sf_Transform : t
         method rotate : ?center_x:float -> ?center_y:float -> float -> unit
         method rotate_v : ?center:float * float -> float -> unit
@@ -62,36 +66,36 @@ module Transform :
         method translate_v : float * float -> unit
       end
     external destroy : t -> unit = "sf_Transform_destroy__impl"
-    external get_inverse : t -> 'a = "sf_Transform_GetInverse__impl"
+    external get_inverse : t -> 'a = "sf_Transform_getInverse__impl"
     external transform_point : t -> float -> float -> float * float
-      = "sf_Transform_TransformPoint__impl"
+      = "sf_Transform_transformPoint__impl"
     external transform_point_v : t -> float * float -> float * float
-      = "sf_Transform_TransformPointV__impl"
+      = "sf_Transform_transformPointV__impl"
     external transform_rect : t -> float rect -> float rect
-      = "sf_Transform_TransformRect__impl"
-    external combine : t -> 'a -> 'a = "sf_Transform_Combine__impl"
+      = "sf_Transform_transformRect__impl"
+    external combine : t -> 'a -> 'a = "sf_Transform_combine__impl"
     external translate : t -> float -> float -> unit
-      = "sf_Transform_Translate__impl"
+      = "sf_Transform_translate__impl"
     external translate_v : t -> float * float -> unit
-      = "sf_Transform_TranslateV__impl"
+      = "sf_Transform_translateV__impl"
     external rotate :
       t -> ?center_x:float -> ?center_y:float -> float -> unit
-      = "sf_Transform_Rotate__impl"
+      = "sf_Transform_rotate__impl"
     external rotate_v : t -> ?center:float * float -> float -> unit
-      = "sf_Transform_RotateV__impl"
+      = "sf_Transform_rotateV__impl"
     external scale :
       t -> ?center_x:float -> ?center_y:float -> float -> float -> unit
-      = "sf_Transform_Scale__impl"
+      = "sf_Transform_scale__impl"
     external scale_v : t -> ?center:float * float -> float * float -> unit
-      = "sf_Transform_ScaleV__impl"
+      = "sf_Transform_scaleV__impl"
   end
 class transform :
   Transform.t ->
   object ('a)
     val t_transform : Transform.t
     method combine : 'a -> 'a
-    method destroy : unit -> unit
-    method get_inverse : unit -> 'a
+    method destroy : unit
+    method get_inverse : 'a
     method rep__sf_Transform : Transform.t
     method rotate : ?center_x:float -> ?center_y:float -> float -> unit
     method rotate_v : ?center:float * float -> float -> unit
@@ -110,7 +114,7 @@ class drawable :
   Drawable.t ->
   object
     val t_drawable : Drawable.t
-    method destroy : unit -> unit
+    method destroy : unit
     method rep__sf_Drawable : Drawable.t
   end
 module Transformable :
@@ -118,51 +122,51 @@ module Transformable :
     type t
     external destroy : t -> unit = "sf_Transformable_destroy__impl"
     external set_position : t -> float -> float -> unit
-      = "sf_Transformable_SetPosition__impl"
+      = "sf_Transformable_setPosition__impl"
     external set_position_v : t -> float * float -> unit
-      = "sf_Transformable_SetPositionV__impl"
+      = "sf_Transformable_setPositionV__impl"
     external set_scale : t -> float -> float -> unit
-      = "sf_Transformable_SetScale__impl"
+      = "sf_Transformable_setScale__impl"
     external set_scale_v : t -> float * float -> unit
-      = "sf_Transformable_SetScaleV__impl"
+      = "sf_Transformable_setScaleV__impl"
     external set_origin : t -> float -> float -> unit
-      = "sf_Transformable_SetOrigin__impl"
+      = "sf_Transformable_setOrigin__impl"
     external set_origin_v : t -> float * float -> unit
-      = "sf_Transformable_SetOriginV__impl"
+      = "sf_Transformable_setOriginV__impl"
     external set_rotation : t -> float -> unit
-      = "sf_Transformable_SetRotation__impl"
+      = "sf_Transformable_setRotation__impl"
     external get_position : t -> float * float
-      = "sf_Transformable_GetPosition__impl"
+      = "sf_Transformable_getPosition__impl"
     external get_scale : t -> float * float
-      = "sf_Transformable_GetScale__impl"
+      = "sf_Transformable_getScale__impl"
     external get_origin : t -> float * float
-      = "sf_Transformable_GetOrigin__impl"
-    external get_rotation : t -> float = "sf_Transformable_GetRotation__impl"
+      = "sf_Transformable_getOrigin__impl"
+    external get_rotation : t -> float = "sf_Transformable_getRotation__impl"
     external move : t -> float -> float -> unit
-      = "sf_Transformable_Move__impl"
+      = "sf_Transformable_move__impl"
     external move_v : t -> float * float -> unit
-      = "sf_Transformable_MoveV__impl"
+      = "sf_Transformable_moveV__impl"
     external scale : t -> float -> float -> unit
-      = "sf_Transformable_Scale__impl"
+      = "sf_Transformable_scale__impl"
     external scale_v : t -> float * float -> unit
-      = "sf_Transformable_ScaleV__impl"
-    external rotate : t -> float -> unit = "sf_Transformable_Rotate__impl"
+      = "sf_Transformable_scaleV__impl"
+    external rotate : t -> float -> unit = "sf_Transformable_rotate__impl"
     external get_transform : t -> transform
-      = "sf_Transformable_GetTransform__impl"
+      = "sf_Transformable_getTransform__impl"
     external get_inverse_transform : t -> transform
-      = "sf_Transformable_GetInverseTransform__impl"
+      = "sf_Transformable_getInverseTransform__impl"
   end
 class transformable :
   Transformable.t ->
   object
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
-    method get_inverse_transform : unit -> transform
-    method get_origin : unit -> float * float
-    method get_position : unit -> float * float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_transform : unit -> transform
+    method destroy : unit
+    method get_inverse_transform : transform
+    method get_origin : float * float
+    method get_position : float * float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_Transformable : Transformable.t
@@ -181,6 +185,10 @@ val mk_transformable :
   ?position:float * float ->
   ?scale:float * float ->
   ?origin:float * float -> ?rotation:float -> #transformable -> unit
+type pixel_array_type =
+    (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array2.t
+val pixel_array_kind : (int, Bigarray.int8_unsigned_elt) Bigarray.kind
+val pixel_array_layout : Bigarray.c_layout Bigarray.layout
 module Image :
   sig
     type t
@@ -191,12 +199,13 @@ module Image :
           ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
         method create_from_color : ?color:Color.t -> int -> int -> unit
         method create_mask_from_color : ?alpha:int -> Color.t -> unit
-        method destroy : unit -> unit
-        method flip_horizontally : unit -> unit
-        method flip_vertically : unit -> unit
-        method get_height : unit -> int
+        method destroy : unit
+        method flip_horizontally : unit
+        method flip_vertically : unit
+        method get_height : int
         method get_pixel : int -> int -> Color.t
-        method get_width : unit -> int
+        method get_pixels_ptr : pixel_array_type
+        method get_width : int
         method load_from_file : string -> bool
         method load_from_stream : OcsfmlSystem.input_stream -> bool
         method rep__sf_Image : t
@@ -206,26 +215,28 @@ module Image :
     external destroy : t -> unit = "sf_Image_destroy__impl"
     external default : unit -> t = "sf_Image_default_constructor__impl"
     external create_from_color : t -> ?color:Color.t -> int -> int -> unit
-      = "sf_Image_CreateFromColor__impl"
+      = "sf_Image_createFromColor__impl"
     external load_from_file : t -> string -> bool
-      = "sf_Image_LoadFromFile__impl"
+      = "sf_Image_loadFromFile__impl"
     external load_from_stream : t -> OcsfmlSystem.input_stream -> bool
-      = "sf_Image_LoadFromStream__impl"
-    external save_to_file : t -> string -> bool = "sf_Image_SaveToFile__impl"
-    external get_height : t -> int = "sf_Image_GetWidth__impl"
-    external get_width : t -> int = "sf_Image_GetHeight__impl"
+      = "sf_Image_loadFromStream__impl"
+    external save_to_file : t -> string -> bool = "sf_Image_saveToFile__impl"
+    external get_width : t -> int = "sf_Image_getWidth__impl"
+    external get_height : t -> int = "sf_Image_getWidth__impl"
+    external get_pixels_ptr : t -> pixel_array_type
+      = "sf_Image_getPixelsPtr__impl"
     external create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
-      = "sf_Image_CreateMaskFromColor__impl"
+      = "sf_Image_createMaskFromColor__impl"
     external copy :
       t -> ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
-      = "sf_Image_Copy__byte" "sf_Image_Copy__impl"
+      = "sf_Image_copy__byte" "sf_Image_copy__impl"
     external set_pixel : t -> int -> int -> Color.t -> unit
-      = "sf_Image_SetPixel__impl"
+      = "sf_Image_setPixel__impl"
     external get_pixel : t -> int -> int -> Color.t
-      = "sf_Image_GetPixel__impl"
+      = "sf_Image_getPixel__impl"
     external flip_horizontally : t -> unit
-      = "sf_Image_FlipHorizontally__impl"
-    external flip_vertically : t -> unit = "sf_Image_FlipVertically__impl"
+      = "sf_Image_flipHorizontally__impl"
+    external flip_vertically : t -> unit = "sf_Image_flipVertically__impl"
   end
 class imageCpp :
   Image.t ->
@@ -235,12 +246,13 @@ class imageCpp :
       ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
     method create_from_color : ?color:Color.t -> int -> int -> unit
     method create_mask_from_color : ?alpha:int -> Color.t -> unit
-    method destroy : unit -> unit
-    method flip_horizontally : unit -> unit
-    method flip_vertically : unit -> unit
-    method get_height : unit -> int
+    method destroy : unit
+    method flip_horizontally : unit
+    method flip_vertically : unit
+    method get_height : int
     method get_pixel : int -> int -> Color.t
-    method get_width : unit -> int
+    method get_pixels_ptr : pixel_array_type
+    method get_width : int
     method load_from_file : string -> bool
     method load_from_stream : OcsfmlSystem.input_stream -> bool
     method rep__sf_Image : Image.t
@@ -255,46 +267,46 @@ val mk_image :
    | `File of string
    | `Stream of OcsfmlSystem.input_stream ] ->
   image
-external get_maximum_size : unit -> int = "Texture_GetMaximumSize__impl"
+external get_maximum_size : unit -> int = "Texture_getMaximumSize__impl"
 module Texture :
   sig
     type t
     external destroy : t -> unit = "sf_Texture_destroy__impl"
     external default : unit -> t = "sf_Texture_default_constructor__impl"
-    external create : t -> int -> int -> unit = "sf_Texture_Create__impl"
+    external create : t -> int -> int -> unit = "sf_Texture_create__impl"
     external load_from_file : t -> ?rect:int rect -> string -> bool
-      = "sf_Texture_LoadFromFile__impl"
+      = "sf_Texture_loadFromFile__impl"
     external load_from_stream :
       t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
-      = "sf_Texture_LoadFromStream__impl"
+      = "sf_Texture_loadFromStream__impl"
     external load_from_image : t -> ?rect:int rect -> image -> bool
-      = "sf_Texture_LoadFromImage__impl"
-    external get_width : t -> int = "sf_Texture_GetWidth__impl"
-    external get_height : t -> int = "sf_Texture_GetHeight__impl"
-    external copy_to_image : t -> image = "sf_Texture_CopyToImage__impl"
+      = "sf_Texture_loadFromImage__impl"
+    external get_width : t -> int = "sf_Texture_getWidth__impl"
+    external get_height : t -> int = "sf_Texture_getHeight__impl"
+    external copy_to_image : t -> image = "sf_Texture_copyToImage__impl"
     external update_from_image : t -> ?coords:int * int -> image -> unit
-      = "sf_Texture_UpdateFromImage__impl"
+      = "sf_Texture_updateFromImage__impl"
     external update_from_window :
       t -> ?coords:int * int -> #OcsfmlWindow.window -> unit
-      = "sf_Texture_UpdateFromWindow__impl"
-    external bind : t -> unit = "sf_Texture_Bind__impl"
-    external set_smooth : t -> bool -> unit = "sf_Texture_SetSmooth__impl"
-    external is_smooth : t -> bool -> unit = "sf_Texture_IsSmooth__impl"
+      = "sf_Texture_updateFromWindow__impl"
+    external bind : t -> unit = "sf_Texture_bind__impl"
+    external set_smooth : t -> bool -> unit = "sf_Texture_setSmooth__impl"
+    external is_smooth : t -> bool -> unit = "sf_Texture_isSmooth__impl"
     external set_repeated : t -> bool -> unit
-      = "sf_Texture_SetRepeated__impl"
-    external is_repeated : t -> bool = "sf_Texture_IsRepeated__impl"
+      = "sf_Texture_setRepeated__impl"
+    external is_repeated : t -> bool = "sf_Texture_isRepeated__impl"
   end
 class textureCpp :
   Texture.t ->
   object
     val t_textureCpp : Texture.t
-    method bind : unit -> unit
-    method copy_to_image : unit -> image
+    method bind : unit
+    method copy_to_image : image
     method create : int -> int -> unit
-    method destroy : unit -> unit
-    method get_height : unit -> int
-    method get_width : unit -> int
-    method is_repeated : unit -> bool
+    method destroy : unit
+    method get_height : int
+    method get_width : int
+    method is_repeated : bool
     method is_smooth : bool -> unit
     method load_from_file : ?rect:int rect -> string -> bool
     method load_from_image : ?rect:int rect -> image -> bool
@@ -321,22 +333,22 @@ module Font :
     external destroy : t -> unit = "sf_Font_destroy__impl"
     external default : unit -> t = "sf_Font_default_constructor__impl"
     external load_from_file : t -> string -> bool
-      = "sf_Font_LoadFromFile__impl"
+      = "sf_Font_loadFromFile__impl"
     external load_from_stream : t -> #OcsfmlSystem.input_stream -> bool
-      = "sf_Font_LoadFromStream__impl"
+      = "sf_Font_loadFromStream__impl"
     external get_glyph : t -> int -> int -> bool -> glyph
-      = "sf_Font_GetGlyph__impl"
+      = "sf_Font_getGlyph__impl"
     external get_kerning : t -> int -> int -> int -> int
-      = "sf_Font_GetKerning__impl"
+      = "sf_Font_getKerning__impl"
     external get_line_spacing : t -> int -> int
-      = "sf_Font_GetLineSpacing__impl"
-    external get_texture : t -> int -> texture = "sf_Font_GetTexture__impl"
+      = "sf_Font_getLineSpacing__impl"
+    external get_texture : t -> int -> texture = "sf_Font_getTexture__impl"
   end
 class fontCpp :
   Font.t ->
   object
     val t_fontCpp : Font.t
-    method destroy : unit -> unit
+    method destroy : unit
     method get_glyph : int -> int -> bool -> glyph
     method get_kerning : int -> int -> int -> int
     method get_line_spacing : int -> int
@@ -356,41 +368,41 @@ module Shader :
     external default : unit -> t = "sf_Shader_default_constructor__impl"
     external load_from_file :
       t -> ?vertex:string -> ?fragment:string -> unit -> bool
-      = "sf_Shader_LoadFromFile__impl"
+      = "sf_Shader_loadFromFile__impl"
     external load_from_stream :
       t ->
       ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
-      ?fragment:'a -> unit -> bool = "sf_Shader_LoadFromStream__impl"
+      ?fragment:'a -> unit -> bool = "sf_Shader_loadFromStream__impl"
     external set_parameter1 : t -> string -> float -> unit
-      = "sf_Shader_SetFloatParameter__impl"
+      = "sf_Shader_setFloatParameter__impl"
     external set_parameter2 : t -> string -> float -> float -> unit
-      = "sf_Shader_SetVec2Parameter__impl"
+      = "sf_Shader_setVec2Parameter__impl"
     external set_parameter3 : t -> string -> float -> float -> float -> unit
-      = "sf_Shader_SetVec3Parameter__impl"
+      = "sf_Shader_setVec3Parameter__impl"
     external set_parameter4 :
       t -> string -> float -> float -> float -> float -> unit
-      = "sf_Shader_SetVec4Parameter__byte" "sf_Shader_SetVec4Parameter__impl"
+      = "sf_Shader_setVec4Parameter__byte" "sf_Shader_setVec4Parameter__impl"
     external set_parameter2v : t -> string -> float * float -> unit
-      = "sf_Shader_SetVec2ParameterV__impl"
+      = "sf_Shader_setVec2ParameterV__impl"
     external set_parameter3v : t -> string -> float * float * float -> unit
-      = "sf_Shader_SetVec3ParameterV__impl"
+      = "sf_Shader_setVec3ParameterV__impl"
     external set_color : t -> string -> Color.t -> unit
-      = "sf_Shader_SetColorParameter__impl"
+      = "sf_Shader_setColorParameter__impl"
     external set_transform : t -> string -> transform -> unit
-      = "sf_Shader_SetTransformParameter__impl"
+      = "sf_Shader_setTransformParameter__impl"
     external set_texture : t -> string -> texture -> unit
-      = "sf_Shader_SetTextureParameter__impl"
+      = "sf_Shader_setTextureParameter__impl"
     external set_current_texture : t -> string -> unit
-      = "sf_Shader_SetCurrentTexture__impl"
-    external bind : t -> unit = "sf_Shader_Bind__impl"
-    external unbind : t -> unit = "sf_Shader_Unbind__impl"
+      = "sf_Shader_setCurrentTexture__impl"
+    external bind : t -> unit = "sf_Shader_bind__impl"
+    external unbind : t -> unit = "sf_Shader_unbind__impl"
   end
 class shaderCpp :
   Shader.t ->
   object
     val t_shaderCpp : Shader.t
-    method bind : unit -> unit
-    method destroy : unit -> unit
+    method bind : unit
+    method destroy : unit
     method load_from_file :
       ?vertex:string -> ?fragment:string -> unit -> bool
     method load_from_stream :
@@ -410,9 +422,9 @@ class shaderCpp :
       string -> float -> float -> float -> float -> unit
     method set_texture : string -> texture -> unit
     method set_transform : string -> transform -> unit
-    method unbind : unit -> unit
+    method unbind : unit
   end
-external shader_is_available : unit -> unit = "Shader_IsAvailable__impl"
+external shader_is_available : unit -> unit = "Shader_isAvailable__impl"
 class shader_bis : unit -> shaderCpp
 class shader : shader_bis
 module View :
@@ -425,34 +437,34 @@ module View :
     external create_from_vectors : float * float -> float * float -> t
       = "sf_View_center_and_size_constructor__impl"
     external set_center : t -> float -> float -> unit
-      = "sf_View_SetCenter__impl"
+      = "sf_View_setCenter__impl"
     external set_center_v : t -> float * float -> unit
-      = "sf_View_SetCenterV__impl"
-    external set_size : t -> float -> float -> unit = "sf_View_SetSize__impl"
+      = "sf_View_setCenterV__impl"
+    external set_size : t -> float -> float -> unit = "sf_View_setSize__impl"
     external set_size_v : t -> float * float -> unit
-      = "sf_View_SetSizeV__impl"
-    external set_rotation : t -> float -> unit = "sf_View_SetRotation__impl"
+      = "sf_View_setSizeV__impl"
+    external set_rotation : t -> float -> unit = "sf_View_setRotation__impl"
     external set_viewport : t -> float rect -> unit
-      = "sf_View_SetViewport__impl"
-    external reset : t -> float rect -> unit = "sf_View_Reset__impl"
-    external get_center : t -> float * float = "sf_View_GetCenter__impl"
-    external get_size : t -> float * float = "sf_View_GetSize__impl"
-    external get_rotation : t -> float = "sf_View_GetRotation__impl"
-    external get_viewport : t -> float rect = "sf_View_GetViewport__impl"
-    external move : t -> float -> float -> unit = "sf_View_Move__impl"
-    external move_v : t -> float * float -> unit = "sf_View_MoveV__impl"
-    external rotate : t -> float -> unit = "sf_View_Rotate__impl"
-    external zoom : t -> float -> unit = "sf_View_Zoom__impl"
+      = "sf_View_setViewport__impl"
+    external reset : t -> float rect -> unit = "sf_View_reset__impl"
+    external get_center : t -> float * float = "sf_View_getCenter__impl"
+    external get_size : t -> float * float = "sf_View_getSize__impl"
+    external get_rotation : t -> float = "sf_View_getRotation__impl"
+    external get_viewport : t -> float rect = "sf_View_getViewport__impl"
+    external move : t -> float -> float -> unit = "sf_View_move__impl"
+    external move_v : t -> float * float -> unit = "sf_View_moveV__impl"
+    external rotate : t -> float -> unit = "sf_View_rotate__impl"
+    external zoom : t -> float -> unit = "sf_View_zoom__impl"
   end
 class viewCpp :
   View.t ->
   object
     val t_viewCpp : View.t
-    method destroy : unit -> unit
-    method get_center : unit -> float * float
-    method get_rotation : unit -> float
-    method get_size : unit -> float * float
-    method get_viewport : unit -> float rect
+    method destroy : unit
+    method get_center : float * float
+    method get_rotation : float
+    method get_size : float * float
+    method get_viewport : float rect
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_View : View.t
@@ -472,26 +484,27 @@ module RenderTarget :
     type t
     external destroy : t -> unit = "sf_RenderTarget_destroy__impl"
     external clear : t -> ?color:Color.t -> unit -> unit
-      = "sf_RenderTarget_Clear__impl"
+      = "sf_RenderTarget_clear__impl"
     external draw :
       t ->
       ?blend_mode:blend_mode ->
       ?transform:transform ->
       ?texture:texture -> ?shader:shader -> #drawable -> unit
-      = "sf_RenderTarget_Draw__byte" "sf_RenderTarget_Draw__impl"
-    external get_width : t -> int = "sf_RenderTarget_GetWidth__impl"
-    external get_height : t -> int = "sf_RenderTarget_GetHeight__impl"
-    external set_view : t -> view -> unit = "sf_RenderTarget_SetView__impl"
-    external get_view : t -> view = "sf_RenderTarget_GetView__impl"
+      = "sf_RenderTarget_draw__byte" "sf_RenderTarget_draw__impl"
+    external get_size : t -> int * int = "sf_RenderTarget_getSize__impl"
+    external set_view : t -> view -> unit = "sf_RenderTarget_setView__impl"
+    external get_view : t -> view = "sf_RenderTarget_getView__impl"
     external get_default_view : t -> view
-      = "sf_RenderTarget_GetDefaultView__impl"
+      = "sf_RenderTarget_getDefaultView__impl"
     external get_viewport : t -> int rect
-      = "sf_RenderTarget_GetViewport__impl"
+      = "sf_RenderTarget_getViewport__impl"
     external convert_coords : t -> ?view:view -> int -> int -> float * float
-      = "sf_RenderTarget_ConvertCoords__impl"
+      = "sf_RenderTarget_convertCoords__impl"
     external push_gl_states : t -> unit
-      = "sf_RenderTarget_PushGLStates__impl"
-    external pop_gl_states : t -> unit = "sf_RenderTarget_PopGLStates__impl"
+      = "sf_RenderTarget_pushGLStates__impl"
+    external pop_gl_states : t -> unit = "sf_RenderTarget_popGLStates__impl"
+    external reset_gl_states : t -> unit
+      = "sf_RenderTarget_resetGLStates__impl"
   end
 class render_target :
   RenderTarget.t ->
@@ -499,19 +512,19 @@ class render_target :
     val t_render_target : RenderTarget.t
     method clear : ?color:Color.t -> unit -> unit
     method convert_coords : ?view:view -> int -> int -> float * float
-    method destroy : unit -> unit
+    method destroy : unit
     method draw :
       ?blend_mode:blend_mode ->
       ?transform:transform ->
       ?texture:texture -> ?shader:shader -> #drawable -> unit
-    method get_default_view : unit -> view
-    method get_height : unit -> int
-    method get_view : unit -> view
-    method get_viewport : unit -> int rect
-    method get_width : unit -> int
-    method pop_gl_states : unit -> unit
-    method push_gl_states : unit -> unit
+    method get_default_view : view
+    method get_size : int * int
+    method get_view : view
+    method get_viewport : int rect
+    method pop_gl_states : unit
+    method push_gl_states : unit
     method rep__sf_RenderTarget : RenderTarget.t
+    method reset_gl_states : unit
     method set_view : view -> unit
   end
 module RenderTexture :
@@ -523,14 +536,14 @@ module RenderTexture :
     external default : unit -> t
       = "sf_RenderTexture_default_constructor__impl"
     external create : t -> ?dephtBfr:bool -> int -> int -> bool
-      = "sf_RenderTexture_Create__impl"
+      = "sf_RenderTexture_create__impl"
     external set_smooth : t -> bool -> unit
-      = "sf_RenderTexture_SetSmooth__impl"
-    external is_smooth : t -> bool = "sf_RenderTexture_IsSmooth__impl"
+      = "sf_RenderTexture_setSmooth__impl"
+    external is_smooth : t -> bool = "sf_RenderTexture_isSmooth__impl"
     external set_active : t -> ?active:bool -> unit -> bool
-      = "sf_RenderTexture_SetActive__impl"
-    external display : t -> unit = "sf_RenderTexture_Display__impl"
-    external get_texture : t -> texture = "sf_RenderTexture_GetTexture__impl"
+      = "sf_RenderTexture_setActive__impl"
+    external display : t -> unit = "sf_RenderTexture_display__impl"
+    external get_texture : t -> texture = "sf_RenderTexture_getTexture__impl"
   end
 class render_textureCpp :
   RenderTexture.t ->
@@ -540,23 +553,23 @@ class render_textureCpp :
     method clear : ?color:Color.t -> unit -> unit
     method convert_coords : ?view:view -> int -> int -> float * float
     method create : ?dephtBfr:bool -> int -> int -> bool
-    method destroy : unit -> unit
-    method display : unit -> unit
+    method destroy : unit
+    method display : unit
     method draw :
       ?blend_mode:blend_mode ->
       ?transform:transform ->
       ?texture:texture -> ?shader:shader -> #drawable -> unit
-    method get_default_view : unit -> view
-    method get_height : unit -> int
-    method get_texture : unit -> texture
-    method get_view : unit -> view
-    method get_viewport : unit -> int rect
-    method get_width : unit -> int
-    method is_smooth : unit -> bool
-    method pop_gl_states : unit -> unit
-    method push_gl_states : unit -> unit
+    method get_default_view : view
+    method get_size : int * int
+    method get_texture : texture
+    method get_view : view
+    method get_viewport : int rect
+    method is_smooth : bool
+    method pop_gl_states : unit
+    method push_gl_states : unit
     method rep__sf_RenderTarget : RenderTarget.t
     method rep__sf_RenderTexture : RenderTexture.t
+    method reset_gl_states : unit
     method set_active : ?active:bool -> unit -> bool
     method set_smooth : bool -> unit
     method set_view : view -> unit
@@ -574,61 +587,65 @@ module RenderWindow :
     external default : unit -> t
       = "sf_RenderWindow_default_constructor__impl"
     external create :
-      ?style:OcsfmlWindow.window_style list ->
+      ?style:OcsfmlWindow.Window.style list ->
       ?context:OcsfmlWindow.context_settings ->
       OcsfmlWindow.VideoMode.t -> string -> t
       = "sf_RenderWindow_create_constructor__impl"
-    external capture : t -> image = "sf_RenderWindow_Capture__impl"
+    external capture : t -> image = "sf_RenderWindow_capture__impl"
+    external set_icon : t -> pixel_array_type -> unit
+      = "sf_RenderWindow_setIcon__impl"
   end
 class render_windowCpp :
   RenderWindow.t ->
   object
     val t_render_target : RenderTarget.t
     val t_render_windowCpp : RenderWindow.t
-    val t_windowCpp : OcsfmlWindow.Window.t
-    method capture : unit -> image
+    val t_windowCpp : OcsfmlWindow.WindowCpp.t
+    method capture : image
     method clear : ?color:Color.t -> unit -> unit
-    method close : unit -> unit
+    method close : unit
     method convert_coords : ?view:view -> int -> int -> float * float
     method create :
       ?style:OcsfmlWindow.window_style list ->
       ?context:OcsfmlWindow.context_settings ->
       OcsfmlWindow.VideoMode.t -> string -> unit
-    method destroy : unit -> unit
-    method display : unit -> unit
+    method destroy : unit
+    method display : unit
     method draw :
       ?blend_mode:blend_mode ->
       ?transform:transform ->
       ?texture:texture -> ?shader:shader -> #drawable -> unit
-    method enable_key_repeat : bool -> unit
-    method enable_vertical_sync : bool -> unit
-    method get_default_view : unit -> view
-    method get_height : unit -> int
-    method get_settings : unit -> OcsfmlWindow.context_settings
-    method get_size : unit -> int * int
-    method get_view : unit -> view
-    method get_viewport : unit -> int rect
-    method get_width : unit -> int
-    method is_open : unit -> bool
-    method poll_event : unit -> OcsfmlWindow.Event.t option
-    method pop_gl_states : unit -> unit
-    method push_gl_states : unit -> unit
+    method get_default_view : view
+    method get_height : int
+    method get_settings : OcsfmlWindow.context_settings
+    method get_size : int * int
+    method get_view : view
+    method get_viewport : int rect
+    method get_width : int
+    method is_open : bool
+    method poll_event : OcsfmlWindow.Event.t option
+    method pop_gl_states : unit
+    method push_gl_states : unit
     method rep__sf_RenderTarget : RenderTarget.t
     method rep__sf_RenderWindow : RenderWindow.t
-    method rep__sf_Window : OcsfmlWindow.Window.t
+    method rep__sf_Window : OcsfmlWindow.WindowCpp.t
+    method reset_gl_states : unit
     method set_active : bool -> bool
     method set_framerate_limit : int -> unit
+    method set_icon : pixel_array_type -> unit
     method set_joystick_threshold : float -> unit
+    method set_key_repeat_enabled : bool -> unit
+    method set_mouse_cursor_visible : bool -> unit
     method set_position : int -> int -> unit
     method set_size : int -> int -> unit
     method set_title : string -> unit
+    method set_vertical_sync_enabled : bool -> unit
     method set_view : view -> unit
-    method show : bool -> unit
-    method show_mouse_cursor : bool -> unit
-    method wait_event : unit -> OcsfmlWindow.Event.t option
+    method set_visible : bool -> unit
+    method wait_event : OcsfmlWindow.Event.t option
   end
 class render_window :
-  ?style:OcsfmlWindow.window_style list ->
+  ?style:OcsfmlWindow.Window.style list ->
   ?context:OcsfmlWindow.context_settings ->
   OcsfmlWindow.VideoMode.t -> string -> render_windowCpp
 module Shape :
@@ -641,30 +658,30 @@ module Shape :
       = "upcast__sf_Drawable_of_sf_Shape__impl"
     external set_texture :
       t -> ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
-      = "sf_Shape_SetTexture__impl"
+      = "sf_Shape_setTexture__impl"
     external set_texture_rect : t -> int rect -> unit
-      = "sf_Shape_SetTextureRect__impl"
+      = "sf_Shape_setTextureRect__impl"
     external set_fill_color : t -> Color.t -> unit
-      = "sf_Shape_SetFillColor__impl"
+      = "sf_Shape_setFillColor__impl"
     external set_outline_color : t -> Color.t -> unit
-      = "sf_Shape_SetOutlineColor__impl"
+      = "sf_Shape_setOutlineColor__impl"
     external set_outline_thickness : t -> float -> unit
-      = "sf_Shape_SetOutlineThickness__impl"
-    external get_texture : t -> texture option = "sf_Shape_GetTexture__impl"
+      = "sf_Shape_setOutlineThickness__impl"
+    external get_texture : t -> texture option = "sf_Shape_getTexture__impl"
     external get_texture_rect : t -> int rect
-      = "sf_Shape_GetTextureRect__impl"
-    external get_fill_color : t -> Color.t = "sf_Shape_GetFillColor__impl"
+      = "sf_Shape_getTextureRect__impl"
+    external get_fill_color : t -> Color.t = "sf_Shape_getFillColor__impl"
     external get_outline_color : t -> Color.t
-      = "sf_Shape_GetOutlineColor__impl"
+      = "sf_Shape_getOutlineColor__impl"
     external get_outline_thickness : t -> float
-      = "sf_Shape_GetOutlineThickness__impl"
-    external get_point_count : t -> int = "sf_Shape_GetPointCount__impl"
+      = "sf_Shape_getOutlineThickness__impl"
+    external get_point_count : t -> int = "sf_Shape_getPointCount__impl"
     external get_point : t -> int -> float * float
-      = "sf_Shape_GetPoint__impl"
+      = "sf_Shape_getPoint__impl"
     external get_local_bounds : t -> float rect
-      = "sf_Shape_GetLocalBounds__impl"
+      = "sf_Shape_getLocalBounds__impl"
     external get_global_bounds : t -> float rect
-      = "sf_Shape_GetGlobalBounds__impl"
+      = "sf_Shape_getGlobalBounds__impl"
   end
 class shape :
   Shape.t ->
@@ -672,22 +689,22 @@ class shape :
     val t_drawable : Drawable.t
     val t_shape : Shape.t
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
-    method get_fill_color : unit -> Color.t
-    method get_global_bounds : unit -> float rect
-    method get_inverse_transform : unit -> transform
-    method get_local_bounds : unit -> float rect
-    method get_origin : unit -> float * float
-    method get_outline_color : unit -> Color.t
-    method get_outline_thickness : unit -> float
+    method destroy : unit
+    method get_fill_color : Color.t
+    method get_global_bounds : float rect
+    method get_inverse_transform : transform
+    method get_local_bounds : float rect
+    method get_origin : float * float
+    method get_outline_color : Color.t
+    method get_outline_thickness : float
     method get_point : int -> float * float
-    method get_point_count : unit -> int
-    method get_position : unit -> float * float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_texture : unit -> texture option
-    method get_texture_rect : unit -> int rect
-    method get_transform : unit -> transform
+    method get_point_count : int
+    method get_position : float * float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_texture : texture option
+    method get_texture_rect : int rect
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_Drawable : Drawable.t
@@ -730,9 +747,9 @@ module RectangleShape :
     external from_size : float * float -> t
       = "sf_RectangleShape_size_constructor__impl"
     external set_size : t -> float * float
-      = "sf_RectangleShape_SetSize__impl"
+      = "sf_RectangleShape_setSize__impl"
     external get_size : t -> float * float
-      = "sf_RectangleShape_GetSize__impl"
+      = "sf_RectangleShape_getSize__impl"
   end
 class rectangle_shapeCpp :
   RectangleShape.t ->
@@ -741,23 +758,23 @@ class rectangle_shapeCpp :
     val t_rectangle_shapeCpp : RectangleShape.t
     val t_shape : Shape.t
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
-    method get_fill_color : unit -> Color.t
-    method get_global_bounds : unit -> float rect
-    method get_inverse_transform : unit -> transform
-    method get_local_bounds : unit -> float rect
-    method get_origin : unit -> float * float
-    method get_outline_color : unit -> Color.t
-    method get_outline_thickness : unit -> float
+    method destroy : unit
+    method get_fill_color : Color.t
+    method get_global_bounds : float rect
+    method get_inverse_transform : transform
+    method get_local_bounds : float rect
+    method get_origin : float * float
+    method get_outline_color : Color.t
+    method get_outline_thickness : float
     method get_point : int -> float * float
-    method get_point_count : unit -> int
-    method get_position : unit -> float * float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_size : unit -> float * float
-    method get_texture : unit -> texture option
-    method get_texture_rect : unit -> int rect
-    method get_transform : unit -> transform
+    method get_point_count : int
+    method get_position : float * float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_size : float * float
+    method get_texture : texture option
+    method get_texture_rect : int rect
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_Drawable : Drawable.t
@@ -777,7 +794,7 @@ class rectangle_shapeCpp :
     method set_rotation : float -> unit
     method set_scale : float -> float -> unit
     method set_scale_v : float * float -> unit
-    method set_size : unit -> float * float
+    method set_size : float * float
     method set_texture :
       ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
     method set_texture_rect : int rect -> unit
@@ -803,10 +820,10 @@ module CircleShape :
     external from_radius : float -> t
       = "sf_CircleShape_radius_constructor__impl"
     external set_radius : t -> float -> unit
-      = "sf_CircleShape_SetRadius__impl"
-    external get_radius : t -> float = "sf_CircleShape_GetRadius__impl"
+      = "sf_CircleShape_setRadius__impl"
+    external get_radius : t -> float = "sf_CircleShape_getRadius__impl"
     external set_point_count : t -> int -> unit
-      = "sf_CircleShape_SetPointCount__impl"
+      = "sf_CircleShape_setPointCount__impl"
   end
 class circle_shapeCpp :
   CircleShape.t ->
@@ -815,23 +832,23 @@ class circle_shapeCpp :
     val t_drawable : Drawable.t
     val t_shape : Shape.t
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
-    method get_fill_color : unit -> Color.t
-    method get_global_bounds : unit -> float rect
-    method get_inverse_transform : unit -> transform
-    method get_local_bounds : unit -> float rect
-    method get_origin : unit -> float * float
-    method get_outline_color : unit -> Color.t
-    method get_outline_thickness : unit -> float
+    method destroy : unit
+    method get_fill_color : Color.t
+    method get_global_bounds : float rect
+    method get_inverse_transform : transform
+    method get_local_bounds : float rect
+    method get_origin : float * float
+    method get_outline_color : Color.t
+    method get_outline_thickness : float
     method get_point : int -> float * float
-    method get_point_count : unit -> int
-    method get_position : unit -> float * float
-    method get_radius : unit -> float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_texture : unit -> texture option
-    method get_texture_rect : unit -> int rect
-    method get_transform : unit -> transform
+    method get_point_count : int
+    method get_position : float * float
+    method get_radius : float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_texture : texture option
+    method get_texture_rect : int rect
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_CircleShape : CircleShape.t
@@ -879,9 +896,9 @@ module ConvexShape :
     external from_point_count : int -> t
       = "sf_ConvexShape_point_constructor__impl"
     external set_point_count : t -> int -> unit
-      = "sf_ConvexShape_SetPointCount__impl"
+      = "sf_ConvexShape_setPointCount__impl"
     external set_point : t -> int -> float * float -> unit
-      = "sf_ConvexShape_SetPoint__impl"
+      = "sf_ConvexShape_setPoint__impl"
   end
 class convex_shapeCpp :
   ConvexShape.t ->
@@ -890,22 +907,22 @@ class convex_shapeCpp :
     val t_drawable : Drawable.t
     val t_shape : Shape.t
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
-    method get_fill_color : unit -> Color.t
-    method get_global_bounds : unit -> float rect
-    method get_inverse_transform : unit -> transform
-    method get_local_bounds : unit -> float rect
-    method get_origin : unit -> float * float
-    method get_outline_color : unit -> Color.t
-    method get_outline_thickness : unit -> float
+    method destroy : unit
+    method get_fill_color : Color.t
+    method get_global_bounds : float rect
+    method get_inverse_transform : transform
+    method get_local_bounds : float rect
+    method get_origin : float * float
+    method get_outline_color : Color.t
+    method get_outline_thickness : float
     method get_point : int -> float * float
-    method get_point_count : unit -> int
-    method get_position : unit -> float * float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_texture : unit -> texture option
-    method get_texture_rect : unit -> int rect
-    method get_transform : unit -> transform
+    method get_point_count : int
+    method get_position : float * float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_texture : texture option
+    method get_texture_rect : int rect
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_ConvexShape : ConvexShape.t
@@ -955,23 +972,23 @@ module Text :
     external default : unit -> t = "sf_Text_default_constructor__impl"
     external create : string -> font -> int -> t
       = "sf_Text_init_constructor__impl"
-    external set_string : t -> string -> unit = "sf_Text_SetString__impl"
-    external set_font : t -> font -> unit = "sf_Text_SetFont__impl"
+    external set_string : t -> string -> unit = "sf_Text_setString__impl"
+    external set_font : t -> font -> unit = "sf_Text_setFont__impl"
     external set_character_size : t -> int -> unit
-      = "sf_Text_SetCharacterSize__impl"
+      = "sf_Text_setCharacterSize__impl"
     external set_style : t -> text_style list -> unit
-      = "sf_Text_SetStyle__impl"
-    external set_color : t -> Color.t -> unit = "sf_Text_SetColor__impl"
-    external get_string : t -> string = "sf_Text_GetString__impl"
-    external get_font : t -> font = "sf_Text_GetFont__impl"
-    external get_character_size : t -> int = "sf_Text_GetCharacterSize__impl"
-    external get_style : t -> text_style list = "sf_Text_GetStyle__impl"
+      = "sf_Text_setStyle__impl"
+    external set_color : t -> Color.t -> unit = "sf_Text_setColor__impl"
+    external get_string : t -> string = "sf_Text_getString__impl"
+    external get_font : t -> font = "sf_Text_getFont__impl"
+    external get_character_size : t -> int = "sf_Text_getCharacterSize__impl"
+    external get_style : t -> text_style list = "sf_Text_getStyle__impl"
     external get_character_pos : t -> int -> float * float
-      = "sf_Text_FindCharacterPos__impl"
+      = "sf_Text_findCharacterPos__impl"
     external get_local_bounds : t -> float rect
-      = "sf_Text_GetLocalBounds__impl"
+      = "sf_Text_getLocalBounds__impl"
     external get_global_bounds : t -> float rect
-      = "sf_Text_GetGlobalBounds__impl"
+      = "sf_Text_getGlobalBounds__impl"
   end
 class textCpp :
   Text.t ->
@@ -979,20 +996,20 @@ class textCpp :
     val t_drawable : Drawable.t
     val t_textCpp : Text.t
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
+    method destroy : unit
     method get_character_pos : int -> float * float
-    method get_character_size : unit -> int
-    method get_font : unit -> font
-    method get_global_bounds : unit -> float rect
-    method get_inverse_transform : unit -> transform
-    method get_local_bounds : unit -> float rect
-    method get_origin : unit -> float * float
-    method get_position : unit -> float * float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_string : unit -> string
-    method get_style : unit -> text_style list
-    method get_transform : unit -> transform
+    method get_character_size : int
+    method get_font : font
+    method get_global_bounds : float rect
+    method get_inverse_transform : transform
+    method get_local_bounds : float rect
+    method get_origin : float * float
+    method get_position : float * float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_string : string
+    method get_style : text_style list
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_Drawable : Drawable.t
@@ -1036,18 +1053,18 @@ module Sprite :
     external create_from_texture : texture -> t
       = "sf_Sprite_texture_constructor__impl"
     external set_texture : t -> ?resize:bool -> texture -> unit
-      = "sf_Sprite_SetTexture__impl"
+      = "sf_Sprite_setTexture__impl"
     external set_texture_rect : t -> int rect -> unit
-      = "sf_Sprite_SetTextureRect__impl"
-    external set_color : t -> Color.t -> unit = "sf_Sprite_SetColor__impl"
-    external get_texture : t -> texture = "sf_Sprite_GetTexture__impl"
+      = "sf_Sprite_setTextureRect__impl"
+    external set_color : t -> Color.t -> unit = "sf_Sprite_setColor__impl"
+    external get_texture : t -> texture = "sf_Sprite_getTexture__impl"
     external get_texture_rect : t -> int rect
-      = "sf_Sprite_GetTextureRect__impl"
-    external get_color : t -> Color.t = "sf_Sprite_GetColor__impl"
+      = "sf_Sprite_getTextureRect__impl"
+    external get_color : t -> Color.t = "sf_Sprite_getColor__impl"
     external get_local_bounds : t -> float rect
-      = "sf_Sprite_GetLocalBounds__impl"
+      = "sf_Sprite_getLocalBounds__impl"
     external get_global_bounds : t -> float rect
-      = "sf_Sprite_GetGlobalBounds__impl"
+      = "sf_Sprite_getGlobalBounds__impl"
   end
 class spriteCpp :
   Sprite.t ->
@@ -1055,18 +1072,18 @@ class spriteCpp :
     val t_drawable : Drawable.t
     val t_spriteCpp : Sprite.t
     val t_transformable : Transformable.t
-    method destroy : unit -> unit
-    method get_color : unit -> Color.t
-    method get_global_bounds : unit -> float rect
-    method get_inverse_transform : unit -> transform
-    method get_local_bounds : unit -> float rect
-    method get_origin : unit -> float * float
-    method get_position : unit -> float * float
-    method get_rotation : unit -> float
-    method get_scale : unit -> float * float
-    method get_texture : unit -> texture
-    method get_texture_rect : unit -> int rect
-    method get_transform : unit -> transform
+    method destroy : unit
+    method get_color : Color.t
+    method get_global_bounds : float rect
+    method get_inverse_transform : transform
+    method get_local_bounds : float rect
+    method get_origin : float * float
+    method get_position : float * float
+    method get_rotation : float
+    method get_scale : float * float
+    method get_texture : texture
+    method get_texture_rect : int rect
+    method get_transform : transform
     method move : float -> float -> unit
     method move_v : float * float -> unit
     method rep__sf_Drawable : Drawable.t
@@ -1119,19 +1136,19 @@ module VertexArray :
       = "upcast__sf_Drawable_of_sf_VertexArray__impl"
     external default : unit -> t = "sf_VertexArray_default_constructor__impl"
     external get_vertex_count : t -> int
-      = "sf_VertexArray_GetVertexCount__impl"
+      = "sf_VertexArray_getVertexCount__impl"
     external set_at_index : t -> int -> vertex -> unit
-      = "sf_VertexArray_SetAtIndex__impl"
+      = "sf_VertexArray_setAtIndex__impl"
     external get_at_index : t -> int -> vertex
-      = "sf_VertexArray_GetAtIndex__impl"
-    external clear : t -> unit = "sf_VertexArray_Clear__impl"
-    external resize : t -> int -> unit = "sf_VertexArray_Resize__impl"
-    external append : t -> vertex -> unit = "sf_VertexArray_Append__impl"
+      = "sf_VertexArray_getAtIndex__impl"
+    external clear : t -> unit = "sf_VertexArray_clear__impl"
+    external resize : t -> int -> unit = "sf_VertexArray_resize__impl"
+    external append : t -> vertex -> unit = "sf_VertexArray_append__impl"
     external set_primitive_type : t -> primitive_type -> unit
-      = "sf_VertexArray_SetPrimitiveType__impl"
+      = "sf_VertexArray_setPrimitiveType__impl"
     external get_primitive_type : t -> primitive_type
-      = "sf_VertexArray_GetPrimitiveType__impl"
-    external get_bounds : t -> float rect = "sf_VertexArray_GetBounds__impl"
+      = "sf_VertexArray_getPrimitiveType__impl"
+    external get_bounds : t -> float rect = "sf_VertexArray_getBounds__impl"
   end
 class vertex_arrayCpp :
   VertexArray.t ->
@@ -1139,20 +1156,21 @@ class vertex_arrayCpp :
     val t_drawable : Drawable.t
     val t_vertex_arrayCpp : VertexArray.t
     method append : vertex -> unit
-    method clear : unit -> unit
-    method destroy : unit -> unit
+    method clear : unit
+    method destroy : unit
     method get_at_index : int -> vertex
-    method get_bounds : unit -> float rect
-    method get_primitive_type : unit -> primitive_type
-    method get_vertex_count : unit -> int
+    method get_bounds : float rect
+    method get_primitive_type : primitive_type
+    method get_vertex_count : int
     method rep__sf_Drawable : Drawable.t
     method rep__sf_VertexArray : VertexArray.t
     method resize : int -> unit
     method set_at_index : int -> vertex -> unit
     method set_primitive_type : primitive_type -> unit
   end
-class vertex_array : unit -> vertex_arrayCpp
-type draw_func_type = render_target -> unit
+class vertex_array_bis : unit -> vertex_arrayCpp
+class vertex_array : vertex_array_bis
+type draw_func_type = RenderTarget.t -> unit
 module CamlDrawable :
   sig
     type t
@@ -1163,14 +1181,14 @@ module CamlDrawable :
     external callback : draw_func_type -> t
       = "CamlDrawable_callback_constructor__impl"
     external set_callback : t -> draw_func_type -> unit
-      = "CamlDrawable_SetCallback__impl"
+      = "CamlDrawable_setCallback__impl"
   end
 class caml_drawableCpp :
   CamlDrawable.t ->
   object
     val t_caml_drawableCpp : CamlDrawable.t
     val t_drawable : Drawable.t
-    method destroy : unit -> unit
+    method destroy : unit
     method rep__CamlDrawable : CamlDrawable.t
     method rep__sf_Drawable : Drawable.t
     method set_callback : draw_func_type -> unit
@@ -1179,8 +1197,8 @@ class virtual caml_drawable :
   object
     val t_caml_drawableCpp : CamlDrawable.t
     val t_drawable : Drawable.t
-    method destroy : unit -> unit
-    method virtual draw : draw_func_type
+    method destroy : unit
+    method virtual draw : render_target -> unit
     method rep__CamlDrawable : CamlDrawable.t
     method rep__sf_Drawable : Drawable.t
     method set_callback : draw_func_type -> unit

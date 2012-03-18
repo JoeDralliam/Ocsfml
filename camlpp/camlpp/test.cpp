@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include <iostream>
+#include <future>
+#include <pthread.h>
 #include "stub_generator.hpp"
 #include "channel_streambuf_interface.hpp"
 #include "memory_management.hpp"
@@ -25,6 +27,7 @@ extern "C"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
+#include <caml/threads.h>
 }
 
 #undef flush
@@ -33,9 +36,66 @@ std::pair<double, double> test1()
 {
 	return std::make_pair( 5.0, 12.0 );
 }
+
+std::function<void()> gF;
+std::unique_ptr<std::thread> t;
+pthread_t pTh;
+
 extern "C"
 {
-	camlpp__register_free_function0( test1 );
+  void* fil(void *)
+  {
+    //    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // caml_acquire_runtime_system();
+    if(!caml_c_thread_register())
+      {
+	std::cout << "Could not register thread" << std::endl;
+      }
+    else 
+      {
+	std::cout << "\nOk" << std::endl;
+      }
+    gF();
+    // caml_acquire_runtime_system();
+    if(!caml_c_thread_unregister())
+      {
+	std::cout << "Could not unregister thread" << std::endl;
+      }
+    return 0;
+  }
+}
+
+void test2(std::function<void()> f)
+{
+  gF = f;
+  // caml_acquire_runtime_system();
+  // t.reset(new std::thread(fil));
+  pthread_create( &pTh, 0, &fil, 0); 
+  // caml_release_runtime_system();
+}
+
+void test2bis()
+{
+  //  t->join();
+  // t.reset();
+  pthread_join( pTh, 0 );
+}
+extern "C"
+{
+  camlpp__register_free_function0( test1 );
+  camlpp__register_free_function1( test2 );
+  camlpp__register_free_function0( test2bis );
+}
+
+extern "C"
+{
+  value test3(value unit)
+  {
+    CAMLparam1(unit);
+    //    t.reset(new std::thread(fil));
+    pthread_create( &pTh, 0, &fil, 0); 
+    CAMLreturn( Val_unit );
+  }
 }
 
 //*/

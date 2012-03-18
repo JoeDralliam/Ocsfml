@@ -1,6 +1,10 @@
 open OcsfmlSystem
 open OcsfmlWindow
 
+let do_if f = function
+    | Some x -> f x
+    | None -> ()
+
 type 'a rect =
     {
       left : 'a ;
@@ -33,7 +37,7 @@ struct
       else None
 end
 
-module MyInt : RECT_VAL =
+module MyInt : RECT_VAL with type t = int =
 struct
   type t = int
   let add = ( + )
@@ -42,7 +46,7 @@ end
 
 module IntRect = Rect(MyInt)
 
-module MyFloat : RECT_VAL =
+module MyFloat : RECT_VAL with type t = float =
 struct
   type t = float
   let add = ( +. )
@@ -72,8 +76,12 @@ struct
   let yellow = rgb 255 255 0
   let magenta = rgb 255 0 255
   let cyan = rgb 0 255 255
-  (*let ( +# ) c1 c2 = add c1 c2
-  let ( *# ) c1 c2 = modulate c1 c2*)
+
+  module Infix =
+  struct
+    let ( +% ) c1 c2 = add c1 c2
+    let ( *% ) c1 c2 = modulate c1 c2
+  end
 end
 
 type blend_mode = 
@@ -84,17 +92,17 @@ type blend_mode =
 
 external class transform : "sf_Transform" =
 object auto (self:'a)
-  external method get_inverse : unit -> 'a = "GetInverse"
-  external method transform_point : float -> float -> float*float = "TransformPoint"
-  external method transform_point_v : float*float -> float*float = "TransformPointV"
-  external method transform_rect : float rect -> float rect = "TransformRect"
-  external method combine : 'a -> 'a = "Combine"
-  external method translate : float -> float -> unit = "Translate"
-  external method translate_v : float*float -> unit = "TranslateV"
-  external method rotate :  ?center_x:float -> ?center_y:float -> float -> unit = "Rotate"
-  external method rotate_v : ?center:float*float -> float -> unit = "RotateV"
-  external method scale : ?center_x:float -> ?center_y:float -> float -> float -> unit = "Scale"
-  external method scale_v : ?center:float*float -> float*float -> unit = "ScaleV"
+  external method get_inverse : 'a = "getInverse"
+  external method transform_point : float -> float -> float*float = "transformPoint"
+  external method transform_point_v : float*float -> float*float = "transformPointV"
+  external method transform_rect : float rect -> float rect = "transformRect"
+  external method combine : 'a -> 'a = "combine"
+  external method translate : float -> float -> unit = "translate"
+  external method translate_v : float*float -> unit = "translateV"
+  external method rotate :  ?center_x:float -> ?center_y:float -> float -> unit = "rotate"
+  external method rotate_v : ?center:float*float -> float -> unit = "rotateV"
+  external method scale : ?center_x:float -> ?center_y:float -> float -> float -> unit = "scale"
+  external method scale_v : ?center:float*float -> float*float -> unit = "scaleV"
 end
 
 external class virtual drawable : "sf_Drawable" =
@@ -103,24 +111,24 @@ end
 
 external class virtual transformable : "sf_Transformable" =
 object
-  external method set_position : float -> float -> unit = "SetPosition"
-  external method set_position_v : float*float -> unit = "SetPositionV"
-  external method set_scale : float -> float -> unit = "SetScale"
-  external method set_scale_v : float*float -> unit = "SetScaleV" 
-  external method set_origin : float -> float -> unit = "SetOrigin"
-  external method set_origin_v : float*float -> unit = "SetOriginV"
-  external method set_rotation : float -> unit = "SetRotation"
-  external method get_position : unit -> float * float = "GetPosition"
-  external method get_scale : unit -> float * float = "GetScale"
-  external method get_origin : unit -> float * float = "GetOrigin"
-  external method get_rotation : unit -> float = "GetRotation"
-  external method move : float -> float -> unit = "Move"
-  external method move_v : float * float -> unit = "MoveV"
-  external method scale : float -> float -> unit = "Scale"
-  external method scale_v : float * float -> unit = "ScaleV"
-  external method rotate : float -> unit = "Rotate"
-  external method get_transform : unit -> transform = "GetTransform"
-  external method get_inverse_transform : unit -> transform = "GetInverseTransform"
+  external method set_position : float -> float -> unit = "setPosition"
+  external method set_position_v : float*float -> unit = "setPositionV"
+  external method set_scale : float -> float -> unit = "setScale"
+  external method set_scale_v : float*float -> unit = "setScaleV" 
+  external method set_origin : float -> float -> unit = "setOrigin"
+  external method set_origin_v : float*float -> unit = "setOriginV"
+  external method set_rotation : float -> unit = "setRotation"
+  external method get_position : float * float = "getPosition"
+  external method get_scale : float * float = "getScale"
+  external method get_origin : float * float = "getOrigin"
+  external method get_rotation : float = "getRotation"
+  external method move : float -> float -> unit = "move"
+  external method move_v : float * float -> unit = "moveV"
+  external method scale : float -> float -> unit = "scale"
+  external method scale_v : float * float -> unit = "scaleV"
+  external method rotate : float -> unit = "rotate"
+  external method get_transform : transform = "getTransform"
+  external method get_inverse_transform : transform = "getInverseTransform"
 end
 
 let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
@@ -129,24 +137,30 @@ let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
   do_if t#set_origin_v origin ;
   do_if t#set_rotation rotation
 
+type pixel_array_type = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array2.t
+let pixel_array_kind = Bigarray.int8_unsigned
+let pixel_array_layout = Bigarray.c_layout
+
+
 external class imageCpp (Image) : "sf_Image" =
 object auto (self:'a)
   constructor default : unit = "default_constructor"
-  external method create_from_color : ?color:Color.t -> int -> int -> unit = "CreateFromColor"
+  external method create_from_color : ?color:Color.t -> int -> int -> unit = "createFromColor"
   (* external method create_from_pixels : int -> int -> string (* should it be a bigarray ? *) -> unit = "CreateFromPixels" *)
-  external method load_from_file : string -> bool = "LoadFromFile"
+  external method load_from_file : string -> bool = "loadFromFile"
 (*  external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : input_stream -> bool = "LoadFromStream"
-  external method save_to_file : string -> bool = "SaveToFile"
-  external method get_height : unit -> int = "GetWidth"
-  external method get_width : unit -> int = "GetHeight"
-  external method create_mask_from_color : ?alpha:int -> Color.t -> unit = "CreateMaskFromColor"
-  external method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit = "Copy" (* à mettre private *)
-  external method set_pixel : int -> int -> Color.t -> unit = "SetPixel"
-  external method get_pixel : int -> int -> Color.t = "GetPixel" 
-(* external method get_pixels : unit -> string (* bigarray !!! *) = "GetPixelPtr" *)
-  external method flip_horizontally : unit -> unit = "FlipHorizontally"
-  external method flip_vertically : unit -> unit = "FlipVertically"
+  external method load_from_stream : input_stream -> bool = "loadFromStream"
+  external method save_to_file : string -> bool = "saveToFile"
+  external method get_width : int = "getWidth"
+  external method get_height : int = "getWidth"
+  external method get_pixels_ptr : pixel_array_type = "getPixelsPtr"
+  external method create_mask_from_color : ?alpha:int -> Color.t -> unit = "createMaskFromColor"
+  external method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit = "copy" (* à mettre private *)
+  external method set_pixel : int -> int -> Color.t -> unit = "setPixel"
+  external method get_pixel : int -> int -> Color.t = "getPixel" 
+(* external method get_pixels : string (* bigarray !!! *) = "getPixelPtr" *)
+  external method flip_horizontally : unit = "flipHorizontally"
+  external method flip_vertically : unit = "flipVertically"
 end
 
 class image_bis () = 
@@ -167,28 +181,28 @@ let mk_image tag =
     then img
     else raise LoadFailure
 
-external cpp get_maximum_size : unit -> int = "Texture_GetMaximumSize"
+external cpp get_maximum_size : unit -> int = "Texture_getMaximumSize"
 
 external class textureCpp (Texture) : "sf_Texture" =
 object
   constructor default : unit = "default_constructor"
-  external method create : int -> int -> unit = "Create"
-  external method load_from_file : ?rect: int rect -> string -> bool = "LoadFromFile" 
-(*external method load_from_memory : ?rect: int rect -> string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : ?rect: int rect -> input_stream -> bool = "LoadFromStream"
-  external method load_from_image : ?rect: int rect -> image -> bool = "LoadFromImage"
-  external method get_width : unit -> int = "GetWidth"
-  external method get_height : unit -> int = "GetHeight"
-  external method copy_to_image : unit -> image = "CopyToImage"
+  external method create : int -> int -> unit = "create"
+  external method load_from_file : ?rect: int rect -> string -> bool = "loadFromFile" 
+(*external method load_from_memory : ?rect: int rect -> string -> bool = "loadFromMemory" *)
+  external method load_from_stream : ?rect: int rect -> input_stream -> bool = "loadFromStream"
+  external method load_from_image : ?rect: int rect -> image -> bool = "loadFromImage"
+  external method get_width : int = "getWidth"
+  external method get_height : int = "getHeight"
+  external method copy_to_image : image = "copyToImage"
   (*external method update_from_pixels : ?coords:int*int*int*int -> string  ou devrait-ce être un bigarray  -> unit = "UpdateFromPixels"*)
-  external method update_from_image : ?coords:int*int -> image -> unit = "UpdateFromImage"
-  external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = "UpdateFromWindow"
-  external method bind : unit -> unit = "Bind"
- (* external method unbind : unit -> unit = "Unbind" Removed *)
-  external method set_smooth : bool -> unit = "SetSmooth"
-  external method is_smooth : bool -> unit = "IsSmooth" 
-  external method set_repeated : bool -> unit = "SetRepeated"
-  external method is_repeated : unit -> bool = "IsRepeated"
+  external method update_from_image : ?coords:int*int -> image -> unit = "updateFromImage"
+  external method update_from_window : 'a . ?coords:int*int -> (#window as 'a) -> unit = "updateFromWindow"
+  external method bind : unit = "bind"
+ (* external method unbind : unit = "Unbind" Removed *)
+  external method set_smooth : bool -> unit = "setSmooth"
+  external method is_smooth : bool -> unit = "isSmooth" 
+  external method set_repeated : bool -> unit = "setRepeated"
+  external method is_repeated : bool = "isRepeated"
 end
 
 class texture_bis () = 
@@ -218,13 +232,13 @@ external class fontCpp (Font): "sf_Font" =
 object (_:'b)
   constructor default : unit = "default_constructor"
   (*  constructor copy : 'b ---> pas possible ya un prob sur le type *)
-  external method load_from_file : string -> bool = "LoadFromFile"
+  external method load_from_file : string -> bool = "loadFromFile"
   (*external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : 'a. (#input_stream as 'a) -> bool = "LoadFromStream"
-  external method get_glyph : int -> int -> bool -> glyph = "GetGlyph"
-  external method get_kerning : int -> int -> int -> int = "GetKerning"
-  external method get_line_spacing : int -> int = "GetLineSpacing"
-  external method get_texture : int -> texture = "GetTexture"
+  external method load_from_stream : 'a. (#input_stream as 'a) -> bool = "loadFromStream"
+  external method get_glyph : int -> int -> bool -> glyph = "getGlyph"
+  external method get_kerning : int -> int -> int -> int = "getKerning"
+  external method get_line_spacing : int -> int = "getLineSpacing"
+  external method get_texture : int -> texture = "getTexture"
 end
 
 class font_bis () = 
@@ -246,9 +260,9 @@ let mk_font tag =
 external class shaderCpp (Shader) : "sf_Shader" =
 object (self)
   constructor default : unit = "default_constructor"
-  external method load_from_file : ?vertex:string -> ?fragment:string -> unit -> bool = "LoadFromFile"
+  external method load_from_file : ?vertex:string -> ?fragment:string -> unit -> bool = "loadFromFile"
 (* external method load_from_memory : string -> bool = "LoadFromMemory" *)
-  external method load_from_stream : 'a. ?vertex:(#input_stream as 'a) -> ?fragment:(#input_stream as 'a) -> unit -> bool = "LoadFromStream" 
+  external method load_from_stream : 'a. ?vertex:(#input_stream as 'a) -> ?fragment:(#input_stream as 'a) -> unit -> bool = "loadFromStream" 
   method set_parameter name ?x ?y ?z w =
     let count = ref 0 in
     let vars = Array.make 4 0.0 in
@@ -262,21 +276,21 @@ object (self)
 	| 3 -> self#set_parameter3 name vars.(0) vars.(1) vars.(2)
 	| 4 -> self#set_parameter4 name vars.(0) vars.(1) vars.(2) vars.(3)
 	| _ -> assert false
-  external method set_parameter1 : string -> float -> unit = "SetFloatParameter"
-  external method set_parameter2 : string -> float -> float -> unit = "SetVec2Parameter"
-  external method set_parameter3 : string -> float -> float -> float -> unit = "SetVec3Parameter"
-  external method set_parameter4 : string -> float -> float -> float -> float -> unit = "SetVec4Parameter"
-  external method set_parameter2v : string -> float * float -> unit = "SetVec2ParameterV"
-  external method set_parameter3v : string -> float * float * float -> unit = "SetVec3ParameterV"
-  external method set_color : string -> Color.t -> unit = "SetColorParameter"
-  external method set_transform : string -> transform -> unit = "SetTransformParameter"
-  external method set_texture : string -> texture -> unit = "SetTextureParameter"
-  external method set_current_texture : string -> unit = "SetCurrentTexture"
-  external method bind : unit -> unit = "Bind"
-  external method unbind : unit -> unit = "Unbind"
+  external method set_parameter1 : string -> float -> unit = "setFloatParameter"
+  external method set_parameter2 : string -> float -> float -> unit = "setVec2Parameter"
+  external method set_parameter3 : string -> float -> float -> float -> unit = "setVec3Parameter"
+  external method set_parameter4 : string -> float -> float -> float -> float -> unit = "setVec4Parameter"
+  external method set_parameter2v : string -> float * float -> unit = "setVec2ParameterV"
+  external method set_parameter3v : string -> float * float * float -> unit = "setVec3ParameterV"
+  external method set_color : string -> Color.t -> unit = "setColorParameter"
+  external method set_transform : string -> transform -> unit = "setTransformParameter"
+  external method set_texture : string -> texture -> unit = "setTextureParameter"
+  external method set_current_texture : string -> unit = "setCurrentTexture"
+  external method bind : unit = "bind"
+  external method unbind : unit = "unbind"
 end
 
-external cpp shader_is_available : unit -> unit = "Shader_IsAvailable"
+external cpp shader_is_available : unit -> unit = "Shader_isAvailable"
 
 class shader_bis () = 
   let t = Shader.default () in 
@@ -299,23 +313,23 @@ object
   constructor default : unit = "default_constructor"
   constructor create_from_rect : float rect = "rectangle_constructor"
   constructor create_from_vectors : float * float -> float * float = "center_and_size_constructor"
-  external method set_center : float -> float -> unit = "SetCenter"
-  external method set_center_v : float * float -> unit = "SetCenterV"
-  external method set_size : float -> float -> unit = "SetSize"
-  external method set_size_v : float * float -> unit = "SetSizeV"
-  external method set_rotation : float -> unit = "SetRotation"
-  external method set_viewport : float rect -> unit = "SetViewport"
-  external method reset : float rect -> unit = "Reset"
-  external method get_center : unit -> float * float = "GetCenter"
-  external method get_size : unit -> float * float = "GetSize"
-  external method get_rotation : unit -> float = "GetRotation"
-  external method get_viewport : unit -> float rect = "GetViewport"
-  external method move : float -> float -> unit = "Move"
-  external method move_v : float * float -> unit = "MoveV"
-  external method rotate : float -> unit = "Rotate"
-  external method zoom : float -> unit = "Zoom"
-  (*external method get_matrix : unit -> matrix3 = "" --> matrix3
-  external method get_inverse_matrix : unit -> matrix3 = ""*)
+  external method set_center : float -> float -> unit = "setCenter"
+  external method set_center_v : float * float -> unit = "setCenterV"
+  external method set_size : float -> float -> unit = "setSize"
+  external method set_size_v : float * float -> unit = "setSizeV"
+  external method set_rotation : float -> unit = "setRotation"
+  external method set_viewport : float rect -> unit = "setViewport"
+  external method reset : float rect -> unit = "reset"
+  external method get_center : float * float = "getCenter"
+  external method get_size : float * float = "getSize"
+  external method get_rotation : float = "getRotation"
+  external method get_viewport : float rect = "getViewport"
+  external method move : float -> float -> unit = "move"
+  external method move_v : float * float -> unit = "moveV"
+  external method rotate : float -> unit = "rotate"
+  external method zoom : float -> unit = "zoom"
+  (*external method get_matrix : matrix3 = "" --> matrix3
+  external method get_inverse_matrix : matrix3 = ""*)
 end
 
 (** must be called either with param rect, either with both center and size*)
@@ -331,18 +345,18 @@ class view ?rect ?center ?size () =
 
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
 object
-  external method clear : ?color:Color.t -> unit -> unit = "Clear"
-  external method draw : 'a . ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader ->  (#drawable as 'a) -> unit = "Draw"
+  external method clear : ?color:Color.t -> unit -> unit = "clear"
+  external method draw : 'a . ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader ->  (#drawable as 'a) -> unit = "draw"
 (*  external method draw_with_shader : 'a . shader -> (#drawable as 'a) -> unit = "DrawWithShader" *)
-  external method get_width : unit -> int = "GetWidth"
-  external method get_height : unit -> int = "GetHeight"
-  external method set_view : view -> unit = "SetView"
-  external method get_view : unit -> view = "GetView"
-  external method get_default_view : unit -> view = "GetDefaultView"
-  external method get_viewport : unit -> int rect = "GetViewport"
-  external method convert_coords : ?view:view -> int -> int -> float * float = "ConvertCoords"
-  external method push_gl_states : unit -> unit = "PushGLStates"
-  external method pop_gl_states : unit -> unit = "PopGLStates" 
+  external method get_size : int*int = "getSize"
+  external method set_view : view -> unit = "setView"
+  external method get_view : view = "getView"
+  external method get_default_view : view = "getDefaultView"
+  external method get_viewport : int rect = "getViewport"
+  external method convert_coords : ?view:view -> int -> int -> float * float = "convertCoords"
+  external method push_gl_states : unit = "pushGLStates"
+  external method pop_gl_states : unit = "popGLStates" 
+  external method reset_gl_states : unit = "resetGLStates"
 end 
 
 
@@ -350,12 +364,12 @@ external class render_textureCpp (RenderTexture) : "sf_RenderTexture" =
 object
   external inherit render_target (RenderTarget) : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
-  external method create : ?dephtBfr:bool -> int -> int -> bool = "Create"
-  external method set_smooth : bool -> unit = "SetSmooth"
-  external method is_smooth : unit -> bool = "IsSmooth"
-  external method set_active : ?active:bool -> unit -> bool = "SetActive"
-  external method display : unit -> unit = "Display"
-  external method get_texture : unit -> texture = "GetTexture"
+  external method create : ?dephtBfr:bool -> int -> int -> bool = "create"
+  external method set_smooth : bool -> unit = "setSmooth"
+  external method is_smooth : bool = "isSmooth"
+  external method set_active : ?active:bool -> unit -> bool = "setActive"
+  external method display : unit = "display"
+  external method get_texture : texture = "getTexture"
 end
 
 class render_texture_bis () = let t = RenderTexture.default () in render_textureCpp t
@@ -366,9 +380,12 @@ object
   external inherit windowCpp (Window) : "sf_Window"
   external inherit render_target (RenderTarget) : "sf_RenderTarget"
   constructor default : unit = "default_constructor"
-  constructor create : ?style:window_style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
-  external method capture : unit -> image = "Capture"
+  constructor create : ?style:Window.style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
+  external method capture : image = "capture"
+  external method set_icon : pixel_array_type -> unit = "setIcon"
 end
+
+
 
 class render_window ?style ?context vm name = 
   let t = RenderWindow.create ?style ?context vm name in 
@@ -378,20 +395,20 @@ external class virtual shape : "sf_Shape" =
 object
   external inherit transformable : "sf_Transformable"
   external inherit drawable : "sf_Drawable"
-  external method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit = "SetTexture"
-  external method set_texture_rect : int rect -> unit = "SetTextureRect"
-  external method set_fill_color : Color.t -> unit = "SetFillColor"
-  external method set_outline_color : Color.t -> unit = "SetOutlineColor"
-  external method set_outline_thickness : float -> unit = "SetOutlineThickness"
-  external method get_texture : unit -> texture option = "GetTexture"
-  external method get_texture_rect : unit -> int rect = "GetTextureRect"
-  external method get_fill_color : unit -> Color.t = "GetFillColor"
-  external method get_outline_color : unit -> Color.t = "GetOutlineColor"
-  external method get_outline_thickness : unit -> float = "GetOutlineThickness"
-  external method get_point_count : unit -> int = "GetPointCount"
-  external method get_point : int -> float*float = "GetPoint"
-  external method get_local_bounds : unit -> float rect = "GetLocalBounds"
-  external method get_global_bounds : unit -> float rect = "GetGlobalBounds" 
+  external method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit = "setTexture"
+  external method set_texture_rect : int rect -> unit = "setTextureRect"
+  external method set_fill_color : Color.t -> unit = "setFillColor"
+  external method set_outline_color : Color.t -> unit = "setOutlineColor"
+  external method set_outline_thickness : float -> unit = "setOutlineThickness"
+  external method get_texture : texture option = "getTexture"
+  external method get_texture_rect : int rect = "getTextureRect"
+  external method get_fill_color : Color.t = "getFillColor"
+  external method get_outline_color : Color.t = "getOutlineColor"
+  external method get_outline_thickness : float = "getOutlineThickness"
+  external method get_point_count : int = "getPointCount"
+  external method get_point : int -> float*float = "getPoint"
+  external method get_local_bounds : float rect = "getLocalBounds"
+  external method get_global_bounds : float rect = "getGlobalBounds" 
 end
 
 let mk_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness (t :#shape) =
@@ -410,8 +427,8 @@ object
   external inherit shape : "sf_Shape"
   constructor default : unit = "default_constructor"
   constructor from_size : float*float = "size_constructor"
-  external method set_size : unit -> float*float = "SetSize"
-  external method get_size : unit -> float*float = "GetSize"
+  external method set_size : float*float = "setSize"
+  external method get_size : float*float = "getSize"
 end
 
 class rectangle_shape ?size () =
@@ -431,9 +448,9 @@ object
   external inherit shape : "sf_Shape"
   constructor default : unit = "default_constructor"
   constructor from_radius : float = "radius_constructor"
-  external method set_radius : float -> unit = "SetRadius"
-  external method get_radius : unit -> float = "GetRadius"
-  external method set_point_count : int -> unit = "SetPointCount"
+  external method set_radius : float -> unit = "setRadius"
+  external method get_radius : float = "getRadius"
+  external method set_point_count : int -> unit = "setPointCount"
 end
 
 class circle_shape ?radius () =
@@ -453,8 +470,8 @@ object
   external inherit shape : "sf_Shape"
   constructor default : unit = "default_constructor"
   constructor from_point_count : int = "point_constructor"
-  external method set_point_count : int -> unit = "SetPointCount"
-  external method set_point : int -> float*float -> unit = "SetPoint"
+  external method set_point_count : int -> unit = "setPointCount"
+  external method set_point : int -> float*float -> unit = "setPoint"
 end
 
 class convex_shape ?point_count () = 
@@ -492,18 +509,18 @@ object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   constructor create : string -> font -> int = "init_constructor"
-  external method set_string : string -> unit = "SetString"
-  external method set_font : font -> unit = "SetFont"
-  external method set_character_size : int -> unit = "SetCharacterSize"
-  external method set_style : text_style list -> unit = "SetStyle"
-  external method set_color : Color.t -> unit = "SetColor" 
-  external method get_string : unit -> string = "GetString"
-  external method get_font : unit -> font = "GetFont"
-  external method get_character_size : unit -> int = "GetCharacterSize"
-  external method get_style : unit -> text_style list = "GetStyle" 
-  external method get_character_pos : int -> float * float = "FindCharacterPos"
-  external method get_local_bounds : unit -> float rect = "GetLocalBounds"
-  external method get_global_bounds : unit -> float rect = "GetGlobalBounds"
+  external method set_string : string -> unit = "setString"
+  external method set_font : font -> unit = "setFont"
+  external method set_character_size : int -> unit = "setCharacterSize"
+  external method set_style : text_style list -> unit = "setStyle"
+  external method set_color : Color.t -> unit = "setColor" 
+  external method get_string : string = "getString"
+  external method get_font : font = "getFont"
+  external method get_character_size : int = "getCharacterSize"
+  external method get_style : text_style list = "getStyle" 
+  external method get_character_pos : int -> float * float = "findCharacterPos"
+  external method get_local_bounds : float rect = "getLocalBounds"
+  external method get_global_bounds : float rect = "getGlobalBounds"
 end
 
 class text_bis () = 
@@ -529,18 +546,18 @@ object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   constructor create_from_texture : texture = "texture_constructor"
-  external method set_texture : ?resize:bool -> texture -> unit = "SetTexture"
-  external method set_texture_rect : int rect -> unit = "SetTextureRect"
-  external method set_color : Color.t -> unit = "SetColor"
+  external method set_texture : ?resize:bool -> texture -> unit = "setTexture"
+  external method set_texture_rect : int rect -> unit = "setTextureRect"
+  external method set_color : Color.t -> unit = "setColor"
 (*  external method resize : float -> float -> unit = "Resize"
   external method resize_v : float * float -> unit = "ResizeV"
   external method flip_x : bool -> unit = "FlipX"
   external method flip_y : bool -> unit = "FlipY" *)
-  external method get_texture : unit -> texture = "GetTexture"
-  external method get_texture_rect : unit -> int rect = "GetTextureRect"
-  external method get_color : unit -> Color.t = "GetColor"
-  external method get_local_bounds : unit -> float rect = "GetLocalBounds"
-  external method get_global_bounds : unit -> float rect = "GetGlobalBounds"
+  external method get_texture : texture = "getTexture"
+  external method get_texture_rect : int rect = "getTextureRect"
+  external method get_color : Color.t = "getColor"
+  external method get_local_bounds : float rect = "getLocalBounds"
+  external method get_global_bounds : float rect = "getGlobalBounds"
 end
 
 class sprite_bis () = 
@@ -581,34 +598,37 @@ external class vertex_arrayCpp (VertexArray) : "sf_VertexArray" =
 object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
-  external method get_vertex_count : unit -> int = "GetVertexCount"
-  external method set_at_index : int -> vertex -> unit = "SetAtIndex"
-  external method get_at_index : int -> vertex = "GetAtIndex"
-  external method clear : unit -> unit = "Clear"
-  external method resize : int -> unit = "Resize"
-  external method append : vertex -> unit = "Append"
-  external method set_primitive_type : primitive_type -> unit = "SetPrimitiveType"
-  external method get_primitive_type : unit -> primitive_type = "GetPrimitiveType"
-  external method get_bounds : unit -> float rect = "GetBounds"
+  external method get_vertex_count : int = "getVertexCount"
+  external method set_at_index : int -> vertex -> unit = "setAtIndex"
+  external method get_at_index : int -> vertex = "getAtIndex"
+  external method clear : unit = "clear"
+  external method resize : int -> unit = "resize"
+  external method append : vertex -> unit = "append"
+  external method set_primitive_type : primitive_type -> unit = "setPrimitiveType"
+  external method get_primitive_type : primitive_type = "getPrimitiveType"
+  external method get_bounds : float rect = "getBounds"
 end
 
-class vertex_array () =
+class vertex_array_bis () =
   let t = VertexArray.default () in
   vertex_arrayCpp t
 
-type draw_func_type = render_target -> unit 
+class vertex_array =
+  vertex_array_bis ()
+
+type draw_func_type = RenderTarget.t -> unit 
 
 external class caml_drawableCpp (CamlDrawable) : "CamlDrawable" =
 object
   external inherit drawable : "sf_Drawable"
   constructor default : unit = "default_constructor"
   constructor callback : draw_func_type = "callback_constructor"
-  external method set_callback : draw_func_type -> unit = "SetCallback" 
+  external method set_callback : draw_func_type -> unit = "setCallback" 
 end
 
 class virtual caml_drawable =
 object (self)
   inherit caml_drawableCpp (CamlDrawable.default ()) as super
   method virtual draw : render_target -> unit
-  initializer super#set_callback self#draw
+  initializer super#set_callback (fun t -> self#draw (new render_target t))
 end

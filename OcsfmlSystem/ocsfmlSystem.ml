@@ -1,5 +1,6 @@
 exception LoadFailure
 
+
 let do_if f = function
     | Some x -> f x
     | None -> ()
@@ -31,8 +32,8 @@ end
 external class clockCpp (Clock): "sf_Clock" =
 object
   constructor create : unit = "default_constructor"
-  external method get_elapsed_time : unit -> Time.t = "GetElapsedTime"
-  external method restart : unit -> Time.t = "Restart"
+  external method get_elapsed_time : Time.t = "getElapsedTime"
+  external method restart : Time.t = "restart"
 end
 
 class clock_bis () = 
@@ -42,7 +43,7 @@ class clock_bis () =
 class clock =
   clock_bis ()
 
-external cpp sleep : Time.t -> unit = "sf_Sleep"
+external cpp sleep : Time.t -> unit = "sf_sleep"
 (*
 type func0 = unit -> unit
 
@@ -78,6 +79,6 @@ class virtual input_stream =
 object
   method virtual read : int -> string * int
   method virtual seek : int -> int
-  method virtual tell : unit -> int
-  method virtual get_size : unit -> int
+  method virtual tell : int
+  method virtual get_size : int
 end
