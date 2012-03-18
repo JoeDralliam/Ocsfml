@@ -185,6 +185,10 @@ val mk_transformable :
   ?position:float * float ->
   ?scale:float * float ->
   ?origin:float * float -> ?rotation:float -> #transformable -> unit
+type pixel_array_type =
+    (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array2.t
+val pixel_array_kind : (int, Bigarray.int8_unsigned_elt) Bigarray.kind
+val pixel_array_layout : Bigarray.c_layout Bigarray.layout
 module Image :
   sig
     type t
@@ -200,6 +204,7 @@ module Image :
         method flip_vertically : unit
         method get_height : int
         method get_pixel : int -> int -> Color.t
+        method get_pixels_ptr : pixel_array_type
         method get_width : int
         method load_from_file : string -> bool
         method load_from_stream : OcsfmlSystem.input_stream -> bool
@@ -218,6 +223,8 @@ module Image :
     external save_to_file : t -> string -> bool = "sf_Image_saveToFile__impl"
     external get_width : t -> int = "sf_Image_getWidth__impl"
     external get_height : t -> int = "sf_Image_getWidth__impl"
+    external get_pixels_ptr : t -> pixel_array_type
+      = "sf_Image_getPixelsPtr__impl"
     external create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
       = "sf_Image_createMaskFromColor__impl"
     external copy :
@@ -244,6 +251,7 @@ class imageCpp :
     method flip_vertically : unit
     method get_height : int
     method get_pixel : int -> int -> Color.t
+    method get_pixels_ptr : pixel_array_type
     method get_width : int
     method load_from_file : string -> bool
     method load_from_stream : OcsfmlSystem.input_stream -> bool
@@ -584,6 +592,8 @@ module RenderWindow :
       OcsfmlWindow.VideoMode.t -> string -> t
       = "sf_RenderWindow_create_constructor__impl"
     external capture : t -> image = "sf_RenderWindow_capture__impl"
+    external set_icon : t -> pixel_array_type -> unit
+      = "sf_RenderWindow_setIcon__impl"
   end
 class render_windowCpp :
   RenderWindow.t ->
@@ -622,6 +632,7 @@ class render_windowCpp :
     method reset_gl_states : unit
     method set_active : bool -> bool
     method set_framerate_limit : int -> unit
+    method set_icon : pixel_array_type -> unit
     method set_joystick_threshold : float -> unit
     method set_key_repeat_enabled : bool -> unit
     method set_mouse_cursor_visible : bool -> unit

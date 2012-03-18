@@ -16,7 +16,7 @@ package "window" (
 )
 
 package "graphics" (
-	requires="ocsfml.window"
+	requires="ocsfml.window, bigarray"
 	archive(byte) = "ocsfmlgraphics.cma"	
 	archive(toploop) = "ocsfmlgraphics.cma"	
 	archive(native) = "ocsfmlgraphics.cmxa"

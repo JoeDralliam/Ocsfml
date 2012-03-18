@@ -137,6 +137,11 @@ let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
   do_if t#set_origin_v origin ;
   do_if t#set_rotation rotation
 
+type pixel_array_type = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array2.t
+let pixel_array_kind = Bigarray.int8_unsigned
+let pixel_array_layout = Bigarray.c_layout
+
+
 external class imageCpp (Image) : "sf_Image" =
 object auto (self:'a)
   constructor default : unit = "default_constructor"
@@ -148,6 +153,7 @@ object auto (self:'a)
   external method save_to_file : string -> bool = "saveToFile"
   external method get_width : int = "getWidth"
   external method get_height : int = "getWidth"
+  external method get_pixels_ptr : pixel_array_type = "getPixelsPtr"
   external method create_mask_from_color : ?alpha:int -> Color.t -> unit = "createMaskFromColor"
   external method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit = "copy" (* à mettre private *)
   external method set_pixel : int -> int -> Color.t -> unit = "setPixel"
@@ -376,7 +382,10 @@ object
   constructor default : unit = "default_constructor"
   constructor create : ?style:Window.style list -> ?context:context_settings -> VideoMode.t -> string = "create_constructor"
   external method capture : image = "capture"
+  external method set_icon : pixel_array_type -> unit = "setIcon"
 end
+
+
 
 class render_window ?style ?context vm name = 
   let t = RenderWindow.create ?style ?context vm name in 

@@ -2,13 +2,24 @@ open OcsfmlSystem
 open OcsfmlWindow
 open OcsfmlGraphics
 open OcsfmlAudio
-
+open Bigarray
 let pi = 4.0 *. atan 1.0
 
 let ( & ) f x = f x
 
+(*
+let icon = 
+  Array2.of_array pixel_array_kind pixel_array_layout
+    [|[|255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255|];
+      [|255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255|];
+      [|255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255|];
+      [|255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255; 255; 0; 0; 255|]|]
+*)
+
 let test_pong () = 
   Random.self_init () ;
+
+  let icon = mk_image (`File "resources/sfml_icon.png") in
 
   let game_width = 800 in
   let game_height = 600 in
@@ -18,7 +29,7 @@ let test_pong () =
   
   let vm = VideoMode.create ~w:game_width ~h:game_height () in
   let app = new render_window vm  "Ocsfml - Pong" in
-	
+  app#set_icon icon#get_pixels_ptr ;
   let font = mk_font (`File "resources/sansation.ttf") in
   let ball_sound_buffer = mk_sound_buffer (`File "resources/ball.wav") in
 
@@ -216,7 +227,9 @@ let test_pong () =
       pauseMessage#destroy ;
     *)
        ball_sound_buffer#destroy ;
-      font#destroy (*;
+      font#destroy ;
+      icon#destroy 
+(*;
       app#destroy *)
 
 let _ = test_pong ()

@@ -6,6 +6,7 @@
 #include <camlpp/type_option.hpp>
 #include <camlpp/unit.hpp>
 #include <camlpp/custom_ops.hpp>
+#include <camlpp/big_array.hpp>
 
 custom_struct_affectation(	 sf::FloatRect,
 				&sf::FloatRect::left,
@@ -90,6 +91,12 @@ void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<
 		applyAlpha.get_value_no_fail( false ) );
 }
 
+BigarrayInterface<sf::Uint8, 2> image_get_pixels_ptr_helper( sf::Image* img )
+{
+  long size[2] = { img->getHeight(), img->getWidth()*4 };
+  return BigarrayInterface<sf::Uint8, 2>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
+}
+
 typedef sf::Image sf_Image;
 #define CAMLPP__CLASS_NAME() sf_Image
 camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
@@ -108,6 +115,7 @@ camlpp__register_custom_class()
   camlpp__register_external_method5( copy, &image_copy_helper );
   camlpp__register_method3( setPixel );
   camlpp__register_method2( getPixel );
+  camlpp__register_external_method0( getPixelsPtr, &image_get_pixels_ptr_helper )
   camlpp__register_method0( flipHorizontally );
   camlpp__register_method0( flipVertically );
 }
@@ -804,6 +812,11 @@ sf::RenderWindow* render_window_constructor_helper(Optional<std::list<unsigned l
   return new sf::RenderWindow( vm, title, actualStyle, actualSettings );
 }
 
+void render_window_set_icon_helper( sf::RenderWindow* window, BigarrayInterface< sf::Uint8, 2 > pixels )
+{
+  window->setIcon( pixels.size[1]/4.f, pixels.size[0], pixels.data );
+}
+
 typedef sf::Window sf_Window;
 typedef sf::RenderWindow sf_RenderWindow;
 #define CAMLPP__CLASS_NAME() sf_RenderWindow
@@ -815,6 +828,7 @@ camlpp__register_custom_class()
   camlpp__register_constructor0( default_constructor );
   camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper);
   camlpp__register_method0( capture );
+  camlpp__register_external_method1( setIcon, &render_window_set_icon_helper );
 }
 #undef CAMLPP__CLASS_NAME
 
