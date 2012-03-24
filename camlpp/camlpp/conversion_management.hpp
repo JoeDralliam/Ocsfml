@@ -499,7 +499,7 @@ struct ConversionManagement< std::function< void(Args...) > >
   }
 };
 
-#else
+#else // VC++
 
 
 template< class Arg>
@@ -556,6 +556,63 @@ struct ConversionManagement< std::function< void(Arg) > >
     return CamlCallback( v );
   }
 };
+
+template< class Arg1, class Arg2>
+struct ConversionManagement< std::function< void(Arg1, Arg2) > >
+{
+  class CamlCallback
+  {	
+    std::shared_ptr<value> callback_;
+  private:
+
+    value call( Arg1 t1, Arg2 t2 )
+    {
+      CAMLparam0();
+      CAMLlocal2( p1, p2 );
+      AffectationManagement<Arg1>::affect(p1, t1);
+	  AffectationManagement<Arg2>::affect(p2, t2);
+      CAMLreturn( callback2( *callback_, p1, p2 ) );
+    }
+		
+    CamlCallback& operator=( CamlCallback const& );
+  public:
+    CamlCallback( value const& v ) : callback_(new value(v))
+    {
+      caml_register_generational_global_root(callback_.get());
+    }
+
+    ~CamlCallback()
+    {
+      if(callback_ && callback_.unique()) 
+	{
+	  caml_remove_generational_global_root(callback_.get());
+	}
+    }
+
+    CamlCallback( CamlCallback const& other)
+      :callback_(other.callback_)
+    {}
+
+
+    //		CamlCallback( CamlCallback&& other ) : callback_( std::move( other.callback_ ) )
+    //	{}
+    template<class T1, class T2>
+    void operator()(T1&& arg1, T2&& arg2)
+    {
+      assert( callback_ );
+      caml_acquire_runtime_system() ;
+      call(std::forward<T1>(arg1), std::forward<T2>(arg2));
+      caml_release_runtime_system() ;
+    }
+  };
+  CamlCallback from_value( value const& v)
+  {
+		
+    assert( Tag_val( v ) == Closure_tag );
+    return CamlCallback( v );
+  }
+};
+
 
 #endif
 
