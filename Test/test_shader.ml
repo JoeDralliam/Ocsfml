@@ -10,13 +10,13 @@ object (this)
   val mutable myIsLoaded = false
   method virtual private on_load : bool
   method virtual private on_update : float -> float -> float -> unit
-  method virtual private on_draw : render_target -> unit
+  method virtual private on_draw : render_target -> render_states -> unit
   method get_name = myName
   method load = myIsLoaded <- this#on_load
   method update time x y = if myIsLoaded then this#on_update time x y
-  method draw target =
+  method draw target states =
     if myIsLoaded
-    then this#on_draw target
+    then this#on_draw target states
     else
       begin
     let error = mk_text ~string:"Shader not\nsupported"
@@ -58,8 +58,9 @@ object
   method private on_update time x y =
     myShader#set_parameter "pixel_threshold" & (x +. y) /. 30.
 
-  method private on_draw target =
-     target#draw ~shader:myShader mySprite
+  method private on_draw target states =
+    states.shader <- myShader ;
+    target#draw ~render_states:states mySprite
 end
 in
 let wave_blur =
@@ -101,8 +102,9 @@ object
     myShader#set_parameter "wave_amplitude" ~x:(x *. 40.) (y *. 40.) ;
     myShader#set_parameter "blur_radius" & (x +. y) *. 0.008
 
-  method private on_draw target =
-    target#draw ~shader:myShader myText
+  method private on_draw target states =
+    states.shader <- myShader ;
+    target#draw ~render_states:states myText
 end
 in
 
@@ -136,8 +138,9 @@ object
     myShader#set_parameter "storm_total_radius" radius ;
     myShader#set_parameter "blink_alpha" (0.5 +. (cos (time *. 3.) ) *. 0.25)
 
-  method private on_draw target =
-    target#draw ~shader:myShader myPoints
+  method private on_draw target states =
+    states.shader <- myShader ;
+    target#draw ~render_states:states myPoints
 end
 in
 let edge =
@@ -197,10 +200,11 @@ object
     Array.iteri update_entity myEntities ;
     mySurface#display
 
-  method private on_draw target =
+  method private on_draw target states =
+    states.shader <- myShader ;
     let tex = mySurface#get_texture in
       mySceneSprite#set_texture tex;
-      target#draw ~shader:myShader mySceneSprite
+      target#draw ~render_states:states mySceneSprite
 end
 in
     let rec before = edge :: storm_blink :: wave_blur :: pixelate :: before in

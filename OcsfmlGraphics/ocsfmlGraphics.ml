@@ -343,10 +343,21 @@ class view ?rect ?center ?size () =
 	     | _ -> View.default ()*)
   in viewCpp t
 
+type render_states =
+    {
+      mutable blend_mode : blend_mode ;
+      mutable transform : transform ;
+      mutable texture : texture ;
+      mutable shader : shader
+    }
+
+
+external cpp  mk_render_states : ?blend_mode:blend_mode -> ?transform:transform -> ?texture:texture -> ?shader:shader -> unit -> unit = "mk_sf_RenderStates"
+
 external class virtual render_target (RenderTarget): "sf_RenderTarget" =
 object
   external method clear : ?color:Color.t -> unit -> unit = "clear"
-  external method draw : 'a . ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader ->  (#drawable as 'a) -> unit = "draw"
+  external method draw : 'a . ?render_states:render_states (*?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader*) ->  (#drawable as 'a) -> unit = "draw"
 (*  external method draw_with_shader : 'a . shader -> (#drawable as 'a) -> unit = "DrawWithShader" *)
   external method get_size : int*int = "getSize"
   external method set_view : view -> unit = "setView"
@@ -616,7 +627,7 @@ class vertex_array_bis () =
 class vertex_array =
   vertex_array_bis ()
 
-type draw_func_type = RenderTarget.t -> unit 
+type draw_func_type = RenderTarget.t -> render_states -> unit 
 
 external class caml_drawableCpp (CamlDrawable) : "CamlDrawable" =
 object
@@ -629,6 +640,6 @@ end
 class virtual caml_drawable =
 object (self)
   inherit caml_drawableCpp (CamlDrawable.default ()) as super
-  method virtual draw : render_target -> unit
-  initializer super#set_callback (fun t -> self#draw (new render_target t))
+  method virtual draw : render_target -> render_states -> unit
+  initializer super#set_callback (fun t s -> self#draw (new render_target t) s)
 end

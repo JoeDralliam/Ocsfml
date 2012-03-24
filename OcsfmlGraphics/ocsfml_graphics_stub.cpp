@@ -680,6 +680,40 @@ camlpp__register_custom_class()
 #undef CAMLPP__CLASS_NAME
 
 
+
+custom_struct_affectation(sf::RenderStates,
+			  &sf::RenderStates::blendMode,
+			  &sf::RenderStates::transform,
+			  &sf::RenderStates::texture,
+			  &sf::RenderStates::shader );
+
+custom_struct_conversion(sf::RenderStates,
+			 &sf::RenderStates::blendMode,
+			 &sf::RenderStates::transform,
+			 &sf::RenderStates::texture,
+			 &sf::RenderStates::shader );
+
+sf::RenderStates mk_sf_RenderStates(Optional< sf::BlendMode > blend,
+				  Optional< sf::Transform const* > transform,
+				  Optional< sf::Texture const* > text,
+				  Optional< sf::Shader const* > shader,
+				  UnitTypeHolder)
+{
+  sf::RenderStates const& def = sf::RenderStates::Default;
+  return sf::RenderStates
+    (
+     blend.get_value_no_fail( def.blendMode ),
+     *transform.get_value_no_fail( &def.transform ),
+     text.get_value_no_fail( def.texture ),
+     shader.get_value_no_fail( def.shader )
+     );
+}
+
+extern "C"
+{
+  camlpp__register_free_function5( mk_sf_RenderStates )
+}
+
 void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color, UnitTypeHolder )
 {
   return target->clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
@@ -694,25 +728,27 @@ sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Opti
   return target->convertCoords(x, y);
 }
 
-
-void render_target_draw_helper( sf::RenderTarget* target, 
-				Optional< sf::BlendMode > blend,
+void render_target_draw_helper( sf::RenderTarget* target,
+				Optional< sf::RenderStates > rs,
+				/* Optional< sf::BlendMode > blend,
 				Optional< sf::Transform const* > transform,
 				Optional< sf::Texture const* > text,
-				Optional< sf::Shader const* > shader,
+				Optional< sf::Shader const* > shader, */
 				sf::Drawable const& drawable)
 {
   sf::RenderStates const& def = sf::RenderStates::Default;
   target->draw
     (
      drawable,
-     sf::RenderStates
+     rs.get_value_no_fail( def )
+     /*    sf::RenderStates
      (
       blend.get_value_no_fail( def.blendMode ),
       *transform.get_value_no_fail( &def.transform ),
       text.get_value_no_fail( def.texture ),
       shader.get_value_no_fail( def.shader )
       )
+     */
      );
 }
 
@@ -726,12 +762,13 @@ void render_target_draw_helper( sf::RenderTarget* target,
     }  
 */
 
+
 typedef sf::RenderTarget sf_RenderTarget;
 #define CAMLPP__CLASS_NAME() sf_RenderTarget
 camlpp__register_custom_class()
 {
   camlpp__register_external_method2( clear, &render_target_clear_helper );
-  camlpp__register_external_method5( draw, &render_target_draw_helper );
+  camlpp__register_external_method2( draw, &render_target_draw_helper );
   //	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper );
   camlpp__register_method0( getSize );
   camlpp__register_method1( setView );
@@ -835,12 +872,12 @@ camlpp__register_custom_class()
 class CamlDrawable : public sf::Drawable
 {
 private:
-  typedef std::function<void(sf::RenderTarget* /* , sf::RenderStates*/ )> CallbackType;
+  typedef std::function<void(sf::RenderTarget*, sf::RenderStates )> CallbackType;
   CallbackType callback_; 
 private:
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
   {
-    callback_(&target /* , states */ );
+    callback_(&target, states );
   }
 public:
   CamlDrawable()
@@ -863,7 +900,7 @@ camlpp__register_custom_class()
   camlpp__register_inheritance_relationship( sf_Drawable );
   camlpp__register_constructor0( default_constructor );
   camlpp__register_constructor1( callback_constructor, 
-				 std::function<void(sf::RenderTarget* /* , sf::RenderStates */ )> );
+				 std::function<void(sf::RenderTarget*, sf::RenderStates)> );
   camlpp__register_method1( setCallback );
 }
 #undef CAMLPP__CLASS_NAME

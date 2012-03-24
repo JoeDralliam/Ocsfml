@@ -35,10 +35,20 @@ extern "C"
 #include <memory>
 #include <list>
 #include <complex>
+#include <type_traits>
 
 #include "affectation_management.hpp"
 
-template<class T> class ConversionManagement;
+template<class T>
+struct ConversionManagement
+{
+  ConversionManagement< T const* > cm;
+  T from_value( value const& v)
+  {
+    return *cm.from_value(v);
+  }
+};
+
 
 template<class T>
 struct ConversionManagement<T*>

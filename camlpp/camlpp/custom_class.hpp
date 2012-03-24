@@ -519,13 +519,15 @@ using boost::mpl::int_;
   template<>								\
   struct AffectationManagement< class_name >				\
   {									\
-    static void affect( value& v, class_name const& obj)		\
+    template<class T>							\
+      static void affect( value& v, T obj)				\
     {									\
-      AffectClass< class_name >::affect_new( v, &obj);			\
+      AffectClass< class_name >::affect_new( v, new T(std::move(obj)));	\
     }									\
-    static void affect_field( value& v, int field, class_name const& obj) \
+    template<class T>							\
+      static void affect_field( value& v, int field, T obj)	\
     {									\
-      AffectClass< class_name >::affect_field_new(v, field, &obj); \
+      AffectClass< class_name >::affect_field_new(v, field, new T(std::move(obj))); \
     }									\
   };									\
   template<>								\

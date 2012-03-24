@@ -479,18 +479,24 @@ class viewCpp :
     method zoom : float -> unit
   end
 class view : ?rect:float rect -> ?center:'a -> ?size:'b -> unit -> viewCpp
+type render_states = {
+  mutable blend_mode : blend_mode;
+  mutable transform : transform;
+  mutable texture : texture;
+  mutable shader : shader;
+}
+external mk_render_states :
+  ?blend_mode:blend_mode ->
+  ?transform:transform -> ?texture:texture -> ?shader:shader -> unit -> unit
+  = "mk_sf_RenderStates__impl"
 module RenderTarget :
   sig
     type t
     external destroy : t -> unit = "sf_RenderTarget_destroy__impl"
     external clear : t -> ?color:Color.t -> unit -> unit
       = "sf_RenderTarget_clear__impl"
-    external draw :
-      t ->
-      ?blend_mode:blend_mode ->
-      ?transform:transform ->
-      ?texture:texture -> ?shader:shader -> #drawable -> unit
-      = "sf_RenderTarget_draw__byte" "sf_RenderTarget_draw__impl"
+    external draw : t -> ?render_states:render_states -> #drawable -> unit
+      = "sf_RenderTarget_draw__impl"
     external get_size : t -> int * int = "sf_RenderTarget_getSize__impl"
     external set_view : t -> view -> unit = "sf_RenderTarget_setView__impl"
     external get_view : t -> view = "sf_RenderTarget_getView__impl"
@@ -513,10 +519,7 @@ class render_target :
     method clear : ?color:Color.t -> unit -> unit
     method convert_coords : ?view:view -> int -> int -> float * float
     method destroy : unit
-    method draw :
-      ?blend_mode:blend_mode ->
-      ?transform:transform ->
-      ?texture:texture -> ?shader:shader -> #drawable -> unit
+    method draw : ?render_states:render_states -> #drawable -> unit
     method get_default_view : view
     method get_size : int * int
     method get_view : view
@@ -555,10 +558,7 @@ class render_textureCpp :
     method create : ?dephtBfr:bool -> int -> int -> bool
     method destroy : unit
     method display : unit
-    method draw :
-      ?blend_mode:blend_mode ->
-      ?transform:transform ->
-      ?texture:texture -> ?shader:shader -> #drawable -> unit
+    method draw : ?render_states:render_states -> #drawable -> unit
     method get_default_view : view
     method get_size : int * int
     method get_texture : texture
@@ -611,10 +611,7 @@ class render_windowCpp :
       OcsfmlWindow.VideoMode.t -> string -> unit
     method destroy : unit
     method display : unit
-    method draw :
-      ?blend_mode:blend_mode ->
-      ?transform:transform ->
-      ?texture:texture -> ?shader:shader -> #drawable -> unit
+    method draw : ?render_states:render_states -> #drawable -> unit
     method get_default_view : view
     method get_height : int
     method get_settings : OcsfmlWindow.context_settings
@@ -1170,7 +1167,7 @@ class vertex_arrayCpp :
   end
 class vertex_array_bis : unit -> vertex_arrayCpp
 class vertex_array : vertex_array_bis
-type draw_func_type = RenderTarget.t -> unit
+type draw_func_type = RenderTarget.t -> render_states -> unit
 module CamlDrawable :
   sig
     type t
@@ -1198,7 +1195,7 @@ class virtual caml_drawable :
     val t_caml_drawableCpp : CamlDrawable.t
     val t_drawable : Drawable.t
     method destroy : unit
-    method virtual draw : render_target -> unit
+    method virtual draw : render_target -> render_states -> unit
     method rep__CamlDrawable : CamlDrawable.t
     method rep__sf_Drawable : Drawable.t
     method set_callback : draw_func_type -> unit
