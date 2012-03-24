@@ -71,7 +71,11 @@
 
 
 #define CAMLPP__FREE_FUNCTION_BODY(func, values_name, params_count) \
+<<<<<<< HEAD
+  CAMLPP__BODY( boost::function_traits, decltype(func), func, values_name, params_count, CAMLPP__FREE_FUNCTION_OBTAIN_PARAM_TYPE, true)
+=======
   CAMLPP__BODY( boost::function_traits, decltype(func), func, values_name, params_count, CAMLPP__FREE_FUNCTION_OBTAIN_PARAM_TYPE)
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
 
 #define camlpp__register_overloaded_free_function0( func_name, func )	\
   CAMLprim value func_name##__impl( value unit )			\

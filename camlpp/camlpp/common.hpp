@@ -1,9 +1,16 @@
 #ifndef CAMLPP_COMMON_HPP_INCLUDED
 #define CAMLPP_COMMON_HPP_INCLUDED
 
+<<<<<<< HEAD
+
+=======
 #include <boost/preprocessor/expand.hpp>
+<<<<<<< HEAD
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
+=======
 #include <boost/preprocessor/list/enum.hpp>
 #include <boost/preprocessor/tuple/to_list.hpp>
+>>>>>>> 3cbaf5667b31ffbb8a3268e4609bd9fde77b180c
 
 #define CAMLPP__CONVERT_PARAM1( param1_name, value1_name, type1 )	\
   ConversionManagement< type1 > BOOST_PP_CAT(cm_, param1_name);		\
@@ -125,6 +132,7 @@
 #define CAMLPP__GENERATE_PARAMS_NAME9() \
   (CAMLPP__EXPAND CAMLPP__GENERATE_PARAMS_NAME8(), camlpp__p9)
 
+
 #define CAMLPP__OBTAIN_PARAMS_HELPER(params_count, params_name, values_name , params_type) \
   ( BOOST_PP_LIST_ENUM( BOOST_PP_TUPLE_TO_LIST(params_count, params_name) ), \
     BOOST_PP_LIST_ENUM( BOOST_PP_TUPLE_TO_LIST(params_count, values_name) ), \
@@ -132,6 +140,7 @@
 
 #define CAMLPP__OBTAIN_PARAMS( params_count, params_name, values_name , params_type) \
   BOOST_PP_EXPAND( CAMLPP__CONVERT_PARAM ## params_count CAMLPP__OBTAIN_PARAMS_HELPER(params_count, params_name, values_name , params_type) )
+
 
 #define CAMLPP__BODY( traits, func_type, call_func, values_name, params_count, obtain_params_type) \
   typedef boost::remove_pointer< func_type >::type FuncType;		\

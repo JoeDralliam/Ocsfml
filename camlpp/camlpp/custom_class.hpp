@@ -47,6 +47,8 @@ struct method_traits
     typedef typename boost::mpl::at<typename boost::function_types::parameter_types< MemFunc>::type, boost::mpl::int_<I> >::type type;
   };
   typedef typename boost::function_types::parameter_types< MemFunc>::type args_type;
+<<<<<<< HEAD
+=======
 };
 
 
@@ -88,9 +90,93 @@ struct AffectClass
   {
     AffectationManagement<T const*>::affect_field( v, field, t);
   }
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
 };
 
+
 using boost::mpl::int_;
+<<<<<<< HEAD
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE1( func_traits )	\
+  ( FuncTraits::args_type_<0>::type )
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE2( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE1( func_traits ) ,	\
+    FuncTraits::args_type_<1>::type )
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE3( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE2( func_traits ) ,	\
+    FuncTraits::args_type_<2>::type)
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE4( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE3( func_traits ) ,	\
+    FuncTraits::args_type_<3>::type)
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE5( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE4( func_traits ) ,	\
+    FuncTraits::args_type_<4>::type)
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE6( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE5( func_traits ) ,	\
+    FuncTraits::args_type_<5>::type)
+
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE7( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE7( func_traits ) ,	\
+    FuncTraits::args_type_<6>::type)
+
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE8( func_traits )		\
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE8( func_traits ) ,	\
+    FuncTraits::args_type_<7>::type)
+
+
+#define CAMLPP__METHOD_OBTAIN_PARAM_TYPE9( func_traits )	      \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE9( func_traits ) , \
+    FuncTraits::args_type_<8>::type)
+
+#define CAMLPP__METHOD_PLACEHOLDERS1(func) \
+  ( func, std::placeholders::_1 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS2(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS1(func), \
+    std::placeholders::_2 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS3(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS2(func), \
+    std::placeholders::_3 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS4(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS3(func), \
+    std::placeholders::_4 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS5(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS4(func), \
+    std::placeholders::_5 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS6(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS5(func), \
+    std::placeholders::_6 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS7(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS6(func), \
+    std::placeholders::_7 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS8(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS7(func), \
+    std::placeholders::_8 )
+
+#define CAMLPP__METHOD_PLACEHOLDERS9(func) \
+  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS8(func), \
+    std::placeholders::_9 )
+
+#define CAMLPP__METHOD_BODY(func, values_name, params_count)		\
+  CAMLPP__BODY( method_traits, decltype(func), std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE, true)
+
+
+
+=======
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE1( func_traits )	\
   ( FuncTraits::args_type_<0>::type )
@@ -176,14 +262,22 @@ using boost::mpl::int_;
 			 (obj), 1);					\
   }
 
+<<<<<<< HEAD
+#define camlpp__register_method1( method_name, func )			\
+=======
 #define camlpp__register_external_method1( method_name, func )			\
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1), 2);				\
   }
    
+<<<<<<< HEAD
+#define camlpp__register_method2( method_name, func )			\
+=======
 #define camlpp__register_external_method2( method_name, func )			\
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -205,6 +299,10 @@ using boost::mpl::int_;
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3, param4), 5);	\
   }									
+<<<<<<< HEAD
+
+=======
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
 
 
 #define camlpp__register_external_method5( method_name, func )			\
@@ -230,6 +328,38 @@ using boost::mpl::int_;
     assert( count == 7 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6] ); \
   }
+<<<<<<< HEAD
+
+#define camlpp__register_method7( method_name, func)			\
+  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7) \
+  {									\
+    CAMLPP__METHOD_BODY( func,						\
+			 (obj, param1, param2, param3, param4, param5, param6, param7), 8); \
+  }									\
+  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
+  {									\
+    assert( count == 8 );						\
+    return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7]); \
+  }
+
+#define camlpp__register_method8( method_name, func)			\
+  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
+  {									\
+    CAMLPP__METHOD_BODY( func,						\
+			 (obj, param1, param2, param3, param4, param5, param6, param7, param8), 9); \
+  }									\
+  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
+  {									\
+    assert( count == 9 );						\
+    return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7], v[8] ); \
+  }
+
+
+#define CAMLPP__EXTERNAL_CONSTRUCTOR_BODY(func, values_name, params_count) \
+  CAMLPP__BODY( method_traits, decltype(func), func, values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE, false)
+
+=======
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
 
 #define camlpp__register_external_method7( method_name, func)			\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7) \
@@ -292,7 +422,11 @@ using boost::mpl::int_;
     typedef std::remove_pointer<decltype(func)>::type FuncType;		\
     typedef method_traits< FuncType > FuncTraits;			\
     CAMLparam1( unit );							\
+<<<<<<< HEAD
+    ResManagement< CAMLPP__CLASS_NAME() *, false > rm;			\
+=======
     ResManagement< CAMLPP__CLASS_NAME() *> rm;				\
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
     CAMLlocal1(res);							\
     CAMLPP__INVOKE							\
       (									\
@@ -342,13 +476,31 @@ using boost::mpl::int_;
 #define CAMLPP__IGNORE7(x) 
 #define CAMLPP__IGNORE8(x) 
 #define CAMLPP__IGNORE9(x)
+<<<<<<< HEAD
+ 
+template<class Func>
+struct constructor_traits;
+
+template<class T>
+struct constructor_traits<T*()>
+{
+  typedef T* result_type;
+};
+
+#define CAMLPP__CONSTRUCTOR_BODY(class_name, values_name, params_type, params_count)	\
+=======
 
 #define CAMLPP__CONSTRUCTOR_BODY(class_name, values_name, params_type, params_count) \
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
   CAMLPP__BODY( constructor_traits,					\
 		class_name* (*)(),					\
 		boost::factory<class_name*>(),				\
 		values_name, params_count,				\
+<<<<<<< HEAD
+		params_type CAMLPP__IGNORE, false)
+=======
 		params_type CAMLPP__IGNORE)
+>>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
 
 
 #define camlpp__register_constructor0( constructor_name)		\
