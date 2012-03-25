@@ -121,6 +121,8 @@ module Transformable :
   sig
     type t
     external destroy : t -> unit = "sf_Transformable_destroy__impl"
+    external default : unit -> t
+      = "sf_Transformable_default_constructor__impl"
     external set_position : t -> float -> float -> unit
       = "sf_Transformable_setPosition__impl"
     external set_position_v : t -> float * float -> unit

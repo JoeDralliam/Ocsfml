@@ -71,29 +71,29 @@ let test_pong () =
   
   let rec event_loop () =
     match app#poll_event with
-	| Some e ->
-	    let open Event in
+      | Some e ->
+	let open Event in
 	    begin
 	      match e with
 		| Closed 
 		| KeyPressed { code = KeyCode.Escape ; _ } -> 
-		    app#close 
+		  app#close 
 		| KeyPressed { code = KeyCode.Space ; _ } when not !is_playing ->
-		    begin
-		      is_playing := true ;
-		      let angle = acos ((Random.float 0.3) +. 0.7) in
-		      ball_angle := if Random.bool () then angle +. pi else angle ;
-		      
+		  begin
+		    is_playing := true ;
+		    let angle = acos ((Random.float 0.3) +. 0.7) in
+		    ball_angle := if Random.bool () then angle +. pi else angle ;
+		    
 		      left_paddle#set_position (10. +. paddle_sizeX /. 2.) (float_of_int & game_height / 2 ) ;
 		      right_paddle#set_position ((float_of_int game_width) -. 10. -. paddle_sizeX /. 2.) (float_of_int & game_height / 2 ) ;
 		      ball#set_position (float_of_int & game_width / 2 ) (float_of_int & game_height / 2 )
-		    end 
+		  end 
 		| _ -> () 
 	    end ;
 	    event_loop ()
-	| None -> () 
-  in
-
+      | None -> () 
+	in
+	
   let update () =
     let interpolation = Time.as_seconds global_clock#restart in
       if !is_playing 

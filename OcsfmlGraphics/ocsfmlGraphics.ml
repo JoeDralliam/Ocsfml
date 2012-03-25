@@ -111,6 +111,7 @@ end
 
 external class virtual transformable : "sf_Transformable" =
 object
+  constructor default : unit = "default_constructor"
   external method set_position : float -> float -> unit = "setPosition"
   external method set_position_v : float*float -> unit = "setPositionV"
   external method set_scale : float -> float -> unit = "setScale"
