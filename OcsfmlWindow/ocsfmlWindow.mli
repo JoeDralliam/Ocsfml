@@ -110,7 +110,7 @@ end
 
 (** Check if a key is pressed. 
     @return True if the key is pressed, false otherwise *)
-external is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed__impl"
+val is_key_pressed : KeyCode.t -> bool
 
 (** Give access to the real-time state of the joysticks.
 
@@ -133,61 +133,59 @@ external is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed__impl"
     Unlike the keyboard or mouse, the state of joysticks is sometimes not directly available (depending on the OS), therefore an update() function must be called in order to update the current state of joysticks. When you have a window with event handling, this is done automatically, you don't need to call anything. But if you have no window, or if you want to check joysticks state before creating one, you must call Joystick.update explicitely. *)
 module Joystick :
 sig
-    (** Maximum number of supported joysticks. *)
+  (** Maximum number of supported joysticks. *)
   val count : int
-
-    (** Maximum number of supported buttons. *)
+    
+  (** Maximum number of supported buttons. *)
   val buttonCount : int
-
-    (** Maximum number of supported axes. *)
+    
+  (** Maximum number of supported axes. *)
   val axisCount : int
-
-    (** Axes supported by SFML joysticks. *)
+    
+  (** Axes supported by SFML joysticks. *)
   type axis = X | Y | Z | R | U | V | PovX | PovY
-
-    (** Check if a joystick is connected. 
-	@return True if the joystick is connected, false otherwise *)
-  external is_connected : int -> bool = "Joystick_isConnected__impl"
-
-    (** Return the number of buttons supported by a joystick.
-	
-	If the joystick is not connected, this function returns 0.
-	@return Number of buttons supported by the joystick *)
-  external get_button_count : int -> int = "Joystick_getButtonCount__impl"
       
-    (** Check if a joystick supports a given axis.
-	
-	If the joystick is not connected, this function returns false.
-	@return True if the joystick supports the axis, false otherwise *)
-  external has_axis : int -> axis -> bool = "Joystick_hasAxis__impl"
+  (** Check if a joystick is connected. 
+      @return True if the joystick is connected, false otherwise *)
+  val is_connected : int -> bool
+    
+  (** Return the number of buttons supported by a joystick.
       
-    (** Check if a joystick button is pressed.
-
-	If the joystick is not connected, this function returns false.
-	@return True if the button is pressed, false otherwise *)
-  external is_button_pressed : int -> int -> bool
-    = "Joystick_isButtonPressed__impl"
+      If the joystick is not connected, this function returns 0.
+      @return Number of buttons supported by the joystick *)
+  val get_button_count : int -> int
+    
+  (** Check if a joystick supports a given axis.
       
-    (** Get the current position of a joystick axis.
-	
-	If the joystick is not connected, this function returns 0.
-	@return Current position of the axis, in range [-100 .. 100] *)
-  external get_axis_position : int -> axis -> float
-    = "Joystick_getAxisPosition__impl"
+      If the joystick is not connected, this function returns false.
+      @return True if the joystick supports the axis, false otherwise *)
+  val has_axis : int -> axis -> bool
+    
+  (** Check if a joystick button is pressed.
       
-    (** Update the states of all joysticks.
-
-	This function is used internally by SFML, so you normally don't have to call it explicitely. However, you may need to call it if you have no window yet (or no window at all): in this case the joysticks states are not updated automatically. *)
-  external update : unit -> unit = "Joystick_update__impl"
+      If the joystick is not connected, this function returns false.
+      @return True if the button is pressed, false otherwise *)
+  val is_button_pressed : int -> int -> bool
+    
+  (** Get the current position of a joystick axis.
+      
+      If the joystick is not connected, this function returns 0.
+      @return Current position of the axis, in range [-100 .. 100] *)
+  val get_axis_position : int -> axis -> float
+    
+  (** Update the states of all joysticks.
+      
+      This function is used internally by SFML, so you normally don't have to call it explicitely. However, you may need to call it if you have no window yet (or no window at all): in this case the joysticks states are not updated automatically. *)
+  val update : unit -> unit
 end
 
 
 module Context :
 sig
   type t
-  external destroy : t -> unit = "sf_Context_destroy__impl"
-  external default : unit -> t = "sf_Context_default_constructor__impl"
-  external set_active : t -> bool -> unit = "sf_Context_setActive__impl"
+  val destroy : t -> unit
+  val default : unit -> t
+  val set_active : t -> bool -> unit
 end
 class contextCpp :
   Context.t ->
@@ -227,12 +225,12 @@ sig
     | MouseXButton2
     | MouseButtonCount
 
-    (** Size events parameters (Resized) *)
+  (** Size events parameters (Resized) *)
   type sizeEvent = { 
     width : int; (** New width, in pixels. *)
     height : int; (** New height, in pixels. *)
   }
-    (** Keyboard event parameters (KeyPressed, KeyReleased) *)
+  (** Keyboard event parameters (KeyPressed, KeyReleased) *)
   type keyEvent = {
     code : KeyCode.t; (** Code of the key that has been pressed. *)
     alt : bool; (** Is the Alt key pressed? *)
@@ -241,50 +239,50 @@ sig
     system : bool; (** Is the System key pressed? *)
   }
 
-    (** Text event parameters (TextEntered) *)
+  (** Text event parameters (TextEntered) *)
   type textEvent = { 
     unicode : int; (** UTF-32 unicode value of the character. *)
   }
       
-    (** Mouse move event parameters (MouseMoved) *)
+  (** Mouse move event parameters (MouseMoved) *)
   type mouseMoveEvent = { 
     x : int; (** X position of the mouse pointer, relative to the left of the owner window. *)
     y : int; (** Y position of the mouse pointer, relative to the top of the owner window. *)
   }
       
-    (** Mouse buttons events parameters (MouseButtonPressed, MouseButtonReleased) *)
+  (** Mouse buttons events parameters (MouseButtonPressed, MouseButtonReleased) *)
   type mouseButtonEvent = { 
     button : mouseButton; (** Code of the button that has been pressed. *)
     x : int; (** X position of the mouse pointer, relative to the left of the owner window. *)
     y : int; (** Y position of the mouse pointer, relative to the top of the owner window. *)
   }
       
-    (** Mouse wheel events parameters (MouseWheelMoved) *)
+  (** Mouse wheel events parameters (MouseWheelMoved) *)
   type mouseWheelEvent = { 
     delta : int; (** Number of ticks the wheel has moved (positive is up, negative is down) *)
     x : int; (** X position of the mouse pointer, relative to the left of the owner window. *)
     y : int; (** Y position of the mouse pointer, relative to the top of the owner window. *)
   }
       
-    (** Joystick connection events parameters (JoystickConnected, JoystickDisconnected) *)
+  (** Joystick connection events parameters (JoystickConnected, JoystickDisconnected) *)
   type joystickConnectEvent = { 
     joystickId : int; (** Index of the joystick (in range [0 .. Joystick.count - 1]) *) 
   }
       
-    (** Joystick axis move event parameters (JoystickMoved) *)
+  (** Joystick axis move event parameters (JoystickMoved) *)
   type joystickMoveEvent = {
     joystickId : int; (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
     axis : Joystick.axis; (** Axis on which the joystick moved. *)
     position : float; (** New position on the axis (in range [-100 .. 100]) *)
   }
 
-    (** Joystick buttons events parameters (JoystickButtonPressed, JoystickButtonReleased) *)
+  (** Joystick buttons events parameters (JoystickButtonPressed, JoystickButtonReleased) *)
   type joystickButtonEvent = { 
     joystickId : int; (** Index of the button that has been pressed (in range [0 .. Joystick.buttonCount - 1]) *)
     button : int; (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
   }
       
-    (** Enumeration of the different types of events. *)
+  (** Enumeration of the different types of events. *)
   type t =
       Closed	(** The window requested to be closed. *)
     | LostFocus (** The window lost the focus. *)
@@ -329,16 +327,15 @@ sig
 
   val create : ?w:int -> ?h:int -> ?bpp:int -> unit -> t
     
-    (** Retrieve all the video modes supported in fullscreen mode.
-	
-	When creating a fullscreen window, the video mode is restricted to be compatible with what the graphics driver and monitor support. This function returns the complete list of all video modes that can be used in fullscreen mode. The returned array is sorted from best to worst, so that the first element will always give the best mode (higher width, height and bits-per-pixel). 
-	@return Array containing all the supported fullscreen modes *)
-  external get_full_screen_modes : unit -> t array
-    = "VideoMode_getFullscreenModes__impl"
+  (** Retrieve all the video modes supported in fullscreen mode.
+      
+      When creating a fullscreen window, the video mode is restricted to be compatible with what the graphics driver and monitor support. This function returns the complete list of all video modes that can be used in fullscreen mode. The returned array is sorted from best to worst, so that the first element will always give the best mode (higher width, height and bits-per-pixel). 
+      @return Array containing all the supported fullscreen modes *)
+  val get_full_screen_modes : unit -> t array
     
-    (** Get the current desktop video mode. 
-	@return Current desktop video mode *)
-  external get_desktop_mode : unit -> t = "VideoMode_getDesktopMode__impl"
+  (** Get the current desktop video mode. 
+      @return Current desktop video mode *)
+  val get_desktop_mode : unit -> t
 end
 
 (** Structure defining the settings of the OpenGL context attached to a window.
@@ -381,41 +378,32 @@ type window_style =
 module WindowCpp :
 sig
   type t
-  external destroy : t -> unit = "sf_Window_destroy__impl"
-  external default : unit -> t = "sf_Window_default_constructor__impl"
-  external create_init :
+  val destroy : t -> unit
+  val default : unit -> t
+  val create_init :
     ?style:window_style list ->
       ?context:context_settings -> VideoMode.t -> string -> t
-	= "sf_Window_constructor_create__impl"
-  external create :
+  val create :
     t ->
       ?style:window_style list ->
 	?context:context_settings -> VideoMode.t -> string -> unit
-	  = "sf_Window_create__impl"
-  external close : t -> unit = "sf_Window_close__impl"
-  external is_open : t -> bool = "sf_Window_isOpen__impl"
-  external get_size : t -> int * int = "sf_Window_getSize__impl"
-  external get_settings : t -> context_settings
-    = "sf_Window_getSettings__impl"
-  external poll_event : t -> Event.t option = "sf_Window_pollEvent__impl"
-  external wait_event : t -> Event.t option = "sf_Window_waitEvent__impl"
-  external set_vertical_sync_enabled : t -> bool -> unit
-    = "sf_Window_setVerticalSyncEnabled__impl"
-  external set_mouse_cursor_visible : t -> bool -> unit
-    = "sf_Window_setMouseCursorVisible__impl"
-  external set_position : t -> int -> int -> unit
-    = "sf_Window_setPosition__impl"
-  external set_size : t -> int -> int -> unit = "sf_Window_setSize__impl"
-  external set_title : t -> string -> unit = "sf_Window_setTitle__impl"
-  external set_visible : t -> bool -> unit = "sf_Window_setVisible__impl"
-  external set_key_repeat_enabled : t -> bool -> unit
-    = "sf_Window_setKeyRepeatEnabled__impl"
-  external set_active : t -> bool -> bool = "sf_Window_setActive__impl"
-  external display : t -> unit = "sf_Window_display__impl"
-  external set_framerate_limit : t -> int -> unit
-    = "sf_Window_setFramerateLimit__impl"
-  external set_joystick_threshold : t -> float -> unit
-    = "sf_Window_setJoystickThreshold__impl"
+  val close : t -> unit
+  val is_open : t -> bool
+  val get_size : t -> int * int
+  val get_settings : t -> context_settings
+  val poll_event : t -> Event.t option
+  val wait_event : t -> Event.t option
+  val set_vertical_sync_enabled : t -> bool -> unit
+  val set_mouse_cursor_visible : t -> bool -> unit
+  val set_position : t -> int -> int -> unit
+  val set_size : t -> int -> int -> unit
+  val set_title : t -> string -> unit
+  val set_visible : t -> bool -> unit
+  val set_key_repeat_enabled : t -> bool -> unit
+  val set_active : t -> bool -> bool
+  val display : t -> unit
+  val set_framerate_limit : t -> int -> unit
+  val set_joystick_threshold : t -> float -> unit
 end
 
 
@@ -454,41 +442,32 @@ module Window :
 sig
   type style = window_style = Titlebar | Resize | Close | Fullscreen
   type t = WindowCpp.t
-  external destroy : t -> unit = "sf_Window_destroy__impl"
-  external default : unit -> t = "sf_Window_default_constructor__impl"
-  external create_init :
+  val destroy : t -> unit
+  val default : unit -> t
+  val create_init :
     ?style:window_style list ->
       ?context:context_settings -> VideoMode.t -> string -> t
-	= "sf_Window_constructor_create__impl"
-  external create :
+  val create :
     t ->
       ?style:window_style list ->
 	?context:context_settings -> VideoMode.t -> string -> unit
-	  = "sf_Window_create__impl"
-  external close : t -> unit = "sf_Window_close__impl"
-  external is_open : t -> bool = "sf_Window_isOpen__impl"
-  external get_size : t -> int * int = "sf_Window_getSize__impl"
-  external get_settings : t -> context_settings
-    = "sf_Window_getSettings__impl"
-  external poll_event : t -> Event.t option = "sf_Window_pollEvent__impl"
-  external wait_event : t -> Event.t option = "sf_Window_waitEvent__impl"
-  external set_vertical_sync_enabled : t -> bool -> unit
-    = "sf_Window_setVerticalSyncEnabled__impl"
-  external set_mouse_cursor_visible : t -> bool -> unit
-    = "sf_Window_setMouseCursorVisible__impl"
-  external set_position : t -> int -> int -> unit
-    = "sf_Window_setPosition__impl"
-  external set_size : t -> int -> int -> unit = "sf_Window_setSize__impl"
-  external set_title : t -> string -> unit = "sf_Window_setTitle__impl"
-  external set_visible : t -> bool -> unit = "sf_Window_setVisible__impl"
-  external set_key_repeat_enabled : t -> bool -> unit
-    = "sf_Window_setKeyRepeatEnabled__impl"
-  external set_active : t -> bool -> bool = "sf_Window_setActive__impl"
-  external display : t -> unit = "sf_Window_display__impl"
-  external set_framerate_limit : t -> int -> unit
-    = "sf_Window_setFramerateLimit__impl"
-  external set_joystick_threshold : t -> float -> unit
-    = "sf_Window_setJoystickThreshold__impl"
+  val close : t -> unit
+  val is_open : t -> bool
+  val get_size : t -> int * int
+  val get_settings : t -> context_settings
+  val poll_event : t -> Event.t option
+  val wait_event : t -> Event.t option
+  val set_vertical_sync_enabled : t -> bool -> unit
+  val set_mouse_cursor_visible : t -> bool -> unit
+  val set_position : t -> int -> int -> unit
+  val set_size : t -> int -> int -> unit
+  val set_title : t -> string -> unit
+  val set_visible : t -> bool -> unit
+  val set_key_repeat_enabled : t -> bool -> unit
+  val set_active : t -> bool -> bool
+  val display : t -> unit
+  val set_framerate_limit : t -> int -> unit
+  val set_joystick_threshold : t -> float -> unit
 end
 
 
@@ -509,34 +488,38 @@ module Mouse :
 sig
   (** Mouse buttons *)
   type button = Event.mouseButton
-  
+      
+
   (** Check if a mouse button is pressed. 
       @return True if the button is pressed, false otherwise *)
-  external is_button_pressed : button -> bool
-    = "Mouse_isButtonPressed__impl"
- 
+  val is_button_pressed : button -> bool
+    
+    
   (** Get the current position of the mouse in desktop coordinates.
 
       This function returns the global position of the mouse cursor on the desktop. 
       @return Current position of the mouse *)
-  external get_position : unit -> int * int = "Mouse_getPosition__impl"
+  val get_position : unit -> int * int
 
-   (** Get the current position of the mouse in window coordinates.
 
-       This function returns the current position of the mouse cursor, relative to the given window.
-       @return Current position of the mouse *)
-  external get_relative_position : #window -> int * int
-    = "Mouse_getRelativePosition__impl"
+  (** Get the current position of the mouse in window coordinates.
+
+      This function returns the current position of the mouse cursor, relative to the given window.
+      @return Current position of the mouse *)
+  val get_relative_position : #window -> int * int
+
       
   (** Set the current position of the mouse in desktop coordinates.
       
       This function sets the global position of the mouse cursor on the desktop. *)
-  external set_position : int * int -> unit = "Mouse_setPosition__impl"
+  val set_position : int * int -> unit
+
       
   (** Set the current position of the mouse in window coordinates.
       
       This function sets the current position of the mouse cursor, relative to the given window.*)
-  external set_relative_position : int * int -> #window -> unit
-    = "Mouse_setRelativePosition__impl"
+  val set_relative_position : int * int -> #window -> unit
+
+
 end
   

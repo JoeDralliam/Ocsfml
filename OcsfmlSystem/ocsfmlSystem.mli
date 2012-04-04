@@ -41,10 +41,10 @@ module Clock :
   sig
     (**/**)
     type t
-    external destroy : t -> unit = "sf_Clock_destroy__impl"
-    external create : unit -> t = "sf_Clock_default_constructor__impl"
-    external get_elapsed_time : t -> Time.t = "sf_Clock_getElapsedTime__impl"
-    external restart : t -> Time.t = "sf_Clock_restart__impl"
+    val destroy : t -> unit 
+    val create : unit -> t
+    val get_elapsed_time : t -> Time.t
+    val restart : t -> Time.t
   end
 
 (** Utility class that measures the elapsed time. *)
@@ -52,8 +52,8 @@ class clock :
 object
   (**/**)
   val t_clockCpp : Clock.t
-
   (**/**)    
+
   method destroy : unit
 
   (** Get the elapsed time.
@@ -72,7 +72,7 @@ end
 
 (** Make the current thread sleep for a given duration.
     sf::sleep is the best way to block a program or one of its threads, as it doesn't consume any CPU power.*)
-external sleep : Time.t -> unit = "sf_sleep__impl" 
+val sleep : Time.t -> unit
   
 
 (** Common interface for all input streams

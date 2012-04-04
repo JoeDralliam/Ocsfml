@@ -25,7 +25,7 @@
 template<class T>
 void camlpp__default_finalize( value v )
 {
-  std::cout << "Deleting : " << typeid(T).name() << std::endl;
+  //  std::cout << "Deleting : " << typeid(T).name() << std::endl;
   ConversionManagement<T*> cm;
   delete cm.from_value( v );
 }
