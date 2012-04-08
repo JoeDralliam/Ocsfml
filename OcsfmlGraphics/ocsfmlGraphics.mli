@@ -1,9 +1,26 @@
 (** *)
 
-(** *)
+(** Utility class for manipulating 2D axis aligned rectangles.
+    
+    A rectangle is defined by its top-left corner and its size.
+    
+    It is a very simple class defined for convenience, so its member variables (left, top, width and height) are public and can be accessed directly.
+
+    To keep things simple, rect doesn't define functions to emulate the properties that are not directly members (such as right, bottom, center, etc.), it rather only provides intersection functions.
+    
+    rect uses the usual rules for its boundaries:
+
+    The left and top edges are included in the rectangle's area
+    The right (left + width) and bottom (top + height) edges are excluded from the rectangle's area
+    
+    This means that \{ left = 0; top = 0 ; width = 1; height = 1 \} and \{ left = 0; top = 0 ; width = 1; height = 1 \} don't intersect. *)
 type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a; }
+
+(**/**)
 module type RECT_VAL =
 sig type t val add : t -> t -> t val sub : t -> t -> t end
+(**/**)
+
 module Rect :
   functor (M : RECT_VAL) ->
 sig
@@ -414,37 +431,19 @@ val pixel_array_kind : (int, Bigarray.int8_unsigned_elt) Bigarray.kind
 
 val pixel_array_layout : Bigarray.c_layout Bigarray.layout
 
+
+
 module Image :
 sig
   type t
-  class type imageCpp_class_type =
-  object ('a)
-    val t_imageCpp : t
-    method copy :
-      ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
-    method create_from_color : ?color:Color.t -> int -> int -> unit
-    method create_mask_from_color : ?alpha:int -> Color.t -> unit
-    method destroy : unit
-    method flip_horizontally : unit
-    method flip_vertically : unit
-    method get_height : int
-    method get_pixel : int -> int -> Color.t
-    method get_pixels_ptr : pixel_array_type
-    method get_width : int
-    method load_from_file : string -> bool
-    method load_from_stream : OcsfmlSystem.input_stream -> bool
-    method rep__sf_Image : t
-    method save_to_file : string -> bool
-    method set_pixel : int -> int -> Color.t -> unit
-  end
+
   val destroy : t -> unit
   val default : unit -> t
   val create_from_color : t -> ?color:Color.t -> int -> int -> unit
   val load_from_file : t -> string -> bool
   val load_from_stream : t -> OcsfmlSystem.input_stream -> bool
   val save_to_file : t -> string -> bool
-  val get_width : t -> int
-  val get_height : t -> int
+  val get_size : t -> int * int
   val get_pixels_ptr : t -> pixel_array_type
   val create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
   val copy :
@@ -454,34 +453,92 @@ sig
   val flip_horizontally : t -> unit
   val flip_vertically : t -> unit
 end
-
-class imageCpp :
-  Image.t ->
+  
+(** Class for loading, manipulating and saving images.
+    
+    image is an abstraction to manipulate images as bidimensional arrays of pixels.
+    
+    The class provides functions to load, read, write and save pixels, as well as many other useful functions.
+    
+    image can handle a unique internal representation of pixels, which is RGBA 32 bits. This means that a pixel must be composed of 8 bits red, green, blue and alpha channels -- just like an color. All the functions that return an array of pixels follow this rule, and all parameters that you pass to image functions (such as loadFromPixels) must use this representation as well.
+    
+    A image can be copied, but it is a heavy resource and if possible you should always use [const] references to pass or return them to avoid useless copies. *)
+class image : 
 object ('a)
+  (**/**)
   val t_imageCpp : Image.t
-  method copy :
-    ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
+  (**/**)
+
+  (** Copy pixels from another image onto this one.
+      
+      This function does a slow pixel copy and should not be used intensively. It can be used to prepare a complex static image from several others, but if you need this kind of feature in real-time you'd better use render_texture.
+      @param srcRect Sub-rectangle of the source image to copy.
+      @param alpha Should the copy take in account the source transparency ? *)
+  method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
+
+
+  (** Create the image and fill it with a unique color. 
+      @param color Fill color.*)
   method create_from_color : ?color:Color.t -> int -> int -> unit
+
+  (** Create a transparency mask from a specified color-key.
+      
+      This function sets the alpha value of every pixel matching the given color to alpha (0 by default), so that they become transparent.
+      @param alpha Alpha value to assign to transparent pixels. *)
   method create_mask_from_color : ?alpha:int -> Color.t -> unit
+
+  (***)
   method destroy : unit
+
+  (** Flip the image horizontally (left <-> right).*)
   method flip_horizontally : unit
+
+  (** Flip the image vertically (top <-> bottom).*)
   method flip_vertically : unit
-  method get_height : int
+
+  (** Return the size of the image. 
+      @return Size in pixels. *)
+  method get_size : int * int
+
+  (** Get the color of a pixel.
+      
+      This function doesn't check the validity of the pixel coordinates, using out-of-range values will result in an undefined behaviour. 
+      @return Color of the pixel at coordinates (x, y). *)
   method get_pixel : int -> int -> Color.t
+    
+  (** Get a read-only bigarray of pixels.
+      
+      The returned value is an array of RGBA pixels made of 8 bits integers components. The size of the array is GetWidth() * GetHeight() * 4. Warning: the returned pointer may become invalid if you modify the image, so you should never store it for too long. If the image is empty, a null pointer is returned. 
+      @return Read-only bigarray of pixels *)
   method get_pixels_ptr : pixel_array_type
-  method get_width : int
+
+  (**Load the image from a file on disk.
+     
+     The supported image formats are bmp, png, tga, jpg, gif, psd, hdr and pic. Some format options are not supported, like progressive jpeg. If this function fails, the image is left unchanged.
+     @return True if loading was successful. *)
   method load_from_file : string -> bool
+
+  (** Load the image from a custom stream.
+      
+      The supported image formats are bmp, png, tga, jpg, gif, psd, hdr and pic. Some format options are not supported, like progressive jpeg. If this function fails, the image is left unchanged.
+      @return True if loading was successful. *)
   method load_from_stream : OcsfmlSystem.input_stream -> bool
+
+  (**/**)
   method rep__sf_Image : Image.t
+  (**/**)
+
+  (** Save the image to a file on disk.
+
+      The format of the image is automatically deduced from the extension. The supported image formats are bmp, png, tga and jpg. The destination file is overwritten if it already exists. This function fails if the image is empty.
+      @return True if saving was successful. *)
   method save_to_file : string -> bool
+
+  (** Change the color of a pixel.
+
+      This function doesn't check the validity of the pixel coordinates, using out-of-range values will result in an undefined behaviour. *)
   method set_pixel : int -> int -> Color.t -> unit
 end
-
-
-class image_bis : unit -> imageCpp
-
-
-class image : image_bis
 
 
 val mk_image :
@@ -491,6 +548,11 @@ val mk_image :
   | `Stream of OcsfmlSystem.input_stream ] ->
   image
 
+
+(** Get the maximum texture size allowed.
+
+    This maximum size is defined by the graphics driver. You can expect a value of 512 pixels for low-end graphics card, and up to 8192 pixels or more for newer hardware. 
+    @return Maximum size allowed for textures, in pixels. *)
 val get_maximum_size : unit -> int
 
 
@@ -501,60 +563,162 @@ sig
   val default : unit -> t
   val create : t -> int -> int -> unit
   val load_from_file : t -> ?rect:int rect -> string -> bool
-  val load_from_stream :
-    t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
+  val load_from_stream : t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
   val load_from_image : t -> ?rect:int rect -> image -> bool
-  val get_width : t -> int
-  val get_height : t -> int
+  val get_size : t -> int * int
   val copy_to_image : t -> image
   val update_from_image : t -> ?coords:int * int -> image -> unit
-  val update_from_window :
-    t -> ?coords:int * int -> #OcsfmlWindow.window -> unit
+  val update_from_window : t -> ?coords:int * int -> #OcsfmlWindow.window -> unit
   val bind : t -> unit
   val set_smooth : t -> bool -> unit
   val is_smooth : t -> bool -> unit
   val set_repeated : t -> bool -> unit
   val is_repeated : t -> bool
 end
-class textureCpp :
-  Texture.t ->
+  
+(** Image living on the graphics card that can be used for drawing.
+    
+    texture stores pixels that can be drawn, with a sprite for example.
+    
+    A texture lives in the graphics card memory, therefore it is very fast to draw a texture to a render target, or copy a render target to a texture (the graphics card can access both directly).
+    
+    Being stored in the graphics card memory has some drawbacks. A texture cannot be manipulated as freely as a image, you need to prepare the pixels first and then upload them to the texture in a single operation (see texture#update ).
+    
+    texture makes it easy to convert from/to image, but keep in mind that these calls require transfers between the graphics card and the central memory, therefore they are slow operations.
+
+    A texture can be loaded from an image, but also directly from a file/memory/stream. The necessary shortcuts are defined so that you don't need an image first for the most common cases. However, if you want to perform some modifications on the pixels before creating the final texture, you can load your file to a image, do whatever you need with the pixels, and then call texture#load_from_image.
+    
+    Since they live in the graphics card memory, the pixels of a texture cannot be accessed without a slow copy first. And they cannot be accessed individually. Therefore, if you need to read the texture's pixels (like for pixel-perfect collisions), it is recommended to store the collision information separately, for example in an array of booleans.
+    
+    Like image, texture can handle a unique internal representation of pixels, which is RGBA 32 bits. This means that a pixel must be composed of 8 bits red, green, blue and alpha channels -- just like a color.*)
+class texture :
 object
+  (**/**)
   val t_textureCpp : Texture.t
+  (**/**)
+  
+  (* TODO: add Coordinate type *)
+  (** Activate the texture for rendering.
+      
+      This function is mainly used internally by the SFML rendering system. However it can be useful when using sf::Texture together with OpenGL code (this function is equivalent to glBindTexture).
+      
+      The coordinateType argument controls how texture coordinates will be interpreted. If Normalized (the default), they must be in range [0 .. 1], which is the default way of handling texture coordinates with OpenGL. If Pixels, they must be given in pixels (range [0 .. size]). This mode is used internally by the graphics classes of SFML, it makes the definition of texture coordinates more intuitive for the high-level API, users don't need to compute normalized values. *)
   method bind : unit
+  
+  (** Copy the texture pixels to an image.
+
+      This function performs a slow operation that downloads the texture's pixels from the graphics card and copies them to a new image, potentially applying transformations to pixels if necessary (texture may be padded or flipped).*)
   method copy_to_image : image
+  
+  (** Create the texture.
+
+      If this function fails, the texture is left unchanged.*)
   method create : int -> int -> unit
+  
+
   method destroy : unit
-  method get_height : int
-  method get_width : int
+  
+  (** Return the size of the texture. 
+      @return Size in pixels.*)
+  method get_size : int * int
+  
+  (** Tell whether the texture is repeated or not. 
+      @return True if repeat mode is enabled, false if it is disabled. *)
   method is_repeated : bool
+  
+  (** Tell whether the smooth filter is enabled or not. 
+      @return True if smoothing is enabled, false if it is disabled. *)
   method is_smooth : bool -> unit
+
+  (** Load the texture from a file on disk. 
+
+      The rect argument can be used to load only a sub-rectangle of the whole image. If you want the entire image then leave the default value. If the area rectangle crosses the bounds of the image, it is adjusted to fit the image size.
+      
+      The maximum size for a texture depends on the graphics driver and can be retrieved with the getMaximumSize function.
+      
+      If this function fails, the texture is left unchanged.
+      @param rect Area of the image to load.
+      @return True if loading was successful. *)
   method load_from_file : ?rect:int rect -> string -> bool
+    
+  (** Load the texture from an image.
+      
+      The rect argument can be used to load only a sub-rectangle of the whole image. If you want the entire image then leave the default value. If the area rectangle crosses the bounds of the image, it is adjusted to fit the image size.
+      
+      The maximum size for a texture depends on the graphics driver and can be retrieved with the get_maximum_size function.
+      
+      If this function fails, the texture is left unchanged.
+      @param rect Area of the image to load.
+      @return True if loading was successful. *)
   method load_from_image : ?rect:int rect -> image -> bool
-  method load_from_stream :
-    ?rect:int rect -> OcsfmlSystem.input_stream -> bool
+
+(** Load the texture from a custom stream.
+    
+    The rect argument can be used to load only a sub-rectangle of the whole image. If you want the entire image then leave the default value. If the area rectangle crosses the bounds of the image, it is adjusted to fit the image size.
+    
+    The maximum size for a texture depends on the graphics driver and can be retrieved with the get_maximum_size function.
+    
+    If this function fails, the texture is left unchanged. 
+    @param rect Area of the image to load.
+    @return True if loading was successful. *)
+  method load_from_stream : ?rect:int rect -> OcsfmlSystem.input_stream -> bool
+
+  (**/**)
   method rep__sf_Texture : Texture.t
+  (**/**)
+
+  (** Enable or disable repeating.
+
+    Repeating is involved when using texture coordinates outside the texture rectangle [0, 0, width, height]. In this case, if repeat mode is enabled, the whole texture will be repeated as many times as needed to reach the coordinate (for example, if the X texture coordinate is 3 * width, the texture will be repeated 3 times). If repeat mode is disabled, the "extra space" will instead be filled with border pixels. Warning: on very old graphics cards, white pixels may appear when the texture is repeated. With such cards, repeat mode can be used reliably only if the texture has power-of-two dimensions (such as 256x128). Repeating is disabled by default. *)
   method set_repeated : bool -> unit
+
+
+  (** Enable or disable the smooth filter.
+      
+      When the filter is activated, the texture appears smoother so that pixels are less noticeable. However if you want the texture to look exactly the same as its source file, you should leave it disabled. The smooth filter is disabled by default. *)
   method set_smooth : bool -> unit
+    
+  (** Update the texture from an image.
+      
+      Although the source image can be smaller than the texture, this function is usually used for updating the whole texture. The other overload, which has (x, y) additional arguments, is more convenient for updating a sub-area of the texture.
+      
+      No additional check is performed on the size of the image, passing an image bigger than the texture will lead to an undefined behaviour.
+      
+      This function does nothing if the texture was not previously created.
+      @param coords Offset in the texture where to copy the source image. *)
   method update_from_image : ?coords:int * int -> image -> unit
-  method update_from_window :
-    ?coords:int * int -> #OcsfmlWindow.window -> unit
+    
+  (**  Update the texture from the contents of a window.
+       
+       Although the source window can be smaller than the texture, this function is usually used for updating the whole texture. The other overload, which has (x, y) additional arguments, is more convenient for updating a sub-area of the texture.
+       
+       No additional check is performed on the size of the window, passing a window bigger than the texture will lead to an undefined behaviour.
+       
+       This function does nothing if either the texture or the window was not previously created. 
+       @param coords Offset in the texture where to copy the source window. *)
+  method update_from_window : ?coords:int * int -> #OcsfmlWindow.window -> unit
 end
-
-
-class texture_bis : unit -> textureCpp
-
-
-class texture : texture_bis
-
-
+  
 val mk_texture :
   [< `File of string
   | `Image of int rect * image
   | `Stream of OcsfmlSystem.input_stream ] ->
   texture
-
-
-type glyph = { advance : int; bounds : int rect; sub_rect : int rect; }
+    
+(** Structure describing a glyph.
+    
+    A glyph is the visual representation of a character.
+    
+    The sf::Glyph structure provides the information needed to handle the glyph:
+    
+    - its coordinates in the font's texture
+    - its bounding rectangle
+    - the offset to apply to get the starting position of the next glyph *)
+type glyph = { 
+  advance : int; (** Offset to move horizontically to the next character. *)
+  bounds : int rect; (** Bounding rectangle of the glyph, in coordinates relative to the baseline. *)
+  texture_rect : int rect; (** Texture coordinates of the glyph inside the font's texture. *)
+}
 
 
 module Font :
@@ -570,28 +734,70 @@ sig
   val get_texture : t -> int -> texture
 end
 
+(** Class for loading and manipulating character fonts.
+    
+    Fonts can be loaded from a file, from memory or from a custom stream, and supports the most common types of fonts.
+    
+    See the load_from_file function for the complete list of supported formats.
 
-class fontCpp :
-  Font.t ->
+    Once it is loaded, a font instance provides three types of informations about the font:
+    
+    - Global metrics, such as the line spacing
+    - Per-glyph metrics, such as bounding box or kerning
+    - Pixel representation of glyphs
+    
+    Fonts alone are not very useful: they hold the font data but cannot make anything useful of it. To do so you need to use the text class, which is able to properly output text with several options such as character size, style, color, position, rotation, etc. This separation allows more flexibility and better performances: indeed a font is a heavy resource, and any operation on it is slow (often too slow for real-time applications). On the other side, a text is a lightweight object which can combine the glyphs data and metrics of a font to display any text on a render target. Note that it is also possible to bind several text instances to the same font.
+    
+    It is important to note that the text instance doesn't copy the font that it uses, it only keeps a reference to it. Thus, a font must not be destructed while it is used by a text (i.e. never write a function that uses a local font instance for creating a text).*)
+class font :
 object
+  (**/**)
   val t_fontCpp : Font.t
+  (**/**)
+
+  (**)
   method destroy : unit
+
+  (** Retrieve a glyph of the font. 
+      @return The glyph corresponding to codePoint and characterSize.*)
   method get_glyph : int -> int -> bool -> glyph
+
+  (** Get the kerning offset of two glyphs.
+
+      The kerning is an extra offset (negative) to apply between two glyphs when rendering them, to make the pair look more "natural". For example, the pair "AV" have a special kerning to make them closer than other characters. Most of the glyphs pairs have a kerning offset of zero, though.
+      @return Kerning value for first and second, in pixels. *)
   method get_kerning : int -> int -> int -> int
+    
+  (** Get the line spacing.
+
+      Line spacing is the vertical offset to apply between two consecutive lines of text.
+      @return Line spacing, in pixels *)
   method get_line_spacing : int -> int
+ 
+  (** Retrieve the texture containing the loaded glyphs of a certain size.
+
+      The contents of the returned texture changes as more glyphs are requested, thus it is not very relevant. It is mainly used internally by text.
+      @return Texture containing the glyphs of the requested size. *)
   method get_texture : int -> texture
+
+  (** Load the font from a file.
+
+      The supported font formats are: TrueType, Type 1, CFF, OpenType, SFNT, X11 PCF, Windows FNT, BDF, PFR and Type 42. Note that this function know nothing about the standard fonts installed on the user's system, thus you can't load them directly.
+      @return True if loading succeeded, false if it failed. *)
   method load_from_file : string -> bool
+
+  (** Load the font from a custom stream.
+
+      The supported font formats are: TrueType, Type 1, CFF, OpenType, SFNT, X11 PCF, Windows FNT, BDF, PFR and Type 42. Warning: SFML cannot preload all the font data in this function, so the contents of stream have to remain valid as long as the font is used.
+      @return True if loading succeeded, false if it failed. *)
   method load_from_stream : #OcsfmlSystem.input_stream -> bool
+    
+  (**/**)
   method rep__sf_Font : Font.t
+(**/**)
+    
 end
-
-
-class font_bis : unit -> fontCpp
-
-
-class font : font_bis
-
-
+  
 val mk_font :
   [< `File of string | `Stream of #OcsfmlSystem.input_stream ] -> font
 
@@ -621,39 +827,209 @@ sig
   val bind : t -> unit
   val unbind : t -> unit
 end
-class shaderCpp :
-  Shader.t ->
+
+(**)
+val shader_is_available : unit -> unit
+
+(** Shader class (vertex and fragment)
+
+    Shaders are programs written using a specific language, executed directly by the graphics card and allowing to apply real-time operations to the rendered entities.
+
+    There are two kinds of shaders:
+
+    Vertex shaders, that process vertices
+    Fragment (pixel) shaders, that process pixels
+
+    A OcsfmlGraphics.shader can be composed of either a vertex shader alone, a fragment shader alone, or both combined (see the variants of the Load functions).
+
+    Shaders are written in GLSL, which is a C-like language dedicated to OpenGL shaders. You'll probably need to learn its basics before writing your own shaders for SFML.
+
+    Like any Caml program, a shader has its own variables that you can set from your Caml application. OcsfmlGraphics.shader handles 4 different types of variables:
+
+    - floats
+    - vectors (2, 3 or 4 components)
+    - textures
+    - transforms (matrices)
+
+    The value of the variables can be changed at any time with either the various overloads of the set_* function:
+    {[
+    shader#set_parameter1 "offset" 2.0 ;
+    shader#set_parameter3 "color" 0.5 0.8 0.3 ;
+    shader#set_transform "matrix" transform ; (* transform is a OcsfmlGraphics.transform *)
+    shader#set_texture "overlay" texture ; (* texture is a OcsfmlGraphics.texture *)
+    shader#set_current_texture "texture" 
+    ]}
+    The special Shader::CurrentTexture argument maps the given texture variable to the current texture of the object being drawn (which cannot be known in advance).
+
+    To apply a shader to a drawable, you must pass it as an additional parameter to the Draw function:
+    {[ 
+    window#draw ~render_states:(mk_render_states ~shader:shader ()) sprite 
+    ]}
+    Shaders can be used on any drawable, but some combinations are not interesting. For example, using a vertex shader on a OcsfmlGraphics.sprite is limited because there are only 4 vertices, the sprite would have to be subdivided in order to apply wave effects. Another bad example is a fragment shader with OcsfmlGraphics.text: the texture of the text is not the actual text that you see on screen, it is a big texture containing all the characters of the font in an arbitrary order; thus, texture lookups on pixels other than the current one may not give you the expected result.
+    
+    Shaders can also be used to apply global post-effects to the current contents of the target. This can be done in two different ways:
+    
+    - draw everything to a OcsfmlGraphics.render_texture, then draw it to the main target using the shader
+    - draw everything directly to the main target, then use OcsfmlGraphics.texture#update_from_window to copy its contents to a texture and draw it to the main target using the shader
+    
+    The first technique is more optimized because it doesn't involve retrieving the target's pixels to system memory, but the second one doesn't impact the rendering process and can be easily inserted anywhere without impacting all the code.
+
+    Like OcsfmlGraphics.texture that can be used as a raw OpenGL texture, OcsfmlGraphics.shader can also be used directly as a raw shader for custom OpenGL geometry.
+    {[  
+    window#set_active () ;
+    shader#bind ;
+    (* ... render OpenGL geometry ... *)
+    shader#unbind 
+    ]} *)
+class shader :
 object
+  (**/**)
   val t_shaderCpp : Shader.t
+  (**/**)
+
+  (** Bind the shader for rendering (activate it)
+
+      This function is normally for internal use only, unless you want to use the shader with a custom OpenGL rendering instead of a SFML drawable.  
+      {[
+      window#set_active () ;
+      shader#bind ;
+  (* ... render OpenGL geometry ... *)
+      shader#unbind 
+      ]} *)
   method bind : unit
   method destroy : unit
+
+  (** Load the vertex and/or the fragment shader from files. 
+      Warning: At least one of the shaders must be loaded.
+      @param vertex Path of the vertex shader file to load.
+      @param fragment Path of the fragment shader file to load. 
+      @return True if loading succeeded, false if it failed. *)
   method load_from_file :
     ?vertex:string -> ?fragment:string -> unit -> bool
+
+  (** Load the vertex and/or the fragment shader from custom streams. 
+      Warning: At least one of the shaders must be loaded.
+      @param vertex Source stream to read the vertex shader from.
+      @param fragment Source stream to read the fragment shader from.
+      @return True if loading succeeded, false if it failed. *)
   method load_from_stream :
     ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
       ?fragment:'a -> unit -> bool
+
+  (**/**)
   method rep__sf_Shader : Shader.t
+  (**/**)
+
+  (** Change a color parameter of the shader.
+
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 4x1 vector (vec4 GLSL type).
+      
+      It is important to note that the components of the color are normalized before being passed to the shader. Therefore, they are converted from range [0 .. 255] to range [0 .. 1]. For example, a OcsfmlGraphics.Color.\{r = 255; g = 125; b = 0; a = 255\} will be transformed to a vec4(1.0, 0.5, 0.0, 1.0) in the shader.
+      
+      Example:
+      {[uniform vec4 color; // this is the variable in the shader]}1
+      {[shader#set_color "color" OcsfmlGraphics.Color.{ r = 255; g = 128; b = 0; a = 255}]} *)
   method set_color : string -> Color.t -> unit
+
+
+  (** Change a texture parameter of the shader.
+
+      This overload maps a shader texture variable to the texture of the object being drawn, which cannot be known in advance. The second argument must be sf::Shader::CurrentTexture. The corresponding parameter in the shader must be a 2D texture (sampler2D GLSL type).
+      
+      Example: 
+      {[uniform sampler2D current; // this is the variable in the shader]}
+      {[shader#set_current_texture "current"]} *)
   method set_current_texture : string -> unit
+    
   method set_parameter : string -> ?x:float -> ?y:float -> ?z:float -> float -> unit
+    
+  (** Change a float parameter of the shader.
+      
+      name is the name of the variable to change in the shader. The corresponding parameter in the shader must be a float (float GLSL type).
+      
+      Example:
+      {[uniform float myparam; // this is the variable in the shader]}
+      {[shader#set_parameter1 "myparam" 5.2]} *)
   method set_parameter1 : string -> float -> unit
+  
+  (** Change a 2-components vector parameter of the shader.
+      
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 2x1 vector (vec2 GLSL type).
+      
+      Example:
+      {[uniform vec2 myparam; // this is the variable in the shader]}
+      {[shader#set_parameter2 "myparam" 5.2 6.0]} *)
   method set_parameter2 : string -> float -> float -> unit
+    
+  (** Change a 2-components vector parameter of the shader.
+      
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 2x1 vector (vec2 GLSL type).
+
+      Example:
+      {[uniform vec2 myparam; // this is the variable in the shader]}
+      {[shader#set_parameter2v "myparam" (5.2, 6.0)]} *)
   method set_parameter2v : string -> float * float -> unit
+
+  (** Change a 3-components vector parameter of the shader.
+      
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 3x1 vector (vec3 GLSL type).
+      
+      Example: 
+      {[uniform vec3 myparam; // this is the variable in the shader]}
+      {[shader#set_parameter3 "myparam" 5.2 6.0 -8.1]} *)
   method set_parameter3 : string -> float -> float -> float -> unit
+
+      
+  (** Change a 3-components vector parameter of the shader.
+      
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 3x1 vector (vec3 GLSL type).
+      
+      Example:      
+      {[uniform vec3 myparam; // this is the variable in the shader]}      
+      {[shader#set_parameter3v "myparam" (5.2, 6.0, -8.1)]} *)
   method set_parameter3v : string -> float * float * float -> unit
+
+  (** Change a 4-components vector parameter of the shader.
+      
+      name is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 4x1 vector (vec4 GLSL type).
+      
+      Example:
+      {[uniform vec4 myparam; // this is the variable in the shader]}
+      {[shader#set_parameter3 "myparam" 5.2 6.0 -8.1 0.4]} *)
   method set_parameter4 : string -> float -> float -> float -> float -> unit
+
+  (** Change a texture parameter of the shader.
+      
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 2D texture (sampler2D GLSL type).
+
+      Example: 
+      {[uniform sampler2D the_texture; // this is the variable in the shader]}
+      {[let texture = new texture in
+      ...
+      shader#set_texture "the_texture" texture ]} 
+
+      It is important to note that texture must remain alive as long as the shader uses it, no copy is made internally.
+
+      To use the texture of the object being draw, which cannot be known in advance, you can use set_current_texture:
+      {[shader#set_current_texture "the_texture"]} *)
   method set_texture : string -> texture -> unit
+    
+  (** Change a matrix parameter of the shader.
+    
+      The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 4x4 matrix (mat4 GLSL type).
+      
+      Example:
+      {[uniform mat4 matrix; // this is the variable in the shader]}
+      {[let transform = new transform in
+      transform#translate 5 10 ;
+      shader#set_transform "matrix" transform]} *)
   method set_transform : string -> transform -> unit
+    
+  (** Unbind the shader (deactivate it)
+      
+      This function is normally for internal use only, unless you want to use the shader with a custom OpenGL rendering instead of a SFML drawable. *)
   method unbind : unit
 end
-
-val shader_is_available : unit -> unit
-
-
-class shader_bis : unit -> shaderCpp
-
-
-class shader : shader_bis
 
 
 module View :
@@ -680,40 +1056,147 @@ sig
   val zoom : t -> float -> unit
 end
 
+(** 2D camera that defines what region is shown on screen.
 
-class viewCpp :
-  View.t ->
+    {!OcsfmlGraphics.view} defines a camera in the 2D scene.
+
+    This is a very powerful concept: you can scroll, rotate or zoom the entire scene without altering the way that your drawable objects are drawn.
+    
+    A view is composed of a source rectangle, which defines what part of the 2D scene is shown, and a target viewport, which defines where the contents of the source rectangle will be displayed on the render target (window or texture).
+    
+    The viewport allows to map the scene to a custom part of the render target, and can be used for split-screen or for displaying a minimap, for example. If the source rectangle has not the same size as the viewport, its contents will be stretched to fit in.
+    
+    To apply a view, you have to assign it to the render target. Then, every objects drawn in this render target will be affected by the view until you use another view.
+
+    Usage example:
+    {[
+    let window = new render_window (* ... *) in
+    let view = new view () in
+    
+(* Initialize the view to a rectangle located at (100, 100) and with a size of 400x200 *)
+    view#reset { left = 100.; top = 100.; width = 400.; height = 200. } ;
+    
+(* Rotate it by 45 degrees *)
+    view#rotate 45. ;
+    
+(* Set its target viewport to be half of the window *)
+    view#set_viewport { left = 0.; top = 0.; width = 0.5; height =  1. } ;
+    
+(* Apply it *)
+    window#set_view view ;
+    
+(* Render stuff *)
+    window#draw someSprite ;
+    
+(* Set the default view back *)
+    window#set_view window#get_default_view ;
+    
+(* Render stuff not affected by the view *)
+    window#draw someText 
+    ]} *)
+class view : 
+  ?rect:float rect -> 
+    ?center:'a -> ?size:'b -> 
+      unit ->
 object
+  (**/**)
   val t_viewCpp : View.t
+  (**/**)
+
+  (**)
   method destroy : unit
+
+  (** Get the center of the view. 
+      @return Center of the view. *)
   method get_center : float * float
+
+
+  (* TODO: get_inverse_transform *)
+
+  (** Get the current orientation of the view. 
+      @return Rotation angle of the view, in degrees.*)
   method get_rotation : float
+
+  (** Get the size of the view. 
+      @return Size of the view. *)
   method get_size : float * float
+
+  (* TODO : get_transform *)
+
+  (** Get the target viewport rectangle of the view. 
+      @return Viewport rectangle, expressed as a factor of the target size. *)
   method get_viewport : float rect
+
+  (** Move the view relatively to its current position. *)
   method move : float -> float -> unit
+
+  (** Move the view relatively to its current position. *)
   method move_v : float * float -> unit
+
+  (**/**)
   method rep__sf_View : View.t
+  (**/**)
+
+  (** Reset the view to the given rectangle.
+
+      Note that this function resets the rotation angle to 0.*)
   method reset : float rect -> unit
+
+  (** Rotate the view relatively to its current orientation. *)
   method rotate : float -> unit
+
+  (** Set the center of the view. *)
   method set_center : float -> float -> unit
+
+  (** Set the center of the view. *)
   method set_center_v : float * float -> unit
+
+  (** Set the orientation of the view.
+
+      The default rotation of a view is 0 degree. *)
   method set_rotation : float -> unit
+
+  (** Set the size of the view. *)
   method set_size : float -> float -> unit
+
+  (** Set the size of the view. *)
   method set_size_v : float * float -> unit
+
+  (** Set the target viewport.
+      
+      The viewport is the rectangle into which the contents of the view are displayed, expressed as a factor (between 0 and 1) of the size of the {!OcsfmlGraphics.render_target} to which the view is applied. For example, a view which takes the left side of the target would be defined with View.setViewport(sf::FloatRect(0, 0, 0.5, 1)). By default, a view has a viewport which covers the entire target. *)
   method set_viewport : float rect -> unit
+    
+  (** Resize the view rectangle relatively to its current size.
+      
+      Resizing the view simulates a zoom, as the zone displayed on screen grows or shrinks. factor is a multiplier:
+      
+      -   1 keeps the size unchanged
+      - > 1 makes the view bigger (objects appear smaller)
+      - < 1 makes the view smaller (objects appear bigger)
+  *)
   method zoom : float -> unit
 end
 
-
-class view : ?rect:float rect -> ?center:'a -> ?size:'b -> unit -> viewCpp
-
-
+(** Define the states used for drawing to a RenderTarget.
+    
+    There are four global states that can be applied to the drawn objects:
+    
+    - the blend mode: how pixels of the object are blended with the background
+    - the transform: how the object is positioned/rotated/scaled
+    - the texture: what image is mapped to the object
+    - the shader: what custom effect is applied to the object
+    
+    High-level objects such as sprites or text force some of these states when they are drawn. For example, a sprite will set its own texture, so that you don't have to care about it when drawing the sprite.
+    
+    The transform is a special case: sprites, texts and shapes (and it's a good idea to do it with your own drawable classes too) combine their transform with the one that is passed in the RenderStates structure. So that you can use a "global" transform on top of each object's transform. *)
 type render_states = {
-  mutable blend_mode : blend_mode;
-  mutable transform : transform;
-  mutable texture : texture;
-  mutable shader : shader;
+  mutable blend_mode : blend_mode; (** Blending mode. *)
+  mutable transform : transform; (** Transform *)
+  mutable texture : texture; (** Texture. *)
+  mutable shader : shader; (** Shader. *)
 }
+
 
 val mk_render_states :
   ?blend_mode:blend_mode ->
@@ -730,30 +1213,118 @@ sig
   val set_view : t -> view -> unit
   val get_view : t -> view
   val get_default_view : t -> view
-  val get_viewport : t -> int rect
-  val convert_coords : t -> ?view:view -> int -> int -> float * float
+  val get_viewport : t -> view -> int rect
+  val convert_coords : t -> ?view:view -> int * int -> float * float
   val push_gl_states : t -> unit
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
 end
 
+(** Base class for all render targets (window, texture, ...)
+    
+    OcsfmlGraphics.render_target defines the common behaviour of all the 2D render targets usable in the graphics module.
+    
+    It makes it possible to draw 2D entities like sprites, shapes, text without using any OpenGL command directly.
+    
+    A OcsfmlGraphics.render_target is also able to use views (OcsfmlGraphics.view), which are a kind of 2D cameras. With views you can globally scroll, rotate or zoom everything that is drawn, without having to transform every single entity. See the documentation of OcsfmlGraphics.view for more details and sample pieces of code about this class.
 
+    On top of that, render targets are still able to render direct OpenGL stuff. It is even possible to mix together OpenGL calls and regular SFML drawing commands. When doing so, make sure that OpenGL states are not messed up by calling the push_gl_states/pop_gl_states methods. *)
 class render_target :
   RenderTarget.t ->
 object
+  (**/**)
   val t_render_target : RenderTarget.t
+  (**/**)
+
+  (** Clear the entire target with a single color.
+
+      This function is usually called once every frame, to clear the previous contents of the target. *)
   method clear : ?color:Color.t -> unit -> unit
-  method convert_coords : ?view:view -> int -> int -> float * float
+
+  (** Convert a point from target coordinates to view coordinates.
+      
+      Initially, a unit of the 2D world matches a pixel of the render target. But if you define a custom view, this assertion is not true anymore, ie. a point located at (10, 50) in your render target (for example a window) may map to the point (150, 75) in your 2D world -- for example if the view is translated by (140, 25).
+
+      For render windows, this function is typically used to find which point (or object) is located below the mouse cursor.
+
+      @param view The view to use for converting the point (default is the current view of the render_target) 
+      @return The converted point, in "world" units *)
+  method convert_coords : ?view:view -> int * int -> float * float
+
+  (**)
   method destroy : unit
+
+  (** Draw a drawable object to the render-target. 
+      @param render_states Render states to use for drawing. *)
   method draw : ?render_states:render_states -> #drawable -> unit
+
+  (** Get the default view of the render target.
+
+      The default view has the initial size of the render target, and never changes after the target has been created.
+      @return The default view of the render target. *)
   method get_default_view : view
+
+  (** Return the size of the rendering region of the target. 
+      @return Size in pixels. *)
   method get_size : int * int
+
+  (** Get the view currently in use in the render target. 
+      @return The view object that is currently used. *)
   method get_view : view
-  method get_viewport : int rect
+
+  (** Get the viewport of a view, applied to this render target.
+
+      The viewport is defined in the view as a ratio, this function simply applies this ratio to the current dimensions of the render target to calculate the pixels rectangle that the viewport actually covers in the target.
+      @return Viewport rectangle, expressed in pixels  *)
+  method get_viewport : view -> int rect
+
+  (** Restore the previously saved OpenGL render states and matrices.
+
+      See the description of pushGLStates to get a detailed description of these functions. *)
   method pop_gl_states : unit
+
+  (** Save the current OpenGL render states and matrices.
+    
+      This function can be used when you mix SFML drawing and direct OpenGL rendering. Combined with pop_gl_states, it ensures that:
+    
+      - SFML's internal states are not messed up by your OpenGL code
+      - your OpenGL states are not modified by a call to a SFML function
+      
+      More specifically, it must be used around code that calls Draw functions. Example:
+      {[
+  (* OpenGL code here... *)
+      window#push_gl_states;
+      window#draw (* ... *);
+      window#draw (* ... *);
+      window#pop_gl_states
+  (* OpenGL code here... *)
+      ]}
+      Note that this function is quite expensive: it saves all the possible OpenGL states and matrices, even the ones you don't care about. Therefore it should be used wisely. It is provided for convenience, but the best results will be achieved if you handle OpenGL states yourself (because you know which states have really changed, and need to be saved and restored). Take a look at the ResetGLStates function if you do so. *)
   method push_gl_states : unit
+  
+  (**/**)
   method rep__sf_RenderTarget : RenderTarget.t
+  (**/**)
+    
+  (** Reset the internal OpenGL states so that the target is ready for drawing.
+      
+      This function can be used when you mix SFML drawing and direct OpenGL rendering, if you choose not to use pushGLStates/popGLStates. It makes sure that all OpenGL states needed by SFML are set, so that subsequent draw calls will work as expected.
+      
+      Example:
+      {[
+      (* OpenGL code here... *)
+      glPushAttrib (* ... *) ;
+      window#reset_gl_states ;
+      window#draw (* ... *) ;
+      window#draw (* ... *) ;
+      glPopAttrib (* ... *) ;
+      // OpenGL code here...
+      ]} *) 
   method reset_gl_states : unit
+
+  (** Change the current active view.
+      
+      The view is like a 2D camera, it controls which part of the 2D scene is visible, and how it is viewed in the render-target. The new view will affect everything that is drawn, until another view is set. The render target keeps its own copy of the view object, so it is not necessary to keep the original one alive after calling this function. To restore the original view of the target, you can pass the result of get_default_view to this function.*)
   method set_view : view -> unit
 end
 
@@ -771,13 +1342,27 @@ sig
   val display : t -> unit
   val get_texture : t -> texture
 end
-class render_textureCpp :
-  RenderTexture.t ->
+
+(** Target for off-screen 2D rendering into an texture.
+
+    OcsfmlGraphics.render_texture is the little brother of OcsfmlGraphics.render_window.
+    
+    It implements the same 2D drawing and OpenGL-related functions (see their base class OcsfmlGraphics.render_target for more details), the difference is that the result is stored in an off-screen texture rather than being show in a window.
+    
+    Rendering to a texture can be useful in a variety of situations:
+    
+    - precomputing a complex static texture (like a level's background from multiple tiles)
+    - applying post-effects to the whole scene with shaders
+    - creating a sprite from a 3D object rendered with OpenGL
+    - etc.
+
+    Usage example:*)
+class render_texture :
 object
   val t_render_target : RenderTarget.t
   val t_render_textureCpp : RenderTexture.t
   method clear : ?color:Color.t -> unit -> unit
-  method convert_coords : ?view:view -> int -> int -> float * float
+  method convert_coords : ?view:view -> int * int -> float * float
   method create : ?dephtBfr:bool -> int -> int -> bool
   method destroy : unit
   method display : unit
@@ -786,7 +1371,7 @@ object
   method get_size : int * int
   method get_texture : texture
   method get_view : view
-  method get_viewport : int rect
+  method get_viewport : view -> int rect
   method is_smooth : bool
   method pop_gl_states : unit
   method push_gl_states : unit
@@ -797,13 +1382,6 @@ object
   method set_smooth : bool -> unit
   method set_view : view -> unit
 end
-
-
-class render_texture_bis : unit -> render_textureCpp
-
-
-class render_texture : render_texture_bis
-
 
 module RenderWindow :
 sig
@@ -824,13 +1402,15 @@ end
 class render_windowCpp :
   RenderWindow.t ->
 object
+(*  inherit OcsfmlWindow.window
+  inherit render_target *)
   val t_render_target : RenderTarget.t
   val t_render_windowCpp : RenderWindow.t
-  val t_windowCpp : OcsfmlWindow.WindowCpp.t
+  val t_windowCpp : OcsfmlWindow.Window.t
   method capture : image
   method clear : ?color:Color.t -> unit -> unit
   method close : unit
-  method convert_coords : ?view:view -> int -> int -> float * float
+  method convert_coords : ?view:view -> int * int -> float * float
   method create :
     ?style:OcsfmlWindow.window_style list ->
       ?context:OcsfmlWindow.context_settings ->
@@ -843,7 +1423,7 @@ object
   method get_settings : OcsfmlWindow.context_settings
   method get_size : int * int
   method get_view : view
-  method get_viewport : int rect
+  method get_viewport : view -> int rect
   method get_width : int
   method is_open : bool
   method poll_event : OcsfmlWindow.Event.t option
@@ -851,7 +1431,7 @@ object
   method push_gl_states : unit
   method rep__sf_RenderTarget : RenderTarget.t
   method rep__sf_RenderWindow : RenderWindow.t
-  method rep__sf_Window : OcsfmlWindow.WindowCpp.t
+  method rep__sf_Window : OcsfmlWindow.Window.t
   method reset_gl_states : unit
   method set_active : bool -> bool
   method set_framerate_limit : int -> unit

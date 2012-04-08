@@ -410,7 +410,7 @@ udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpA
   return std::make_pair( status, remotePort );
 }
 
-typedef sf::Socket::Status (sf::UdpSocket::*TransferDataUdp)( const char* data, 
+typedef sf::Socket::Status (sf::UdpSocket::*TransferDataUdp)( const void* data, 
 							      std::size_t size, 
 							      const sf::IpAddress& remoteAddress, 
 							      unsigned short remotePort);

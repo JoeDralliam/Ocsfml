@@ -27,68 +27,68 @@
 
 class CamlInputStream : public sf::InputStream
 {
-        std::unique_ptr<value> inputStreamInst_;
+  std::unique_ptr<value> inputStreamInst_;
 public:
-        CamlInputStream( value& v ) : inputStreamInst_(new value(v) )
-	{
-	  caml_register_generational_global_root( inputStreamInst_.get() );
-	}
+  CamlInputStream( value& v ) : inputStreamInst_(new value(v) )
+  {
+    caml_register_generational_global_root( inputStreamInst_.get() );
+  }
 
-        CamlInputStream( CamlInputStream&& other ) : inputStreamInst_( std::move( other.inputStreamInst_ ) )
-        {}				 
+  CamlInputStream( CamlInputStream&& other ) : inputStreamInst_( std::move( other.inputStreamInst_ ) )
+  {}				 
 
-	/*CamlInputStream( CamlInputStream const& ) = delete;
-	CamlInputStream& operator=( CamlInputStream const& ) = delete;*/
+  /*CamlInputStream( CamlInputStream const& ) = delete;
+    CamlInputStream& operator=( CamlInputStream const& ) = delete;*/
 	
-	virtual ~CamlInputStream()
-	{
-	  caml_remove_generational_global_root( inputStreamInst_.get() );
-	}
+  virtual ~CamlInputStream()
+  {
+    caml_remove_generational_global_root( inputStreamInst_.get() );
+  }
 
-        virtual sf::Int64 read(char* data, sf::Int64 size)
-	{
-	  CAMLparam0();
-		CAMLlocal1( res );
-		res = callback2( caml_get_public_method(*inputStreamInst_, 
-							hash_variant("read") ), 
-				 *inputStreamInst_, 
-				 Val_int( size ) );
-		ConversionManagement< std::pair<char*, sf::Int64> > cm;
-		auto tup = cm.from_value( res );
-		std::memcpy( data, tup.first, tup.second );
-		CAMLreturnT(sf::Int64, tup.second);
-	}
-
-        virtual sf::Int64 seek(sf::Int64 position)
-	{
-		return Int_val( callback2( caml_get_public_method(*inputStreamInst_, 
-								  hash_variant("seek") ), 
-					   *inputStreamInst_, 
-					   Val_int( position ) ) );
-	}
-    
-        virtual sf::Int64 tell()
-	{
-		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
-								 hash_variant("tell") ), 
-					  *inputStreamInst_ ) );
-	}
+  virtual sf::Int64 read(void* data, sf::Int64 size)
+  {
+    CAMLparam0();
+    CAMLlocal1( res );
+    res = callback2( caml_get_public_method(*inputStreamInst_, 
+					    hash_variant("read") ), 
+		     *inputStreamInst_, 
+		     Val_int( size ) );
+    ConversionManagement< std::pair<char*, sf::Int64> > cm;
+    auto tup = cm.from_value( res );
+    std::memcpy( data, tup.first, tup.second );
+    CAMLreturnT(sf::Int64, tup.second);
+  }
+  
+  virtual sf::Int64 seek(sf::Int64 position)
+  {
+    return Int_val( callback2( caml_get_public_method(*inputStreamInst_, 
+						      hash_variant("seek") ), 
+			       *inputStreamInst_, 
+			       Val_int( position ) ) );
+  }
+  
+  virtual sf::Int64 tell()
+  {
+    return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
+						     hash_variant("tell") ), 
+			      *inputStreamInst_ ) );
+  }
 		
-        virtual sf::Int64 getSize()
-	{
-		return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
-								 hash_variant("get_size") ), 
-					  *inputStreamInst_ ) );
-	}
+  virtual sf::Int64 getSize()
+  {
+    return Int_val( callback( caml_get_public_method(*inputStreamInst_, 
+						     hash_variant("get_size") ), 
+			      *inputStreamInst_ ) );
+  }
 };
 
 template<>
 struct ConversionManagement< CamlInputStream >
 {
-	CamlInputStream from_value( value & v)
-	{
-	  return CamlInputStream(v);
-	}
+  CamlInputStream from_value( value & v)
+  {
+    return CamlInputStream(v);
+  }
 };
 
 template<>
@@ -133,12 +133,12 @@ struct AffectationManagement< sf::Vector2<T> >
 {
   static void affect( value& v, sf::Vector2<T> vec )
   {
-	AffectationManagement< std::pair<T, T> >::affect( v, std::make_pair(vec.x, vec.y) );
+    AffectationManagement< std::pair<T, T> >::affect( v, std::make_pair(vec.x, vec.y) );
   }
 
   static void affect_field( value& v, int field, sf::Vector2<T> vec )
   {
-	AffectationManagement< std::pair<T, T> >::affect_field( v, field, std::make_pair(vec.x, vec.y) );
+    AffectationManagement< std::pair<T, T> >::affect_field( v, field, std::make_pair(vec.x, vec.y) );
   }
 };
 

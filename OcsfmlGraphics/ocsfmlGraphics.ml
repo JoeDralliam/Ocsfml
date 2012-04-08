@@ -152,8 +152,7 @@ object auto (self:'a)
 (*  external method load_from_memory : string -> bool = "LoadFromMemory" *)
   external method load_from_stream : input_stream -> bool = "loadFromStream"
   external method save_to_file : string -> bool = "saveToFile"
-  external method get_width : int = "getWidth"
-  external method get_height : int = "getWidth"
+  external method get_size : int * int = "getSize"
   external method get_pixels_ptr : pixel_array_type = "getPixelsPtr"
   external method create_mask_from_color : ?alpha:int -> Color.t -> unit = "createMaskFromColor"
   external method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit = "copy" (* à mettre private *)
@@ -192,8 +191,7 @@ object
 (*external method load_from_memory : ?rect: int rect -> string -> bool = "loadFromMemory" *)
   external method load_from_stream : ?rect: int rect -> input_stream -> bool = "loadFromStream"
   external method load_from_image : ?rect: int rect -> image -> bool = "loadFromImage"
-  external method get_width : int = "getWidth"
-  external method get_height : int = "getHeight"
+  external method get_size : int * int = "getSize"
   external method copy_to_image : image = "copyToImage"
   (*external method update_from_pixels : ?coords:int*int*int*int -> string  ou devrait-ce être un bigarray  -> unit = "UpdateFromPixels"*)
   external method update_from_image : ?coords:int*int -> image -> unit = "updateFromImage"
@@ -226,7 +224,7 @@ type glyph =
     {
       advance : int ;
       bounds : int rect ;
-      sub_rect : int rect
+      texture_rect : int rect
     }
 
 external class fontCpp (Font): "sf_Font" =
@@ -364,8 +362,8 @@ object
   external method set_view : view -> unit = "setView"
   external method get_view : view = "getView"
   external method get_default_view : view = "getDefaultView"
-  external method get_viewport : int rect = "getViewport"
-  external method convert_coords : ?view:view -> int -> int -> float * float = "convertCoords"
+  external method get_viewport : view -> int rect = "getViewport"
+  external method convert_coords : ?view:view -> int * int -> float * float = "convertCoords"
   external method push_gl_states : unit = "pushGLStates"
   external method pop_gl_states : unit = "popGLStates" 
   external method reset_gl_states : unit = "resetGLStates"

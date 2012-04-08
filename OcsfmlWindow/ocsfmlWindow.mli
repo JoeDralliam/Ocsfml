@@ -474,6 +474,33 @@ end
 class window :
   ?style:window_style list ->
     ?context:context_settings -> VideoMode.t -> string -> windowCpp
+(* object
+  val t_windowCpp : Window.t
+  method close : unit
+  method create :
+    ?style:window_style list ->
+      ?context:context_settings -> VideoMode.t -> string -> unit
+  method destroy : unit
+  method display : unit
+  method get_height : int
+  method get_settings : context_settings
+  method get_size : int * int
+  method get_width : int
+  method is_open : bool
+  method poll_event : Event.t option
+  method rep__sf_Window : WindowCpp.t
+  method set_active : bool -> bool
+  method set_framerate_limit : int -> unit
+  method set_joystick_threshold : float -> unit
+  method set_key_repeat_enabled : bool -> unit
+  method set_mouse_cursor_visible : bool -> unit
+  method set_position : int -> int -> unit
+  method set_size : int -> int -> unit
+  method set_title : string -> unit
+  method set_vertical_sync_enabled : bool -> unit
+  method set_visible : bool -> unit
+  method wait_event : Event.t option
+end *)
 
 (** Give access to the real-time state of the mouse.
 
@@ -519,7 +546,5 @@ sig
       
       This function sets the current position of the mouse cursor, relative to the given window.*)
   val set_relative_position : int * int -> #window -> unit
-
-
 end
   

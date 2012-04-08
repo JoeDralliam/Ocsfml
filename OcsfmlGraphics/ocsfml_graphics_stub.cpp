@@ -93,7 +93,7 @@ void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<
 
 BigarrayInterface<sf::Uint8, 2> image_get_pixels_ptr_helper( sf::Image* img )
 {
-  long size[2] = { img->getHeight(), img->getWidth()*4 };
+  long size[2] = { img->getSize().y, img->getSize().x*4 };
   return BigarrayInterface<sf::Uint8, 2>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
 }
 
@@ -109,8 +109,7 @@ camlpp__register_custom_class()
 //	camlpp__register_method1( LoadFromMemory, &sf::Image::LoadFromMemory );
   camlpp__register_method1( loadFromStream );
   camlpp__register_method1( saveToFile );
-  camlpp__register_method0( getWidth );
-  camlpp__register_method0( getHeight );
+  camlpp__register_method0( getSize );
   camlpp__register_external_method2( createMaskFromColor, &image_create_mask_from_color_helper );
   camlpp__register_external_method5( copy, &image_copy_helper );
   camlpp__register_method3( setPixel );
@@ -178,8 +177,7 @@ camlpp__register_custom_class()
   camlpp__register_external_method2( loadFromFile, &texture_load_from_file_helper );
   camlpp__register_external_method2( loadFromStream, &texture_load_from_stream_helper );
   camlpp__register_external_method2( loadFromImage, &texture_load_from_image_helper );
-  camlpp__register_method0( getWidth );
-  camlpp__register_method0( getHeight );
+  camlpp__register_method0( getSize );
   camlpp__register_method0( copyToImage );
   //	camlpp__register_method2( UpdateFromPixels, &texture_update_from_pixels_helper );
   camlpp__register_external_method2( updateFromImage, &texture_update_from_image_helper );
@@ -602,6 +600,7 @@ typedef void (sf::Shader::*SetTextureParameterType)(std::string const&, sf::Text
       }									\
     else								\
       {									\
+	assert(false && "Error: recovering not yet implemented");	\
       }									\
   }
 
@@ -720,13 +719,13 @@ void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> c
   return target->clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
 }
 
-sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Optional<sf::View const*> opt, unsigned int x, unsigned int y)
+sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Optional<sf::View const*> opt, sf::Vector2i const& point)
 {
   if( opt.is_some() )
     {
-      return target->convertCoords(x, y, *opt.get_value() );
+      return target->convertCoords(point, *opt.get_value() );
     }
-  return target->convertCoords(x, y);
+  return target->convertCoords(point);
 }
 
 void render_target_draw_helper( sf::RenderTarget* target,
@@ -776,7 +775,7 @@ camlpp__register_custom_class()
   camlpp__register_method0( getView );
   camlpp__register_method0( getDefaultView );
   camlpp__register_method1( getViewport );
-  camlpp__register_external_method3( convertCoords, &render_target_convert_coords_helper );
+  camlpp__register_external_method2( convertCoords, &render_target_convert_coords_helper );
   camlpp__register_method0( pushGLStates );
   camlpp__register_method0( popGLStates );
   camlpp__register_method0( resetGLStates );

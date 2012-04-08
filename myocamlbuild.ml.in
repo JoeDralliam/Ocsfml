@@ -135,30 +135,30 @@ let _ = dispatch begin function
 	let libs_sfml = List.fold_left
 	  (fun l' x -> [ A x ] @ l') [] l in
 	let link_libs_ocaml = List.fold_left 
-	  (fun l' x -> [A "-ccopt" ; A ("\""^x^"\"") ] @ l') [(*A"-ccopt"; A libdir*)] l in
+	  (fun l' x -> [A "-cclib" ; A x ] @ l') [(*A"-ccopt"; A libdir*)] l in
 	let d = get_directory s in
 	(*  List.iter (fun x -> dep ["g++"] [(get_directory x)^"/"^x^"_stub.hpp"]) l ; *)
-
+	
 	(* when a c++ file employ the sfml "s" module is compiled *)
 	
-	flag["c++" ; "shared"] & S libs_sfml;
-
+	flag["c++" ; "shared"] & S( libs_sfml );
+	
 	(* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
 	  S(verbose
 	    @[ A"-dllib"; A("-locsfml"^s);
-	      A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"] 
-	    @[@LINK_STDLIB@]);  
+	       A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"] 
+	    @[ @LINK_STDLIB_DYN@ ]);  
 	
-	  (* when we link an ocaml native target with the c++ lib "s" *)
+	(* when we link an ocaml native target with the c++ lib "s" *)
 	flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
 	  S(verbose
+	    @ [ A"-cclib";  A("-locsfml"^s) ]
 	    @ link_libs_ocaml
-	    @[A"-cclib";  A("-locsfml"^s) ;
-	      A "-cclib"; A "-lthreads"; 
+	    @[A "-cclib"; A "-lthreads"; 
 	      A "-cclib"; A "-lunix"]  
 	    @[A "-ccopt"; @OCSFML_LINKPATH@ ]
-	    @[ @LINK_STDLIB@ ]); 
+	    @[ @LINK_STDLIB_STA@ ]); 
 	
 	  (* when we link an ocaml file against the sfml "s" module *)
 
