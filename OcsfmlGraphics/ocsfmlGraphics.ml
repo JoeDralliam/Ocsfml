@@ -528,7 +528,7 @@ object
   external method get_font : font = "getFont"
   external method get_character_size : int = "getCharacterSize"
   external method get_style : text_style list = "getStyle" 
-  external method get_character_pos : int -> float * float = "findCharacterPos"
+  external method find_character_pos : int -> float * float = "findCharacterPos"
   external method get_local_bounds : float rect = "getLocalBounds"
   external method get_global_bounds : float rect = "getGlobalBounds"
 end
@@ -563,7 +563,7 @@ object
   external method resize_v : float * float -> unit = "ResizeV"
   external method flip_x : bool -> unit = "FlipX"
   external method flip_y : bool -> unit = "FlipY" *)
-  external method get_texture : texture = "getTexture"
+  external method get_texture : texture option = "getTexture"
   external method get_texture_rect : int rect = "getTextureRect"
   external method get_color : Color.t = "getColor"
   external method get_local_bounds : float rect = "getLocalBounds"

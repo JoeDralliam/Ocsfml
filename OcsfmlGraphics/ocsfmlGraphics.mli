@@ -1356,31 +1356,93 @@ end
     - creating a sprite from a 3D object rendered with OpenGL
     - etc.
 
-    Usage example:*)
+    Usage example:
+    {[
+(* Create a new render-window *)
+    let window = new render_window (OcsfmlWindow.VideoMode.create ~w:800 ~h:600 ()) "SFML window" in
+    
+(* Create a new render-texture *)
+    let texture = new OcsfmlGraphics.render_texture in
+    if not (texture#create 500 500)
+    then   failwith "Could not create the render texture"
+    
+    let main_loop () =
+      (* Event processing *)
+      (* ... *)
+
+      (* Clear the whole texture with red color *)
+        texture#clear ~color:OcsfmlGraphics.Color.red ();
+    
+      (* Draw stuff to the texture *)
+        texture#draw sprite ;  (* sprite is an Ocsfml.sprite *)
+        texture#draw shape ;   (* shape is an Ocsfml.shape *)
+        texture#draw text ;    (* text is an Ocsfml.text *)
+    
+      (* We're done drawing to the texture *)
+        texture#display ;
+
+      (* Now we start rendering to the window, clear it first *)
+        window#clear ()
+    
+      (* Draw the texture *)
+        let sprite = mk_sprite ~texture:(texture#get_texture) () in
+        window#draw sprite ;
+    
+      (* End the current frame and display its contents on screen *)
+        window#display ;
+    
+        if window#is_open 
+        then main_loop ()
+    in
+
+    main_loop ()
+    ]}*)
 class render_texture :
 object
-  val t_render_target : RenderTarget.t
+  inherit render_target
+  (**/**)
   val t_render_textureCpp : RenderTexture.t
-  method clear : ?color:Color.t -> unit -> unit
-  method convert_coords : ?view:view -> int * int -> float * float
+  (**/**)
+
+  (** Create the render-texture.
+
+      Before calling this function, the render-texture is in an invalid state, thus it is mandatory to call it before doing anything with the render-texture. The optional parameter, depthBfr, is useful if you want to use the render-texture for 3D OpenGL rendering that requires a depth-buffer. Otherwise it is unnecessary, and you should leave this parameter to false (which is its default value).
+      @param dephtBfr Do you want this render-texture to have a depth buffer?
+      @return True if creation has been successful. *)
   method create : ?dephtBfr:bool -> int -> int -> bool
+
+  (**)
   method destroy : unit
+
+  (** Update the contents of the target texture.
+
+      This function updates the target texture with what has been drawn so far. Like for windows, calling this function is mandatory at the end of rendering. Not calling it may leave the texture in an undefined state. *)
   method display : unit
-  method draw : ?render_states:render_states -> #drawable -> unit
-  method get_default_view : view
-  method get_size : int * int
+
+  (** Get a read-only reference to the target texture.
+
+      After drawing to the render-texture and calling display, you can retrieve the updated texture using this function, and draw it using a sprite (for example). The internal texture of a render-texture is always the same instance, so that it is possible to call this function once and keep a reference to the texture even after it is modified. 
+      @return Const reference to the texture. *)
   method get_texture : texture
-  method get_view : view
-  method get_viewport : view -> int rect
+
+  (** Tell whether the smooth filtering is enabled or not. 
+      @return True if texture smoothing is enabled. *)
   method is_smooth : bool
-  method pop_gl_states : unit
-  method push_gl_states : unit
-  method rep__sf_RenderTarget : RenderTarget.t
+
+  (**/**)
   method rep__sf_RenderTexture : RenderTexture.t
-  method reset_gl_states : unit
+  (**/**)
+
+  (** Activate of deactivate the render-texture for rendering.
+
+      This function makes the render-texture's context current for future OpenGL rendering operations (so you shouldn't care about it if you're not doing direct OpenGL stuff). Only one context can be current in a thread, so if you want to draw OpenGL geometry to another render target (like a render_window) don't forget to activate it again. 
+      @return True if operation was successful, false otherwise. *)
   method set_active : ?active:bool -> unit -> bool
+
+  (** Enable or disable texture smoothing.
+
+      This function is similar to Ocsfml.texture.set_smooth. This parameter is disabled by default.*)
   method set_smooth : bool -> unit
-  method set_view : view -> unit
 end
 
 module RenderWindow :
@@ -1398,61 +1460,87 @@ sig
   val set_icon : t -> pixel_array_type -> unit
 end
 
+(** Window that can serve as a target for 2D drawing.
+    
+    OcsfmlGraphics.render_window is the main class of the Graphics module.
+    
+    It defines an OS window that can be painted using the other classes of the graphics module.
+    
+    OcsfmlGraphics.render_window is derived from OcsfmlWindow.window, thus it inherits all its features: events, window management, OpenGL rendering, etc. See the documentation of OcsfmlWindow.window for a more complete description of all these features, as well as code examples.
 
-class render_windowCpp :
-  RenderWindow.t ->
-object
-(*  inherit OcsfmlWindow.window
-  inherit render_target *)
-  val t_render_target : RenderTarget.t
-  val t_render_windowCpp : RenderWindow.t
-  val t_windowCpp : OcsfmlWindow.Window.t
-  method capture : image
-  method clear : ?color:Color.t -> unit -> unit
-  method close : unit
-  method convert_coords : ?view:view -> int * int -> float * float
-  method create :
-    ?style:OcsfmlWindow.window_style list ->
-      ?context:OcsfmlWindow.context_settings ->
-	OcsfmlWindow.VideoMode.t -> string -> unit
-  method destroy : unit
-  method display : unit
-  method draw : ?render_states:render_states -> #drawable -> unit
-  method get_default_view : view
-  method get_height : int
-  method get_settings : OcsfmlWindow.context_settings
-  method get_size : int * int
-  method get_view : view
-  method get_viewport : view -> int rect
-  method get_width : int
-  method is_open : bool
-  method poll_event : OcsfmlWindow.Event.t option
-  method pop_gl_states : unit
-  method push_gl_states : unit
-  method rep__sf_RenderTarget : RenderTarget.t
-  method rep__sf_RenderWindow : RenderWindow.t
-  method rep__sf_Window : OcsfmlWindow.Window.t
-  method reset_gl_states : unit
-  method set_active : bool -> bool
-  method set_framerate_limit : int -> unit
-  method set_icon : pixel_array_type -> unit
-  method set_joystick_threshold : float -> unit
-  method set_key_repeat_enabled : bool -> unit
-  method set_mouse_cursor_visible : bool -> unit
-  method set_position : int -> int -> unit
-  method set_size : int -> int -> unit
-  method set_title : string -> unit
-  method set_vertical_sync_enabled : bool -> unit
-  method set_view : view -> unit
-  method set_visible : bool -> unit
-  method wait_event : OcsfmlWindow.Event.t option
-end
+    On top of that, OcsfmlWindow.render_window adds more features related to 2D drawing with the graphics module (see its base class OcsfmlGraphics.render_target for more details). Here is a typical rendering and event loop with a OcsfmlWindow.render_window:
+    {[
+    (* Declare and create a new render-window *)
+    let window = new window (OcsfmlGraphics.VideoMode.create ~w:800 ~h:600) "SFML window" in
+    
+    (* Limit the framerate to 60 frames per second (this step is optional) *)
+    window#set_framerate_limit 60 
 
+    (* Event processing *)
+    let rec process_events () =
+        match window#poll_event with
+          | Some e -> 
+            begin 
+              match e with
+                | OcsfmlWindow.Event.Closed -> window#close
+                | _ -> () ;
+              process_events ()
+            end
+          | _ -> ()
+    in
 
+    (* The main loop - ends as soon as the window is closed *)
+    let rec main_loop () =
+       process_events () ;
+       
+       (* Clear the whole window before rendering a new frame *)
+       window#clear () ;
+
+       (* Draw some graphical entities *)
+       window#draw sprite ;
+       window#draw circle ;
+       window#draw text ;
+
+       (* End the current frame and display its contents on screen *)
+        window.display();
+
+        if window#is_open
+        then main_loop () 
+    in
+    main_loop ()
+    ]} *)
 class render_window :
   ?style:OcsfmlWindow.Window.style list ->
     ?context:OcsfmlWindow.context_settings ->
-      OcsfmlWindow.VideoMode.t -> string -> render_windowCpp
+      OcsfmlWindow.VideoMode.t -> string -> 
+object
+  inherit OcsfmlWindow.window
+  inherit render_target
+
+  (**/**)
+  val t_render_windowCpp : RenderWindow.t
+  (**/**)
+
+  (**)
+  method destroy : unit
+    
+  (** Copy the current contents of the window to an image.
+      
+      This is a slow operation, whose main purpose is to make screenshots of the application. If you want to update an image with the contents of the window and then use it for drawing, you should rather use a OcsfmlGraphics.texture and its update_from_window function. You can also draw things directly to a texture with the OcsfmlGraphics.render_texture class.
+      @return Image containing the captured contents. *)
+  method capture : image
+
+  (**/**)
+  method rep__sf_RenderWindow : RenderWindow.t
+  (**/**)
+
+  (** Change the window's icon.
+
+      pixels must be a bigarray of width x height pixels in 32-bits RGBA format.
+      
+      The OS default icon is used by default.*)
+  method set_icon : pixel_array_type -> unit
+end
 
 
 module Shape :
@@ -1476,47 +1564,118 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
+
+(** Base class for textured shapes with outline.
+
+Ocsfml.Shape is a drawable class that allows to define and display a custom convex shape on a render target.
+
+It's only an abstract base, it needs to be specialized for concrete types of shapes (circle, rectangle, convex polygon, star, ...).
+
+In addition to the attributes provided by the specialized shape classes, a shape always has the following attributes:
+
+    - a texture
+    - a texture rectangle
+    - a fill color
+    - an outline color
+    - an outline thickness
+
+Each feature is optional, and can be disabled easily:
+
+    - the texture can be none
+    - the fill/outline colors can be OcsfmlGraphics.Color.Transparent
+    - the outline thickness can be zero
+
+You can write your own derived shape class, there are only two virtual functions to override:
+
+    - get_point_count must return the number of points of the shape
+    - get_point must return the points of the shape *)
 class shape :
   Shape.t ->
 object
-  val t_drawable : Drawable.t
+  inherit drawable
+  inherit transformable
+    
+  (**/**)
   val t_shape : Shape.t
-  val t_transformable : Transformable.t
+  (**/**)
+
+  (**)
   method destroy : unit
+
+  (** Get the fill color of the shape. 
+      @return Fill color of the shape. *)
   method get_fill_color : Color.t
+
+  (** Get the global bounding rectangle of the entity.
+
+      The returned rectangle is in global coordinates, which means that it takes in account the transformations (translation, rotation, scale, ...) that are applied to the entity. In other words, this function returns the bounds of the sprite in the global 2D world's coordinate system.
+      @return Global bounding rectangle of the entity *)
   method get_global_bounds : float rect
-  method get_inverse_transform : transform
+
+  (** Get the local bounding rectangle of the entity.
+
+      The returned rectangle is in local coordinates, which means that it ignores the transformations (translation, rotation, scale, ...) that are applied to the entity. In other words, this function returns the bounds of the entity in the entity's coordinate system.
+      @return Local bounding rectangle of the entity *)
   method get_local_bounds : float rect
-  method get_origin : float * float
+
+  (** Get the outline color of the shape. 
+      @return Outline color of the shape. *)
   method get_outline_color : Color.t
+
+  (** Get the outline thickness of the shape. 
+      @return Outline thickness of the shape. *)
   method get_outline_thickness : float
+
+  (** Get a point of the shape.
+
+      The result is undefined if the index is out of the valid range.
+      @return Index-th point of the shape. *)
   method get_point : int -> float * float
+
+  (** Get the total number of points of the shape. 
+      @return Number of points of the shape. *)
   method get_point_count : int
-  method get_position : float * float
-  method get_rotation : float
-  method get_scale : float * float
+
+  (** Get the source texture of the shape.
+
+      If the shape has no source texture, none is returned. The returned value is const, which means that you can't modify the texture when you retrieve it with this function.
+      @return Shape's texture. *)
   method get_texture : texture option
+
+  (** Get the sub-rectangle of the texture displayed by the shape. 
+      @return Texture rectangle of the shape *)
   method get_texture_rect : int rect
-  method get_transform : transform
-  method move : float -> float -> unit
-  method move_v : float * float -> unit
-  method rep__sf_Drawable : Drawable.t
+
+  (**/**)
   method rep__sf_Shape : Shape.t
-  method rep__sf_Transformable : Transformable.t
-  method rotate : float -> unit
-  method scale : float -> float -> unit
-  method scale_v : float * float -> unit
+  (**/**)
+
+  (** Set the fill color of the shape.
+
+      This color is modulated (multiplied) with the shape's texture if any. It can be used to colorize the shape, or change its global opacity. You can use OcsfmlGraphics.Color.Transparent to make the inside of the shape transparent, and have the outline alone. By default, the shape's fill color is opaque white.*)
   method set_fill_color : Color.t -> unit
-  method set_origin : float -> float -> unit
-  method set_origin_v : float * float -> unit
+
+  (** Set the outline color of the shape.
+
+      You can use OcsfmlGraphics.Color.Transparent to disable the outline. By default, the shape's outline color is opaque white.*)
   method set_outline_color : Color.t -> unit
+
+  (** Set the thickness of the shape's outline.
+
+      This number cannot be negative. Using zero disables the outline. By default, the outline thickness is 0.*)
   method set_outline_thickness : float -> unit
-  method set_position : float -> float -> unit
-  method set_position_v : float * float -> unit
-  method set_rotation : float -> unit
-  method set_scale : float -> float -> unit
-  method set_scale_v : float * float -> unit
+
+  (** Change the source texture of the shape.
+
+      The new_texture argument refers to a texture that must exist as long as the shape uses it. Indeed, the shape doesn't store its own copy of the texture, but rather keeps a pointer to the one that you passed to this function. If the source texture is destroyed and the shape tries to use it, the behaviour is undefined. If reset_rect is true, the TextureRect property of the shape is automatically adjusted to the size of the new texture. If it is false (the default), the texture rect is left unchanged.
+      @param new_texture The new texture. Default disables texturing
+      @param reset_rect Should the texture rect be reset to the size of the new texture?
+*)
   method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
+
+  (** Set the sub-rectangle of the texture that the shape will display.
+
+      The texture rect is useful when you don't want to display the whole texture, but rather a part of it. By default, the texture rect covers the entire texture.*)
   method set_texture_rect : int rect -> unit
 end
 
@@ -1542,56 +1701,43 @@ sig
   val set_size : t -> float * float
   val get_size : t -> float * float
 end
-class rectangle_shapeCpp :
-  RectangleShape.t ->
+
+(** Specialized shape representing a rectangle.
+
+    This class inherits all the functions of sf::Transformable (position, rotation, scale, bounds, ...) as well as the functions of sf::Shape (outline, color, texture, ...).
+    
+    Usage example: 
+    {[
+    let rectangle = OcsfmlGraphics.(mk_rectangle_shape 
+                           ~size:(100.,50.)
+                           ~outline_color:Color.red
+                           ~outline_thickness:5.
+                           ~position:(10., 20.) ()) in
+    ...
+    window#draw rectangle
+    ]} *)
+class rectangle_shape : ?size:float * float -> unit ->
 object
-  val t_drawable : Drawable.t
+  inherit shape
+
+  (**/**)
   val t_rectangle_shapeCpp : RectangleShape.t
-  val t_shape : Shape.t
-  val t_transformable : Transformable.t
+  (**/**)
+
+  (**)
   method destroy : unit
-  method get_fill_color : Color.t
-  method get_global_bounds : float rect
-  method get_inverse_transform : transform
-  method get_local_bounds : float rect
-  method get_origin : float * float
-  method get_outline_color : Color.t
-  method get_outline_thickness : float
-  method get_point : int -> float * float
-  method get_point_count : int
-  method get_position : float * float
-  method get_rotation : float
-  method get_scale : float * float
+
+  (** Set the size of the rectangle. *)
   method get_size : float * float
-  method get_texture : texture option
-  method get_texture_rect : int rect
-  method get_transform : transform
-  method move : float -> float -> unit
-  method move_v : float * float -> unit
-  method rep__sf_Drawable : Drawable.t
+
+  (**/**)
   method rep__sf_RectangleShape : RectangleShape.t
-  method rep__sf_Shape : Shape.t
-  method rep__sf_Transformable : Transformable.t
-  method rotate : float -> unit
-  method scale : float -> float -> unit
-  method scale_v : float * float -> unit
-  method set_fill_color : Color.t -> unit
-  method set_origin : float -> float -> unit
-  method set_origin_v : float * float -> unit
-  method set_outline_color : Color.t -> unit
-  method set_outline_thickness : float -> unit
-  method set_position : float -> float -> unit
-  method set_position_v : float * float -> unit
-  method set_rotation : float -> unit
-  method set_scale : float -> float -> unit
-  method set_scale_v : float * float -> unit
+  (**/**)
+
+  (** Get the size of the rectangle. 
+      @return Size of the rectangle. *)
   method set_size : float * float
-  method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
-  method set_texture_rect : int rect -> unit
 end
-
-
-class rectangle_shape : ?size:float * float -> unit -> rectangle_shapeCpp
 
 
 val mk_rectangle_shape :
@@ -1617,57 +1763,48 @@ sig
   val get_radius : t -> float
   val set_point_count : t -> int -> unit
 end
-class circle_shapeCpp :
-  CircleShape.t ->
+
+
+(** Specialized shape representing a circle.
+
+    This class inherits all the functions of OcsfmlGraphics.transformable (position, rotation, scale, bounds, ...) as well as the functions of OcsfmlGraphics.shape (outline, color, texture, ...).
+    
+    Usage example:
+    {[
+    let circle = OcsfmlGraphics.(mk_circle_shape
+                                     ~radius:150.
+                                     ~outline_color:Color.red
+                                     ~outline_thickness:5.
+                                     ~position:(10, 20) () in
+    ...
+    window#draw circle 
+    ]}
+    Since the graphics card can't draw perfect circles, we have to fake them with multiple triangles connected to each other. The "points count" property of sf::CircleShape defines how many of these triangles to use, and therefore defines the quality of the circle.
+
+    The number of points can also be used for another purpose; with small numbers you can create any regular polygon shape: equilateral triangle, square, pentagon, hexagon, ... *)
+class circle_shape : ?radius:float -> unit ->
 object
+  (**/**)
   val t_circle_shapeCpp : CircleShape.t
-  val t_drawable : Drawable.t
-  val t_shape : Shape.t
-  val t_transformable : Transformable.t
+  (**/**)
+
+  (**)
   method destroy : unit
-  method get_fill_color : Color.t
-  method get_global_bounds : float rect
-  method get_inverse_transform : transform
-  method get_local_bounds : float rect
-  method get_origin : float * float
-  method get_outline_color : Color.t
-  method get_outline_thickness : float
-  method get_point : int -> float * float
-  method get_point_count : int
-  method get_position : float * float
+
+  (** Get the radius of the circle. 
+      @return Radius of the circle. *)
   method get_radius : float
-  method get_rotation : float
-  method get_scale : float * float
-  method get_texture : texture option
-  method get_texture_rect : int rect
-  method get_transform : transform
-  method move : float -> float -> unit
-  method move_v : float * float -> unit
+
+  (**/**)
   method rep__sf_CircleShape : CircleShape.t
-  method rep__sf_Drawable : Drawable.t
-  method rep__sf_Shape : Shape.t
-  method rep__sf_Transformable : Transformable.t
-  method rotate : float -> unit
-  method scale : float -> float -> unit
-  method scale_v : float * float -> unit
-  method set_fill_color : Color.t -> unit
-  method set_origin : float -> float -> unit
-  method set_origin_v : float * float -> unit
-  method set_outline_color : Color.t -> unit
-  method set_outline_thickness : float -> unit
-  method set_point_count : int -> unit
-  method set_position : float -> float -> unit
-  method set_position_v : float * float -> unit
+  (**/**)
+
+  (** Set the radius of the circle. *)
   method set_radius : float -> unit
-  method set_rotation : float -> unit
-  method set_scale : float -> float -> unit
-  method set_scale_v : float * float -> unit
-  method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
-  method set_texture_rect : int rect -> unit
+
+  (** Set the number of points of the circle. *)
+  method set_point_count : int
 end
-
-
-class circle_shape : ?radius:float -> unit -> circle_shapeCpp
 
 
 val mk_circle_shape :
@@ -1693,59 +1830,48 @@ sig
   val set_point_count : t -> int -> unit
   val set_point : t -> int -> float * float -> unit
 end
-  
 
-class convex_shapeCpp :
-  ConvexShape.t ->
+
+(** Specialized shape representing a convex polygon.
+    
+    This class inherits all the functions of sf::Transformable (position, rotation, scale, bounds, ...) as well as the functions of sf::Shape (outline, color, texture, ...).
+    
+    It is important to keep in mind that a convex shape must always be... convex, otherwise it may not be drawn correctly. Moreover, the points must be defined in order; using a random order would result in an incorrect shape.
+    
+    Usage example:
+    {[
+    let polygon = OcsfmlGraphics.(mk_convex_shape 
+                                       ~points:[(0.,0.) ; (0.,10.) ; (25., 5.)]
+                                       ~outline_color:Color.red
+                                       ~outline_thickness:5.
+                                       ~position:(10.,20.) ()) in
+    ...
+    window#draw polygon
+    ]} *)
+class convex_shape : ?point_count:int -> unit -> 
 object
+  inherit shape
+  (**/**)
   val t_convex_shapeCpp : ConvexShape.t
-  val t_drawable : Drawable.t
-  val t_shape : Shape.t
-  val t_transformable : Transformable.t
+  (**/**)
+
+  (**)
   method destroy : unit
-  method get_fill_color : Color.t
-  method get_global_bounds : float rect
-  method get_inverse_transform : transform
-  method get_local_bounds : float rect
-  method get_origin : float * float
-  method get_outline_color : Color.t
-  method get_outline_thickness : float
-  method get_point : int -> float * float
-  method get_point_count : int
-  method get_position : float * float
-  method get_rotation : float
-  method get_scale : float * float
-  method get_texture : texture option
-  method get_texture_rect : int rect
-  method get_transform : transform
-  method move : float -> float -> unit
-  method move_v : float * float -> unit
+
+  (**/**)
   method rep__sf_ConvexShape : ConvexShape.t
-  method rep__sf_Drawable : Drawable.t
-  method rep__sf_Shape : Shape.t
-  method rep__sf_Transformable : Transformable.t
-  method rotate : float -> unit
-  method scale : float -> float -> unit
-  method scale_v : float * float -> unit
-  method set_fill_color : Color.t -> unit
-  method set_origin : float -> float -> unit
-  method set_origin_v : float * float -> unit
-  method set_outline_color : Color.t -> unit
-  method set_outline_thickness : float -> unit
+  (**/**)
+
+  (** Set the position of a point.
+
+      Don't forget that the polygon must remain convex, and the points need to stay ordered! SetPointCount must be called first in order to set the total number of points. The result is undefined if index is out of the valid range. *)
   method set_point : int -> float * float -> unit
+
+  (** Set the number of points of the polygon.
+
+      count must be greater than 2 to define a valid shape. *)
   method set_point_count : int -> unit
-  method set_position : float -> float -> unit
-  method set_position_v : float * float -> unit
-  method set_rotation : float -> unit
-  method set_scale : float -> float -> unit
-  method set_scale_v : float * float -> unit
-  method set_texture :
-    ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
-  method set_texture_rect : int rect -> unit
 end
-
-
-class convex_shape : ?point_count:int -> unit -> convex_shapeCpp
 
 
 val mk_convex_shape :
@@ -1781,57 +1907,90 @@ sig
   val get_font : t -> font
   val get_character_size : t -> int
   val get_style : t -> text_style list
-  val get_character_pos : t -> int -> float * float
+  val find_character_pos : t -> int -> float * float
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
-class textCpp :
-  Text.t ->
+
+class text :
 object
-  val t_drawable : Drawable.t
+  inherit drawable
+  inherit transformable
+    
+  (**/**)
   val t_textCpp : Text.t
-  val t_transformable : Transformable.t
+  (**/**)
+
+  (**)
   method destroy : unit
-  method get_character_pos : int -> float * float
+
+  (** Return the position of the index-th character.
+
+      This function computes the visual position of a character from its index in the string. The returned position is in global coordinates (translation, rotation, scale and origin are applied). If index is out of range, the position of the end of the string is returned.
+      @return Position of the character *)
+  method find_character_pos : int -> float * float
+
+  (** Get the character size. 
+      @return Size of the characters, in pixels. *)
   method get_character_size : int
+
+  (** Get the global color of the text. 
+      @return Global color of the text. *)
+  method get_color : Color.t
+
+  (** Get the text's font.
+
+      The returned reference is const, which means that you cannot modify the font when you get it from this function.
+      @return Text's font. *)
   method get_font : font
+    
+  (** Get the global bounding rectangle of the entity.
+      
+      The returned rectangle is in global coordinates, which means that it takes in account the transformations (translation, rotation, scale, ...) that are applied to the entity. In other words, this function returns the bounds of the sprite in the global 2D world's coordinate system.
+      @return Global bounding rectangle of the entity *)
   method get_global_bounds : float rect
-  method get_inverse_transform : transform
+    
+  (** Get the local bounding rectangle of the entity.
+      
+      The returned rectangle is in local coordinates, which means that it ignores the transformations (translation, rotation, scale, ...) that are applied to the entity. In other words, this function returns the bounds of the entity in the entity's coordinate system.
+      @return Local bounding rectangle of the entity *)
   method get_local_bounds : float rect
-  method get_origin : float * float
-  method get_position : float * float
-  method get_rotation : float
-  method get_scale : float * float
+    
+  (** Get the text's string. 
+      @return Text's string*)
   method get_string : string
+
+  (** Get the text's style. 
+      @return Text's style. *)
   method get_style : text_style list
-  method get_transform : transform
-  method move : float -> float -> unit
-  method move_v : float * float -> unit
-  method rep__sf_Drawable : Drawable.t
+
+  (**/**)
   method rep__sf_Text : Text.t
-  method rep__sf_Transformable : Transformable.t
-  method rotate : float -> unit
-  method scale : float -> float -> unit
-  method scale_v : float * float -> unit
+  (**/**)
+
+  (** Set the character size.
+
+      The default size is 30. *)
   method set_character_size : int -> unit
+
+  (** Set the global color of the text.
+
+      By default, the text's color is opaque white. *)
   method set_color : Color.t -> unit
+
+  (** Set the text's font.
+
+      The font argument refers to a font that must exist as long as the text uses it. Indeed, the text doesn't store its own copy of the font, but rather keeps a pointer to the one that you passed to this function. If the font is destroyed and the text tries to use it, the behaviour is undefined. Texts have a valid font by default, which is the built-in get_default_font().*)
   method set_font : font -> unit
-  method set_origin : float -> float -> unit
-  method set_origin_v : float * float -> unit
-  method set_position : float -> float -> unit
-  method set_position_v : float * float -> unit
-  method set_rotation : float -> unit
-  method set_scale : float -> float -> unit
-  method set_scale_v : float * float -> unit
+
+  (** Set the text's string. *)
   method set_string : string -> unit
+
+  (** Set the text's style.
+
+      You can pass a combination of one or more styles, for example [ Bold ; Italic ]. The default style is [].*)
   method set_style : text_style list -> unit
 end
-
-
-class text_bis : unit -> textCpp
-
-
-class text : text_bis
 
 
 val mk_text :
@@ -1855,54 +2014,69 @@ sig
   val set_texture : t -> ?resize:bool -> texture -> unit
   val set_texture_rect : t -> int rect -> unit
   val set_color : t -> Color.t -> unit
-  val get_texture : t -> texture
+  val get_texture : t -> texture option
   val get_texture_rect : t -> int rect
   val get_color : t -> Color.t
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
-class spriteCpp :
-  Sprite.t ->
+
+
+class sprite : 
 object
-  val t_drawable : Drawable.t
+  (**/**)
   val t_spriteCpp : Sprite.t
-  val t_transformable : Transformable.t
+  (**/**)
+
+  (**)
   method destroy : unit
+
+  (** Get the global color of the sprite. 
+      @return Global color of the sprite. *)
   method get_color : Color.t
+
+  (** Get the global bounding rectangle of the entity.
+
+      The returned rectangle is in global coordinates, which means that it takes in account the transformations (translation, rotation, scale, ...) that are applied to the entity. In other words, this function returns the bounds of the sprite in the global 2D world's coordinate system.
+      @return Global bounding rectangle of the entity. *)
   method get_global_bounds : float rect
-  method get_inverse_transform : transform
+
+  (** Get the local bounding rectangle of the entity.
+
+      The returned rectangle is in local coordinates, which means that it ignores the transformations (translation, rotation, scale, ...) that are applied to the entity. In other words, this function returns the bounds of the entity in the entity's coordinate system.
+      @return Local bounding rectangle of the entity. *)
   method get_local_bounds : float rect
-  method get_origin : float * float
-  method get_position : float * float
-  method get_rotation : float
-  method get_scale : float * float
-  method get_texture : texture
+
+  (** Get the source texture of the sprite.
+
+      If the sprite has no source texture, none is returned. The returned value is const, which means that you can't modify the texture when you retrieve it with this function.
+      @return The sprite's texture. *)
+  method get_texture : texture option
+
+  (** Get the sub-rectangle of the texture displayed by the sprite. 
+      @return Texture rectangle of the sprite. *)
   method get_texture_rect : int rect
-  method get_transform : transform
-  method move : float -> float -> unit
-  method move_v : float * float -> unit
-  method rep__sf_Drawable : Drawable.t
+
+  (**/**)
   method rep__sf_Sprite : Sprite.t
-  method rep__sf_Transformable : Transformable.t
-  method rotate : float -> unit
-  method scale : float -> float -> unit
-  method scale_v : float * float -> unit
+  (**/**)
+
+  (** Set the global color of the sprite.
+
+      This color is modulated (multiplied) with the sprite's texture. It can be used to colorize the sprite, or change its global opacity. By default, the sprite's color is opaque white.*)
   method set_color : Color.t -> unit
-  method set_origin : float -> float -> unit
-  method set_origin_v : float * float -> unit
-  method set_position : float -> float -> unit
-  method set_position_v : float * float -> unit
-  method set_rotation : float -> unit
-  method set_scale : float -> float -> unit
-  method set_scale_v : float * float -> unit
+
+  (** Change the source texture of the sprite.
+
+      The texture argument refers to a texture that must exist as long as the sprite uses it. Indeed, the sprite doesn't store its own copy of the texture, but rather keeps a pointer to the one that you passed to this function. If the source texture is destroyed and the sprite tries to use it, the behaviour is undefined. If resetRect is true, the TextureRect property of the sprite is automatically adjusted to the size of the new texture. If it is false, the texture rect is left unchanged. *)
   method set_texture : ?resize:bool -> texture -> unit
+
+  (** Set the sub-rectangle of the texture that the sprite will display.
+
+      The texture rect is useful when you don't want to display the whole texture, but rather a part of it. By default, the texture rect covers the entire texture. *)
   method set_texture_rect : int rect -> unit
 end
 
-class sprite_bis : unit -> spriteCpp
-
-
-class sprite : sprite_bis
 
 
 val mk_sprite :
@@ -1951,27 +2125,74 @@ sig
   val get_primitive_type : t -> primitive_type
   val get_bounds : t -> float rect
 end
-class vertex_arrayCpp :
-  VertexArray.t ->
+
+class vertex_array : 
 object
-  val t_drawable : Drawable.t
+  inherit drawable
+
   val t_vertex_arrayCpp : VertexArray.t
+
+  (** Add a vertex to the array. *)
   method append : vertex -> unit
+
+  (** Clear the vertex array.
+
+      This function removes all the vertices from the array. It doesn't deallocate the corresponding memory, so that adding new vertices after clearing doesn't involve reallocating all the memory.*)
   method clear : unit
+
+  (**)
   method destroy : unit
+
+  (** Get a read-only access to a vertex by its index. 
+
+      This function doesn't check index, it must be in range [0, GetVertexCount() - 1]. The behaviour is undefined otherwise.*)
   method get_at_index : int -> vertex
+
+  (** Compute the bounding rectangle of the vertex array.
+
+      This function returns the axis-aligned rectangle that contains all the vertices of the array.
+      @return Bounding rectangle of the vertex array *)
   method get_bounds : float rect
+
+  (** Get the type of primitives drawn by the vertex array. 
+      @return Primitive type *)
   method get_primitive_type : primitive_type
+
+  (** Return the vertex count. 
+      @return Number of vertices in the array. *)
   method get_vertex_count : int
-  method rep__sf_Drawable : Drawable.t
+
+  (**/**)
   method rep__sf_VertexArray : VertexArray.t
+  (**/**)
+
+  (** Resize the vertex array.
+
+      If vertexCount is greater than the current size, the previous vertices are kept and new (default-constructed) vertices are added. If vertexCount is less than the current size, existing vertices are removed from the array. *)
   method resize : int -> unit
+
+  (** *)
   method set_at_index : int -> vertex -> unit
+
+  (** Set the type of primitives to draw.
+
+      This function defines how the vertices must be interpreted when it's time to draw them:
+
+      - As points
+      - As lines
+      - As triangles
+      - As quads 
+      The default primitive type is sf::Points. *)
   method set_primitive_type : primitive_type -> unit
 end
-class vertex_array_bis : unit -> vertex_arrayCpp
-class vertex_array : vertex_array_bis
+
+
+
+(**/**)
+
 type draw_func_type = RenderTarget.t -> render_states -> unit
+
+
 module CamlDrawable :
 sig
   type t

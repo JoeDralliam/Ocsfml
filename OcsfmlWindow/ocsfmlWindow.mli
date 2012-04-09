@@ -316,7 +316,7 @@ end
 
     A custom video mode can also be checked directly for fullscreen compatibility with its IsValid() function.
 
-    Additionnally, VideoMode.t provides a static function to get the mode currently used by the desktop: getDesktopMode(). This allows to build windows with the same size or pixel depth as the current resolution. *)
+    Additionnally, the module VideoMode provides a function to get the mode currently used by the desktop: get_desktop_mode(). This allows to build windows with the same size or pixel depth as the current resolution. *)
 module VideoMode :
 sig
   type t = { 

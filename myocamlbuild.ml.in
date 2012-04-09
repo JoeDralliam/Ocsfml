@@ -110,7 +110,7 @@ let add_compile_rules () =
 let get_directory s =
   "Ocsfml" ^ (String.capitalize s)
     
-let static = false 
+let static = false
 let debug = true
 let system = "@SFML_SYSTEM@"
 let window = "@SFML_WINDOW@"
@@ -179,6 +179,8 @@ let _ = dispatch begin function
       List.iter create_libs_flags libs ;
 	(* If `static' is true then every ocaml link in bytecode will add -custom *)
       if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
+  | After_rules ->
+    flag ["ocaml"; "doc" ; "colorize_code"] & A "-colorize-code"
   | _ -> ()
 end
 
