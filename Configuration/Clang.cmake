@@ -14,7 +14,7 @@ set(COMPILATION_FLAGS "A \"${OPTIMIZATION_LEVEL}\" ; A \"-fPIC\" ; A \"-Wno-swit
 set(LINKING_LIB_FLAGS "A \"\"")
 set(LINKING_DLL_FLAGS "A \"-shared\"")
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(LINKING_DLL_FLAGS "${LINKING_DLL_FLAGS} ; A \"-flat_namespace\" ; A\"-undefined\" ; A \"suppress\"")
+    set(LINKING_DLL_FLAGS "${LINKING_DLL_FLAGS} ; A \"-Wl,flat_namespace\" ; A\"-Wl,undefined suppress\"")
 endif()
 set(MAKE_STATIC_COMMAND "make_archive")
 set(OBJ_EXTENSION "o")
