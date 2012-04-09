@@ -213,8 +213,8 @@ in
         val before = before
         val after = after
         method current = List.hd after
-        method next = let x::xs = after in {< before = x::before ; after = xs >}
-        method previous = let x::xs = before in {< before = xs ; after = x::after >}
+        method next = match after with x::xs -> {< before = x::before ; after = xs >} | _ -> assert false
+        method previous = match before with x::xs -> {< before = xs ; after = x::after >} | _ -> assert false
         method take n = if n = 0 then [] else self#current :: self#next#take (n-1)
     end
 

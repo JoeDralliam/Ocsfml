@@ -1784,6 +1784,9 @@ end
     The number of points can also be used for another purpose; with small numbers you can create any regular polygon shape: equilateral triangle, square, pentagon, hexagon, ... *)
 class circle_shape : ?radius:float -> unit ->
 object
+  
+  inherit shape
+
   (**/**)
   val t_circle_shapeCpp : CircleShape.t
   (**/**)
@@ -1803,7 +1806,7 @@ object
   method set_radius : float -> unit
 
   (** Set the number of points of the circle. *)
-  method set_point_count : int
+  method set_point_count : int -> unit
 end
 
 
@@ -1936,7 +1939,7 @@ object
 
   (** Get the global color of the text. 
       @return Global color of the text. *)
-  method get_color : Color.t
+  (*method get_color : Color.t*)
 
   (** Get the text's font.
 
@@ -2024,6 +2027,10 @@ end
 
 class sprite : 
 object
+
+  inherit drawable
+  inherit transformable
+
   (**/**)
   val t_spriteCpp : Sprite.t
   (**/**)
