@@ -271,17 +271,17 @@ sig
       * mouseCoord  (** coordinates of the mouse pointer *)
  
   (** Joystick connection events parameters (JoystickConnected, JoystickDisconnected) *)
-  type joystickConnectEvent = joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
+  type joystickConnectEvent = Joystick.joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
       
   (** Joystick axis move event parameters (JoystickMoved) *)
   type joystickMoveEvent = 
-      joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
+      Joystick.joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
       * Joystick.axis (** Axis on which the joystick moved. *)
       * float (** New position on the axis (in range [-100 .. 100]) *)
 
   (** Joystick buttons events parameters (JoystickButtonPressed, JoystickButtonReleased) *)
   type joystickButtonEvent = 
-      joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
+      Joystick.joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
       * int (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
       
   (** Enumeration of the different types of events. *)

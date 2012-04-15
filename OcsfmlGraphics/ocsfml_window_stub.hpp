@@ -40,15 +40,54 @@ custom_struct_affectation( 	sf::Event::MouseMoveEvent,
 				&sf::Event::MouseMoveEvent::x, 
 				&sf::Event::MouseMoveEvent::y );
 
-custom_struct_affectation( 	sf::Event::MouseButtonEvent, 
-				&sf::Event::MouseButtonEvent::button, 
-				&sf::Event::MouseButtonEvent::x,
-				&sf::Event::MouseButtonEvent::y );
+template<>
+struct AffectationManagement< sf::Event::MouseButtonEvent >
+{
+  static void affect( value & v, sf::Event::MouseButtonEvent e )
+  {
+    typedef  std::pair< sf::Mouse::Button, sf::Event::MouseMoveEvent > Ret;
+	Ret r;
+	r.first = e.button;
+	r.second.x = e.x;
+	r.second.y = e.y;
+	AffectationManagement< Ret >::affect(v, r);
+  }
 
-custom_struct_affectation( 	sf::Event::MouseWheelEvent, 
-				&sf::Event::MouseWheelEvent::delta,
-				&sf::Event::MouseWheelEvent::x,
-				&sf::Event::MouseWheelEvent::y );
+  static void affect_field( value & v, int field, sf::Event::MouseButtonEvent e )
+  {
+	typedef  std::pair< sf::Mouse::Button, sf::Event::MouseMoveEvent > Ret;
+	Ret r;
+	r.first = e.button;
+	r.second.x = e.x;
+	r.second.y = e.y;
+	AffectationManagement< Ret >::affect_field(v, field, r);
+  }
+};
+
+
+template<>
+struct AffectationManagement< sf::Event::MouseWheelEvent >
+{
+  static void affect( value & v, sf::Event::MouseWheelEvent e )
+  {
+    typedef  std::pair< int, sf::Event::MouseMoveEvent > Ret;
+	Ret r;
+	r.first = e.delta;
+	r.second.x = e.x;
+	r.second.y = e.y;
+	AffectationManagement< Ret >::affect(v, r);
+  }
+
+  static void affect_field( value & v, int field, sf::Event::MouseWheelEvent e )
+  {
+	typedef  std::pair< int, sf::Event::MouseMoveEvent > Ret;
+	Ret r;
+	r.first = e.delta;
+	r.second.x = e.x;
+	r.second.y = e.y;
+	AffectationManagement< Ret >::affect_field(v, field, r);
+  }
+};
 
 custom_struct_affectation( 	sf::Event::JoystickConnectEvent, 
 				&sf::Event::JoystickConnectEvent::joystickId );
