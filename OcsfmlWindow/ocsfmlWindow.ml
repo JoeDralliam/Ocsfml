@@ -109,6 +109,7 @@ external cpp is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed"
 
 module Joystick =
 struct
+  type joystick_id = int
   let count = 8
   let buttonCount = 32
   let axisCount = 8
@@ -123,11 +124,14 @@ struct
     | PovX  (* The X axis of the point-of-view hat *)
     | PovY  (* The Y axis of the point-of-view hat *)
 	
-  external cpp is_connected : int -> bool = "Joystick_isConnected"
-  external cpp get_button_count : int -> int = "Joystick_getButtonCount"
-  external cpp has_axis : int -> axis -> bool = "Joystick_hasAxis"
-  external cpp is_button_pressed : int -> int -> bool = "Joystick_isButtonPressed"
-  external cpp get_axis_position : int -> axis -> float = "Joystick_getAxisPosition"
+  let joystick_id_from_int n = 
+    if n >= 0 && n < count then n else raise (Invalid_argument "Not a valid joystick_id.")
+
+  external cpp is_connected : joystick_id -> bool = "Joystick_isConnected"
+  external cpp get_button_count : joystick_id -> int = "Joystick_getButtonCount"
+  external cpp has_axis : joystick_id -> axis -> bool = "Joystick_hasAxis"
+  external cpp is_button_pressed : joystick_id -> int -> bool = "Joystick_isButtonPressed"
+  external cpp get_axis_position : joystick_id -> axis -> float = "Joystick_getAxisPosition"
   external cpp update : unit -> unit = "Joystick_update"
 end 
 
@@ -166,38 +170,24 @@ struct
   type textEvent = {
     unicode : int
   }
-      
-  type mouseMoveEvent = {
+  
+  type mouseCoord = {
     x : int ;
     y : int
   }
+    
+  type mouseMoveEvent = mouseCoord
       
-  type mouseButtonEvent =  {
-    button : mouseButton ;
-    x : int ;
-    y : int
-  }
+  type mouseButtonEvent = mouseButton * mouseCoord 
       
-  type mouseWheelEvent = {
-    delta : int;
-    x : int ;
-    y : int
-  }
+  type mouseWheelEvent = int * mouseCoord
       
-  type joystickConnectEvent = {
-    joystickId : int
-  }
+  type joystickConnectEvent = Joystick.joystick_id
       
-  type joystickMoveEvent = {
-    joystickId : int ;
-    axis : Joystick.axis ;
-    position : float
-  }
+  type joystickMoveEvent = Joystick.joystick_id * Joystick.axis * float
       
-  type joystickButtonEvent = {
-    joystickId : int ;
-    button : int
-  }
+  type joystickButtonEvent = Joystick.joystick_id * int
+
 
   type t = 
       Closed 

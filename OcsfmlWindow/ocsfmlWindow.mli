@@ -133,6 +133,10 @@ val is_key_pressed : KeyCode.t -> bool
     Unlike the keyboard or mouse, the state of joysticks is sometimes not directly available (depending on the OS), therefore an update() function must be called in order to update the current state of joysticks. When you have a window with event handling, this is done automatically, you don't need to call anything. But if you have no window, or if you want to check joysticks state before creating one, you must call Joystick.update explicitely. *)
 module Joystick :
 sig
+  
+  (** type of a joystick identifier *)
+  type joystick_id = private int 
+  
   (** Maximum number of supported joysticks. *)
   val count : int
     
@@ -145,33 +149,37 @@ sig
   (** Axes supported by SFML joysticks. *)
   type axis = X | Y | Z | R | U | V | PovX | PovY
       
+  (** Create a joystick_id from an int n 
+      @return a joystick_id if n is between 0 and count-1, raise Invalid_argument otherwise *)
+  val joystick_id_from_int : int -> joystick_id
+
   (** Check if a joystick is connected. 
       @return True if the joystick is connected, false otherwise *)
-  val is_connected : int -> bool
+  val is_connected : joystick_id -> bool
     
   (** Return the number of buttons supported by a joystick.
       
       If the joystick is not connected, this function returns 0.
       @return Number of buttons supported by the joystick *)
-  val get_button_count : int -> int
+  val get_button_count : joystick_id -> int
     
   (** Check if a joystick supports a given axis.
       
       If the joystick is not connected, this function returns false.
       @return True if the joystick supports the axis, false otherwise *)
-  val has_axis : int -> axis -> bool
+  val has_axis : joystick_id -> axis -> bool
     
   (** Check if a joystick button is pressed.
       
       If the joystick is not connected, this function returns false.
       @return True if the button is pressed, false otherwise *)
-  val is_button_pressed : int -> int -> bool
+  val is_button_pressed : joystick_id -> int -> bool
     
   (** Get the current position of a joystick axis.
       
       If the joystick is not connected, this function returns 0.
       @return Current position of the axis, in range [-100 .. 100] *)
-  val get_axis_position : int -> axis -> float
+  val get_axis_position : joystick_id -> axis -> float
     
   (** Update the states of all joysticks.
       
@@ -244,43 +252,37 @@ sig
     unicode : int; (** UTF-32 unicode value of the character. *)
   }
       
-  (** Mouse move event parameters (MouseMoved) *)
-  type mouseMoveEvent = { 
-    x : int; (** X position of the mouse pointer, relative to the left of the owner window. *)
-    y : int; (** Y position of the mouse pointer, relative to the top of the owner window. *)
-  }
-      
-  (** Mouse buttons events parameters (MouseButtonPressed, MouseButtonReleased) *)
-  type mouseButtonEvent = { 
-    button : mouseButton; (** Code of the button that has been pressed. *)
-    x : int; (** X position of the mouse pointer, relative to the left of the owner window. *)
-    y : int; (** Y position of the mouse pointer, relative to the top of the owner window. *)
-  }
-      
-  (** Mouse wheel events parameters (MouseWheelMoved) *)
-  type mouseWheelEvent = { 
-    delta : int; (** Number of ticks the wheel has moved (positive is up, negative is down) *)
-    x : int; (** X position of the mouse pointer, relative to the left of the owner window. *)
-    y : int; (** Y position of the mouse pointer, relative to the top of the owner window. *)
-  }
-      
-  (** Joystick connection events parameters (JoystickConnected, JoystickDisconnected) *)
-  type joystickConnectEvent = { 
-    joystickId : int; (** Index of the joystick (in range [0 .. Joystick.count - 1]) *) 
-  }
-      
-  (** Joystick axis move event parameters (JoystickMoved) *)
-  type joystickMoveEvent = {
-    joystickId : int; (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
-    axis : Joystick.axis; (** Axis on which the joystick moved. *)
-    position : float; (** New position on the axis (in range [-100 .. 100]) *)
+  type mouseCoord = {
+    x : int ; (** X position of the mouse pointer, relative to the left of the owner window. *)
+    y : int ; (** Y position of the mouse pointer, relative to the top of the owner window. *)
   }
 
+  (** Mouse move event parameters (MouseMoved) *)
+  type mouseMoveEvent = mouseCoord (** coordinates of the mouse pointer *)
+      
+  (** Mouse buttons events parameters (MouseButtonPressed, MouseButtonReleased) *)
+  type mouseButtonEvent =  
+      mouseButton (** Code of the button that has been pressed. *)
+      * mouseCoord  (** coordinates of the mouse pointer *)
+      
+  (** Mouse wheel events parameters (MouseWheelMoved) *)
+  type mouseWheelEvent = 
+      int (** Number of ticks the wheel has moved (positive is up, negative is down) *)
+      * mouseCoord  (** coordinates of the mouse pointer *)
+ 
+  (** Joystick connection events parameters (JoystickConnected, JoystickDisconnected) *)
+  type joystickConnectEvent = joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
+      
+  (** Joystick axis move event parameters (JoystickMoved) *)
+  type joystickMoveEvent = 
+      joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
+      * Joystick.axis (** Axis on which the joystick moved. *)
+      * float (** New position on the axis (in range [-100 .. 100]) *)
+
   (** Joystick buttons events parameters (JoystickButtonPressed, JoystickButtonReleased) *)
-  type joystickButtonEvent = { 
-    joystickId : int; (** Index of the button that has been pressed (in range [0 .. Joystick.buttonCount - 1]) *)
-    button : int; (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
-  }
+  type joystickButtonEvent = 
+      joystick_id (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
+      * int (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
       
   (** Enumeration of the different types of events. *)
   type t =
