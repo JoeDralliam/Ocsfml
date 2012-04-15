@@ -348,89 +348,133 @@ sig
 
     (** Change the current working directory.
 
-	The new directory must be relative to the current one.
-	@return Server response to the request*)
+		The new directory must be relative to the current one.
+		@return Server response to the request*)
     method change_directory : string -> response
 
-    (** *)
+    (** Connect to the specified FTP server.
+
+		The port has a default value of 21, which is the standard port used by the FTP protocol. You shouldn't use a different value, unless you really know what you do. This function tries to connect to the server so it may take a while to complete, especially if the server is not reachable. To avoid blocking your application for too long, you can use a timeout. The default value, Time::Zero, means that the system timeout will be used (which is usually pretty long).
+		@return Server response to the request*)
     method connect : ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response
 
-    (** *)
-    method create_directory : string -> response
+    (** Create a new directory.
 
-    (** *)
+		The new directory is created as a child of the current working directory.
+		@return Server response to the request*)
+	method create_directory : string -> response
+
+    (** Remove an existing directory.
+
+		The directory to remove must be relative to the current working directory. Use this function with caution, the directory will be removed permanently!
+		@return Server response to the request*)
     method delete_directory : string -> response
 
-    (** *)
+    (** Remove an existing file.
+
+		The file name must be relative to the current working directory. Use this function with caution, the file will be removed permanently!
+		@return Server response to the request*)
     method delete_file : string -> response
 
     (**)
     method destroy : unit
 
-    (** *)
+    (** Close the connection with the server. 
+		@return Server response to the request*)
     method disconnect : response
 
-    (** *)
-    method download : ?mode:transfer_mode -> string -> string
+    (** Download a file from the server.
 
-    (** *)
+		The filename of the distant file is relative to the current working directory of the server, and the local destination path is relative to the current directory of your application.
+		@return Server response to the request*)
+    method download : ?mode:transfer_mode -> string -> string -> response
+
+    (** Get the contents of the given directory.
+
+		This function retrieves the sub-directories and files contained in the given directory. It is not recursive. The directory parameter is relative to the current working directory.
+		@return Server response to the request*)
     method get_directory_listing : ?dir:string -> unit -> listing_response
 
-    (** *)
+    (** Get the current working directory.
+
+		The working directory is the root path for subsequent operations involving directories and/or filenames.
+		@return Server response to the request*)
     method get_working_directory : directory_response
 
-    (** *)
+    (** Send a null command to keep the connection alive.
+
+		This command is useful because the server may close the connection automatically if no command is sent.
+		@return Server response to the request*)
     method keep_alive : response
 
-    (** *)
+    (** Log in using an anonymous account.
+
+		Logging in is mandatory after connecting to the server. Users that are not logged in cannot perform any operation.
+		@return Server response to the request*)
     method login : ?log:string * string -> unit -> response
 
-    (** *)
+    (** Go to the parent directory of the current one. 
+		@return Server response to the request*)
     method parent_directory : response
 
-    (** *)
+    (** Rename an existing file.
+
+		The filenames must be relative to the current working directory.
+		@return Server response to the request*)
     method rename_file : string -> string -> response
 
     (**/**)
     method rep__sf_Ftp : Ftp.t
     (**/**)
 
-    (** *)
-    method upload : ?mode:transfer_mode -> string -> string
+    (** Upload a file to the server.
+
+		The name of the local file is relative to the current working directory of your application, and the remote path is relative to the current directory of the FTP server.
+		@return Server response to the request*)
+    method upload : ?mode:transfer_mode -> string -> string -> response
   end
 end
 
 
 module HTTP :
 sig
-  type request_method = Get | Post | Head
-  module Status :
+	
+	(** Enumerate the available HTTP methods for a request. *)
+  type request_method = 
+			Get (** Request in get mode, standard method to retrieve a page. *)
+		| Post (** Request in post mode, usually to send data to a page. *)
+		| Head (** Request a page's header only. *)
+  
+	(** Enumerate all the valid status codes for a response. *)
+	module Status :
   sig
     type t = private int
-    val ok : t
-    val created : t
-    val accepted : t
-    val noContent : t
-    val resetContent : t
-    val partialContent : t
-    val multipleChoices : t
-    val movedPermanently : t
-    val movedTemporarily : t
-    val notModified : t
-    val badRequest : t
-    val unauthorized : t
-    val forbidden : t
-    val notFound : t
-    val rangeNotSatisfiable : t
-    val internalServerError : t
-    val notImplemented : t
-    val badGateway : t
-    val serviceNotAvailable : t
-    val gatewayTimeout : t
-    val versionNotSupported : t
-    val invalidResponse : t
-    val connectionFailed : t
+    val ok : t (** Most common code returned when operation was successful. *)
+    val created : t (** The resource has successfully been created. *)
+    val accepted : t (** The request has been accepted, but will be processed later by the server. *)
+    val noContent : t (** The server didn't send any data in return. *)
+    val resetContent : t (** The server informs the client that it should clear the view (form) that caused the request to be sent. *)
+    val partialContent : t (** The server has sent a part of the resource, as a response to a partial GET request. *)
+    val multipleChoices : t (** The requested page can be accessed from several locations. *)
+    val movedPermanently : t (** The requested page has permanently moved to a new location. *)
+    val movedTemporarily : t (** The requested page has temporarily moved to a new location. *)
+    val notModified : t (** For conditionnal requests, means the requested page hasn't changed and doesn't need to be refreshed. *)
+    val badRequest : t (** The server couldn't understand the request (syntax error) *)
+    val unauthorized : t (** The requested page needs an authentification to be accessed. *)
+    val forbidden : t (** The requested page cannot be accessed at all, even with authentification. *)
+    val notFound : t (** The requested page doesn't exist. *)
+    val rangeNotSatisfiable : t (** The server can't satisfy the partial GET request (with a "Range" header field) *)
+    val internalServerError : t (** The server encountered an unexpected error. *)
+    val notImplemented : t (** The server doesn't implement a requested feature. *)
+    val badGateway : t (** The gateway server has received an error from the source server. *)
+    val serviceNotAvailable : t (** The server is temporarily unavailable (overloaded, in maintenance, ...) *)
+    val gatewayTimeout : t (** The gateway server couldn't receive a response from the source server. *)
+    val versionNotSupported : t (** The server doesn't support the requested HTTP version. *)
+    val invalidResponse : t (** Response is not a valid HTTP one. *)
+    val connectionFailed : t (** Connection with server failed. *)
   end
+	
+	
   module Request :
   sig
     type t
@@ -443,18 +487,49 @@ sig
     val set_http_version : t -> int -> int -> unit
     val set_body : t -> string -> unit
   end
-  class request :
+  
+	(** Define a HTTP request. *)
+	class request :
     Request.t ->
   object
+		(**/**)
     val t_request : Request.t
-    method destroy : unit
-    method rep__sf_Http_Request : Request.t
-    method set_body : string -> unit
-    method set_field : string -> string -> unit
-    method set_http_version : int -> int -> unit
-    method set_method : request_method -> unit
-    method set_uri : string -> unit
+    (**/**)
+		
+		(**)
+		method destroy : unit
+
+		(**/**)
+		method rep__sf_Http_Request : Request.t
+		(**/**)
+
+		(** Set the body of the request.
+
+				The body of a request is optional and only makes sense for POST requests. It is ignored for all other methods. The body is empty by default.*)
+	  method set_body : string -> unit
+    
+		(** Set the value of a field.
+
+				The field is created if it doesn't exist. The name of the field is case insensitive. By default, a request doesn't contain any field (but the mandatory fields are added later by the HTTP client when sending the request).*)
+		method set_field : string -> string -> unit
+    
+		(** Set the HTTP version for the request.
+
+				The HTTP version is 1.0 by default.*)
+		method set_http_version : int -> int -> unit
+    
+		(** Set the request method.
+
+				See the request_method enumeration for a complete list of all the availale methods. The method is HTTP.Get by default.*)
+		method set_method : request_method -> unit
+    
+		(** Set the requested URI.
+
+				The URI is the resource (usually a web page or a file) that you want to get or post. The URI is "/" (the root page) by default.*)
+		method set_uri : string -> unit
   end
+	
+	
   module Response :
   sig
     type t
@@ -466,18 +541,54 @@ sig
     val get_minor_http_version : t -> int
     val get_body : t -> string
   end
+	
+	(** *)
   class response :
     Response.t ->
   object
+		(**/**)
     val t_response : Response.t
-    method destroy : unit
-    method get_body : string
-    method get_field : string -> string
-    method get_major_http_version : int
-    method get_minor_http_version : int
-    method get_status : Status.t
-    method rep__sf_Http_Response : Response.t
-  end
+		(**/**)
+
+	  (**)
+		method destroy : unit
+    
+		(** Get the body of the response.
+
+				The body of a response may contain:
+
+    		- the requested page (for GET requests)
+    		- a response from the server (for POST requests)
+    		- nothing (for HEAD requests)
+    		- an error message (in case of an error)
+			@return The response body *)
+		method get_body : string
+    
+		(** Get the value of a field.
+
+				If the field field is not found in the response header, the empty string is returned. This function uses case-insensitive comparisons.
+				@return Value of the field, or empty string if not found *)
+		method get_field : string -> string
+    
+		(** Get the major HTTP version number of the response.
+				@author Major HTTP version number*)
+		method get_major_http_version : int
+    
+		(** Get the minor HTTP version number of the response. 
+				@return Minor HTTP version number*)
+		method get_minor_http_version : int
+    
+		(** Get the response status code.
+
+				The status code should be the first thing to be checked after receiving a response, it defines whether it is a success, a failure or anything else (see the Status enumeration).
+				@return Status code of the response *)
+		method get_status : Status.t
+    
+		(**/**)
+		method rep__sf_Http_Response : Response.t
+		(**/**)
+	end
+	
   module Http :
   sig
     type t
@@ -488,17 +599,83 @@ sig
     val set_host : t -> ?port:int -> string -> unit
     val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
   end
-  class http :
+  
+	
+	(** A HTTP client.
+
+		sf::Http is a very simple HTTP client that allows you to communicate with a web server.
+
+		You can retrieve web pages, send data to an interactive resource, download a remote file, etc.
+
+		The HTTP client is split into 3 classes:
+
+    - sf::Http::Request
+    - sf::Http::Response
+    - sf::Http
+
+		sf::Http::Request builds the request that will be sent to the server. A request is made of:
+
+    - a method (what you want to do)
+    - a target URI (usually the name of the web page or file)
+    - one or more header fields (options that you can pass to the server)
+    - an optional body (for POST requests)
+
+		sf::Http::Response parse the response from the web server and provides getters to read them. The response contains:
+
+    - a status code
+    - header fields (that may be answers to the ones that you requested)
+    - a body, which contains the contents of the requested resource
+
+		sf::Http provides a simple function, send_request, to send a sf::Http::Request and return the corresponding sf::Http::Response from the server.
+
+		Usage example:
+		{[
+		(* Create a new HTTP client *)
+		let http = new HTTP.http (HTTP.Http.default ()) in
+
+ 		(* We'll work on http://www.sfml-dev.org *)
+	 	http#set_host "http://www.sfml-dev.org" ;
+
+ 		(* Prepare a request to get the 'features.php' page *)
+ 		let request = new HTTP.request (HTTP.Request.default ~uri:"features.php") in
+
+ 		(* Send the request *)
+ 		let response = http#send_request request in
+
+ 		(* Check the status code and display the result *)
+		let status = response#get_status in
+ 		if status = HTTP.Status.Ok
+ 		then Pervasives.print_string (response.getBody() ^ "\n")
+ 		else Pervasives.print_string ("Error " ^ status ^ "\n") ;
+ 		*)
+	class http :
     Http.t ->
   object
+		(**/**)
     val t_http : Http.t
-    method destroy : unit
+		(**/**)
+		
+		(**)
+		method destroy : unit
+
+		(**/**)
     method rep__sf_Http : Http.t
-    method send_request :
-      ?timeout:OcsfmlSystem.Time.t -> request -> response
-    method set_host : ?port:int -> string -> unit
+		(**/**)
+		
+		(** Send a HTTP request and return the server's response.
+
+				You must have a valid host before sending a request (see SetHost). Any missing mandatory header field in the request will be added with an appropriate value. Warning: this function waits for the server's response and may not return instantly; use a thread if you don't want to block your application, or use a timeout to limit the time to wait. A value of Time::Zero means that the client will use the system defaut timeout (which is usually pretty long).
+				@return Server's response *)
+		method send_request : ?timeout:OcsfmlSystem.Time.t -> request -> response
+    
+		(** Set the target host.
+
+				This function just stores the host address and port, it doesn't actually connect to it until you send a request. The port has a default value of 0, which means that the HTTP client will use the right port according to the protocol used (80 for HTTP, 443 for HTTPS). You should leave it like this unless you really need a port other than the standard one, or use an unknown protocol.*)
+		method set_host : ?port:int -> string -> unit
   end
 end
+
+
 module Packet :
 sig
   type t
@@ -527,37 +704,88 @@ sig
   val write_float : t -> float -> unit
   val write_string : t -> string -> unit
 end
-class packetCpp :
-  Packet.t ->
+
+
+class packet :
 object
+	(**/**)
   val t_packetCpp : Packet.t
-  method clear : unit
-  method destroy : unit
-  method end_of_packet : bool
-  method get_data_size : int
-  method is_valid : bool
-  method read_bool : bool
-  method read_float : float
-  method read_int16 : int
-  method read_int32 : int
-  method read_int8 : int
-  method read_string : string
-  method read_uint16 : int
-  method read_uint32 : int
-  method read_uint8 : int
-  method rep__sf_Packet : Packet.t
-  method write_bool : bool -> unit
-  method write_float : float -> unit
-  method write_int16 : int -> unit
-  method write_int32 : int -> unit
-  method write_int8 : int -> unit
-  method write_string : string -> unit
-  method write_uint16 : int -> unit
-  method write_uint32 : int -> unit
-  method write_uint8 : int -> unit
+	(**/**)
+	
+  (** *)
+	method clear : unit
+  
+	
+	method destroy : unit
+  
+	
+	method end_of_packet : bool
+  
+	
+	method get_data_size : int
+  
+	
+	method is_valid : bool
+  
+	
+	method read_bool : bool
+  
+	
+	method read_float : float
+  
+	
+	method read_int16 : int
+  
+	
+	method read_int32 : int
+  
+	
+	method read_int8 : int
+  
+	
+	method read_string : string
+  
+	
+	method read_uint16 : int
+  
+	
+	method read_uint32 : int
+  
+	
+	method read_uint8 : int
+  
+	(**/**)
+	method rep__sf_Packet : Packet.t
+  (**/**)
+	
+	
+	method write_bool : bool -> unit
+  
+	
+	method write_float : float -> unit
+  
+	
+	method write_int16 : int -> unit
+  
+	
+	method write_int32 : int -> unit
+  
+	
+	method write_int8 : int -> unit
+  
+	
+	method write_string : string -> unit
+  
+	
+	method write_uint16 : int -> unit
+  
+	
+	method write_uint32 : int -> unit
+  
+	
+	method write_uint8 : int -> unit
 end
-class packet_bis : unit -> packetCpp
-class packet : packet_bis
+
 type read_val =
   [ `Bool of bool ref
   | `Float of float ref
