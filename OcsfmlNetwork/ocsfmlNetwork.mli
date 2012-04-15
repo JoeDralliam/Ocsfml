@@ -15,6 +15,56 @@ sig
 end
 (**/**)
 
+
+
+(** Encapsulate an IPv4 network address.
+
+    OcsfmlNetwork.ip_address is a utility class for manipulating network addresses.
+    
+    It provides a set a implicit constructors and conversion functions to easily build or transform an IP address from/to various representations.
+    
+    Usage example:
+    {[
+    let a0 = mk_ip_address `None in                      (* an invalid address *)
+    let a1 = IpAddress.None in                           (* an invalid address (same as a0) *)
+    let a2 = mk_ip_address (`String "127.0.0.1") in      (* the local host address *)
+    let a4 = mk_ip_address (`Bytes (192, 168, 1, 56)) in (* a local address *)
+    let a5 = mk_ip_address (`String "my_computer") in    (* a local address created from a network name *)
+    let a6 = mk_ip_address (`String "89.54.1.169") in    (* a distant address *)
+    let a7 = mk_ip_address (`String "www.google.com") in (* a distant address created from a network name *)
+    let a8 = IpAddress.get_local_address () in           (* my address on the local network *)
+    let a9 = IpAddress.get_public_address () in          (* my address on the internet *)
+    ...
+    ]}
+*)
+class ip_address :
+  IPAddressCPP.t ->
+object
+  (**/**)
+  val t_ip_address : IPAddressCPP.t
+  (**/**)
+
+  (**)
+  method destroy : unit
+
+  (**/**)
+  method rep__sf_IpAddress : IPAddressCPP.t
+  (**/**)
+
+
+  (** Get an integer representation of the address.
+
+      The returned number is the internal representation of the address, and should be used for optimization purposes only (like sending the address through a socket). The integer produced by this function can then be converted back to a ip_address with the proper constructor.
+      @param 32-bits unsigned integer representation of the address*)
+  method to_integer : int
+
+  (** Get a string representation of the address.
+
+      The returned string is the decimal representation of the IP address (like "192.168.1.56"), even if it was constructed from a host name.
+      @return String representation of the address*)
+  method to_string : string
+end
+
 module IPAddress :
 sig
   type t = IPAddressCPP.t
@@ -51,54 +101,6 @@ sig
     < rep__sf_IpAddress : 'a; .. > -> bool
 end
 
-(** Encapsulate an IPv4 network address.
-
-    OcsfmlNetwork.ip_address is a utility class for manipulating network addresses.
-    
-    It provides a set a implicit constructors and conversion functions to easily build or transform an IP address from/to various representations.
-    
-    Usage example:
-    {[
-    let a0 = mk_ip_address `None in                      (* an invalid address *)
-    let a1 = IpAddress.None in                           (* an invalid address (same as a0) *)
-    let a2 = mk_ip_address (`String "127.0.0.1") in      (* the local host address *)
-    let a4 = mk_ip_address (`Bytes (192, 168, 1, 56)) in (* a local address *)
-    let a5 = mk_ip_address (`String "my_computer") in    (* a local address created from a network name *)
-    let a6 = mk_ip_address (`String "89.54.1.169") in    (* a distant address *)
-    let a7 = mk_ip_address (`String "www.google.com") in (* a distant address created from a network name *)
-    let a8 = IpAddress.get_local_address () in           (* my address on the local network *)
-    let a9 = IpAddress.get_public_address () in          (* my address on the internet *)
-    ...
-    ]}
-*)
-class ip_address :
-  IPAddress.t ->
-object
-  (**/**)
-  val t_ip_address : IPAddressCPP.t
-  (**/**)
-
-  (**)
-  method destroy : unit
-
-  (**/**)
-  method rep__sf_IpAddress : IPAddressCPP.t
-  (**/**)
-
-
-  (** Get an integer representation of the address.
-
-      The returned number is the internal representation of the address, and should be used for optimization purposes only (like sending the address through a socket). The integer produced by this function can then be converted back to a ip_address with the proper constructor.
-      @param 32-bits unsigned integer representation of the address*)
-  method to_integer : int
-
-  (** Get a string representation of the address.
-
-      The returned string is the decimal representation of the IP address (like "192.168.1.56"), even if it was constructed from a host name.
-      @return String representation of the address*)
-  method to_string : string
-end
-
 
 val mk_ip_address :
   [< `Bytes of int * int * int * int
@@ -121,7 +123,7 @@ sig
   (** Status codes possibly returned by a FTP response. *)
   module Status :
   sig
-    type t : private int
+    type t = private int
     val restartMarkerReply : t (** Restart marker reply. *)
     val serviceReadySoon : t (** Service ready in N minutes. *)
     val dataConnectionAlreadyOpened : t (** Data connection already opened, transfer starting. *)
@@ -179,7 +181,7 @@ sig
   (** Define a FTP response. *)
   class response :
     Response.t ->
-  object
+  object  
     (**/**)
     val t_response : Response.t
     (**/**)
@@ -248,7 +250,9 @@ sig
   class listing_response :
     ListingResponse.t ->
   object
-    (**/**)
+	inherit response
+	
+	(**/**)
     val t_listing_response : ListingResponse.t
     (**/**)
 
@@ -274,7 +278,7 @@ sig
     val login : t -> ?log:string * string -> unit -> response
     val keep_alive : t -> response
     val get_working_directory : t -> directory_response
-    val get_directory_listing :?dir:string -> unit -> listing_response
+    val get_directory_listing : t -> ?dir:string -> unit -> listing_response
     val change_directory : t -> string -> response
     val parent_directory : t -> response
     val create_directory : t -> string -> response
@@ -430,20 +434,14 @@ sig
   module Request :
   sig
     type t
-    val destroy : t -> unit = "sf_Http_Request_destroy__impl"
+    val destroy : t -> unit
     val default :
       ?uri:string -> ?meth:request_method -> ?body:string -> unit -> t
-      = "sf_Http_Request_default_constructor__impl"
     val set_field : t -> string -> string -> unit
-      = "sf_Http_Request_setField__impl"
     val set_method : t -> request_method -> unit
-      = "sf_Http_Request_setMethod__impl"
     val set_uri : t -> string -> unit
-      = "sf_Http_Request_setUri__impl"
     val set_http_version : t -> int -> int -> unit
-      = "sf_Http_Request_setHttpVersion__impl"
     val set_body : t -> string -> unit
-      = "sf_Http_Request_setBody__impl"
   end
   class request :
     Request.t ->
@@ -460,18 +458,13 @@ sig
   module Response :
   sig
     type t
-    val destroy : t -> unit = "sf_Http_Response_destroy__impl"
+    val destroy : t -> unit
     val default : unit -> t
-      = "sf_Http_Response_default_constructor__impl"
     val get_field : t -> string -> string
-      = "sf_Http_Response_getField__impl"
     val get_status : t -> Status.t
-      = "sf_Http_Response_getStatus__impl"
     val get_major_http_version : t -> int
-      = "sf_Http_Response_getMajorHttpVersion__impl"
     val get_minor_http_version : t -> int
-      = "sf_Http_Response_getMinorHttpVersion__impl"
-    val get_body : t -> string = "sf_Http_Response_getBody__impl"
+    val get_body : t -> string
   end
   class response :
     Response.t ->
@@ -488,16 +481,12 @@ sig
   module Http :
   sig
     type t
-    val destroy : t -> unit = "sf_Http_destroy__impl"
-    val default : unit -> t = "sf_Http_default_constructor__impl"
-    val from_host : string -> t = "sf_Http_host_constructor__impl"
+    val destroy : t -> unit
+    val default : unit -> t
+    val from_host : string -> t
     val from_host_and_port : string -> int -> t
-      = "sf_Http_host_and_port_constructor__impl"
     val set_host : t -> ?port:int -> string -> unit
-      = "sf_Http_setHost__impl"
-    val send_request :
-      t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
-      = "sf_Http_sendRequest__impl"
+    val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
   end
   class http :
     Http.t ->
@@ -513,31 +502,30 @@ end
 module Packet :
 sig
   type t
-  val destroy : t -> unit = "sf_Packet_destroy__impl"
-  val default : unit -> t = "sf_Packet_default_constructor__impl"
-  val clear : t -> unit = "sf_Packet_clear__impl"
-  val get_data_size : t -> int = "sf_Packet_getDataSize__impl"
-  val end_of_packet : t -> bool = "sf_Packet_endOfPacket__impl"
-  val is_valid : t -> bool = "sf_Packet_isValid__impl"
-  val read_bool : t -> bool = "sf_Packet_readBool__impl"
-  val read_int8 : t -> int = "sf_Packet_readInt8__impl"
-  val read_uint8 : t -> int = "sf_Packet_readUint8__impl"
-  val read_int16 : t -> int = "sf_Packet_readInt16__impl"
-  val read_uint16 : t -> int = "sf_Packet_readUint16__impl"
-  val read_int32 : t -> int = "sf_Packet_readInt32__impl"
-  val read_uint32 : t -> int = "sf_Packet_readUint32__impl"
-  val read_float : t -> float = "sf_Packet_readFloat__impl"
-  val read_string : t -> string = "sf_Packet_readString__impl"
-  val write_bool : t -> bool -> unit = "sf_Packet_writeBool__impl"
-  val write_int8 : t -> int -> unit = "sf_Packet_writeInt8__impl"
-  val write_uint8 : t -> int -> unit = "sf_Packet_writeUint8__impl"
-  val write_int16 : t -> int -> unit = "sf_Packet_writeInt16__impl"
-  val write_uint16 : t -> int -> unit = "sf_Packet_writeUint16__impl"
-  val write_int32 : t -> int -> unit = "sf_Packet_writeInt32__impl"
-  val write_uint32 : t -> int -> unit = "sf_Packet_writeUint32__impl"
-  val write_float : t -> float -> unit = "sf_Packet_writeFloat__impl"
+  val destroy : t -> unit
+  val default : unit -> t
+  val clear : t -> unit
+  val get_data_size : t -> int
+  val end_of_packet : t -> bool
+  val is_valid : t -> bool
+  val read_bool : t -> bool
+  val read_int8 : t -> int
+  val read_uint8 : t -> int
+  val read_int16 : t -> int
+  val read_uint16 : t -> int
+  val read_int32 : t -> int
+  val read_uint32 : t -> int
+  val read_float : t -> float
+  val read_string : t -> string
+  val write_bool : t -> bool -> unit
+  val write_int8 : t -> int -> unit
+  val write_uint8 : t -> int -> unit
+  val write_int16 : t -> int -> unit
+  val write_uint16 : t -> int -> unit
+  val write_int32 : t -> int -> unit
+  val write_uint32 : t -> int -> unit
+  val write_float : t -> float -> unit
   val write_string : t -> string -> unit
-    = "sf_Packet_writeString__impl"
 end
 class packetCpp :
   Packet.t ->
@@ -618,9 +606,9 @@ type socket_status = Done | NotReady | Disconnected | Error
 module Socket :
 sig
   type t
-  val destroy : t -> unit = "sf_Socket_destroy__impl"
-  val set_blocking : t -> bool -> unit = "sf_Socket_setBlocking__impl"
-  val is_blocking : t -> bool = "sf_Socket_isBlocking__impl"
+  val destroy : t -> unit
+  val set_blocking : t -> bool -> unit
+  val is_blocking : t -> bool
 end
 class socket :
   Socket.t ->
@@ -646,17 +634,14 @@ sig
     method set : 'a -> 'a
     method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit
   end
-  val destroy : t -> unit = "sf_SocketSelector_destroy__impl"
+  val destroy : t -> unit
   val default : unit -> t
-    = "sf_SocketSelector_default_constructor__impl"
-  val add : t -> #socket -> unit = "sf_SocketSelector_add__impl"
-  val remove : t -> #socket -> unit = "sf_SocketSelector_remove__impl"
-  val clear : t -> unit = "sf_SocketSelector_clear__impl"
+  val add : t -> #socket -> unit
+  val remove : t -> #socket -> unit
+  val clear : t -> unit
   val wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> unit
-    = "sf_SocketSelector_wait__impl"
   val is_ready : t -> #socket -> bool
-    = "sf_SocketSelector_isReady__impl"
-  val set : t -> 'a -> 'a = "sf_SocketSelector_affect__impl"
+  val set : t -> 'a -> 'a
 end
 class socket_selector :
   SocketSelector.t ->
@@ -674,22 +659,17 @@ end
 module TcpSocket :
 sig
   type t
-  val destroy : t -> unit = "sf_TcpSocket_destroy__impl"
+  val destroy : t -> unit
   val to_socket : t -> Socket.t
-    = "upcast__sf_Socket_of_sf_TcpSocket__impl"
-  val default : unit -> t = "sf_TcpSocket_default_constructor__impl"
-  val get_local_port : t -> int = "sf_TcpSocket_getLocalPort__impl"
+  val default : unit -> t
+  val get_local_port : t -> int
   val get_remote_address : t -> ip_address
-    = "sf_TcpSocket_getRemoteAddress__impl"
-  val get_remote_port : t -> int = "sf_TcpSocket_getRemotePort__impl"
+  val get_remote_port : t -> int
   val connect :
     t -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
-    = "sf_TcpSocket_connect__impl"
-  val disconnect : t -> unit = "sf_TcpSocket_disconnect__impl"
+  val disconnect : t -> unit
   val send_packet : t -> #packet -> socket_status
-    = "sf_TcpSocket_sendPacket__impl"
   val receive_packet : t -> #packet -> socket_status
-    = "sf_TcpSocket_receivePacket__impl"
 end
 class tcp_socketCpp :
   TcpSocket.t ->
@@ -715,16 +695,13 @@ class tcp_socket : tcp_socket_bis
 module TcpListener :
 sig
   type t
-  val destroy : t -> unit = "sf_TcpListener_destroy__impl"
+  val destroy : t -> unit
   val to_socket : t -> Socket.t
-    = "upcast__sf_Socket_of_sf_TcpListener__impl"
-  val default : unit -> t = "sf_TcpListener_default_constructor__impl"
-  val get_local_port : t -> int = "sf_TcpListener_getLocalPort__impl"
+  val default : unit -> t
+  val get_local_port : t -> int
   val listen : t -> int -> socket_status
-    = "sf_TcpListener_listen__impl"
-  val close : t -> unit = "sf_TcpListener_close__impl"
+  val close : t -> unit
   val accept : t -> tcp_socket -> socket_status
-    = "sf_TcpListener_accept__impl"
 end
 class tcp_listenerCpp :
   TcpListener.t ->
@@ -747,17 +724,14 @@ val max_datagram_size : int
 module UdpSocket :
 sig
   type t
-  val destroy : t -> unit = "sf_UdpSocket_destroy__impl"
+  val destroy : t -> unit
   val to_socket : t -> Socket.t
-    = "upcast__sf_Socket_of_sf_UdpSocket__impl"
-  val default : unit -> t = "sf_UdpSocket_default_constructor__impl"
-  val bind : t -> int -> socket_status = "sf_UdpSocket_bind__impl"
-  val unbind : t -> unit = "sf_UdpSocket_unbind__impl"
+  val default : unit -> t
+  val bind : t -> int -> socket_status
+  val unbind : t -> unit
   val send_packet : t -> #packet -> ip_address -> int -> socket_status
-    = "sf_UdpSocket_sendPacket__impl"
   val receive_packet :
     t -> #packet -> ip_address -> socket_status * int
-    = "sf_UdpSocket_receivePacket__impl"
 end
 class udp_socketCpp :
   UdpSocket.t ->

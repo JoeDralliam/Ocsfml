@@ -528,7 +528,7 @@ end
     OcsfmlAudi.sound_recorder provides a simple interface to access the audio recording capabilities of the computer (the microphone).
     
     As an abstract base class, it only cares about capturing sound samples, the task of making something useful with them is left to the derived class. Note that SFML provides a built-in specialization for saving the captured data to a sound buffer (see OcsfmlAudio.sound_buffer_recorder). *)
-class sound_recorder :
+class sound_recorder : Sound_recorder.t ->
 object
   (**/**)
   val t_sound_recorder : Sound_recorder.t
@@ -601,6 +601,8 @@ sig
 end
 class sound_buffer_recorder :
 object
+	inherit sound_recorder
+
   (**/**)
   val t_sound_buffer_recorderCpp : SoundBufferRecorder.t
   (**/**)

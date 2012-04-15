@@ -101,7 +101,7 @@ struct
     constructor default : ?code:Status.t -> ?msg:string -> unit = "default_constructor" 
     external method get_status : Status.t = "getStatus" 
     external method get_message : string = "getMessage" 
-    external method is_ok : bool = "is_ok"
+    external method is_ok : bool = "isOk"
   end
     
   external class directory_response (DirectoryResponse) : "sf_Ftp_DirectoryResponse" = 
