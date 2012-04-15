@@ -68,11 +68,6 @@ app#clear () ;;
 app#draw shape ;;
 app#display () ;;
 
-Don't forget to release allocated object :
-
-shape#destroy () ;;
-app#destroy () ;;
-
 5) Integrating Ocsfml in Ocamlbuild toolchain
 Add '-use-ocamlfind' flag when invoking ocamlbuild.
 In your _tags file, specify package( ocsfml.LLL ) with LLL the lower-case name of one of the SFML module (system, window, graphics, audio or network)
