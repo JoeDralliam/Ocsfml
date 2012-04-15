@@ -56,10 +56,10 @@ typedef sf::Ftp::Response sf_Ftp_Response;
 camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
 {
-/* les deux derniers paramètres devraient être optionnels non ? (donc rajouter unit derrière) */
   camlpp__register_external_constructor3( default_constructor, &ftp_response_default_constructor_helper );
   camlpp__register_method0( getStatus );
   camlpp__register_method0( getMessage );
+  camlpp__register_method0( isOk );
 }
 #undef CAMLPP__CLASS_NAME
 

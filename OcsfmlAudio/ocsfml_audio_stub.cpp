@@ -104,6 +104,7 @@ camlpp__register_custom_class()
 {
   camlpp__register_constructor0( default_constructor );
   camlpp__register_constructor1( copy_constructor, sf::SoundBuffer const& );
+  camlpp__register_external_method1( affect, &sf::SoundBuffer::operator= );
   camlpp__register_method1( loadFromFile );
   //	camlpp__register_method2( LoadFromMemory, &sf::SoundBuffer::LoadFromMemory );
   camlpp__register_method1( loadFromStream );
