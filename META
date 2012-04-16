@@ -3,7 +3,7 @@ version = "2.0a"
 description = "ocaml port of the C++ SFML library"
 
 package "system" (
-	requires="threads, unix"
+	requires(mt)="threads"
 	archive(byte) = "ocsfmlsystem.cma"
 	archive(toploop) = "ocsfmlsystem.cma"
 	archive(native) = "ocsfmlsystem.cmxa"
