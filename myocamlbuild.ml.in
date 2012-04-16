@@ -146,8 +146,7 @@ let _ = dispatch begin function
 	(* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
 	  S(verbose
-	    @[A"-dllib"; A("-locsfml"^s);
-	      A"-dllib"; A"-lthreads"; A"-dllib"; A"-lunix"] 
+	    @[A"-dllib"; A("-locsfml"^s)]
 	    @[ @LINK_STDLIB_DYN@ ]);  
 	
 	(* when we link an ocaml native target with the c++ lib "s" *)
@@ -155,8 +154,6 @@ let _ = dispatch begin function
 	  S(verbose
 	    @ [ A"-cclib";  A("-locsfml"^s) ]
 	    @ link_libs_ocaml
-	    @[A "-cclib"; A "-lthreads"; 
-	      A "-cclib"; A "-lunix"]  
 	    @[A "-ccopt"; @OCSFML_LINKPATH@ ]
 	    @[ @LINK_STDLIB_STA@ ]); 
 	

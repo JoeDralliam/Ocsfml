@@ -133,8 +133,8 @@ struct
     external method delete_directory : string -> response = "deleteDirectory"
     external method rename_file : string -> string -> response = "renameFile"
     external method delete_file : string -> response = "deleteFile"
-    external method download : ?mode:transfer_mode -> string -> string = "download"
-    external method upload : ?mode:transfer_mode -> string -> string = "upload"
+    external method download : ?mode:transfer_mode -> string -> string -> response = "download"
+    external method upload : ?mode:transfer_mode -> string -> string -> response = "upload"
   end
     
 end

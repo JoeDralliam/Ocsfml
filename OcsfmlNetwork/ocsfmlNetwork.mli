@@ -285,8 +285,8 @@ sig
     val delete_directory : t -> string -> response
     val rename_file : t -> string -> string -> response
     val delete_file : t -> string -> response
-    val download : t -> ?mode:transfer_mode -> string -> string
-    val upload : t -> ?mode:transfer_mode -> string -> string
+    val download : t -> ?mode:transfer_mode -> string -> string -> response
+    val upload : t -> ?mode:transfer_mode -> string -> string -> response
   end
 
   (** 
