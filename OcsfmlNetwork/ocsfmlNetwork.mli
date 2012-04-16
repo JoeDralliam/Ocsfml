@@ -13,7 +13,7 @@ sig
   val to_string : t -> string
   val to_integer : t -> int
 end
-(**/**)
+  (**/**)
 
 
 
@@ -42,14 +42,14 @@ class ip_address :
 object
   (**/**)
   val t_ip_address : IPAddressCPP.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
 
   (**/**)
   method rep__sf_IpAddress : IPAddressCPP.t
-  (**/**)
+    (**/**)
 
 
   (** Get an integer representation of the address.
@@ -78,8 +78,8 @@ sig
 
 
   (** Get the computer's local address.
-    
-    The local address is the address of the computer from the LAN point of view, i.e. something like 192.168.1.56. It is meaningful only for communications over the local network. Unlike get_public_address, this function is fast and may be used safely anywhere.*)
+      
+      The local address is the address of the computer from the LAN point of view, i.e. something like 192.168.1.56. It is meaningful only for communications over the local network. Unlike get_public_address, this function is fast and may be used safely anywhere.*)
   val get_local_address : unit -> ip_address
 
   (** Get the computer's public address.
@@ -98,7 +98,7 @@ sig
 
   val equal :
     < rep__sf_IpAddress : 'a; .. > ->
-    < rep__sf_IpAddress : 'a; .. > -> bool
+      < rep__sf_IpAddress : 'a; .. > -> bool
 end
 
 
@@ -118,7 +118,7 @@ sig
       Binary (** Binary mode (file is transfered as a sequence of bytes) *)
     | Ascii (** Text mode using ASCII encoding. *)
     | Ebcdic (** Text mode using EBCDIC encoding. *)
-  
+	
 
   (** Status codes possibly returned by a FTP response. *)
   module Status :
@@ -184,7 +184,7 @@ sig
   object  
     (**/**)
     val t_response : Response.t
-    (**/**)
+      (**/**)
 
     (**)
     method destroy : unit
@@ -202,7 +202,7 @@ sig
 
     (**/**)
     method rep__sf_Ftp_Response : Response.t
-    (**/**)
+      (**/**)
   end
 
 
@@ -223,17 +223,17 @@ sig
 
     (**/**)
     val t_directory_response : DirectoryResponse.t
-    (**/**)
+      (**/**)
 
     (**)
     method destroy : unit
 
     (** Get the directory returned in the response. *)    
     method get_directory : string
- 
+      
     (**/**)
     method rep__sf_Ftp_DirectoryResponse : DirectoryResponse.t
-    (**/**)
+      (**/**)
   end
 
 
@@ -250,11 +250,11 @@ sig
   class listing_response :
     ListingResponse.t ->
   object
-	inherit response
-	
-	(**/**)
-    val t_listing_response : ListingResponse.t
+    inherit response
+      
     (**/**)
+    val t_listing_response : ListingResponse.t
+      (**/**)
 
     (**)
     method destroy : unit
@@ -264,7 +264,7 @@ sig
 
     (**/**)
     method rep__sf_Ftp_ListingResponse : ListingResponse.t
-    (**/**)
+      (**/**)
   end
 
 
@@ -309,128 +309,128 @@ sig
       
       Usage example:
       {[
-      (* Create a new FTP client *)
+  (* Create a new FTP client *)
       let ftp = new FTP.ftp (FTP.Ftp.default ()) in
       
-      (* Connect to the server *)
+  (* Connect to the server *)
       let response = ftp#connect "ftp://ftp.myserver.com" in
       if response#is_ok
       then Pervasives.print_string "Connected\n" ;
       
-      (* Log in *)
+  (* Log in *)
       let response = ftp#login ?log:("laurent","dF6Zm89D") () in
       if response#is_ok
       then Pervasives.print_string "Logged in\n";
       
-      (* Print the working directory *)
+  (* Print the working directory *)
       let directory = ftp#get_working_directory in
       if directory#is_ok
       then Pervasives.print_string ("Working directory: " ^ directory#get_directory ^ "\n") ;
       
-      (* Create a new directory *)
+  (* Create a new directory *)
       let response = ftp#create_directory "files" in
       if response#is_ok
       then Pervasives.print_string "Created new directory\n";
       
-      (* Upload a file to this new directory *)
+  (* Upload a file to this new directory *)
       let response = ftp#upload ?mode:FTP.Ascii "local-path/file.txt" "files" ;
       if response#is_ok
       then Pervasives.print_string "File uploaded\n" ;
       
-      (* Disconnect from the server (optional) *)
+  (* Disconnect from the server (optional) *)
       ftp#disconnect *)
   class ftp :
     Ftp.t ->
   object
     (**/**)
     val t_ftp : Ftp.t
-    (**/**)
+      (**/**)
 
     (** Change the current working directory.
 
-		The new directory must be relative to the current one.
-		@return Server response to the request*)
+	The new directory must be relative to the current one.
+	@return Server response to the request*)
     method change_directory : string -> response
 
     (** Connect to the specified FTP server.
 
-		The port has a default value of 21, which is the standard port used by the FTP protocol. You shouldn't use a different value, unless you really know what you do. This function tries to connect to the server so it may take a while to complete, especially if the server is not reachable. To avoid blocking your application for too long, you can use a timeout. The default value, Time::Zero, means that the system timeout will be used (which is usually pretty long).
-		@return Server response to the request*)
+	The port has a default value of 21, which is the standard port used by the FTP protocol. You shouldn't use a different value, unless you really know what you do. This function tries to connect to the server so it may take a while to complete, especially if the server is not reachable. To avoid blocking your application for too long, you can use a timeout. The default value, Time::Zero, means that the system timeout will be used (which is usually pretty long).
+	@return Server response to the request*)
     method connect : ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response
 
     (** Create a new directory.
 
-		The new directory is created as a child of the current working directory.
-		@return Server response to the request*)
-	method create_directory : string -> response
+	The new directory is created as a child of the current working directory.
+	@return Server response to the request*)
+    method create_directory : string -> response
 
     (** Remove an existing directory.
 
-		The directory to remove must be relative to the current working directory. Use this function with caution, the directory will be removed permanently!
-		@return Server response to the request*)
+	The directory to remove must be relative to the current working directory. Use this function with caution, the directory will be removed permanently!
+	@return Server response to the request*)
     method delete_directory : string -> response
 
     (** Remove an existing file.
 
-		The file name must be relative to the current working directory. Use this function with caution, the file will be removed permanently!
-		@return Server response to the request*)
+	The file name must be relative to the current working directory. Use this function with caution, the file will be removed permanently!
+	@return Server response to the request*)
     method delete_file : string -> response
 
     (**)
     method destroy : unit
 
     (** Close the connection with the server. 
-		@return Server response to the request*)
+	@return Server response to the request*)
     method disconnect : response
 
     (** Download a file from the server.
 
-		The filename of the distant file is relative to the current working directory of the server, and the local destination path is relative to the current directory of your application.
-		@return Server response to the request*)
+	The filename of the distant file is relative to the current working directory of the server, and the local destination path is relative to the current directory of your application.
+	@return Server response to the request*)
     method download : ?mode:transfer_mode -> string -> string -> response
 
     (** Get the contents of the given directory.
 
-		This function retrieves the sub-directories and files contained in the given directory. It is not recursive. The directory parameter is relative to the current working directory.
-		@return Server response to the request*)
+	This function retrieves the sub-directories and files contained in the given directory. It is not recursive. The directory parameter is relative to the current working directory.
+	@return Server response to the request*)
     method get_directory_listing : ?dir:string -> unit -> listing_response
 
     (** Get the current working directory.
 
-		The working directory is the root path for subsequent operations involving directories and/or filenames.
-		@return Server response to the request*)
+	The working directory is the root path for subsequent operations involving directories and/or filenames.
+	@return Server response to the request*)
     method get_working_directory : directory_response
 
     (** Send a null command to keep the connection alive.
 
-		This command is useful because the server may close the connection automatically if no command is sent.
-		@return Server response to the request*)
+	This command is useful because the server may close the connection automatically if no command is sent.
+	@return Server response to the request*)
     method keep_alive : response
 
     (** Log in using an anonymous account.
 
-		Logging in is mandatory after connecting to the server. Users that are not logged in cannot perform any operation.
-		@return Server response to the request*)
+	Logging in is mandatory after connecting to the server. Users that are not logged in cannot perform any operation.
+	@return Server response to the request*)
     method login : ?log:string * string -> unit -> response
 
     (** Go to the parent directory of the current one. 
-		@return Server response to the request*)
+	@return Server response to the request*)
     method parent_directory : response
 
     (** Rename an existing file.
 
-		The filenames must be relative to the current working directory.
-		@return Server response to the request*)
+	The filenames must be relative to the current working directory.
+	@return Server response to the request*)
     method rename_file : string -> string -> response
 
     (**/**)
     method rep__sf_Ftp : Ftp.t
-    (**/**)
+      (**/**)
 
     (** Upload a file to the server.
 
-		The name of the local file is relative to the current working directory of your application, and the remote path is relative to the current directory of the FTP server.
-		@return Server response to the request*)
+	The name of the local file is relative to the current working directory of your application, and the remote path is relative to the current directory of the FTP server.
+	@return Server response to the request*)
     method upload : ?mode:transfer_mode -> string -> string -> response
   end
 end
@@ -438,15 +438,15 @@ end
 
 module HTTP :
 sig
-	
-	(** Enumerate the available HTTP methods for a request. *)
-  type request_method = 
-			Get (** Request in get mode, standard method to retrieve a page. *)
-		| Post (** Request in post mode, usually to send data to a page. *)
-		| Head (** Request a page's header only. *)
   
-	(** Enumerate all the valid status codes for a response. *)
-	module Status :
+  (** Enumerate the available HTTP methods for a request. *)
+  type request_method = 
+      Get (** Request in get mode, standard method to retrieve a page. *)
+    | Post (** Request in post mode, usually to send data to a page. *)
+    | Head (** Request a page's header only. *)
+	
+  (** Enumerate all the valid status codes for a response. *)
+  module Status :
   sig
     type t = private int
     val ok : t (** Most common code returned when operation was successful. *)
@@ -473,8 +473,8 @@ sig
     val invalidResponse : t (** Response is not a valid HTTP one. *)
     val connectionFailed : t (** Connection with server failed. *)
   end
-	
-	
+  
+  
   module Request :
   sig
     type t
@@ -488,48 +488,48 @@ sig
     val set_body : t -> string -> unit
   end
   
-	(** Define a HTTP request. *)
-	class request :
+  (** Define a HTTP request. *)
+  class request :
     Request.t ->
   object
-		(**/**)
-    val t_request : Request.t
     (**/**)
-		
-		(**)
-		method destroy : unit
+    val t_request : Request.t
+      (**/**)
+      
+    (**)
+    method destroy : unit
 
-		(**/**)
-		method rep__sf_Http_Request : Request.t
-		(**/**)
+    (**/**)
+    method rep__sf_Http_Request : Request.t
+      (**/**)
 
-		(** Set the body of the request.
+    (** Set the body of the request.
 
-				The body of a request is optional and only makes sense for POST requests. It is ignored for all other methods. The body is empty by default.*)
-	  method set_body : string -> unit
-    
-		(** Set the value of a field.
+	The body of a request is optional and only makes sense for POST requests. It is ignored for all other methods. The body is empty by default.*)
+    method set_body : string -> unit
+      
+    (** Set the value of a field.
 
-				The field is created if it doesn't exist. The name of the field is case insensitive. By default, a request doesn't contain any field (but the mandatory fields are added later by the HTTP client when sending the request).*)
-		method set_field : string -> string -> unit
-    
-		(** Set the HTTP version for the request.
+	The field is created if it doesn't exist. The name of the field is case insensitive. By default, a request doesn't contain any field (but the mandatory fields are added later by the HTTP client when sending the request).*)
+    method set_field : string -> string -> unit
+      
+    (** Set the HTTP version for the request.
 
-				The HTTP version is 1.0 by default.*)
-		method set_http_version : int -> int -> unit
-    
-		(** Set the request method.
+	The HTTP version is 1.0 by default.*)
+    method set_http_version : int -> int -> unit
+      
+    (** Set the request method.
 
-				See the request_method enumeration for a complete list of all the availale methods. The method is HTTP.Get by default.*)
-		method set_method : request_method -> unit
-    
-		(** Set the requested URI.
+	See the request_method enumeration for a complete list of all the availale methods. The method is HTTP.Get by default.*)
+    method set_method : request_method -> unit
+      
+    (** Set the requested URI.
 
-				The URI is the resource (usually a web page or a file) that you want to get or post. The URI is "/" (the root page) by default.*)
-		method set_uri : string -> unit
+	The URI is the resource (usually a web page or a file) that you want to get or post. The URI is "/" (the root page) by default.*)
+    method set_uri : string -> unit
   end
-	
-	
+    
+    
   module Response :
   sig
     type t
@@ -541,54 +541,54 @@ sig
     val get_minor_http_version : t -> int
     val get_body : t -> string
   end
-	
-	(** *)
+  
+  (** Define a HTTP response. *)
   class response :
     Response.t ->
   object
-		(**/**)
+    (**/**)
     val t_response : Response.t
-		(**/**)
+      (**/**)
+      
+    (**)
+    method destroy : unit
+      
+    (** Get the body of the response.
 
-	  (**)
-		method destroy : unit
-    
-		(** Get the body of the response.
+	The body of a response may contain:
 
-				The body of a response may contain:
+    	- the requested page (for GET requests)
+    	- a response from the server (for POST requests)
+    	- nothing (for HEAD requests)
+    	- an error message (in case of an error)
+	@return The response body *)
+    method get_body : string
+      
+    (** Get the value of a field.
 
-    		- the requested page (for GET requests)
-    		- a response from the server (for POST requests)
-    		- nothing (for HEAD requests)
-    		- an error message (in case of an error)
-			@return The response body *)
-		method get_body : string
-    
-		(** Get the value of a field.
+	If the field field is not found in the response header, the empty string is returned. This function uses case-insensitive comparisons.
+	@return Value of the field, or empty string if not found *)
+    method get_field : string -> string
+      
+    (** Get the major HTTP version number of the response.
+	@author Major HTTP version number*)
+    method get_major_http_version : int
+      
+    (** Get the minor HTTP version number of the response. 
+	@return Minor HTTP version number*)
+    method get_minor_http_version : int
+      
+    (** Get the response status code.
 
-				If the field field is not found in the response header, the empty string is returned. This function uses case-insensitive comparisons.
-				@return Value of the field, or empty string if not found *)
-		method get_field : string -> string
+	The status code should be the first thing to be checked after receiving a response, it defines whether it is a success, a failure or anything else (see the Status enumeration).
+	@return Status code of the response *)
+    method get_status : Status.t
+      
+    (**/**)
+    method rep__sf_Http_Response : Response.t
+      (**/**)
+  end
     
-		(** Get the major HTTP version number of the response.
-				@author Major HTTP version number*)
-		method get_major_http_version : int
-    
-		(** Get the minor HTTP version number of the response. 
-				@return Minor HTTP version number*)
-		method get_minor_http_version : int
-    
-		(** Get the response status code.
-
-				The status code should be the first thing to be checked after receiving a response, it defines whether it is a success, a failure or anything else (see the Status enumeration).
-				@return Status code of the response *)
-		method get_status : Status.t
-    
-		(**/**)
-		method rep__sf_Http_Response : Response.t
-		(**/**)
-	end
-	
   module Http :
   sig
     type t
@@ -600,78 +600,78 @@ sig
     val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
   end
   
-	
-	(** A HTTP client.
+  
+  (** A HTTP client.
 
-		sf::Http is a very simple HTTP client that allows you to communicate with a web server.
+      sf::Http is a very simple HTTP client that allows you to communicate with a web server.
 
-		You can retrieve web pages, send data to an interactive resource, download a remote file, etc.
+      You can retrieve web pages, send data to an interactive resource, download a remote file, etc.
 
-		The HTTP client is split into 3 classes:
+      The HTTP client is split into 3 classes:
 
-    - sf::Http::Request
-    - sf::Http::Response
-    - sf::Http
+      - sf::Http::Request
+      - sf::Http::Response
+      - sf::Http
 
-		sf::Http::Request builds the request that will be sent to the server. A request is made of:
+      sf::Http::Request builds the request that will be sent to the server. A request is made of:
 
-    - a method (what you want to do)
-    - a target URI (usually the name of the web page or file)
-    - one or more header fields (options that you can pass to the server)
-    - an optional body (for POST requests)
+      - a method (what you want to do)
+      - a target URI (usually the name of the web page or file)
+      - one or more header fields (options that you can pass to the server)
+      - an optional body (for POST requests)
 
-		sf::Http::Response parse the response from the web server and provides getters to read them. The response contains:
+      sf::Http::Response parse the response from the web server and provides getters to read them. The response contains:
 
-    - a status code
-    - header fields (that may be answers to the ones that you requested)
-    - a body, which contains the contents of the requested resource
+      - a status code
+      - header fields (that may be answers to the ones that you requested)
+      - a body, which contains the contents of the requested resource
 
-		sf::Http provides a simple function, send_request, to send a sf::Http::Request and return the corresponding sf::Http::Response from the server.
+      sf::Http provides a simple function, send_request, to send a sf::Http::Request and return the corresponding sf::Http::Response from the server.
 
-		Usage example:
-		{[
-		(* Create a new HTTP client *)
-		let http = new HTTP.http (HTTP.Http.default ()) in
+      Usage example:
+      {[
+  (* Create a new HTTP client *)
+      let http = new HTTP.http (HTTP.Http.default ()) in
 
- 		(* We'll work on http://www.sfml-dev.org *)
-	 	http#set_host "http://www.sfml-dev.org" ;
+  (* We'll work on http://www.sfml-dev.org *)
+      http#set_host "http://www.sfml-dev.org" ;
 
- 		(* Prepare a request to get the 'features.php' page *)
- 		let request = new HTTP.request (HTTP.Request.default ~uri:"features.php") in
+  (* Prepare a request to get the 'features.php' page *)
+      let request = new HTTP.request (HTTP.Request.default ~uri:"features.php") in
 
- 		(* Send the request *)
- 		let response = http#send_request request in
+  (* Send the request *)
+      let response = http#send_request request in
 
- 		(* Check the status code and display the result *)
-		let status = response#get_status in
- 		if status = HTTP.Status.Ok
- 		then Pervasives.print_string (response.getBody() ^ "\n")
- 		else Pervasives.print_string ("Error " ^ status ^ "\n") ;
- 		*)
-	class http :
+  (* Check the status code and display the result *)
+      let status = response#get_status in
+      if status = HTTP.Status.Ok
+      then Pervasives.print_string (response.getBody() ^ "\n")
+      else Pervasives.print_string ("Error " ^ status ^ "\n") ; 
+      ]}*)
+  class http :
     Http.t ->
   object
-		(**/**)
+    (**/**)
     val t_http : Http.t
-		(**/**)
-		
-		(**)
-		method destroy : unit
+      (**/**)
+      
+    (**)
+    method destroy : unit
 
-		(**/**)
+    (**/**)
     method rep__sf_Http : Http.t
-		(**/**)
-		
-		(** Send a HTTP request and return the server's response.
+      (**/**)
+      
+    (** Send a HTTP request and return the server's response.
 
-				You must have a valid host before sending a request (see SetHost). Any missing mandatory header field in the request will be added with an appropriate value. Warning: this function waits for the server's response and may not return instantly; use a thread if you don't want to block your application, or use a timeout to limit the time to wait. A value of Time::Zero means that the client will use the system defaut timeout (which is usually pretty long).
-				@return Server's response *)
-		method send_request : ?timeout:OcsfmlSystem.Time.t -> request -> response
-    
-		(** Set the target host.
+	You must have a valid host before sending a request (see SetHost). Any missing mandatory header field in the request will be added with an appropriate value. Warning: this function waits for the server's response and may not return instantly; use a thread if you don't want to block your application, or use a timeout to limit the time to wait. A value of Time::Zero means that the client will use the system defaut timeout (which is usually pretty long).
+	@return Server's response *)
+    method send_request : ?timeout:OcsfmlSystem.Time.t -> request -> response
+      
+    (** Set the target host.
 
-				This function just stores the host address and port, it doesn't actually connect to it until you send a request. The port has a default value of 0, which means that the HTTP client will use the right port according to the protocol used (80 for HTTP, 443 for HTTPS). You should leave it like this unless you really need a port other than the standard one, or use an unknown protocol.*)
-		method set_host : ?port:int -> string -> unit
+	This function just stores the host address and port, it doesn't actually connect to it until you send a request. The port has a default value of 0, which means that the HTTP client will use the right port according to the protocol used (80 for HTTP, 443 for HTTPS). You should leave it like this unless you really need a port other than the standard one, or use an unknown protocol.*)
+    method set_host : ?port:int -> string -> unit
   end
 end
 
@@ -681,7 +681,9 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
+  val append : t -> OcsfmlSystem.raw_data_type -> unit
   val clear : t -> unit
+  val get_data : t -> OcsfmlSystem.raw_data_type
   val get_data_size : t -> int
   val end_of_packet : t -> bool
   val is_valid : t -> bool
@@ -706,106 +708,170 @@ sig
 end
 
 
+(** Utility class to build blocks of data to transfer over the network.
+    
+    Packets provide a safe and easy way to serialize data, in order to send it over the network using sockets (sf::TcpSocket, sf::UdpSocket).
+    
+    Packets solve 2 fundamental problems that arise when transfering data over the network:
+    
+    - data is interpreted correctly according to the endianness
+    - the bounds of the packet are preserved (one send == one receive)
+    
+    The sf::Packet class provides both input and output modes. It is designed to follow the behaviour of standard C++ streams, using operators >> and << to extract and insert data.
+    
+    It is recommended to use only fixed-size types (like Int32, etc.), to avoid possible differences between the sender and the receiver. Indeed, the native C++ types may have different sizes on two platforms and your data may be corrupted if that happens.
+    
+    Usage example:
+    {[
+    let x = 24;
+    let s = "hello";
+    let d = 5.89;
+    
+    (* Group the variables to send into a packet *)
+    let packet = new packet in
+    packet << (`Int32 x) << (`String s) << (`Float d) ;
+    
+    (* Send it over the network (socket is a valid tcp_socket) *)
+    socket#send packet
+    
+    -----------------------------------------------------------------
+
+    (* Receive the packet at the other end *)
+    let packet = new packet in
+    socket#receive packet ;
+    
+    (* Extract the variables contained in the packet *)
+    let x = ref 0 in
+    let s = ref "" in
+    ler d = ref 0. in
+    if (packet >> (`Int32 x) >> (`String s) >> (`Float d))#is_valid
+    then begin
+    (* Data extracted successfully... *)
+    end
+    ]} *)
 class packet :
 object
-	(**/**)
-  val t_packetCpp : Packet.t
-	(**/**)
-	
-  (** *)
-	method clear : unit
-  
-	
-	method destroy : unit
-  
-	
-	method end_of_packet : bool
-  
-	
-	method get_data_size : int
-  
-	
-	method is_valid : bool
-  
-	
-	method read_bool : bool
-  
-	
-	method read_float : float
-  
-	
-	method read_int16 : int
-  
-	
-	method read_int32 : int
-  
-	
-	method read_int8 : int
-  
-	
-	method read_string : string
-  
-	
-	method read_uint16 : int
-  
-	
-	method read_uint32 : int
-  
-	
-	method read_uint8 : int
-  
-	(**/**)
-	method rep__sf_Packet : Packet.t
   (**/**)
-	
-	
-	method write_bool : bool -> unit
+  val t_packetCpp : Packet.t
+    (**/**)
   
-	
-	method write_float : float -> unit
-  
-	
-	method write_int16 : int -> unit
-  
-	
-	method write_int32 : int -> unit
-  
-	
-	method write_int8 : int -> unit
-  
-	
-	method write_string : string -> unit
-  
-	
-	method write_uint16 : int -> unit
-  
-	
-	method write_uint32 : int -> unit
-  
-	
-	method write_uint8 : int -> unit
+  (** Append data to the end of the packet. *)
+  method append : OcsfmlSystem.raw_data_type -> unit
+
+  (** Clear the packet.
+
+      After calling clear, the packet is empty.*)
+  method clear : unit
+    
+  (**)
+  method destroy : unit
+    
+  (** Tell if the reading position has reached the end of the packet.
+
+      This function is useful to know if there is some data left to be read, without actually reading it.
+      @return True if all data was read, false otherwise*)
+  method end_of_packet : bool
+    
+  (** Get the size of the data contained in the packet.
+
+      This function returns the number of bytes pointed to by what getData returns.
+      @return Data size, in bytes*)
+  method get_data_size : int
+
+  (** Get a pointer to the data contained in the packet.
+
+      Warning: the returned pointer may become invalid after you append data to the packet, therefore it should never be stored. The return pointer is NULL if the packet is empty.
+      @return Bigarray of the data*)
+  method get_data : OcsfmlSystem.raw_data_type
+    
+  (** Test the validity of the packet, for reading. 
+
+      A packet will be in an invalid state if it has no more data to read.
+      @return True if last data extraction from packet was successful*)    
+  method is_valid : bool
+    
+  (** Read a boolean from the packet *)
+  method read_bool : bool
+    
+  (** Read a floating point number from the packet *)
+  method read_float : float
+    
+  (** Read a 16 bits signed integer from the packet *)
+  method read_int16 : int
+    
+  (** Read a 32 bits signed integer from the packet *)
+  method read_int32 : int
+    
+  (** Read a 8 bits signed integer from the packet *)
+  method read_int8 : int
+    
+  (** Read a string from the packet *)
+  method read_string : string
+    
+  (** Read a 16 bits unsigned integer from the packet *)
+  method read_uint16 : int
+    
+  (** Read a 16 bits unsigned integer from the packet *)
+  method read_uint32 : int
+    
+  (** Read a 8 bits unsigned integer from the packet *)
+  method read_uint8 : int
+    
+  (**/**)
+  method rep__sf_Packet : Packet.t
+    (**/**)
+    
+  (** Write a boolean into the packet *)
+  method write_bool : bool -> unit
+    
+  (** Write a floating point number into the packet *)
+  method write_float : float -> unit
+    
+  (** Write a 16 bits signed integer into the packet *)
+  method write_int16 : int -> unit
+    
+  (** Write a 32 bits signed integer into the packet *)
+  method write_int32 : int -> unit
+    
+  (** Write a 8 bits signed integer into the packet *)
+  method write_int8 : int -> unit
+    
+  (** Write a string into the packet *)
+  method write_string : string -> unit
+    
+  (** Write a 16 bits unsigned integer into the packet *)
+  method write_uint16 : int -> unit
+    
+  (** Write a 32 bits unsigned integer into the packet *)
+  method write_uint32 : int -> unit
+    
+  (** Write a 8 bits unsigned integer into the packet *)
+  method write_uint8 : int -> unit
 end
 
+
 type read_val =
-  [ `Bool of bool ref
-  | `Float of float ref
-  | `Int16 of int ref
-  | `Int32 of int ref
-  | `Int8 of int ref
-  | `String of string ref
-  | `UInt16 of int ref
-  | `UInt32 of int ref
-  | `UInt8 of int ref ]
+    [ `Bool of bool ref
+    | `Float of float ref
+    | `Int16 of int ref
+    | `Int32 of int ref
+    | `Int8 of int ref
+    | `String of string ref
+    | `UInt16 of int ref
+    | `UInt32 of int ref
+    | `UInt8 of int ref ]
+
 type write_val =
-  [ `Bool of bool
-  | `Float of float
-  | `Int16 of int
-  | `Int32 of int
-  | `Int8 of int
-  | `String of string
-  | `UInt16 of int
-  | `UInt32 of int
-  | `UInt8 of int ]
+    [ `Bool of bool
+    | `Float of float
+    | `Int16 of int
+    | `Int32 of int
+    | `Int8 of int
+    | `String of string
+    | `UInt16 of int
+    | `UInt32 of int
+    | `UInt8 of int ]
+
 val ( >> ) :
   (#packet as 'a) ->
   [< `Bool of bool ref
@@ -818,6 +884,7 @@ val ( >> ) :
   | `UInt32 of int ref
   | `UInt8 of int ref ] ->
   'a
+
 val ( << ) :
   (#packet as 'a) ->
   [< `Bool of bool
@@ -830,7 +897,14 @@ val ( << ) :
   | `UInt32 of int
   | `UInt8 of int ] ->
   'a
-type socket_status = Done | NotReady | Disconnected | Error
+
+(** Status codes that may be returned by socket functions. *)
+type socket_status = 
+    Done (** The socket has sent / received the data. *)
+  | NotReady  (** The socket is not ready to send / receive data yet. *)
+  | Disconnected  (** The TCP socket has been disconnected. *)
+  | Error (** An unexpected error happened. *)
+
 module Socket :
 sig
   type t
@@ -838,15 +912,43 @@ sig
   val set_blocking : t -> bool -> unit
   val is_blocking : t -> bool
 end
+
+(** Base class for all the socket types.
+    
+    This class mainly defines internal stuff to be used by derived classes.
+    
+    The only public features that it defines, and which is therefore common to all the socket classes, is the blocking state. All sockets can be set as blocking or non-blocking.
+    
+    In blocking mode, socket functions will hang until the operation completes, which means that the entire program (well, in fact the current thread if you use multiple ones) will be stuck waiting for your socket operation to complete.
+    
+    In non-blocking mode, all the socket functions will return immediately. If the socket is not ready to complete the requested operation, the function simply returns the proper status code (NotReady).
+
+    The default mode, which is blocking, is the one that is generally used, in combination with threads or selectors. The non-blocking mode is rather used in real-time applications that run an endless loop that can poll the socket often enough, and cannot afford blocking this loop. *)
 class socket :
   Socket.t ->
 object
+  (**/**)
   val t_socket : Socket.t
+    (**/**)
+
+  (**)
   method destroy : unit
+
+  (** Tell whether the socket is in blocking or non-blocking mode. 
+      @return True if the socket is blocking, false otherwise*)
   method is_blocking : bool
+
+  (**/**)
   method rep__sf_Socket : Socket.t
+    (**/**)
+
+  (** Set the blocking state of the socket.
+
+      In blocking mode, calls will not return until they have completed their task. For example, a call to receive in blocking mode won't return until some data was actually received. In non-blocking mode, calls will always return immediately, using the return code to signal whether there was data available or not. By default, all sockets are blocking.*)
   method set_blocking : bool -> unit
 end
+
+
 module SocketSelector :
 sig
   type t
@@ -860,30 +962,134 @@ sig
     method remove : #socket -> unit
     method rep__sf_SocketSelector : t
     method set : 'a -> 'a
-    method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit
+    method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> bool
   end
   val destroy : t -> unit
   val default : unit -> t
   val add : t -> #socket -> unit
   val remove : t -> #socket -> unit
   val clear : t -> unit
-  val wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> unit
+  val wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> bool
   val is_ready : t -> #socket -> bool
   val set : t -> 'a -> 'a
 end
+
+(** Multiplexer that allows to read from multiple sockets.
+
+    Socket selectors provide a way to wait until some data is available on a set of sockets, instead of just one.
+
+    This is convenient when you have multiple sockets that may possibly receive data, but you don't know which one will be ready first. In particular, it avoids to use a thread for each socket; with selectors, a single thread can handle all the sockets.
+
+    All types of sockets can be used in a selector:
+
+    - tcp_listener
+    - tcp_socket
+    - udp_socket
+
+    A selector doesn't store its own copies of the sockets (socket classes are not copyable anyway), it simply keeps a reference to the original sockets that you pass to the add function. Therefore, you can't use the selector as a socket container, you must store them oustide and make sure that they are alive as long as they are used in the selector.
+
+    Using a selector is simple:
+
+    - populate the selector with all the sockets that you want to observe
+    - make it wait until there is data available on any of the sockets
+    - test each socket to find out which ones are ready
+
+    Usage example:
+    {[
+    (* Create a socket to listen to new connections *)
+    let listener = new tcp_listener in
+    listener#listen 55001 ;
+
+    (* Create a list to store the future clients *)
+    let clients = ref [] in
+
+    (* Create a selector *)
+    let selector = new socket_selector (SocketSelector.default ()) in
+
+    (* Add the listener to the selector *)
+    selector#add listener 
+
+    (* Endless loop that waits for new connections *)
+    let rec connection_loop () =
+        (* Make the selector wait for data on any socket *)
+        if selector#wait
+        then begin
+            (* Test the listener *)
+            if selector#is_ready listener
+            then begin
+                (* The listener is ready: there is a pending connection *)
+                let client = new tcp_socket in
+                if (listener#accept client) = Done
+                then begin
+                    (* Add the new client to the clients list *)
+                    clients := client :: !clients ;
+
+                    (* Add the new client to the selector so that we will
+                       be notified when he sends something *)
+                    selector#add client
+                end
+            end
+            else begin
+                (* The listener socket is not ready, test all other sockets (the clients) *)
+                List.iter ( function client ->
+                               if selector#is_ready client
+                               then begin
+                                   (* The client has sent some data, we can receive it *)
+                                   let packet = new packet in
+                                   if (client#receive packet) = Done
+                                   then begin 
+                                       ...
+                                   end
+                               end ) clients
+            end
+        end ;
+        connection_loop ()
+    in connection_loop ()
+    }]*)
 class socket_selector :
   SocketSelector.t ->
 object ('a)
+  (**/**)
   val t_socket_selector : SocketSelector.t
+    (**/**)
+
+  (** Add a new socket to the selector.
+
+      This function keeps a weak reference to the socket, so you have to make sure that the socket is not destroyed while it is stored in the selector.*)
   method add : #socket -> unit
+
+  (** Remove all the sockets stored in the selector.
+
+      This function doesn't destroy any instance, it simply removes all the references that the selector has to external sockets.*)
   method clear : unit
+
+  (**)
   method destroy : unit
+
+  (** Test a socket to know if it is ready to receive data.
+
+      This function must be used after a call to wait, to know which sockets are ready to receive data. If a socket is ready, a call to receive will never block because we know that there is data available to read. Note that if this function returns true for a TcpListener, this means that it is ready to accept a new connection.
+      @return True if the socket is ready to read, false otherwise*)
   method is_ready : #socket -> bool
+
+  (** Remove a socket from the selector.
+
+      This function doesn't destroy the socket, it simply removes the reference that the selector has to it.*)
   method remove : #socket -> unit
+
+  (**/**)
   method rep__sf_SocketSelector : SocketSelector.t
+
+  (** *)
   method set : 'a -> 'a
-  method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit
+
+  (** Wait until one or more sockets are ready to receive.
+
+      This function returns as soon as at least one socket has some data available to be received. To know which sockets are ready, use the is_ready function. If you use a timeout and no socket is ready before the timeout is over, the function returns false.
+      @return True if there are sockets ready, false otherwise*)
+  method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> bool
 end
+
 module TcpSocket :
 sig
   type t
@@ -898,28 +1104,40 @@ sig
   val disconnect : t -> unit
   val send_packet : t -> #packet -> socket_status
   val receive_packet : t -> #packet -> socket_status
+  val send_data : t -> OcsfmlSystem.raw_data_type -> socket_status
+  val receive_data : t -> OcsfmlSystem.raw_data_type -> (socket_status * int)
 end
-class tcp_socketCpp :
-  TcpSocket.t ->
+
+
+(** *)
+class tcp_socket :
 object
-  val t_socket : Socket.t
+  inherit socket
+
+  (**/**)
   val t_tcp_socketCpp : TcpSocket.t
-  method connect :
-    ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
+    (**/**)
+
+  method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
   method destroy : unit
+
+  (**)
   method disconnect : unit
   method get_local_port : int
   method get_remote_address : ip_address
   method get_remote_port : int
-  method is_blocking : bool
+
+  method receive_data : OcsfmlSystem.raw_data_type -> (socket_status * int)
   method receive_packet : #packet -> socket_status
-  method rep__sf_Socket : Socket.t
+
   method rep__sf_TcpSocket : TcpSocket.t
+
+  method send_data : OcsfmlSystem.raw_data_type -> socket_status
   method send_packet : #packet -> socket_status
-  method set_blocking : bool -> unit
+
 end
-class tcp_socket_bis : unit -> tcp_socketCpp
-class tcp_socket : tcp_socket_bis
+
+
 module TcpListener :
 sig
   type t
@@ -931,8 +1149,9 @@ sig
   val close : t -> unit
   val accept : t -> tcp_socket -> socket_status
 end
-class tcp_listenerCpp :
-  TcpListener.t ->
+
+
+class tcp_listener :
 object
   val t_socket : Socket.t
   val t_tcp_listenerCpp : TcpListener.t
@@ -946,9 +1165,16 @@ object
   method rep__sf_TcpListener : TcpListener.t
   method set_blocking : bool -> unit
 end
-class tcp_listener_bis : unit -> tcp_listenerCpp
-class tcp_listener : tcp_listener_bis
+
+
+
 val max_datagram_size : int
+
+module UdpRemotePort :
+sig
+  type t = private int
+end
+
 module UdpSocket :
 sig
   type t
@@ -957,24 +1183,29 @@ sig
   val default : unit -> t
   val bind : t -> int -> socket_status
   val unbind : t -> unit
-  val send_packet : t -> #packet -> ip_address -> int -> socket_status
-  val receive_packet :
-    t -> #packet -> ip_address -> socket_status * int
+  val send_packet : t -> #packet -> ip_address -> UdpRemotePort.t -> socket_status
+  val receive_packet : t -> #packet -> ip_address -> socket_status * UdpRemotePort.t 
+  val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status
+  val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * UdpRemotePort.t
 end
-class udp_socketCpp :
-  UdpSocket.t ->
+
+
+
+class udp_socket :
 object
   val t_socket : Socket.t
   val t_udp_socketCpp : UdpSocket.t
   method bind : int -> socket_status
   method destroy : unit
   method is_blocking : bool
+  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int * UdpRemotePort.t
   method receive_packet : #packet -> ip_address -> socket_status * int
   method rep__sf_Socket : Socket.t
   method rep__sf_UdpSocket : UdpSocket.t
+  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status
   method send_packet : #packet -> ip_address -> int -> socket_status
   method set_blocking : bool -> unit
   method unbind : unit
 end
-class udp_socket_bis : unit -> udp_socketCpp
-class udp_socket : udp_socket_bis
+
+

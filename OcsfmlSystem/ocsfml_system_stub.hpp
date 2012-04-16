@@ -21,9 +21,12 @@
 #define OCSFML_SYSTEM_HPP_INCLUDED
 
 #include <camlpp/custom_class.hpp>
+#include <camlpp/big_array.hpp>
 #include <cstring>
 
 #include <SFML/System.hpp>
+
+typedef BigarrayInterface<void, 1> RawDataType;
 
 class CamlInputStream : public sf::InputStream
 {

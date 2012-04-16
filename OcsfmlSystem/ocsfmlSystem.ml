@@ -1,3 +1,5 @@
+type raw_data_type = (char, Bigarray.int8_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
+
 exception LoadFailure
 
 

@@ -267,22 +267,30 @@ STORE_FUNCTION_ACCESS_ADDRESS(double ) // Caml floats are doubles
 STORE_FUNCTION_ACCESS_ADDRESS(std_string )
 
 
+void packet_append_helper( sf::Packet* packet, RawDataType data )
+{
+	packet->append( data.data, data.size[0] );
+}
+
+RawDataType packet_getdata_helper( sf::Packet* packet )
+{
+	intnat dim[1] = { packet->getDataSize() };
+	return RawDataType( packet->getData(), dim );
+}
+
 typedef sf::Packet sf_Packet;
 #define CAMLPP__CLASS_NAME() sf_Packet
 camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
 {
   camlpp__register_constructor0( default_constructor );
-  //	camlpp__register_method2( Append, ) ???
+  camlpp__register_external_method1( append, &packet_append_helper );
   camlpp__register_method0( clear );
-  //	camlpp__register_method0( GetData, ) ???
+  camlpp__register_external_method0( getData, &packet_getdata_helper);
   camlpp__register_method0( getDataSize );
   camlpp__register_method0( endOfPacket );
   camlpp__register_external_method0( isValid, &packet_is_valid_helper );
   
-// Note : these methods should not return an sf::Packet in caml
-// Pourquoi ne pas rajouter read_X_ref : X ref -> packet (ce qui permettrait d'enchainer les appels)
-// aprés réflexion on peut déja le faire (cf: ocsfmlNetwork.ml)
   camlpp__register_external_method0( readBool, packet_read_bool_helper) ;
   camlpp__register_external_method0( readInt8, packet_read_sf_Int8_helper);
   camlpp__register_external_method0( readUint8, packet_read_sf_Uint8_helper );
@@ -315,7 +323,6 @@ typedef sf::Socket sf_Socket;
 camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_custom_class()
 {
-// Note : No public constructors
   camlpp__register_method1( setBlocking );
   camlpp__register_method0( isBlocking );
 }
@@ -354,6 +361,19 @@ sf::Socket::Status tcpsocket_connect_helper( 	sf::TcpSocket* obj,
 				timeout.get_value_no_fail( sf::microseconds(0) ));
 }
 
+sf::Socket::Status tcpsocket_senddata_helper( sf::TcpSocket* obj, RawDataType d)
+{
+	return obj->send( d.data, d.size[0] );
+}
+
+std::pair< sf::Socket::Status, intnat > tcpsocket_receivedata_helper( sf::TcpSocket* obj, RawDataType d)
+{
+	size_t received;
+	sf::Socket::Status stat = obj->receive( d.data, d.size[0], received );
+	return std::pair< sf::Socket::Status, intnat >(stat, received );
+}
+
+
 typedef sf::TcpSocket sf_TcpSocket;
 
 
@@ -370,8 +390,8 @@ camlpp__register_custom_class()
   camlpp__register_method0( getRemotePort );
   camlpp__register_external_method3( connect, &tcpsocket_connect_helper );
   camlpp__register_method0( disconnect );
-  //	camlpp__register_method2( SendData
-  //	camlpp__register_method2( ReceiveData                 // third param should be returned
+  camlpp__register_external_method1( sendData, &tcpsocket_senddata_helper );
+  camlpp__register_external_method1( receiveData, &tcpsocket_receivedata_helper );                 // third param should be returned
   camlpp__register_external_method1( sendPacket, ((TransferPacketTcp)&sf::TcpSocket::send) );
   camlpp__register_external_method1( receivePacket,((TransferPacketTcp)&sf::TcpSocket::receive) );
 }
@@ -403,28 +423,26 @@ typedef sf::Socket::Status (sf::UdpSocket::*TransferPacketUdp)(	sf::Packet&,
 
 
 std::pair< sf::Socket::Status, unsigned short /*  remote port */ >
-udpsocket_receive_packet_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpAddress& remoteIp)
+udpsocket_receivepacket_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpAddress& remoteIp)
 {
   unsigned short remotePort;
   sf::Socket::Status status( obj->receive( packet, remoteIp, remotePort ) );
   return std::make_pair( status, remotePort );
 }
 
-typedef sf::Socket::Status (sf::UdpSocket::*TransferDataUdp)( const void* data, 
-							      std::size_t size, 
-							      const sf::IpAddress& remoteAddress, 
-							      unsigned short remotePort);
 
-std::tuple< sf::Socket::Status, unsigned short, std::string > 
-udpsocket_receive_data_helper( sf::UdpSocket* obj, std::size_t size, sf::IpAddress& remoteIp)
+sf::Socket::Status udpsocket_senddata_helper( sf::UdpSocket* obj, RawDataType d, sf::IpAddress const& remoteIp, unsigned short remotePort)
 {
-  char* dataBuffer = new char[size];
+	return obj->send( d.data, d.size[0], remoteIp, remotePort);
+}
+
+std::tuple< sf::Socket::Status, intnat /*bytes receveid*/, unsigned short /* remote port */ > 
+udpsocket_receivedata_helper( sf::UdpSocket* obj, RawDataType d, sf::IpAddress& remoteIp)
+{
   std::size_t received;
   unsigned short remotePort;
-  sf::Socket::Status stat = obj->receive(dataBuffer, size, received, remoteIp, remotePort);
-  std::string s(dataBuffer, dataBuffer+received);
-  delete[] dataBuffer;
-  return std::make_tuple( stat, remotePort, s );
+  sf::Socket::Status stat = obj->receive(d.data, d.size[0], received, remoteIp, remotePort);
+  return std::make_tuple( stat, received, remotePort);
 }
 
 
@@ -438,10 +456,10 @@ camlpp__register_custom_class()
   camlpp__register_method0( getLocalPort );
   camlpp__register_method1( bind );
   camlpp__register_method0( unbind );
-  camlpp__register_external_method4( sendData, (TransferDataUdp)&sf::UdpSocket::send);
-  camlpp__register_external_method2( receiveData, &udpsocket_receive_data_helper );
+  camlpp__register_external_method3( sendData, &udpsocket_senddata_helper);
+  camlpp__register_external_method2( receiveData, &udpsocket_receivedata_helper );
   camlpp__register_external_method3( sendPacket, ((TransferPacketUdp)&sf::UdpSocket::send) );
-  camlpp__register_external_method2( receivePacket, &udpsocket_receive_packet_helper );
+  camlpp__register_external_method2( receivePacket, &udpsocket_receivepacket_helper );
 }
 #undef CAMLPP__CLASS_NAME
 

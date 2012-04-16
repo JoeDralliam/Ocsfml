@@ -1,6 +1,8 @@
 (** Time management & input stream *)
 
 
+type raw_data_type = (char, Bigarray.int8_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
+
 (** Raised when an object can't load its resources *)
 exception LoadFailure
 

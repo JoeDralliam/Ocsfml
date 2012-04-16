@@ -471,6 +471,29 @@ struct AffectationManagement< std::tuple< T1, T2, T3 > >
     CAMLreturn0;
   }
 };
+
+template<class T1, class T2, class T3, class T4>
+struct AffectationManagement< std::tuple< T1, T2, T3, T4 > >
+{
+  static void affect(value& v, std::tuple< T1, T2, T3, T4 > const& tup)
+  {
+    v = caml_alloc_tuple( 4 );
+    AffectationManagement< T1 >::affect_field(v, 0, std::get<0>(tup));
+    AffectationManagement< T2 >::affect_field(v, 1, std::get<1>(tup));
+    AffectationManagement< T3 >::affect_field(v, 2, std::get<2>(tup));
+	AffectationManagement< T4 >::affect_field(v, 3, std::get<3>(tup));
+  }
+
+  static void affect_field(value& v, int field, std::tuple< T1, T2, T3, T4 > const& p)
+  {
+    CAMLparam0();
+    CAMLlocal1( tupleVal );
+    affect( tupleVal, p );
+    Store_field(v, field, tupleVal);
+    CAMLreturn0;
+  }
+};
+
 #endif
 
 template<class T1, class T2>

@@ -3,6 +3,7 @@ version = "2.0a"
 description = "ocaml port of the C++ SFML library"
 
 package "system" (
+	requires="bigarray"
 	requires(mt)="threads"
 	archive(byte) = "ocsfmlsystem.cma"
 	archive(toploop) = "ocsfmlsystem.cma"
@@ -17,14 +18,14 @@ package "window" (
 )
 
 package "graphics" (
-	requires="ocsfml.window, bigarray"
+	requires="ocsfml.window"
 	archive(byte) = "ocsfmlgraphics.cma"	
 	archive(toploop) = "ocsfmlgraphics.cma"	
 	archive(native) = "ocsfmlgraphics.cmxa"
 )
 
 package "audio" (
-	requires="ocsfml.system, bigarray"
+	requires="ocsfml.system"
 	archive(byte) = "ocsfmlaudio.cma"
 	archive(toploop) = "ocsfmlaudio.cma"
 	archive(native) = "ocsfmlaudio.cmxa"

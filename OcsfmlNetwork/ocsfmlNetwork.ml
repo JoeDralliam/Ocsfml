@@ -219,7 +219,9 @@ end
 external class packetCpp (Packet) : "sf_Packet" =
 object
   constructor default : unit = "default_constructor"
+  external method append : OcsfmlSystem.raw_data_type -> unit = "append"
   external method clear : unit = "clear"
+  external method get_data : OcsfmlSystem.raw_data_type = "getData"
   external method get_data_size : int = "getDataSize"
   external method end_of_packet : bool = "endOfPacket"
   external method is_valid : bool = "isValid"
@@ -320,7 +322,7 @@ object auto (_:'self)
   external method add : 'a. (#socket as 'a) -> unit = "add"
   external method remove : 'a. (#socket as 'a) -> unit = "remove"
   external method clear : unit = "clear"
-  external method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> unit = "wait"
+  external method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> bool = "wait"
   external method is_ready : 'a. (#socket as 'a) -> bool = "isReady"
   external method set : 'self -> 'self = "affect"
 end
@@ -336,6 +338,8 @@ object
   external method disconnect : unit = "disconnect"
   external method send_packet : 'a. (#packet as 'a) -> socket_status = "sendPacket"
   external method receive_packet :'a. (#packet as 'a) -> socket_status = "receivePacket"
+  external method send_data : OcsfmlSystem.raw_data_type -> socket_status = "sendData"
+  external method receive_data : OcsfmlSystem.raw_data_type -> (socket_status * int)  = "receiveData"
 end
 
 class tcp_socket_bis () =
@@ -364,14 +368,21 @@ class tcp_listener =
 
 let max_datagram_size = 65507
 
+module UdpRemotePort =
+struct
+  type t = int
+end
+
 external class udp_socketCpp (UdpSocket) : "sf_UdpSocket" =
 object
 external inherit socket : "sf_Socket"
   constructor default : unit = "default_constructor"
   external method bind : int -> socket_status = "bind"
   external method unbind : unit = "unbind"	     
-  external method send_packet : 'a. (#packet as 'a) -> ip_address -> int -> socket_status = "sendPacket"
-  external method receive_packet : 'a. (#packet as 'a) -> ip_address -> socket_status * int = "receivePacket"
+  external method send_packet : 'a. (#packet as 'a) -> ip_address -> UdpRemotePort.t -> socket_status = "sendPacket"
+  external method receive_packet : 'a. (#packet as 'a) -> ip_address -> socket_status * UdpRemotePort.t = "receivePacket"
+  external method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status = "sendData"
+  external method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int  * UdpRemotePort.t = "receiveData"
 end
 
 class udp_socket_bis () =

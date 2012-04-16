@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 
+#ifndef BIG_ARRAY_HPP_INCLUDED
+#define BIG_ARRAY_HPP_INCLUDED
 
 #include "conversion_management.hpp"
 #include "affectation_management.hpp"
@@ -27,6 +29,12 @@ extern "C"
 
 template< class IntegerType >
 struct BigarrayIntegerTraits;
+
+template<>
+struct BigarrayIntegerTraits< void >
+{
+	enum { mask_value = BIGARRAY_SINT8 };
+};
 
 template<>
 struct BigarrayIntegerTraits< std::uint8_t >
@@ -76,8 +84,8 @@ struct BigarrayInterface
       }
   }
 
-  BigarrayInterface( IntegerType* d, intnat s[dimension])
-    :data(d)
+  BigarrayInterface( IntegerType const* d, intnat s[dimension])
+    :data(const_cast<IntegerType*>(d))
   {
     for(int i = 0; i < dimension; ++i)
       {
@@ -116,3 +124,6 @@ struct AffectationManagement< BigarrayInterface<IType, dim> >
 				dim, const_cast<void*>(static_cast<void const*>(b.data)), size);
   }
 };
+
+
+#endif
