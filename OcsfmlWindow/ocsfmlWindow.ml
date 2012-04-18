@@ -221,6 +221,7 @@ struct
       }
   let create ?(w=800) ?(h=600) ?(bpp=32) () =
     { width = w ; height = h ; bits_per_pixel = bpp }
+  external cpp is_valid : t -> bool = "VideoMode_isValid"
   external cpp get_full_screen_modes : unit -> t array = "VideoMode_getFullscreenModes"
   external cpp get_desktop_mode : unit -> t = "VideoMode_getDesktopMode"
 end
@@ -254,15 +255,18 @@ object (self)
   external method close : unit = "close"
   external method is_open : bool = "isOpen"
   external method get_size : int*int = "getSize"
-  method get_width = fst self#get_size
-  method get_height = snd self#get_size 
+	   method get_width = fst self#get_size
+	   method get_height = snd self#get_size 
+  external method get_position : int*int = "getPosition"
   external method get_settings : context_settings = "getSettings" 
   external method poll_event : Event.t option = "pollEvent"
   external method wait_event : Event.t option = "waitEvent"
   external method set_vertical_sync_enabled : bool -> unit = "setVerticalSyncEnabled" 
   external method set_mouse_cursor_visible : bool -> unit = "setMouseCursorVisible"
-  external method set_position : int -> int -> unit = "setPosition" 
-  external method set_size : int -> int -> unit = "setSize"
+  external method set_position_v : int * int -> unit = "setPosition" 
+	   method set_position x y = self#set_position_v (x,y)
+  external method set_size_v : int * int -> unit = "setSize"
+	   method set_size x y = self#set_size_v (x,y)
   external method set_title : string -> unit = "setTitle"
   external method set_visible : bool -> unit = "setVisible" 
   external method set_key_repeat_enabled : bool -> unit = "setKeyRepeatEnabled"

@@ -1118,21 +1118,40 @@ object
   val t_tcp_socketCpp : TcpSocket.t
     (**/**)
 
+  (** *)
   method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
-  method destroy : unit
 
   (**)
+  method destroy : unit
+
+  (** *)
   method disconnect : unit
+
+  (** *)
   method get_local_port : int
+
+  (** *)
   method get_remote_address : ip_address
+
+  (** *)
   method get_remote_port : int
 
+
+  (** *)
   method receive_data : OcsfmlSystem.raw_data_type -> (socket_status * int)
+
+  (** *)
   method receive_packet : #packet -> socket_status
 
+  (**/**)
   method rep__sf_TcpSocket : TcpSocket.t
+    (**/**)
 
+
+  (** *)
   method send_data : OcsfmlSystem.raw_data_type -> socket_status
+
+  (** *)
   method send_packet : #packet -> socket_status
 
 end

@@ -314,9 +314,9 @@ end
     
     The main usage of video modes is for fullscreen mode: indeed you must use one of the valid video modes allowed by the OS (which are defined by what the monitor and the graphics card support), otherwise your window creation will just fail.
     
-    VideoMode.t provides a static function for retrieving the list of all the video modes supported by the system: getFullscreenModes().
+    VideoMode.t provides a static function for retrieving the list of all the video modes supported by the system: get_fullscreen_modes().
 
-    A custom video mode can also be checked directly for fullscreen compatibility with its IsValid() function.
+    A custom video mode can also be checked directly for fullscreen compatibility with its is_valid() function.
 
     Additionnally, the module VideoMode provides a function to get the mode currently used by the desktop: get_desktop_mode(). This allows to build windows with the same size or pixel depth as the current resolution. *)
 module VideoMode :
@@ -329,6 +329,13 @@ sig
 
   val create : ?w:int -> ?h:int -> ?bpp:int -> unit -> t
     
+
+  (** Tell whether or not the video mode is valid.
+
+      The validity of video modes is only relevant when using fullscreen windows; otherwise any video mode can be used with no restriction.
+      @return True if the video mode is valid for fullscreen mode *)
+  val is_valid : t -> bool
+
   (** Retrieve all the video modes supported in fullscreen mode.
       
       When creating a fullscreen window, the video mode is restricted to be compatible with what the graphics driver and monitor support. This function returns the complete list of all video modes that can be used in fullscreen mode. The returned array is sorted from best to worst, so that the first element will always give the best mode (higher width, height and bits-per-pixel). 
@@ -391,14 +398,15 @@ sig
 	?context:context_settings -> VideoMode.t -> string -> unit
   val close : t -> unit
   val is_open : t -> bool
+  val get_position : t -> int * int
   val get_size : t -> int * int
   val get_settings : t -> context_settings
   val poll_event : t -> Event.t option
   val wait_event : t -> Event.t option
   val set_vertical_sync_enabled : t -> bool -> unit
   val set_mouse_cursor_visible : t -> bool -> unit
-  val set_position : t -> int -> int -> unit
-  val set_size : t -> int -> int -> unit
+  val set_position_v : t -> int * int -> unit
+  val set_size_v : t -> int * int -> unit
   val set_title : t -> string -> unit
   val set_visible : t -> bool -> unit
   val set_key_repeat_enabled : t -> bool -> unit
@@ -420,6 +428,7 @@ object
   method destroy : unit
   method display : unit
   method get_height : int
+  method get_position : int * int
   method get_settings : context_settings
   method get_size : int * int
   method get_width : int
@@ -432,7 +441,9 @@ object
   method set_key_repeat_enabled : bool -> unit
   method set_mouse_cursor_visible : bool -> unit
   method set_position : int -> int -> unit
+  method set_position_v : int * int -> unit
   method set_size : int -> int -> unit
+  method set_size_v : int * int -> unit
   method set_title : string -> unit
   method set_vertical_sync_enabled : bool -> unit
   method set_visible : bool -> unit
@@ -455,14 +466,15 @@ sig
 	?context:context_settings -> VideoMode.t -> string -> unit
   val close : t -> unit
   val is_open : t -> bool
+  val get_position : t -> int * int
   val get_size : t -> int * int
   val get_settings : t -> context_settings
   val poll_event : t -> Event.t option
   val wait_event : t -> Event.t option
   val set_vertical_sync_enabled : t -> bool -> unit
   val set_mouse_cursor_visible : t -> bool -> unit
-  val set_position : t -> int -> int -> unit
-  val set_size : t -> int -> int -> unit
+  val set_position_v : t -> int * int -> unit
+  val set_size_v : t -> int * int -> unit
   val set_title : t -> string -> unit
   val set_visible : t -> bool -> unit
   val set_key_repeat_enabled : t -> bool -> unit

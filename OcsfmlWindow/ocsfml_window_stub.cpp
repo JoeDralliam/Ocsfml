@@ -61,6 +61,8 @@ bool window_set_active_helper( sf::Window* window, Optional<bool> active )
   return window->setActive( active.get_value_no_fail(true) );
 }
 
+
+
 #define CAMLPP__CLASS_NAME() sf_Window
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
@@ -70,6 +72,7 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_external_method4( create, &window_create_helper );
   camlpp__register_method0( close );
   camlpp__register_method0( isOpen );
+  camlpp__register_method0( getPosition );
   camlpp__register_method0( getSize );
   camlpp__register_method0( getSettings );
   camlpp__register_external_method0( pollEvent, &window_poll_event_helper );
@@ -85,7 +88,7 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_external_method1( setActive, &window_set_active_helper );
   camlpp__register_method0( display );
   camlpp__register_method1( setFramerateLimit );
-//	camlpp__register_method0( GetFrameTime, &sf::Window::GetFrameTime );
+
   camlpp__register_method1( setJoystickThreshold );
 }
 #undef CAMLPP__CLASS_NAME	

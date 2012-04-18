@@ -693,6 +693,7 @@ custom_struct_conversion(sf::RenderStates,
 			 &sf::RenderStates::texture,
 			 &sf::RenderStates::shader );
 
+
 sf::RenderStates mk_sf_RenderStates(Optional< sf::BlendMode > blend,
 				  Optional< sf::Transform const* > transform,
 				  Optional< sf::Texture const* > text,

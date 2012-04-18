@@ -2,14 +2,14 @@ add_custom_target(
   tests
   ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.byte
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_clock.native
-  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.byte
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.d.byte
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_pong.native
-  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.byte
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.d.byte
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_shader.native 
-  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.byte
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.d.byte
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.native 
-  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.byte
-  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.native 
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.d.byte
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.native
   #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.byte
   #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.native
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -22,13 +22,13 @@ add_custom_target(
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_clock.native "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_clock.byte "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_pong.native "${TESTS_INSTALL_PREFIX}/Test/"
-  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_pong.byte "${TESTS_INSTALL_PREFIX}/Test/"
+  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_pong.d.byte "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_shader.native "${TESTS_INSTALL_PREFIX}/Test/"
-  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_shader.byte "${TESTS_INSTALL_PREFIX}/Test/"
+  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_shader.d.byte "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.native "${TESTS_INSTALL_PREFIX}/Test/"
-  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.byte "${TESTS_INSTALL_PREFIX}/Test/"
+  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.d.byte "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.native "${TESTS_INSTALL_PREFIX}/Test/"
-  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.byte "${TESTS_INSTALL_PREFIX}/Test/" 
+  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.d.byte "${TESTS_INSTALL_PREFIX}/Test/" 
   COMMAND ${CMAKE_COMMAND} -E copy_directory resources "${TESTS_INSTALL_PREFIX}/Test/resources"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
