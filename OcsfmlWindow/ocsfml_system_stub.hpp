@@ -117,7 +117,7 @@ struct AffectationManagement< sf::Time >
 
   static void affect_field( value & v, int field, sf::Time t )
   {
-    v = caml_copy_int64(t.asMicroseconds());
+    Store_field(v, field,  caml_copy_int64(t.asMicroseconds()));
   }
 };
 
@@ -162,19 +162,12 @@ struct AffectationManagement< sf::Vector3<T> >
 {
   static void affect( value& v, sf::Vector3<T> vec )
   {
-    v = caml_alloc_tuple( 3 );
-    AffectationManagement< T >::affect_field(v, 0, vec.x );
-    AffectationManagement< T >::affect_field(v, 1, vec.y );
-    AffectationManagement< T >::affect_field(v, 2, vec.z );
+    AffectationManagement< std::tuple<T, T, T> >::affect( v, std::make_tuple(vec.x, vec.y, vec.z) );
   }
 
   static void affect_field( value& v, int field, sf::Vector3<T> vec )
   {
-    CAMLparam0();
-    CAMLlocal1( vecVal );
-    affect( vecVal, vec );
-    Store_field(v, field, vecVal);
-    CAMLreturn0;
+    AffectationManagement< std::tuple<T, T, T> >::affect_field( v, field, std::make_tuple(vec.x, vec.y, vec.z) );
   }
 };
 

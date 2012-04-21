@@ -2023,8 +2023,33 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
+  
+(** Drawable representation of a texture, with its own transformations, color, etc.
+    
+    sprite is a drawable class that allows to easily display a texture (or a part of it) on a render target.
+    
+    It inherits all the functions from sf::Transformable: position, rotation, scale, origin. It also adds sprite-specific properties such as the texture to use, the part of it to display, and some convenience functions to change the overall color of the sprite, or to get its bounding rectangle.
+    
+    sprite works in combination with the {!texture} class, which loads and provides the pixel data of a given texture.
 
-
+    The separation of sf::Sprite and sf::Texture allows more flexibility and better performances: indeed a sf::Texture is a heavy resource, and any operation on it is slow (often too slow for real-time applications). On the other side, a sf::Sprite is a lightweight object which can use the pixel data of a sf::Texture and draw it with its own transformation/color/blending attributes.
+    
+    It is important to note that the sf::Sprite instance doesn't copy the texture that it uses, it only keeps a reference to it. Thus, a {!texture} must not be destroyed while it is used by a sprite (i.e. never write a function that uses a local sf::Texture instance for creating a sprite).
+    
+    Usage example:
+    {[
+    (* Declare and load a texture *)
+    let texture = mk_texture (`File "texture.png") in
+    
+    (* Create a sprite *)
+    let sprite = mk_sprite ~texture 
+                           ~texture_rect:{ top = 10 ; left = 10 ; width = 50 ; height = 30 }
+                           ~color:(Color.rgba 255 255 255 200)
+                           ~position:(100., 25.) () in
+    
+    (* Draw it *)
+    window#draw sprite
+    ]}*)
 class sprite : 
 object
 

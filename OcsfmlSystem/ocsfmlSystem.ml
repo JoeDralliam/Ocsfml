@@ -29,6 +29,24 @@ struct
       
   let microseconds m =
     m
+
+  let add =
+    Int64.add
+
+  let sub = 
+    Int64.sub
+
+  let mul = 
+    Int64.mul
+
+  let mul_float t scl =
+    Int64.of_float ( (Int64.to_float t) *. scl)
+
+  let div =
+    Int64.div
+
+  let div_float t scl =
+    Int64.of_float ( (Int64.to_float t) /. scl)
 end
 
 external class clockCpp (Clock): "sf_Clock" =
