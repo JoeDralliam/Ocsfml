@@ -418,6 +418,10 @@ object
   method set_scale_v : float * float -> unit
 end
 
+class transformable_init : ?position:float * float ->
+  ?scale:float * float ->
+  ?origin:float * float -> ?rotation:float -> Transformable.t -> transformable
+
 val mk_transformable :
   ?position:float * float ->
   ?scale:float * float ->
@@ -556,7 +560,7 @@ val mk_image :
 val get_maximum_size : unit -> int
 
 
-module Texture :
+module Texture :   
 sig
   type t
   val destroy : t -> unit
@@ -592,6 +596,9 @@ end
     
     Like image, texture can handle a unique internal representation of pixels, which is RGBA 32 bits. This means that a pixel must be composed of 8 bits red, green, blue and alpha channels -- just like a color.*)
 class texture :
+  [< `File of string
+  | `Image of int rect * image
+  | `Stream of OcsfmlSystem.input_stream ] ->
 object
   (**/**)
   val t_textureCpp : Texture.t
@@ -698,13 +705,13 @@ object
        @param coords Offset in the texture where to copy the source window. *)
   method update_from_window : ?coords:int * int -> #OcsfmlWindow.window -> unit
 end
-  
+(*  
 val mk_texture :
   [< `File of string
   | `Image of int rect * image
   | `Stream of OcsfmlSystem.input_stream ] ->
   texture
-    
+ *)
 (** Structure describing a glyph.
     
     A glyph is the visual representation of a character.

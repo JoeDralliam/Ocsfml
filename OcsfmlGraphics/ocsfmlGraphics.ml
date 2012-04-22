@@ -132,6 +132,15 @@ object
   external method get_inverse_transform : transform = "getInverseTransform"
 end
 
+class transformable_init ?position ?scale ?origin ?rotation t = 
+object (self)
+  inherit transformable t
+  initializer do_if self#set_position_v position
+  initializer do_if self#set_scale_v scale
+  initializer do_if self#set_origin_v origin
+  initializer do_if self#set_rotation rotation
+end
+
 let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
   do_if t#set_position_v position ;
   do_if t#set_scale_v scale ;
@@ -208,9 +217,20 @@ class texture_bis () =
   let t = Texture.default () in 
     textureCpp t
 
-class texture =
-  texture_bis ()
+class texture tag =
+object (self)
+  inherit texture_bis ()
 
+  initializer 
+    if match tag with
+      | `Image (rect,img) -> self#load_from_image ~rect img
+      | `File filename -> self#load_from_file filename
+      | `Stream inputstream -> self#load_from_stream inputstream
+    then ()
+    else raise LoadFailure 
+end
+    
+(*
 let mk_texture tag =
   let tex = new texture in
     if match tag with
@@ -218,7 +238,7 @@ let mk_texture tag =
       | `File filename -> tex#load_from_file filename
       | `Stream inputstream -> tex#load_from_stream inputstream
     then tex
-    else raise LoadFailure
+    else raise LoadFailure*)
 
 type glyph =
     {
