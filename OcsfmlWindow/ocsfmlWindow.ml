@@ -183,7 +183,7 @@ struct
   type mouseWheelEvent = int * mouseCoord
       
   type joystickConnectEvent = Joystick.joystick_id
-      
+
   type joystickMoveEvent = Joystick.joystick_id * Joystick.axis * float
       
   type joystickButtonEvent = Joystick.joystick_id * int

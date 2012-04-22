@@ -368,7 +368,7 @@ type render_states =
       mutable transform : transform ;
       mutable texture : texture ;
       mutable shader : shader
-    }
+    } 
 
 
 external cpp  mk_render_states : ?blend_mode:blend_mode -> ?transform:transform -> ?texture:texture -> ?shader:shader -> unit -> unit = "mk_sf_RenderStates"

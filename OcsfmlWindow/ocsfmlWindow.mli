@@ -349,16 +349,15 @@ end
 
 (** Structure defining the settings of the OpenGL context attached to a window.
 
-
     context_settings allows to define several advanced settings of the OpenGL context attached to a window.
     
     All these settings have no impact on the regular SFML rendering (graphics module) -- except the anti-aliasing level, so you may need to use this structure only if you're using SFML as a windowing system for custom OpenGL rendering.
     
-    The depth_bits and stencil_bits members define the number of bits per pixel requested for the (respectively) depth and stencil buffers.
+    - The depth_bits and stencil_bits members define the number of bits per pixel requested for the (respectively) depth and stencil buffers.
 
-    antialiasing_level represents the requested number of multisampling levels for anti-aliasing.
+    - antialiasing_level represents the requested number of multisampling levels for anti-aliasing.
     
-    major_version and minor_version define the version of the OpenGL context that you want. Only versions greater or equal to 3.0 are relevant; versions lesser than 3.0 are all handled the same way (i.e. you can use any version < 3.0 if you don't want an OpenGL 3 context).
+    - major_version and minor_version define the version of the OpenGL context that you want. Only versions greater or equal to 3.0 are relevant; versions lesser than 3.0 are all handled the same way (i.e. you can use any version < 3.0 if you don't want an OpenGL 3 context).
     
     Please note that these values are only a hint. No failure will be reported if one or more of these values are not supported by the system; instead, SFML will try to find the closest valid match. You can then retrieve the settings that the window actually used to create its context, with window.get_settings.  *)
 type context_settings = {
@@ -487,9 +486,9 @@ end
 
 class window :
   ?style:window_style list ->
-    ?context:context_settings -> VideoMode.t -> string -> windowCpp
-(* object
-  val t_windowCpp : Window.t
+    ?context:context_settings -> VideoMode.t -> string -> 
+object
+  val t_windowCpp : WindowCpp.t
   method close : unit
   method create :
     ?style:window_style list ->
@@ -497,6 +496,7 @@ class window :
   method destroy : unit
   method display : unit
   method get_height : int
+  method get_position : int * int
   method get_settings : context_settings
   method get_size : int * int
   method get_width : int
@@ -509,12 +509,14 @@ class window :
   method set_key_repeat_enabled : bool -> unit
   method set_mouse_cursor_visible : bool -> unit
   method set_position : int -> int -> unit
+  method set_position_v : int * int -> unit
   method set_size : int -> int -> unit
+  method set_size_v : int * int -> unit
   method set_title : string -> unit
   method set_vertical_sync_enabled : bool -> unit
   method set_visible : bool -> unit
   method wait_event : Event.t option
-end *)
+end
 
 (** Give access to the real-time state of the mouse.
 
