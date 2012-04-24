@@ -79,9 +79,20 @@ void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> c
   image->create(w, h, color.get_value_no_fail( sf::Color(0, 0, 0) ) );
 }
 
+void image_create_from_pixels( sf::Image* image, BigarrayInterface<sf::Uint8, 3> const& pixels)
+{
+  assert(pixels.size[2] == 4);
+  image->create( pixels.size[0], pixels.size[1], pixels.data );
+}
+
 void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> alpha, sf::Color color)
 {
   image->createMaskFromColor( color, alpha.get_value_no_fail( 0 ) );
+}
+
+void image_load_from_memory_helper( sf::Image* image, RawDataType d)
+{
+  image->loadFromMemory( d.data, d.size[0] );
 }
 
 void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
@@ -91,11 +102,12 @@ void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<
 		applyAlpha.get_value_no_fail( false ) );
 }
 
-BigarrayInterface<sf::Uint8, 2> image_get_pixels_ptr_helper( sf::Image* img )
+BigarrayInterface<sf::Uint8, 3> image_get_pixels_ptr_helper( sf::Image* img )
 {
-  long size[2] = { img->getSize().y, img->getSize().x*4 };
-  return BigarrayInterface<sf::Uint8, 2>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
+  long size[] = { img->getSize().x, img->getSize().y, 4};
+  return BigarrayInterface<sf::Uint8, 3>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
 }
+
 
 typedef sf::Image sf_Image;
 #define CAMLPP__CLASS_NAME() sf_Image
@@ -104,9 +116,9 @@ camlpp__register_custom_class()
 {
   camlpp__register_constructor0( default_constructor );
   camlpp__register_external_method3( createFromColor, &image_create_with_opt_color_helper );
-  //	camlpp__register_method3( CreateFromPixels;
+  camlpp__register_external_method1( createFromPixels, &image_create_from_pixels );
   camlpp__register_method1( loadFromFile );
-//	camlpp__register_method1( LoadFromMemory, &sf::Image::LoadFromMemory );
+  camlpp__register_external_method1( loadFromMemory, &image_load_from_memory_helper );
   camlpp__register_method1( loadFromStream );
   camlpp__register_method1( saveToFile );
   camlpp__register_method0( getSize );
@@ -140,7 +152,26 @@ bool texture_load_from_image_helper( sf::Texture* text, Optional<sf::IntRect> ar
   return text->loadFromImage( image , area.get_value_no_fail( sf::IntRect() ) );
 }
 
-void texture_update_from_image_helper( sf::Texture* tex, sf::Image const& img, Optional<sf::Vector2<unsigned int> > p)
+
+bool texture_load_from_memory_helper( sf::Texture* text, Optional<sf::IntRect> area, RawDataType d)
+{
+  return text->loadFromMemory( d.data, d.size[0], area.get_value_no_fail( sf::IntRect() ) );
+}
+
+
+void texture_update_from_pixels_helper( sf::Texture* tex, Optional<sf::Vector2<unsigned int> > p, BigarrayInterface<sf::Uint8, 3> const& pixels)
+{
+  if(p.is_some())
+    {
+      tex->update( pixels.data, pixels.size[0], pixels.size[1], p.get_value().x, p.get_value().y );
+    }
+  else
+    {
+      tex->update( pixels.data );
+    }
+}
+
+void texture_update_from_image_helper( sf::Texture* tex, Optional<sf::Vector2<unsigned int> > p, sf::Image const& img)
 {
   if(p.is_some())
     {
@@ -152,7 +183,7 @@ void texture_update_from_image_helper( sf::Texture* tex, sf::Image const& img, O
     }
 }
 
-void texture_update_from_window_helper( sf::Texture* tex, sf::Window const& img, Optional<sf::Vector2<unsigned int> > p)
+void texture_update_from_window_helper( sf::Texture* tex, Optional<sf::Vector2<unsigned int> > p, sf::Window const& img)
 {
   if(p.is_some())
     {
@@ -177,10 +208,11 @@ camlpp__register_custom_class()
   camlpp__register_external_method2( loadFromFile, &texture_load_from_file_helper );
   camlpp__register_external_method2( loadFromStream, &texture_load_from_stream_helper );
   camlpp__register_external_method2( loadFromImage, &texture_load_from_image_helper );
+  camlpp__register_external_method2( loadFromMemory, &texture_load_from_memory_helper );
   camlpp__register_method0( getSize );
   camlpp__register_method0( copyToImage );
-  //	camlpp__register_method2( UpdateFromPixels, &texture_update_from_pixels_helper );
-  camlpp__register_external_method2( updateFromImage, &texture_update_from_image_helper );
+  camlpp__register_external_method2( updateFromPixels, &texture_update_from_pixels_helper );
+  camlpp__register_external_method2( updateFromImage , &texture_update_from_image_helper );
   camlpp__register_external_method2( updateFromWindow, &texture_update_from_window_helper );
   camlpp__register_method1( bind );
   camlpp__register_method1( setSmooth );
@@ -443,6 +475,11 @@ custom_struct_conversion(sf::Glyph,
 			 &sf::Glyph::textureRect );
 
 
+bool font_load_from_memory_helper( sf::Font* font, RawDataType const& mem )
+{
+  return font->loadFromMemory( mem.data, mem.size[0] );
+} 
+
 typedef sf::Font sf_Font;
 #define CAMLPP__CLASS_NAME() sf_Font
 camlpp__register_custom_class()
@@ -450,7 +487,7 @@ camlpp__register_custom_class()
   camlpp__register_constructor0( default_constructor );
   camlpp__register_constructor1( copy_constructor, sf::Font const& );
   camlpp__register_method1( loadFromFile );
-  //	camlpp__register_method1( loadFromMemory, &sf::Font::LoadFromMemory );
+  camlpp__register_external_method1( loadFromMemory, &font_load_from_memory_helper );
   camlpp__register_method1( loadFromStream );
   camlpp__register_method3( getGlyph );
   camlpp__register_method3( getKerning );
@@ -569,6 +606,7 @@ camlpp__register_custom_class()
 #undef CAMLPP__CLASS_NAME
 
 
+
 typedef void (sf::Shader::*SetFloatParameterType)(std::string const&, float);
 typedef void (sf::Shader::*SetVec2ParameterType)(std::string const&, float, float);
 typedef void (sf::Shader::*SetVec3ParameterType)(std::string const&, float, float, float);
@@ -580,8 +618,8 @@ typedef void (sf::Shader::*SetTransformParameterType)(std::string const&, sf::Tr
 typedef void (sf::Shader::*SetTextureParameterType)(std::string const&, sf::Texture const&);
 
 
-#define SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( ResourceName, ResourceType, MemFunc) \
-  bool shader__load_from_ ## ResourceName ## _helper( 	sf::Shader* shader, \
+#define SHADER_LOAD_FROM_RESOURCE_HELPER_DEF( ResourceName, ResourceType, MemFunc) \
+  bool shader_load_from_ ## ResourceName ## _helper( 	sf::Shader* shader, \
 							Optional<ResourceType> vertex, \
 							Optional<ResourceType> frag, \
 							UnitTypeHolder ) \
@@ -604,8 +642,11 @@ typedef void (sf::Shader::*SetTextureParameterType)(std::string const&, sf::Text
       }									\
   }
 
-SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( file, std::string, loadFromFile )
-SHADER__LOAD_FROM_RESOURCE_HELPER_DEF( stream, sf::InputStream&, loadFromStream )
+SHADER_LOAD_FROM_RESOURCE_HELPER_DEF( file, std::string, loadFromFile )
+SHADER_LOAD_FROM_RESOURCE_HELPER_DEF( stream, sf::InputStream&, loadFromStream )
+SHADER_LOAD_FROM_RESOURCE_HELPER_DEF( memory, std::string, loadFromMemory )
+
+
 
 void shader_set_current_texture_helper( sf::Shader* s, std::string str )
 {
@@ -618,9 +659,9 @@ camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPA
 camlpp__register_custom_class()
 {
   camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_method3( loadFromFile, &shader__load_from_file_helper );
-  //	camlpp__register_method1( LoadFromMemory
-  camlpp__register_external_method3( loadFromStream, &shader__load_from_stream_helper );
+  camlpp__register_external_method3( loadFromFile, &shader_load_from_file_helper );
+  camlpp__register_external_method3( loadFromMemory, &shader_load_from_memory_helper);
+  camlpp__register_external_method3( loadFromStream, &shader_load_from_stream_helper );
   camlpp__register_external_method2( setFloatParameter, ((SetFloatParameterType) &sf::Shader::setParameter) );
   camlpp__register_external_method3( setVec2Parameter, ((SetVec2ParameterType) &sf::Shader::setParameter) );
   camlpp__register_external_method4( setVec3Parameter, ((SetVec3ParameterType) &sf::Shader::setParameter) );
@@ -850,10 +891,6 @@ sf::RenderWindow* render_window_constructor_helper(Optional<std::list<unsigned l
   return new sf::RenderWindow( vm, title, actualStyle, actualSettings );
 }
 
-void render_window_set_icon_helper( sf::RenderWindow* window, BigarrayInterface< sf::Uint8, 2 > pixels )
-{
-  window->setIcon( pixels.size[1]/4.f, pixels.size[0], pixels.data );
-}
 
 typedef sf::Window sf_Window;
 typedef sf::RenderWindow sf_RenderWindow;
@@ -866,7 +903,6 @@ camlpp__register_custom_class()
   camlpp__register_constructor0( default_constructor );
   camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper);
   camlpp__register_method0( capture );
-  camlpp__register_external_method1( setIcon, &render_window_set_icon_helper );
 }
 #undef CAMLPP__CLASS_NAME
 

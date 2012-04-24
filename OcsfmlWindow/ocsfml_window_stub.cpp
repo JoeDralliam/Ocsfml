@@ -62,6 +62,11 @@ bool window_set_active_helper( sf::Window* window, Optional<bool> active )
 }
 
 
+void window_set_icon_helper( sf::Window* window, BigarrayInterface< sf::Uint8, 3 > const& pixels )
+{
+  assert( pixels.size[2] == 4 );
+  window->setIcon( pixels.size[0], pixels.size[1], pixels.data );
+}
 
 #define CAMLPP__CLASS_NAME() sf_Window
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
@@ -84,11 +89,10 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_method1( setTitle );
   camlpp__register_method1( setVisible );
   camlpp__register_method1( setKeyRepeatEnabled );
-//	camlpp__register_method3( SetIcon, &sf::Window::SetIcon );
+  camlpp__register_external_method1( setIcon, &window_set_icon_helper );
   camlpp__register_external_method1( setActive, &window_set_active_helper );
   camlpp__register_method0( display );
   camlpp__register_method1( setFramerateLimit );
-
   camlpp__register_method1( setJoystickThreshold );
 }
 #undef CAMLPP__CLASS_NAME	

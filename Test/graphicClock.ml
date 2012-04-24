@@ -20,16 +20,16 @@ let _ =
   let radius = 150. in
   let clock_display = 
     let position = (fst clock_center) -. radius, (snd clock_center) -.radius in
-      mk_circle_shape 
+      new circle_shape 
 	~position
 	~radius
 	~fill_color:Color.white
 	~outline_color:Color.black
 	~outline_thickness:5. ()
   in
-  let seconds = mk_text ~string:"Seconds !" ~color:(Color.rgb 255 125 0) () in
-  let minutes = mk_text ~string:"Minutes !" ~color:Color.black () in
-  let hours = mk_text ~string:"Hours !" ~color:Color.black () in 
+  let seconds = new text ~string:"Seconds !" ~color:(Color.rgb 255 125 0) () in
+  let minutes = new text ~string:"Minutes !" ~color:Color.black () in
+  let hours = new text ~string:"Hours !" ~color:Color.black () in 
   let update_time () = set_time seconds minutes hours in
 
   let place x w = 

@@ -19,39 +19,39 @@ object (this)
     then this#on_draw target states
     else
       begin
-    let error = mk_text ~string:"Shader not\nsupported"
-                        ~position:(320.,200.)
-                ~character_size:36 () in
-    target#draw error
+	let error = new text ~string:"Shader not\nsupported"
+          ~position:(320.,200.)
+          ~character_size:36 () in
+	target#draw error
       end
   method virtual destroy : unit
- 
+    
 end
 let make_effects () =
-let pixelate =
+  let pixelate =
 object
   inherit effect "pixelate"
-  val myTexture = new texture
-  val mySprite = new sprite
-  val myShader = new shader
+  val myTexture = new texture `None
+  val mySprite = new sprite ()
+  val myShader = new shader ()
 
   method destroy =
     myTexture#destroy
-    (* mySprite#destroy ;
-    myShader#destroy *)
+      (* mySprite#destroy ;
+	 myShader#destroy *)
 
   method private on_load =
     if myTexture#load_from_file "resources/background.jpg"
     then
       begin
-    mySprite#set_texture myTexture;
-    if myShader#load_from_file ~fragment:"resources/pixelate.frag" ()
-    then
-      begin
-        myShader#set_current_texture "texture" ;
-        true
-      end
-    else false
+	mySprite#set_texture myTexture;
+	if myShader#load_from_file ~fragment:"resources/pixelate.frag" ()
+	then
+	  begin
+            myShader#set_current_texture "texture" ;
+            true
+	  end
+	else false
       end
     else false
 
@@ -62,16 +62,16 @@ object
     states.shader <- myShader ;
     target#draw ~render_states:states mySprite
 end
-in
-let wave_blur =
+  in
+  let wave_blur =
 object
   inherit effect "wave + blur"
-  val myText = new text
-  val myShader = new shader
+  val myText = new text ()
+  val myShader = new shader ()
 
   method destroy = ()
-(*    myText#destroy ;
-    myShader#destroy *)
+    (*    myText#destroy ;
+	  myShader#destroy *)
 
   method private on_load =
     myText#set_string
@@ -106,17 +106,17 @@ object
     states.shader <- myShader ;
     target#draw ~render_states:states myText
 end
-in
+  in
 
-let storm_blink =
+  let storm_blink =
 object
   inherit effect "storm + blink"
   val myPoints = new vertex_array
-  val myShader = new shader
+  val myShader = new shader ()
   method destroy = ()
- (*   myPoints#destroy ;
-    myShader#destroy *)
-   
+    (*   myPoints#destroy ;
+	 myShader#destroy *)
+    
   method private on_load =
     myPoints#set_primitive_type Points ;
     let create_point () =
@@ -142,26 +142,26 @@ object
     states.shader <- myShader ;
     target#draw ~render_states:states myPoints
 end
-in
-let edge =
+  in
+  let edge =
 object
   inherit effect "edge post-effect"
-  val myEntities = Array.init 6 (fun i -> new sprite)
+  val myEntities = Array.init 6 (fun i -> new sprite ())
   val mySurface = new render_texture
-  val myBackgroundTexture = new texture
-  val myEntityTexture = new texture
-  val myBackgroundSprite = new sprite
-  val myShader = new shader
-  val mySceneSprite = new sprite
+  val myBackgroundTexture = new texture `None
+  val myEntityTexture = new texture `None
+  val myBackgroundSprite = new sprite ()
+  val myShader = new shader ()
+  val mySceneSprite = new sprite ()
 
   method destroy =
-(*    Array.iter (fun spr -> spr#destroy ) myEntities ;
-    mySurface#destroy ; *)
+    (*    Array.iter (fun spr -> spr#destroy ) myEntities ;
+	  mySurface#destroy ; *)
     myBackgroundTexture#destroy ;
     myEntityTexture#destroy (* ;
-    myBackgroundSprite#destroy ;
-    myShader#destroy ;
-    mySceneSprite#destroy *)
+			       myBackgroundSprite#destroy ;
+			       myShader#destroy ;
+			       mySceneSprite#destroy *)
 
   method private on_load =
     if mySurface#create 800 600
@@ -169,18 +169,18 @@ object
       && myEntityTexture#load_from_file "resources/devices.png"
     then
       let init_entity i spr =
-    (* spr#destroy ; *)
-    let texture_rect = { left = 96 * i; top = 0 ; width = 96 ; height = 96 } in
-      myEntities.(i) <- mk_sprite ~texture:myEntityTexture ~texture_rect ()
+	(* spr#destroy ; *)
+	let texture_rect = { left = 96 * i; top = 0 ; width = 96 ; height = 96 } in
+	myEntities.(i) <- new sprite ~texture:myEntityTexture ~texture_rect ()
       in
-    mySurface#set_smooth true ;
-    myBackgroundTexture#set_smooth true ;
-    myEntityTexture#set_smooth true ;
-    myBackgroundSprite#set_texture myBackgroundTexture ;
-    myBackgroundSprite#set_position 135. 100. ;
-    Array.iteri init_entity myEntities ;
-    (myShader#load_from_file ~fragment:"resources/edge.frag" ()) &&
-      (myShader#set_current_texture "texture" ; true)
+      mySurface#set_smooth true ;
+      myBackgroundTexture#set_smooth true ;
+      myEntityTexture#set_smooth true ;
+      myBackgroundSprite#set_texture myBackgroundTexture ;
+      myBackgroundSprite#set_position 135. 100. ;
+      Array.iteri init_entity myEntities ;
+      (myShader#load_from_file ~fragment:"resources/edge.frag" ()) &&
+	(myShader#set_current_texture "texture" ; true)
     else false
 
 
@@ -192,8 +192,8 @@ object
       let j' = float_of_int (entities_count - i) in
       let xpos = cos (0.25 *. (time *. i' +. j')) *. 300. +. 350. in
       let ypos = sin (0.25 *. (time *. j' +. i')) *. 200. +. 250. in
-    entity#set_position xpos ypos ;
-    mySurface#draw entity
+      entity#set_position xpos ypos ;
+      mySurface#draw entity
     in
     mySurface#clear ~color:Color.white () ;
     mySurface#draw myBackgroundSprite ;
@@ -203,20 +203,20 @@ object
   method private on_draw target states =
     states.shader <- myShader ;
     let tex = mySurface#get_texture in
-      mySceneSprite#set_texture tex;
-      target#draw ~render_states:states mySceneSprite
+    mySceneSprite#set_texture tex;
+    target#draw ~render_states:states mySceneSprite
 end
-in
-    let rec before = edge :: storm_blink :: wave_blur :: pixelate :: before in
-    let rec after = pixelate :: wave_blur :: storm_blink :: edge :: after in
-    object (self)
-        val before = before
-        val after = after
-        method current = List.hd after
-        method next = match after with x::xs -> {< before = x::before ; after = xs >} | _ -> assert false
-        method previous = match before with x::xs -> {< before = xs ; after = x::after >} | _ -> assert false
-        method take n = if n = 0 then [] else self#current :: self#next#take (n-1)
-    end
+  in
+  let rec before = edge :: storm_blink :: wave_blur :: pixelate :: before in
+  let rec after = pixelate :: wave_blur :: storm_blink :: edge :: after in
+object (self)
+  val before = before
+  val after = after
+  method current = List.hd after
+  method next = match after with x::xs -> {< before = x::before ; after = xs >} | _ -> assert false
+  method previous = match before with x::xs -> {< before = xs ; after = x::after >} | _ -> assert false
+  method take n = if n = 0 then [] else self#current :: self#next#take (n-1)
+end
 
 let _ =
   Random.self_init () ;
@@ -225,110 +225,110 @@ let _ =
   (* let f x = x#current#load ; x#next in *)
   (*f (f (f (f effects))) ;*)   
   List.iter (fun x -> x#load) (effects#take 4) ;
-   
   
- 
- 
-    let textBackgroundTexture =
-      let tex = new texture in
+  
+  
+  
+  let textBackgroundTexture =
+    let tex = new texture `None in
     if tex#load_from_file "resources/text-background.png"
     then tex
     else failwith "Could not load text background texture"
-    in
+  in
 
-    let textBackground =
-      mk_sprite
-    ~texture:textBackgroundTexture
-    ~position:(0., 520.)
-    ~color:(Color.rgba 255 255 255 200) ()
-    in
-   
- 
-    let font =
-      let font = new font in
+  let textBackground =
+    new sprite
+      ~texture:textBackgroundTexture
+      ~position:(0., 520.)
+      ~color:(Color.rgba 255 255 255 200) ()
+  in
+  
+  
+  let font =
+    let font = new font `None in
     if font#load_from_file "resources/sansation.ttf"
     then font
     else failwith "Could not load font"
-    in
+  in
 
-    let description =
-      mk_text ~string:("Current effect: " ^ effects#current#get_name )
-        ~font ~character_size:20 ~position:(10., 530.) ~color:(Color.rgb 80 80 80) ()
-    in
-     
-    let instructions =
-      mk_text
-    ~string:"Press left and right arrows to change the current shader"
-        ~font:font
-    ~character_size:20
-    ~position:(280., 555.)
-    ~color:(Color.rgb 80 80 80) ()
-    in
-   
-    let timer = new clock in
+  let description =
+    new text ~string:("Current effect: " ^ effects#current#get_name )
+      ~font ~character_size:20 ~position:(10., 530.) ~color:(Color.rgb 80 80 80) ()
+  in
+  
+  let instructions =
+    new text
+      ~string:"Press left and right arrows to change the current shader"
+      ~font:font
+      ~character_size:20
+      ~position:(280., 555.)
+      ~color:(Color.rgb 80 80 80) ()
+  in
+  
+  let timer = new clock in
 
-    let rec event_loop effects =
-      match app#poll_event with
-	| Some e ->
+  let rec event_loop effects =
+    match app#poll_event with
+      | Some e ->
           let open Event in
-              let effects = match e with
-		| Closed | KeyPressed { code = KeyCode.Escape ; _ } ->
-		  app#close ; effects
-		| KeyPressed { code = KeyCode.Left ; _ } ->
-		  let effects = effects#previous in
-		  let current_name = effects#current#get_name in
-		  description#set_string ("Current effect: " ^ current_name);
-		  effects
-		| KeyPressed { code = KeyCode.Right ; _ } ->
-		  let effects = effects#next in
-		  let current_name = effects#current#get_name in
-		  description#set_string ("Current effect: " ^ current_name);
-		  effects 
-		| _ -> effects 
-              in event_loop effects
-	| None -> effects
-	  in
-     
-    let update effects =
-      let x =
-    (float_of_int & fst & Mouse.get_relative_position app) /.
-      (float_of_int app#get_width) in
-      let y =
-    (float_of_int & snd & Mouse.get_relative_position app) /.
-      (float_of_int & app#get_height) in
+          let effects = match e with
+	    | Closed | KeyPressed { code = KeyCode.Escape ; _ } ->
+		app#close ; effects
+	    | KeyPressed { code = KeyCode.Left ; _ } ->
+		let effects = effects#previous in
+		let current_name = effects#current#get_name in
+		description#set_string ("Current effect: " ^ current_name);
+		effects
+	    | KeyPressed { code = KeyCode.Right ; _ } ->
+		let effects = effects#next in
+		let current_name = effects#current#get_name in
+		description#set_string ("Current effect: " ^ current_name);
+		effects 
+	    | _ -> effects 
+          in event_loop effects
+      | None -> effects
+  in
+  
+  let update effects =
+    let x =
+      (float_of_int & fst & Mouse.get_relative_position app) /.
+	(float_of_int app#get_width) in
+    let y =
+      (float_of_int & snd & Mouse.get_relative_position app) /.
+	(float_of_int & app#get_height) in
     effects#current#update (Time.as_seconds & timer#get_elapsed_time ) x y
-    in
-     
-    let draw_scene effects =
-      app#draw effects#current ;
-      app#draw textBackground ;
-      app#draw instructions ;
-      app#draw description  ;
-    in
-     
-    let rec main_loop effects =
-      let effects = event_loop effects in
-      update effects ;
-      app#clear ~color:(Color.rgb 255 128 0 ) () ;
-      draw_scene effects ;
-      app#display ;
-      if app#is_open then main_loop effects
-    in
-      main_loop effects ;
-     
-      textBackgroundTexture#destroy ;
+  in
+  
+  let draw_scene effects =
+    app#draw effects#current ;
+    app#draw textBackground ;
+    app#draw instructions ;
+    app#draw description  ;
+  in
+  
+  let rec main_loop effects =
+    let effects = event_loop effects in
+    update effects ;
+    app#clear ~color:(Color.rgb 255 128 0 ) () ;
+    draw_scene effects ;
+    app#display ;
+    if app#is_open then main_loop effects
+  in
+  main_loop effects ;
+  
+  textBackgroundTexture#destroy ;
   (*    textBackground#destroy ; *)
-      font#destroy ;
-(*      description#destroy ;
-      instructions#destroy ;
-      timer#destroy ; *)
-      List.iter (fun eff -> eff#destroy ) (effects#take 4);
-      (* app#destroy *)
-      print_newline () ;
-      Gc.full_major () ;
-      print_newline () ;
-      print_string "Ok!" ;
-      Gc.full_major ()
-     
-   
+  font#destroy ;
+  (*      description#destroy ;
+	  instructions#destroy ;
+	  timer#destroy ; *)
+  List.iter (fun eff -> eff#destroy ) (effects#take 4);
+  (* app#destroy *)
+  print_newline () ;
+  Gc.full_major () ;
+  print_newline () ;
+  print_string "Ok!" ;
+  Gc.full_major ()
+    
+    
     

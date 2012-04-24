@@ -131,9 +131,9 @@ type blend_mode =
 module Transform :
 sig
   type t
-  class type transform_class_type =
+  class type transform_base_class_type =
   object ('a)
-    val t_transform : t
+    val t_transform_base : t
     method combine : 'a -> 'a
     method destroy : unit
     method get_inverse : 'a
@@ -173,10 +173,9 @@ end
     For example, if you apply a rotation transform to a sprite, the result will be a rotated sprite. And anything that is transformed by this rotation transform will be rotated the same way, according to its initial position.
     
     Transforms are typically used for drawing. But they can also be used for any computation that requires to transform points between the local and global coordinate systems of an entity (like collision detection). *)
-class transform :
-  Transform.t ->
+class transform : ?matrix:(float * float * float * float * float * float * float * float * float) -> unit ->
 object ('a)
-  val t_transform : Transform.t
+  val t_transform_base : Transform.t
 
 
     (** Combine the current transform with another one.
@@ -318,11 +317,10 @@ end
     To keep the Transformable class simple, there's only one origin for all the components. You cannot position the sprite relatively to its top-left corner while rotating it around its center, for example. To do such things, use Transform directly.
     
     Transformable can be used as a base class. It is often combined with Drawable -- that's what SFML's sprites, texts and shapes do. *)
-class transformable :
-  Transformable.t ->
+class transformable : ?position:(float * float) -> ?scale:(float * float) -> ?origin:(float * float) -> ?rotation:float -> unit ->
 object
     (**/**)
-  val t_transformable : Transformable.t
+  val t_transformable_base : Transformable.t
     (**/**)
 
   method destroy : unit
@@ -418,22 +416,18 @@ object
   method set_scale_v : float * float -> unit
 end
 
+(*
 class transformable_init : ?position:float * float ->
   ?scale:float * float ->
   ?origin:float * float -> ?rotation:float -> Transformable.t -> transformable
-
+*)
+(*
 val mk_transformable :
   ?position:float * float ->
   ?scale:float * float ->
   ?origin:float * float -> ?rotation:float -> #transformable -> unit
+*)
 
-
-type pixel_array_type =
-    (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array2.t
-
-val pixel_array_kind : (int, Bigarray.int8_unsigned_elt) Bigarray.kind
-
-val pixel_array_layout : Bigarray.c_layout Bigarray.layout
 
 
 
@@ -444,11 +438,13 @@ sig
   val destroy : t -> unit
   val default : unit -> t
   val create_from_color : t -> ?color:Color.t -> int -> int -> unit
+  val create_from_pixels : t -> OcsfmlWindow.pixel_array_type -> unit
   val load_from_file : t -> string -> bool
+  val load_from_memory : t -> OcsfmlSystem.raw_data_type -> bool
   val load_from_stream : t -> OcsfmlSystem.input_stream -> bool
   val save_to_file : t -> string -> bool
   val get_size : t -> int * int
-  val get_pixels_ptr : t -> pixel_array_type
+  val get_pixels_ptr : t -> OcsfmlWindow.pixel_array_type
   val create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
   val copy :
     t -> ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
@@ -467,10 +463,15 @@ end
     image can handle a unique internal representation of pixels, which is RGBA 32 bits. This means that a pixel must be composed of 8 bits red, green, blue and alpha channels -- just like an color. All the functions that return an array of pixels follow this rule, and all parameters that you pass to image functions (such as loadFromPixels) must use this representation as well.
     
     A image can be copied, but it is a heavy resource and if possible you should always use [const] references to pass or return them to avoid useless copies. *)
-class image : 
+class image :
+  [< `Color of Color.t * int * int
+  | `Create of int * int
+  | `File of string
+  | `Stream of OcsfmlSystem.input_stream 
+  | `None ] ->
 object ('a)
   (**/**)
-  val t_imageCpp : Image.t
+  val t_image_base : Image.t
   (**/**)
 
   (** Copy pixels from another image onto this one.
@@ -485,13 +486,16 @@ object ('a)
       @param color Fill color.*)
   method create_from_color : ?color:Color.t -> int -> int -> unit
 
+  (**)
+  method create_from_pixels : OcsfmlWindow.pixel_array_type -> unit
+
   (** Create a transparency mask from a specified color-key.
       
       This function sets the alpha value of every pixel matching the given color to alpha (0 by default), so that they become transparent.
       @param alpha Alpha value to assign to transparent pixels. *)
   method create_mask_from_color : ?alpha:int -> Color.t -> unit
 
-  (***)
+  (**)
   method destroy : unit
 
   (** Flip the image horizontally (left <-> right).*)
@@ -514,13 +518,17 @@ object ('a)
       
       The returned value is an array of RGBA pixels made of 8 bits integers components. The size of the array is GetWidth() * GetHeight() * 4. Warning: the returned pointer may become invalid if you modify the image, so you should never store it for too long. If the image is empty, a null pointer is returned. 
       @return Read-only bigarray of pixels *)
-  method get_pixels_ptr : pixel_array_type
+  method get_pixels_ptr : OcsfmlWindow.pixel_array_type
 
   (**Load the image from a file on disk.
      
      The supported image formats are bmp, png, tga, jpg, gif, psd, hdr and pic. Some format options are not supported, like progressive jpeg. If this function fails, the image is left unchanged.
      @return True if loading was successful. *)
   method load_from_file : string -> bool
+
+
+  (**)
+  method load_from_memory : OcsfmlSystem.raw_data_type -> bool
 
   (** Load the image from a custom stream.
       
@@ -545,13 +553,14 @@ object ('a)
 end
 
 
+(*
 val mk_image :
   [< `Color of Color.t * int * int
   | `Create of int * int
   | `File of string
   | `Stream of OcsfmlSystem.input_stream ] ->
   image
-
+*)
 
 (** Get the maximum texture size allowed.
 
@@ -560,7 +569,7 @@ val mk_image :
 val get_maximum_size : unit -> int
 
 
-module Texture :   
+module Texture :
 sig
   type t
   val destroy : t -> unit
@@ -569,10 +578,12 @@ sig
   val load_from_file : t -> ?rect:int rect -> string -> bool
   val load_from_stream : t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
   val load_from_image : t -> ?rect:int rect -> image -> bool
+  val load_from_memory : t -> ?rect:int rect -> OcsfmlSystem.raw_data_type -> bool
   val get_size : t -> int * int
   val copy_to_image : t -> image
   val update_from_image : t -> ?coords:int * int -> image -> unit
   val update_from_window : t -> ?coords:int * int -> #OcsfmlWindow.window -> unit
+  val update_from_pixels : t -> ?coords:int * int -> OcsfmlWindow.pixel_array_type -> unit
   val bind : t -> unit
   val set_smooth : t -> bool -> unit
   val is_smooth : t -> bool -> unit
@@ -596,12 +607,15 @@ end
     
     Like image, texture can handle a unique internal representation of pixels, which is RGBA 32 bits. This means that a pixel must be composed of 8 bits red, green, blue and alpha channels -- just like a color.*)
 class texture :
+  ?rect:int rect -> 
   [< `File of string
-  | `Image of int rect * image
-  | `Stream of OcsfmlSystem.input_stream ] ->
+  | `Image of image
+  | `Stream of OcsfmlSystem.input_stream 
+  | `Memory of OcsfmlSystem.raw_data_type
+  | `None ] ->
 object
   (**/**)
-  val t_textureCpp : Texture.t
+  val t_texture_base : Texture.t
   (**/**)
   
   (* TODO: add Coordinate type *)
@@ -659,17 +673,20 @@ object
       @return True if loading was successful. *)
   method load_from_image : ?rect:int rect -> image -> bool
 
-(** Load the texture from a custom stream.
-    
-    The rect argument can be used to load only a sub-rectangle of the whole image. If you want the entire image then leave the default value. If the area rectangle crosses the bounds of the image, it is adjusted to fit the image size.
-    
-    The maximum size for a texture depends on the graphics driver and can be retrieved with the get_maximum_size function.
-    
-    If this function fails, the texture is left unchanged. 
-    @param rect Area of the image to load.
-    @return True if loading was successful. *)
-  method load_from_stream : ?rect:int rect -> OcsfmlSystem.input_stream -> bool
+  (**)
+  method load_from_memory : ?rect:int rect -> OcsfmlSystem.raw_data_type -> bool
 
+  (** Load the texture from a custom stream.
+      
+      The rect argument can be used to load only a sub-rectangle of the whole image. If you want the entire image then leave the default value. If the area rectangle crosses the bounds of the image, it is adjusted to fit the image size.
+      
+      The maximum size for a texture depends on the graphics driver and can be retrieved with the get_maximum_size function.
+      
+      If this function fails, the texture is left unchanged. 
+      @param rect Area of the image to load.
+      @return True if loading was successful. *)
+  method load_from_stream : ?rect:int rect -> OcsfmlSystem.input_stream -> bool
+  
   (**/**)
   method rep__sf_Texture : Texture.t
   (**/**)
@@ -695,6 +712,9 @@ object
       @param coords Offset in the texture where to copy the source image. *)
   method update_from_image : ?coords:int * int -> image -> unit
     
+  (**)
+  method update_from_pixels : ?coords:int * int -> OcsfmlWindow.pixel_array_type -> unit
+
   (**  Update the texture from the contents of a window.
        
        Although the source window can be smaller than the texture, this function is usually used for updating the whole texture. The other overload, which has (x, y) additional arguments, is more convenient for updating a sub-area of the texture.
@@ -705,13 +725,15 @@ object
        @param coords Offset in the texture where to copy the source window. *)
   method update_from_window : ?coords:int * int -> #OcsfmlWindow.window -> unit
 end
-(*  
+
+(*
 val mk_texture :
   [< `File of string
   | `Image of int rect * image
   | `Stream of OcsfmlSystem.input_stream ] ->
   texture
- *)
+*)
+
 (** Structure describing a glyph.
     
     A glyph is the visual representation of a character.
@@ -734,6 +756,7 @@ sig
   val destroy : t -> unit
   val default : unit -> t
   val load_from_file : t -> string -> bool
+  val load_from_memory : t -> OcsfmlSystem.raw_data_type -> bool
   val load_from_stream : t -> #OcsfmlSystem.input_stream -> bool
   val get_glyph : t -> int -> int -> bool -> glyph
   val get_kerning : t -> int -> int -> int -> int
@@ -757,9 +780,13 @@ end
     
     It is important to note that the text instance doesn't copy the font that it uses, it only keeps a reference to it. Thus, a font must not be destructed while it is used by a text (i.e. never write a function that uses a local font instance for creating a text).*)
 class font :
+  [< `File of string
+  |  `Memory of OcsfmlSystem.raw_data_type
+  |  `Stream of OcsfmlSystem.input_stream
+  |  `None ] ->
 object
   (**/**)
-  val t_fontCpp : Font.t
+  val t_font_base : Font.t
   (**/**)
 
   (**)
@@ -793,6 +820,9 @@ object
       @return True if loading succeeded, false if it failed. *)
   method load_from_file : string -> bool
 
+  (**)
+  method load_from_memory : OcsfmlSystem.raw_data_type -> bool
+
   (** Load the font from a custom stream.
 
       The supported font formats are: TrueType, Type 1, CFF, OpenType, SFNT, X11 PCF, Windows FNT, BDF, PFR and Type 42. Warning: SFML cannot preload all the font data in this function, so the contents of stream have to remain valid as long as the font is used.
@@ -805,21 +835,21 @@ object
     
 end
   
+(*
 val mk_font :
   [< `File of string | `Stream of #OcsfmlSystem.input_stream ] -> font
-
+*)
 
 module Shader :
 sig
   type t
   val destroy : t -> unit
   val default : unit -> t
-  val load_from_file :
-    t -> ?vertex:string -> ?fragment:string -> unit -> bool
-  val load_from_stream :
-    t ->
+  val load_from_file : t -> ?vertex:string -> ?fragment:string -> unit -> bool
+  val load_from_memory : t -> ?vertex:string -> ?fragment:string -> unit -> bool
+  val load_from_stream : t ->
     ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
-    ?fragment:'a -> unit -> bool
+    ?fragment:(#OcsfmlSystem.input_stream as 'a) -> unit -> bool
   val set_parameter1 : t -> string -> float -> unit
   val set_parameter2 : t -> string -> float -> float -> unit
   val set_parameter3 : t -> string -> float -> float -> float -> unit
@@ -837,6 +867,18 @@ end
 
 (**)
 val shader_is_available : unit -> unit
+
+module ShaderSource :
+sig
+  type file
+  type stream
+  type memory
+  type 'a source
+  val file : string -> file source
+  val stream : #OcsfmlSystem.input_stream -> stream source
+  val memory : string -> memory
+  val get : 'a source -> [ `File of string | `Stream of OcsfmlSystem.input_stream | `Memory of string ]
+end
 
 (** Shader class (vertex and fragment)
 
@@ -888,10 +930,10 @@ val shader_is_available : unit -> unit
     (* ... render OpenGL geometry ... *)
     shader#unbind 
     ]} *)
-class shader :
+class shader : ?vertex:('a ShaderSource.source) -> ?fragment:('a ShaderSource.source) -> unit ->
 object
   (**/**)
-  val t_shaderCpp : Shader.t
+  val t_shader_base : Shader.t
   (**/**)
 
   (** Bind the shader for rendering (activate it)
@@ -904,6 +946,8 @@ object
       shader#unbind 
       ]} *)
   method bind : unit
+
+  (**)
   method destroy : unit
 
   (** Load the vertex and/or the fragment shader from files. 
@@ -911,17 +955,17 @@ object
       @param vertex Path of the vertex shader file to load.
       @param fragment Path of the fragment shader file to load. 
       @return True if loading succeeded, false if it failed. *)
-  method load_from_file :
-    ?vertex:string -> ?fragment:string -> unit -> bool
+  method load_from_file : ?vertex:string -> ?fragment:string -> unit -> bool
+
+  (**)
+  method load_from_memory : ?vertex:string -> ?fragment:string -> unit -> bool
 
   (** Load the vertex and/or the fragment shader from custom streams. 
       Warning: At least one of the shaders must be loaded.
       @param vertex Source stream to read the vertex shader from.
       @param fragment Source stream to read the fragment shader from.
       @return True if loading succeeded, false if it failed. *)
-  method load_from_stream :
-    ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
-      ?fragment:'a -> unit -> bool
+  method load_from_stream : 'a. ?vertex:(#OcsfmlSystem.input_stream as 'a) -> ?fragment:(#OcsfmlSystem.input_stream as 'a) -> unit -> bool
 
   (**/**)
   method rep__sf_Shader : Shader.t
@@ -1102,12 +1146,12 @@ end
     window#draw someText 
     ]} *)
 class view : 
-  ?rect:float rect -> 
-    ?center:'a -> ?size:'b -> 
-      unit ->
+  [ `Center of (float * float) * (float * float)
+  | `Rect of float rect
+  | `None ] ->
 object
   (**/**)
-  val t_viewCpp : View.t
+  val t_view_base : View.t
   (**/**)
 
   (**)
@@ -1408,7 +1452,7 @@ class render_texture :
 object
   inherit render_target
   (**/**)
-  val t_render_textureCpp : RenderTexture.t
+  val t_render_texture_base : RenderTexture.t
   (**/**)
 
   (** Create the render-texture.
@@ -1456,7 +1500,7 @@ module RenderWindow :
 sig
   type t
   val destroy : t -> unit
-  val to_windowCpp : t -> OcsfmlWindow.Window.t
+  val to_window_base : t -> OcsfmlWindow.Window.t
   val to_render_target : t -> RenderTarget.t
   val default : unit -> t
   val create :
@@ -1464,7 +1508,6 @@ sig
     ?context:OcsfmlWindow.context_settings ->
     OcsfmlWindow.VideoMode.t -> string -> t
   val capture : t -> image
-  val set_icon : t -> pixel_array_type -> unit
 end
 
 (** Window that can serve as a target for 2D drawing.
@@ -1525,7 +1568,7 @@ object
   inherit render_target
 
   (**/**)
-  val t_render_windowCpp : RenderWindow.t
+  val t_render_window_base : RenderWindow.t
   (**/**)
 
   (**)
@@ -1546,7 +1589,7 @@ object
       pixels must be a bigarray of width x height pixels in 32-bits RGBA format.
       
       The OS default icon is used by default.*)
-  method set_icon : pixel_array_type -> unit
+  method set_icon : OcsfmlWindow.pixel_array_type -> unit
 end
 
 
@@ -1597,13 +1640,22 @@ You can write your own derived shape class, there are only two virtual functions
     - get_point_count must return the number of points of the shape
     - get_point must return the points of the shape *)
 class shape :
+  ?position:float * float ->
+  ?scale:float * float ->
+  ?rotation:float ->
+  ?origin:float * float ->
+  ?new_texture:texture ->
+  ?texture_rect:int rect ->
+  ?fill_color:Color.t ->
+  ?outline_color:Color.t -> 
+  ?outline_thickness:float ->
   Shape.t ->
 object
   inherit drawable
   inherit transformable
     
   (**/**)
-  val t_shape : Shape.t
+  val t_shape_base : Shape.t
   (**/**)
 
   (**)
@@ -1686,7 +1738,7 @@ object
   method set_texture_rect : int rect -> unit
 end
 
-
+(*
 val mk_shape :
   ?position:float * float ->
   ?scale:float * float ->
@@ -1696,7 +1748,7 @@ val mk_shape :
   ?texture_rect:int rect ->
   ?fill_color:Color.t ->
   ?outline_color:Color.t -> ?outline_thickness:float -> #shape -> unit
-
+*)
 
 module RectangleShape :
 sig
@@ -1723,12 +1775,22 @@ end
     ...
     window#draw rectangle
     ]} *)
-class rectangle_shape : ?size:float * float -> unit ->
+class rectangle_shape : 
+  ?position:float * float ->
+  ?scale:float * float ->
+  ?rotation:float ->
+  ?origin:float * float ->
+  ?new_texture:texture ->
+  ?texture_rect:int rect ->
+  ?fill_color:Color.t ->
+  ?outline_color:Color.t ->
+  ?outline_thickness:float -> 
+  ?size:float * float -> unit ->
 object
   inherit shape
 
   (**/**)
-  val t_rectangle_shapeCpp : RectangleShape.t
+  val t_rectangle_shape_base : RectangleShape.t
   (**/**)
 
   (**)
@@ -1746,7 +1808,7 @@ object
   method set_size : float * float
 end
 
-
+(*
 val mk_rectangle_shape :
   ?position:float * float ->
   ?scale:float * float ->
@@ -1757,7 +1819,7 @@ val mk_rectangle_shape :
   ?fill_color:Color.t ->
   ?outline_color:Color.t ->
   ?outline_thickness:float -> ?size:float * float -> unit -> rectangle_shape
-
+*)
 
 module CircleShape :
 sig
@@ -1789,13 +1851,24 @@ end
     Since the graphics card can't draw perfect circles, we have to fake them with multiple triangles connected to each other. The "points count" property of sf::CircleShape defines how many of these triangles to use, and therefore defines the quality of the circle.
 
     The number of points can also be used for another purpose; with small numbers you can create any regular polygon shape: equilateral triangle, square, pentagon, hexagon, ... *)
-class circle_shape : ?radius:float -> unit ->
+class circle_shape :
+  ?position:float * float ->
+  ?scale:float * float ->
+  ?rotation:float ->
+  ?origin:float * float ->
+  ?new_texture:texture ->
+  ?texture_rect:int rect ->
+  ?fill_color:Color.t ->
+  ?outline_color:Color.t ->
+  ?outline_thickness:float -> 
+  ?point_count:int -> 
+  ?radius:float -> unit ->
 object
   
   inherit shape
 
   (**/**)
-  val t_circle_shapeCpp : CircleShape.t
+  val t_circle_shape_base : CircleShape.t
   (**/**)
 
   (**)
@@ -1816,7 +1889,7 @@ object
   method set_point_count : int -> unit
 end
 
-
+(*
 val mk_circle_shape :
   ?position:float * float ->
   ?scale:float * float ->
@@ -1828,7 +1901,7 @@ val mk_circle_shape :
   ?outline_color:Color.t ->
   ?outline_thickness:float ->
   ?radius:float -> ?point_count:int -> unit -> circle_shape
-
+*)
 
 module ConvexShape :
 sig
@@ -1858,11 +1931,21 @@ end
     ...
     window#draw polygon
     ]} *)
-class convex_shape : ?point_count:int -> unit -> 
+class convex_shape :
+  ?position:float * float ->
+  ?scale:float * float ->
+  ?rotation:float ->
+  ?origin:float * float ->
+  ?new_texture:texture ->
+  ?texture_rect:int rect ->
+  ?fill_color:Color.t ->
+  ?outline_color:Color.t ->
+  ?outline_thickness:float ->
+  ?points:(float * float) list -> unit ->
 object
   inherit shape
   (**/**)
-  val t_convex_shapeCpp : ConvexShape.t
+  val t_convex_shape_base : ConvexShape.t
   (**/**)
 
   (**)
@@ -1883,7 +1966,7 @@ object
   method set_point_count : int -> unit
 end
 
-
+(*
 val mk_convex_shape :
   ?position:float * float ->
   ?scale:float * float ->
@@ -1895,7 +1978,7 @@ val mk_convex_shape :
   ?outline_color:Color.t ->
   ?outline_thickness:float ->
   ?points:(float * float) list -> unit -> convex_shape
-
+*)
 
 type text_style = Bold | Italic | Underline
 
@@ -1923,12 +2006,21 @@ sig
 end
 
 class text :
+  ?string:string ->
+  ?position:float * float ->
+  ?scale:float * float ->
+  ?rotation:float ->
+  ?origin:float * float ->
+  ?color:Color.t ->
+  ?font:font -> 
+  ?character_size:int -> 
+  ?style:text_style list -> unit ->
 object
   inherit drawable
   inherit transformable
     
   (**/**)
-  val t_textCpp : Text.t
+  val t_text_base : Text.t
   (**/**)
 
   (**)
@@ -2003,6 +2095,7 @@ object
 end
 
 
+(*
 val mk_text :
   ?string:string ->
   ?position:float * float ->
@@ -2011,7 +2104,7 @@ val mk_text :
   ?origin:float * float ->
   ?color:Color.t ->
   ?font:font -> ?character_size:int -> ?style:text_style list -> unit -> text
-
+*)
 
 module Sprite :
 sig
@@ -2057,14 +2150,21 @@ end
     (* Draw it *)
     window#draw sprite
     ]}*)
-class sprite : 
+class sprite :
+  ?texture:texture ->
+  ?position:float * float ->
+  ?scale:float * float ->
+  ?rotation:float ->
+  ?origin:float * float ->
+  ?color:Color.t -> 
+  ?texture_rect:int rect -> unit ->
 object
 
   inherit drawable
   inherit transformable
 
   (**/**)
-  val t_spriteCpp : Sprite.t
+  val t_sprite_base : Sprite.t
   (**/**)
 
   (**)
@@ -2117,7 +2217,7 @@ object
 end
 
 
-
+(*
 val mk_sprite :
   ?texture:texture ->
   ?position:float * float ->
@@ -2125,7 +2225,7 @@ val mk_sprite :
   ?rotation:float ->
   ?origin:float * float ->
   ?color:Color.t -> ?texture_rect:int rect -> unit -> sprite
-
+*)
 
 type vertex = {
   position : float * float;
@@ -2169,7 +2269,7 @@ class vertex_array :
 object
   inherit drawable
 
-  val t_vertex_arrayCpp : VertexArray.t
+  val t_vertex_array_base : VertexArray.t
 
   (** Add a vertex to the array. *)
   method append : vertex -> unit
@@ -2241,19 +2341,21 @@ sig
   val callback : draw_func_type -> t
   val set_callback : t -> draw_func_type -> unit
 end
-class caml_drawableCpp :
+
+class caml_drawable_base :
   CamlDrawable.t ->
 object
-  val t_caml_drawableCpp : CamlDrawable.t
+  val t_caml_drawable_base : CamlDrawable.t
   val t_drawable : Drawable.t
   method destroy : unit
   method rep__CamlDrawable : CamlDrawable.t
   method rep__sf_Drawable : Drawable.t
   method set_callback : draw_func_type -> unit
 end
+
 class virtual caml_drawable :
 object
-  val t_caml_drawableCpp : CamlDrawable.t
+  val t_caml_drawable_base : CamlDrawable.t
   val t_drawable : Drawable.t
   method destroy : unit
   method virtual draw : render_target -> render_states -> unit

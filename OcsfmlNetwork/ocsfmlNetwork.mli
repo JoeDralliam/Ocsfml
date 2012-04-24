@@ -2,7 +2,7 @@
 
 
 (**/**)
-module IPAddressCPP :
+module IPAddressBase :
 sig
   type t
   val destroy : t -> unit
@@ -38,26 +38,29 @@ end
     ]}
 *)
 class ip_address :
-  IPAddressCPP.t ->
+  [< `Bytes of int * int * int * int
+  | `Int of int
+  | `None
+  | `String of string ] ->
 object
   (**/**)
-  val t_ip_address : IPAddressCPP.t
+  val t_ip_address : IPAddressBase.t
     (**/**)
-
+    
   (**)
   method destroy : unit
-
+    
   (**/**)
-  method rep__sf_IpAddress : IPAddressCPP.t
+  method rep__sf_IpAddress : IPAddressBase.t
     (**/**)
-
-
+    
+    
   (** Get an integer representation of the address.
-
+      
       The returned number is the internal representation of the address, and should be used for optimization purposes only (like sending the address through a socket). The integer produced by this function can then be converted back to a ip_address with the proper constructor.
       @param 32-bits unsigned integer representation of the address*)
   method to_integer : int
-
+    
   (** Get a string representation of the address.
 
       The returned string is the decimal representation of the IP address (like "192.168.1.56"), even if it was constructed from a host name.
@@ -67,15 +70,7 @@ end
 
 module IPAddress :
 sig
-  type t = IPAddressCPP.t
-  val destroy : t -> unit
-  val default : unit -> t
-  val from_string : string -> t
-  val from_bytes : int -> int -> int -> int -> t
-  val from_int : int -> t
-  val to_string : t -> string
-  val to_integer : t -> int
-
+  type t = IPAddressBase.t
 
   (** Get the computer's local address.
       
@@ -97,17 +92,9 @@ sig
 
 
   val equal :
-    < rep__sf_IpAddress : 'a; .. > ->
-      < rep__sf_IpAddress : 'a; .. > -> bool
+    ip_address ->
+      ip_address -> bool
 end
-
-
-val mk_ip_address :
-  [< `Bytes of int * int * int * int
-  | `Int of int
-  | `None
-  | `String of string ] ->
-  ip_address
 
 
 
@@ -752,7 +739,7 @@ end
 class packet :
 object
   (**/**)
-  val t_packetCpp : Packet.t
+  val t_packet_base : Packet.t
     (**/**)
   
   (** Append data to the end of the packet. *)
@@ -1115,7 +1102,7 @@ object
   inherit socket
 
   (**/**)
-  val t_tcp_socketCpp : TcpSocket.t
+  val t_tcp_socket_base : TcpSocket.t
     (**/**)
 
   (** *)
@@ -1173,7 +1160,7 @@ end
 class tcp_listener :
 object
   val t_socket : Socket.t
-  val t_tcp_listenerCpp : TcpListener.t
+  val t_tcp_listener_base : TcpListener.t
   method accept : tcp_socket -> socket_status
   method close : unit
   method destroy : unit
@@ -1213,7 +1200,7 @@ end
 class udp_socket :
 object
   val t_socket : Socket.t
-  val t_udp_socketCpp : UdpSocket.t
+  val t_udp_socket_base : UdpSocket.t
   method bind : int -> socket_status
   method destroy : unit
   method is_blocking : bool

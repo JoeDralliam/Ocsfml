@@ -2,7 +2,7 @@ open OcsfmlNetwork
 
 let rec get_ip_address () =
   Printf.printf "Type the address or name of the server to connect to:\n" ;
-  let ad = mk_ip_address (`String (read_line ())) in
+  let ad = new ip_address (`String (read_line ())) in
   if IPAddress.(equal ad none)
   then get_ip_address ()
   else ad
@@ -76,7 +76,7 @@ let run_udp_server port =
   else Printf.printf "Server is listening to port %d, waiting for a message \n" port ;
     
   let packet = new packet in
-  let sender = mk_ip_address `None in
+  let sender = new ip_address `None in
   let status, sender_port =  socket#receive_packet packet sender in
     
   if status <> Done
@@ -112,7 +112,7 @@ let run_udp_client port =
   
   packet#clear  ;
     
-  let sender = mk_ip_address `None in
+  let sender = new ip_address `None in
   let status, sender_port = socket#receive_packet packet sender in
   
   if status <> Done

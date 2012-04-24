@@ -12,13 +12,13 @@
     
     Usage example:
     {[
-    (* Move the listener to the position (1, 0, -5) *)
+(* Move the listener to the position (1, 0, -5) *)
     OcsfmlGraphics.Listener.set_position 1. 0. -5. ;
     
-    (* Make it face the right axis (1, 0, 0) *)
+(* Make it face the right axis (1, 0, 0) *)
     OcsfmlGraphics.Listener.set_direction 1. 0. 0. ;
     
-    (* Reduce the global volume *)
+(* Reduce the global volume *)
     OcsfmlGraphics.Listener.set_global_volume 50.
     ]} *)
 module Listener :
@@ -46,18 +46,18 @@ sig
       @return Listener's position*)
   val get_position : unit -> float * float * float
     
-    (** Set the orientation of the listener in the scene.
-	
-	The orientation defines the 3D axes of the listener (left, up, front) in the scene. The orientation vector doesn't have to be normalized. The default listener's orientation is (0, 0, -1).*)
+  (** Set the orientation of the listener in the scene.
+      
+      The orientation defines the 3D axes of the listener (left, up, front) in the scene. The orientation vector doesn't have to be normalized. The default listener's orientation is (0, 0, -1).*)
   val set_direction : float -> float -> float -> unit
 
-    (** Set the orientation of the listener in the scene.
+  (** Set the orientation of the listener in the scene.
 
-	The orientation defines the 3D axes of the listener (left, up, front) in the scene. The orientation vector doesn't have to be normalized. The default listener's orientation is (0, 0, -1).*)
+      The orientation defines the 3D axes of the listener (left, up, front) in the scene. The orientation vector doesn't have to be normalized. The default listener's orientation is (0, 0, -1).*)
   val set_direction_v : float * float * float -> unit
 
-    (** Get the current orientation of the listener in the scene. 
-	@return Listener's orientation*)
+  (** Get the current orientation of the listener in the scene. 
+      @return Listener's orientation*)
   val get_direction : unit -> float * float * float
 end
 
@@ -68,7 +68,7 @@ type status =
   | Playing (** Sound is playing. *)
 
 
-module Sound_source :
+module SoundSource :
 sig
   type t
   class type sound_source_class_type =
@@ -112,11 +112,17 @@ end
     
     It defines several properties for the sound: pitch, volume, position, attenuation, etc. All of them can be changed at any time with no impact on performances.*)
 class sound_source :
-  Sound_source.t ->
+  ?pitch:float -> 
+    ?volume:float ->
+    ?position:float * float * float ->
+    ?relative_to_listener:bool ->
+    ?min_distance:float -> 
+    ?attenuation:float ->
+    SoundSource.t ->
 object
   (**/**)
-  val t_sound_source : Sound_source.t
-  (**/**)
+  val t_sound_source : SoundSource.t
+    (**/**)
 
   (**)
   method destroy : unit
@@ -146,8 +152,8 @@ object
   method is_relative_to_listener : bool
 
   (**/**)
-  method rep__sf_SoundSource : Sound_source.t
-  (**/**)
+  method rep__sf_SoundSource : SoundSource.t
+    (**/**)
 
   (** Set the attenuation factor of the sound.
 
@@ -185,19 +191,11 @@ object
   method set_volume : float -> unit
 end
 
-val mk_sound_source :
-  ?pitch:float ->
-  ?volume:float ->
-  ?position:float * float * float ->
-  ?relative_to_listener:bool ->
-  ?min_distance:float -> ?attenuation:float -> #sound_source -> unit
-
-
-module Sound_stream :
+module SoundStream :
 sig
   type t
   val destroy : t -> unit
-  val to_sound_source : t -> Sound_source.t
+  val to_sound_source : t -> SoundSource.t
   val play : t -> unit
   val pause : t -> unit
   val stop : t -> unit
@@ -222,14 +220,22 @@ end
     
     sf::SoundStream is a base class that doesn't care about the stream source, which is left to the derived class. SFML provides a built-in specialization for big files (see sf::Music). *)
 class sound_stream :
-  Sound_stream.t ->
+  ?pitch:float ->
+    ?volume:float ->
+    ?position:float * float * float ->
+    ?relative_to_listener:bool ->
+    ?min_distance:float -> 
+    ?attenuation:float ->
+    ?playing_offset:OcsfmlSystem.Time.t -> 
+    ?loop:bool ->
+    SoundStream.t ->
 object
   inherit sound_source
 
   (**/**)
-  val t_sound_stream : Sound_stream.t
-  (**/**) 
-  
+  val t_sound_stream : SoundStream.t
+    (**/**) 
+    
   (**)
   method destroy : unit
 
@@ -268,8 +274,8 @@ object
   method play : unit
 
   (**/**)
-  method rep__sf_SoundStream : Sound_stream.t
-  (**/**)
+  method rep__sf_SoundStream : SoundStream.t
+    (**/**)
 
   (** Set whether or not the stream should loop after reaching the end.
 
@@ -287,15 +293,12 @@ object
   method stop : unit
 end
 
-val mk_sound_stream :
-  ?playing_offset:OcsfmlSystem.Time.t -> ?loop:bool -> #sound_stream -> unit
-
 
 module Music :
 sig
   type t
   val destroy : t -> unit
-  val to_sound_stream : t -> Sound_stream.t
+  val to_sound_stream : t -> SoundStream.t
   val default : unit -> t
   val open_from_file : t -> string -> bool
   val get_duration : t -> OcsfmlSystem.Time.t
@@ -314,13 +317,13 @@ end
 
     Usage example:
     {[
-    (* Declare a new music *)
+(* Declare a new music *)
     let music = new music in
     
-    (* Open it from an audio file *)
+(* Open it from an audio file *)
     if not (music#open_from_file "music.ogg")
     then begin
-    (** error...*)
+(** error...*)
     end
     
     // Change some parameters
@@ -334,12 +337,21 @@ end
     ]}
 *)
 class music :
+  ?pitch:float ->
+    ?volume:float ->
+    ?position:float * float * float ->
+    ?relative_to_listener:bool ->
+    ?min_distance:float -> 
+    ?attenuation:float ->
+    ?playing_offset:OcsfmlSystem.Time.t -> 
+    ?loop:bool ->
+    unit ->
 object
   inherit sound_stream 
 
   (**/**)  
-  val t_musicCpp : Music.t
-  (**/**)
+  val t_music_base : Music.t
+    (**/**)
 
   (**)
   method destroy : unit
@@ -356,17 +368,8 @@ object
 
   (**/**)
   method rep__sf_Music : Music.t
-  (**/**)
+    (**/**)
 end
-
-val mk_music :
-  ?playing_offset:'a ->
-  ?loop:'b ->
-  ?pitch:'c ->
-  ?volume:'d ->
-  ?position:'e ->
-  ?relative_to_listener:'f ->
-  ?min_distance:'g -> ?attenuation:'h -> unit -> music
 
 type samples_type =
     (int, Bigarray.int16_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
@@ -374,9 +377,9 @@ type samples_type =
 module SoundBuffer :
 sig
   type t
-  class type sound_bufferCpp_class_type =
+  class type sound_buffer_base_class_type =
   object
-    val t_sound_bufferCpp : t
+    val t_sound_buffer_base : t
     method destroy : unit
     method get_channel_count : int
     method get_duration : OcsfmlSystem.Time.t
@@ -417,33 +420,36 @@ end
     
     Usage example:
     {[
-    (* Declare a new sound buffer *)
+(* Declare a new sound buffer *)
     let buffer = new sound_buffer in
     
-    (* Load it from a file *)
+(* Load it from a file *)
     if not (buffer#load_from_file "sound.wav")
     then (* error... *)
     
-    (* Create a sound source and bind it to the buffer *)
+(* Create a sound source and bind it to the buffer *)
     let sound1 = new sound in
     sound1#set_buffer buffer ;
     
-    (* Play the sound *)
+(* Play the sound *)
     sound1#play ;
     
-    (* Create another sound source bound to the same buffer *)
+(* Create another sound source bound to the same buffer *)
     let sound2 = new sound in
     sound2#set_buffer buffer ;
     
-    (* Play it with a higher pitch -- the first sound remains unchanged *)
+(* Play it with a higher pitch -- the first sound remains unchanged *)
     sound2#set_pitch 2 ;
     sound2#play
     ]}*)
 class sound_buffer :
+  [< `File of string
+  | `Samples of samples_type * int * int
+  | `Stream of OcsfmlSystem.input_stream ] ->
 object
   (**/**)
-  val t_sound_bufferCpp : SoundBuffer.t
-  (**/**)
+  val t_sound_buffer_base : SoundBuffer.t
+    (**/**)
 
   (**)
   method destroy : unit
@@ -497,7 +503,7 @@ object
 
   (**/**)
   method rep__sf_SoundBuffer : SoundBuffer.t
-  (**/**)
+    (**/**)
 
   (** Save the sound buffer to an audio file.
 
@@ -506,20 +512,20 @@ object
   method save_to_file : string -> bool
 end
 
-val mk_sound_buffer :
-  [< `File of string
-  | `Samples of samples_type * int * int
-  | `Stream of OcsfmlSystem.input_stream ] ->
-  sound_buffer
 
-
-module Sound_recorder :
+module SoundRecorder :
 sig
   type t
   val destroy : t -> unit
   val start : t -> ?sampleRate:int -> unit -> unit
   val stop : t -> unit
   val get_sample_rate : t -> int
+
+  (** Check if the system supports audio capture.
+
+      This function should always be called before using the audio capture features. If it returns false, then any attempt to use OcsfmlAudio.sound_recorder or one of its derived classes will fail.*)
+  val is_available : unit -> bool
+
 end
 
 
@@ -528,11 +534,11 @@ end
     OcsfmlAudi.sound_recorder provides a simple interface to access the audio recording capabilities of the computer (the microphone).
     
     As an abstract base class, it only cares about capturing sound samples, the task of making something useful with them is left to the derived class. Note that SFML provides a built-in specialization for saving the captured data to a sound buffer (see OcsfmlAudio.sound_buffer_recorder). *)
-class sound_recorder : Sound_recorder.t ->
+class sound_recorder : SoundRecorder.t ->
 object
   (**/**)
-  val t_sound_recorder : Sound_recorder.t
-  (**/**)
+  val t_sound_recorder : SoundRecorder.t
+    (**/**)
 
   (**)
   method destroy : unit
@@ -544,8 +550,8 @@ object
   method get_sample_rate : int
 
   (**/**)
-  method rep__sf_SoundRecorder : Sound_recorder.t
-  (**/**)
+  method rep__sf_SoundRecorder : SoundRecorder.t
+    (**/**)
 
   (** Start the capture.
 
@@ -558,14 +564,7 @@ object
 end
 
 
-module SoundRecorder :
-sig
-  (** Check if the system supports audio capture.
-
-      This function should always be called before using the audio capture features. If it returns false, then any attempt to use OcsfmlAudio.sound_recorder or one of its derived classes will fail.*)
-  val is_available : unit -> bool
-end
-  
+    
 (** Specialized sound_recorder which stores the captured audio data into a sound buffer.
     
     OcsfmlAudio.sound_buffer_recorder allows to access a recorded sound through a OcsfmlAudio.sound_buffer, so that it can be played, saved to a file, etc.
@@ -578,34 +577,35 @@ end
     {[
     if SoundRecorder.is_available ()
     then begin
-        (* Record some audio data *)
-        let recorder = new sound_buffer_recorder in
-        recorder#start () ;
-        ...
-        recorder#stop ;
+(* Record some audio data *)
+    let recorder = new sound_buffer_recorder in
+    recorder#start () ;
+    ...
+    recorder#stop ;
     
-        (* Get the buffer containing the captured audio data *)
-        let buffer = recorder#getBuffer in
+(* Get the buffer containing the captured audio data *)
+    let buffer = recorder#getBuffer in
     
-        // Save it to a file (for example...)
-        buffer#save_to_file "my_record.ogg"
+    // Save it to a file (for example...)
+    buffer#save_to_file "my_record.ogg"
     end
     ]} *)
 module SoundBufferRecorder :
 sig
   type t
   val destroy : t -> unit
-  val to_sound_recorder : t -> Sound_recorder.t
+  val to_sound_recorder : t -> SoundRecorder.t
   val default : unit -> t
   val get_buffer : t -> sound_buffer
 end
+
 class sound_buffer_recorder :
 object
-	inherit sound_recorder
+  inherit sound_recorder
 
   (**/**)
-  val t_sound_buffer_recorderCpp : SoundBufferRecorder.t
-  (**/**)
+  val t_sound_buffer_recorder_base : SoundBufferRecorder.t
+    (**/**)
 
   (**)
   method destroy : unit
@@ -617,14 +617,14 @@ object
 
   (**/**)
   method rep__sf_SoundBufferRecorder : SoundBufferRecorder.t
-  (**/**)
+    (**/**)
 end
 
 module Sound :
 sig
   type t
   val destroy : t -> unit
-  val to_sound_source : t -> Sound_source.t
+  val to_sound_source : t -> SoundSource.t
   val default : unit -> t
   val create_from_sound_buffer : sound_buffer -> t
   val play : t -> unit
@@ -663,13 +663,22 @@ end
     sound#play ;
     ]}*)
 class sound :
+  ?pitch:float ->
+    ?volume:float ->
+    ?position:float * float * float ->
+    ?relative_to_listener:bool ->
+    ?min_distance:float -> ?attenuation:float -> 
+    ?loop:bool ->
+    ?buffer:sound_buffer ->
+    ?playing_offset:OcsfmlSystem.Time.t ->
+    unit -> 
 object
   (**)
   inherit sound_source
 
   (**/**)
-  val t_soundCpp : Sound.t
-  (**/**)
+  val t_sound_base : Sound.t
+    (**/**)
 
   (**)
   method destroy : unit
@@ -702,7 +711,7 @@ object
 
   (**/**)
   method rep__sf_Sound : Sound.t
-  (**/**)
+    (**/**)
 
   (** Set the source buffer containing the audio data to play.
 
@@ -724,14 +733,3 @@ object
       This function stops the sound if it was playing or paused, and does nothing if it was already stopped. It also resets the playing position (unlike pause).*)
   method stop : unit
 end
-
-
-val mk_sound :
-  ?loop:bool ->
-  ?buffer:sound_buffer ->
-  ?playing_offset:OcsfmlSystem.Time.t ->
-  ?pitch:float ->
-  ?volume:float ->
-  ?position:float * float * float ->
-  ?relative_to_listener:bool ->
-  ?min_distance:float -> ?attenuation:float -> unit -> sound

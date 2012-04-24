@@ -1,5 +1,13 @@
 (** Windowing & event management *)
 
+
+type pixel_array_type = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array3.t
+
+val pixel_array_kind : (int, Bigarray.int8_unsigned_elt) Bigarray.kind
+
+val pixel_array_layout : Bigarray.c_layout Bigarray.layout
+
+
 (** Module KeyCode : Key codes. *)
 module KeyCode :
 sig
@@ -195,10 +203,12 @@ sig
   val default : unit -> t
   val set_active : t -> bool -> unit
 end
-class contextCpp :
+
+
+class context_base :
   Context.t ->
 object
-  val t_contextCpp : Context.t
+  val t_context_base : Context.t
   method destroy : unit
   method rep__sf_Context : Context.t
   method set_active : bool -> unit
@@ -213,7 +223,7 @@ end
     Note that a context is only active in its current thread, if you create a new thread it will have no valid context by default.
 
     To use a context instance, just construct it and let it live as long as you need a valid context. No explicit activation is needed, all it has to do is to exist. Its destructor will take care of deactivating and freeing all the attached resources. *)
-class context : contextCpp
+class context : context_base
 
 (** Defines a system event and its parameters.
 
@@ -383,7 +393,7 @@ type window_style =
   | Fullscreen (** Fullscreen mode (this flag and all others are mutually exclusive) *)
 
 
-module WindowCpp :
+module WindowBase :
 sig
   type t
   val destroy : t -> unit
@@ -413,13 +423,14 @@ sig
   val display : t -> unit
   val set_framerate_limit : t -> int -> unit
   val set_joystick_threshold : t -> float -> unit
+  val set_icon : t -> pixel_array_type -> unit
 end
 
 
-class windowCpp :
-  WindowCpp.t ->
+class window_base :
+  WindowBase.t ->
 object
-  val t_windowCpp : WindowCpp.t
+  val t_window_base : WindowBase.t
   method close : unit
   method create :
     ?style:window_style list ->
@@ -433,9 +444,10 @@ object
   method get_width : int
   method is_open : bool
   method poll_event : Event.t option
-  method rep__sf_Window : WindowCpp.t
+  method rep__sf_Window : WindowBase.t
   method set_active : bool -> bool
   method set_framerate_limit : int -> unit
+  method set_icon : pixel_array_type -> unit
   method set_joystick_threshold : float -> unit
   method set_key_repeat_enabled : bool -> unit
   method set_mouse_cursor_visible : bool -> unit
@@ -453,7 +465,7 @@ end
 module Window :
 sig
   type style = window_style = Titlebar | Resize | Close | Fullscreen
-  type t = WindowCpp.t
+  type t = WindowBase.t
   val destroy : t -> unit
   val default : unit -> t
   val create_init :
@@ -481,6 +493,7 @@ sig
   val display : t -> unit
   val set_framerate_limit : t -> int -> unit
   val set_joystick_threshold : t -> float -> unit
+  val set_icon : t -> pixel_array_type -> unit
 end
 
 
@@ -488,7 +501,7 @@ class window :
   ?style:window_style list ->
     ?context:context_settings -> VideoMode.t -> string -> 
 object
-  val t_windowCpp : WindowCpp.t
+  val t_window_base : WindowBase.t
   method close : unit
   method create :
     ?style:window_style list ->
@@ -502,9 +515,10 @@ object
   method get_width : int
   method is_open : bool
   method poll_event : Event.t option
-  method rep__sf_Window : WindowCpp.t
+  method rep__sf_Window : WindowBase.t
   method set_active : bool -> bool
   method set_framerate_limit : int -> unit
+  method set_icon : pixel_array_type -> unit
   method set_joystick_threshold : float -> unit
   method set_key_repeat_enabled : bool -> unit
   method set_mouse_cursor_visible : bool -> unit

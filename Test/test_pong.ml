@@ -19,7 +19,7 @@ let icon =
 let test_pong () = 
   Random.self_init () ;
 
-  let icon = mk_image (`File "resources/sfml_icon.png") in
+  let icon = new image (`File "resources/sfml_icon.png") in
 
   let game_width = 800 in
   let game_height = 600 in
@@ -30,32 +30,32 @@ let test_pong () =
   let vm = VideoMode.create ~w:game_width ~h:game_height () in
   let app = new render_window vm  "Ocsfml - Pong" in
   app#set_icon icon#get_pixels_ptr ;
-  let font = mk_font (`File "resources/sansation.ttf") in
-  let ball_sound_buffer = mk_sound_buffer (`File "resources/ball.wav") in
+  let font = new font (`File "resources/sansation.ttf") in
+  let ball_sound_buffer = new sound_buffer (`File "resources/ball.wav") in
 
 
-  let pauseMessage = mk_text ~font ~character_size:40 ~position:(170.0, 150.0) ~color:Color.white
+  let pauseMessage = new text ~font ~character_size:40 ~position:(170.0, 150.0) ~color:Color.white
 			     ~string:"Welcome to SFML pong!\nPress space to start the game" () in
 
-  let left_paddle = mk_rectangle_shape 	~size:(paddle_sizeX -. 3., paddle_sizeY -. 3.) 
+  let left_paddle = new rectangle_shape ~size:(paddle_sizeX -. 3., paddle_sizeY -. 3.) 
 					~outline_thickness:3.
 					~outline_color:Color.black 
 					~fill_color:(Color.rgb 100 100 200)
 					~origin:(paddle_sizeX /. 2., paddle_sizeY /. 2.) () in
   (* ignore left_paddle#get_size ; *)
-  let right_paddle = mk_rectangle_shape ~size:(paddle_sizeX -. 3., paddle_sizeY -. 3.) 
-					~outline_thickness:3. 
-					~outline_color:Color.black 
-					~fill_color:(Color.rgb 200 100 100)
-					~origin:(paddle_sizeX /. 2., paddle_sizeY /. 2.) () in
+  let right_paddle = new rectangle_shape ~size:(paddle_sizeX -. 3., paddle_sizeY -. 3.) 
+                                         ~outline_thickness:3. 
+					 ~outline_color:Color.black 
+					 ~fill_color:(Color.rgb 200 100 100)
+					 ~origin:(paddle_sizeX /. 2., paddle_sizeY /. 2.) () in
 
-  let ball =  mk_circle_shape ~radius:(ball_radius -. 3.)
+  let ball = new circle_shape ~radius:(ball_radius -. 3.)
 			      ~outline_thickness:3.
 			      ~outline_color:Color.black
 			      ~fill_color:Color.white
 			      ~origin:(ball_radius /. 2., ball_radius /. 2.) () in
 
-  let ball_sound = mk_sound ~buffer:ball_sound_buffer () in
+  let ball_sound = new sound ~buffer:ball_sound_buffer () in
   let ai_timer = new clock in
   let ai_time = 300 in
   let paddle_speed = 400.0 in

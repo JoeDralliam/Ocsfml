@@ -28,6 +28,7 @@ set( CPP_DEV_MODE FALSE CACHE BOOL "")
 set( CAML_DEV_MODE FALSE CACHE BOOL "")
 
 set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
+set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/camlpp")
 
 if(MSVC_VERSION EQUAL 1600) #VC++ 2010
   include(Configuration/VC++2010.cmake)
@@ -83,7 +84,7 @@ include_directories(
   ${BOOST_DIR}
   )
 
-add_subdirectory(camlpp)
+
 add_subdirectory(OcsfmlSystem)
 add_subdirectory(OcsfmlWindow)
 add_subdirectory(OcsfmlGraphics)
