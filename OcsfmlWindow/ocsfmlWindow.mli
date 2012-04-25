@@ -116,9 +116,34 @@ sig
     | Count
 end
 
-(** Check if a key is pressed. 
-    @return True if the key is pressed, false otherwise *)
-val is_key_pressed : KeyCode.t -> bool
+(** Give access to the real-time state of the keyboard.
+    
+    Keyboard provides an interface to the state of the keyboard.
+    
+    This class allows users to query the keyboard state at any time and directly, without having to deal with a window and its events. Compared to the KeyPressed and KeyReleased events, Keyboard can retrieve the state of a key at any time (you don't need to store and update a boolean on your side in order to know if a key is pressed or released), and you always get the real state of the keyboard, even if keys are pressed or released when your window is out of focus and no event is triggered.
+
+    Usage example:
+    {[
+    if OcsfmlWindow.Keyboard.is_key_pressed OcsfmlWindow.KeyCode.Left
+    then begin
+    (* move left... *)
+    end
+    else if OcsfmlWindow.Keyboard.is_key_pressed OcsfmlWindow.KeyCode.Right
+    then begin
+    (* move right... *)
+    end
+    else if OcsfmlWindow.Keyboard.is_key_pressed OcsfmlWindow.KeyCode.Escape
+    then begin
+    (* quit... *)
+    end
+    ]} *)
+module Keyboard =
+sig
+  (** Check if a key is pressed. 
+      @return True if the key is pressed, false otherwise *)
+  val is_key_pressed : KeyCode.t -> bool
+end
+
 
 (** Give access to the real-time state of the joysticks.
 
@@ -138,7 +163,29 @@ val is_key_pressed : KeyCode.t -> bool
     - 8 axes per joystick (Joystick.axisCount)
 
 
-    Unlike the keyboard or mouse, the state of joysticks is sometimes not directly available (depending on the OS), therefore an update() function must be called in order to update the current state of joysticks. When you have a window with event handling, this is done automatically, you don't need to call anything. But if you have no window, or if you want to check joysticks state before creating one, you must call Joystick.update explicitely. *)
+    Unlike the keyboard or mouse, the state of joysticks is sometimes not directly available (depending on the OS), therefore an update() function must be called in order to update the current state of joysticks. When you have a window with event handling, this is done automatically, you don't need to call anything. But if you have no window, or if you want to check joysticks state before creating one, you must call Joystick.update explicitely. 
+
+    Usage example:
+    {[
+    (* The id of joystick #0 *)
+    let id = OcsfmlWindow.id_from_int 0
+
+    (* Is joystick #0 connected? *)
+    let connected = OcsfmlWindow.Joystick.is_connected id in    
+
+    (* How many buttons does joystick #0 support? *)
+    let buttons = OcsfmlWindow.Joystick.get_button_count id in
+    
+    (* Does joystick #0 define a X axis? *)
+    let hasX = OcsfmlWindow.Joystick.has_axis id OcsfmlWindow.Joystick.X in
+    
+    (* Is button #2 pressed on joystick #0? *)
+    let pressed = OcsfmlWindow.Joystick.is_button_pressed id 2 in
+    
+    (* What's the current position of the Y axis on joystick #0? *)
+    let position = OcsfmlWindow.Joystick.get_axis_position id OcsfmlWindow.Joystick.Y in
+    ...
+    ]} *)
 module Joystick :
 sig
   
@@ -159,7 +206,7 @@ sig
       
   (** Create a joystick_id from an int n 
       @return a joystick_id if n is between 0 and count-1, raise Invalid_argument otherwise *)
-  val joystick_id_from_int : int -> joystick_id
+  val id_from_int : int -> joystick_id
 
   (** Check if a joystick is connected. 
       @return True if the joystick is connected, false otherwise *)
@@ -204,16 +251,6 @@ sig
   val set_active : t -> bool -> unit
 end
 
-
-class context_base :
-  Context.t ->
-object
-  val t_context_base : Context.t
-  method destroy : unit
-  method rep__sf_Context : Context.t
-  method set_active : bool -> unit
-end
-
 (** Class holding a valid drawing context.
 
     If you need to make OpenGL calls without having an active window (like in a thread), you can use an instance of this class to get a valid context.
@@ -222,8 +259,36 @@ end
 
     Note that a context is only active in its current thread, if you create a new thread it will have no valid context by default.
 
-    To use a context instance, just construct it and let it live as long as you need a valid context. No explicit activation is needed, all it has to do is to exist. Its destructor will take care of deactivating and freeing all the attached resources. *)
-class context : context_base
+    To use a context instance, just construct it and let it live as long as you need a valid context. No explicit activation is needed, all it has to do is to exist. Its destructor will take care of deactivating and freeing all the attached resources. 
+
+    Usage example:
+    {[
+    let thread_func () =
+        let context = new context in
+        (* from now on, you have a valid context *)
+      
+        (* you can make OpenGL calls *)
+         GlClear.clear [`depth];
+
+        (* Destruction is not automated *)
+         context#destroy 
+    ]}
+*)
+class context :
+object
+  val t_context_base : Context.t
+
+  (**)
+  method destroy : unit
+
+  (**/**)
+  method rep__sf_Context : Context.t
+    (**/**)
+
+  (** Activate or deactivate explicitely the context. 
+      @return True on success, false on failure*)
+  method set_active : bool -> bool
+end
 
 (** Defines a system event and its parameters.
 
@@ -231,7 +296,22 @@ class context : context_base
 
     Events are retrieved using the Window.poll_event and Window.wait_event functions.
 
-    A Event.t instance contains the type of the event (mouse moved, key pressed, window closed, ...) as well as the details about this particular event. *)
+    A Event.t instance contains the type of the event (mouse moved, key pressed, window closed, ...) as well as the details about this particular event. 
+
+    Usage example:
+    {[    
+    let rec poll_events window =
+        let open OcsfmlWindow.Event in
+        match window#poll_event with
+            | Some e -> begin
+                match e with
+                    | Closed -> window#close
+                    | KeyPressed { code = KeyCode.Escape ; _ } -> window#close
+                    | Resized { width ; height } -> do_something_with_the_new_size width height ;
+                poll_events window end
+            | None -> ()
+    in poll_events my_window
+    ]} *)
 module Event :
 sig
   
@@ -393,6 +473,7 @@ type window_style =
   | Fullscreen (** Fullscreen mode (this flag and all others are mutually exclusive) *)
 
 
+(**/**)
 module WindowBase :
 sig
   type t
@@ -425,7 +506,6 @@ sig
   val set_joystick_threshold : t -> float -> unit
   val set_icon : t -> pixel_array_type -> unit
 end
-
 
 class window_base :
   WindowBase.t ->
@@ -460,7 +540,7 @@ object
   method set_visible : bool -> unit
   method wait_event : Event.t option
 end
-
+(**/**)
 
 module Window :
 sig
@@ -496,7 +576,6 @@ sig
   val set_icon : t -> pixel_array_type -> unit
 end
 
-
 class window :
   ?style:window_style list ->
     ?context:context_settings -> VideoMode.t -> string -> 
@@ -531,6 +610,7 @@ object
   method set_visible : bool -> unit
   method wait_event : Event.t option
 end
+
 
 (** Give access to the real-time state of the mouse.
 

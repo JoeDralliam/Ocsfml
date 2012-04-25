@@ -421,12 +421,6 @@ class transformable_init : ?position:float * float ->
   ?scale:float * float ->
   ?origin:float * float -> ?rotation:float -> Transformable.t -> transformable
 *)
-(*
-val mk_transformable :
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?origin:float * float -> ?rotation:float -> #transformable -> unit
-*)
 
 
 
@@ -553,14 +547,6 @@ object ('a)
 end
 
 
-(*
-val mk_image :
-  [< `Color of Color.t * int * int
-  | `Create of int * int
-  | `File of string
-  | `Stream of OcsfmlSystem.input_stream ] ->
-  image
-*)
 
 (** Get the maximum texture size allowed.
 
@@ -726,13 +712,6 @@ object
   method update_from_window : ?coords:int * int -> #OcsfmlWindow.window -> unit
 end
 
-(*
-val mk_texture :
-  [< `File of string
-  | `Image of int rect * image
-  | `Stream of OcsfmlSystem.input_stream ] ->
-  texture
-*)
 
 (** Structure describing a glyph.
     
@@ -835,11 +814,6 @@ object
     
 end
   
-(*
-val mk_font :
-  [< `File of string | `Stream of #OcsfmlSystem.input_stream ] -> font
-*)
-
 module Shader :
 sig
   type t
@@ -1122,7 +1096,7 @@ end
     Usage example:
     {[
     let window = new render_window (* ... *) in
-    let view = new view () in
+    let view = new view `None in
     
 (* Initialize the view to a rectangle located at (100, 100) and with a size of 400x200 *)
     view#reset { left = 100.; top = 100.; width = 400.; height = 200. } ;
@@ -1224,8 +1198,7 @@ object
       
       -   1 keeps the size unchanged
       - > 1 makes the view bigger (objects appear smaller)
-      - < 1 makes the view smaller (objects appear bigger)
-  *)
+      - < 1 makes the view smaller (objects appear bigger) *)
   method zoom : float -> unit
 end
 
@@ -1252,6 +1225,49 @@ type render_states = {
 val mk_render_states :
   ?blend_mode:blend_mode ->
   ?transform:transform -> ?texture:texture -> ?shader:shader -> unit -> unit
+
+
+(** Define a point with color and texture coordinates.
+
+    A vertex is an improved point.
+    
+    It has a position and other extra attributes that will be used for drawing: in SFML, vertices also have a color and a pair of texture coordinates.
+    
+    The vertex is the building block of drawing. Everything which is visible on screen is made of vertices. They are grouped as 2D primitives (triangles, quads, ...), and these primitives are grouped to create even more complex 2D entities such as sprites, texts, etc.
+    
+    If you use the graphical entities of SFML (sprite, text, shape) you won't have to deal with vertices directly. But if you want to define your own 2D entities, such as tiled maps or particle systems, using vertices will allow you to get maximum performances.
+    
+    Example:
+    {[
+    (* define a 100x100 square, red, with a 10x10 texture mapped on it *)
+    let vertices =
+    [
+        { position = (0.,0.)     ; color = Color.Red ; tex_coords = (0.,0.) } ;
+        { position = (0.,100.)   ; color = Color.Red ; tex_coords = (0.,10.) } ;
+        { position = (100.,100.) ; color = Color.Red ; tex_coords = (10.,10.) } ;
+        { position = (100.,0.)   ; color = Color.Red ; tex_coords = (10.,0.) } 
+    ] in
+    ]}
+    Note: although texture coordinates are supposed to be an integer amount of pixels, their type is float because of some buggy graphics drivers that are not able to process integer coordinates correctly. *)
+type vertex = {
+  position : float * float;
+  color : Color.t;
+  tex_coords : float * float;
+}
+
+
+val mk_vertex :
+  ?position:float * float ->
+  ?color:Color.t -> ?tex_coords:float * float -> unit -> vertex
+
+type primitive_type =
+    Points
+  | Lines
+  | LinesStrip
+  | Triangles
+  | TrianglesStrip
+  | TrianglesFan
+  | Quads
 
 
 module RenderTarget :
@@ -1738,17 +1754,6 @@ object
   method set_texture_rect : int rect -> unit
 end
 
-(*
-val mk_shape :
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t -> ?outline_thickness:float -> #shape -> unit
-*)
 
 module RectangleShape :
 sig
@@ -1767,7 +1772,7 @@ end
     
     Usage example: 
     {[
-    let rectangle = OcsfmlGraphics.(mk_rectangle_shape 
+    let rectangle = new rectangle_shape 
                            ~size:(100.,50.)
                            ~outline_color:Color.red
                            ~outline_thickness:5.
@@ -1808,18 +1813,6 @@ object
   method set_size : float * float
 end
 
-(*
-val mk_rectangle_shape :
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t ->
-  ?outline_thickness:float -> ?size:float * float -> unit -> rectangle_shape
-*)
 
 module CircleShape :
 sig
@@ -1840,11 +1833,11 @@ end
     
     Usage example:
     {[
-    let circle = OcsfmlGraphics.(mk_circle_shape
-                                     ~radius:150.
-                                     ~outline_color:Color.red
-                                     ~outline_thickness:5.
-                                     ~position:(10, 20) () in
+    let circle = new circle_shape
+                         ~radius:150.
+                         ~outline_color:Color.red
+                         ~outline_thickness:5.
+                         ~position:(10, 20) () in
     ...
     window#draw circle 
     ]}
@@ -1889,19 +1882,6 @@ object
   method set_point_count : int -> unit
 end
 
-(*
-val mk_circle_shape :
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t ->
-  ?outline_thickness:float ->
-  ?radius:float -> ?point_count:int -> unit -> circle_shape
-*)
 
 module ConvexShape :
 sig
@@ -1923,11 +1903,11 @@ end
     
     Usage example:
     {[
-    let polygon = OcsfmlGraphics.(mk_convex_shape 
-                                       ~points:[(0.,0.) ; (0.,10.) ; (25., 5.)]
-                                       ~outline_color:Color.red
-                                       ~outline_thickness:5.
-                                       ~position:(10.,20.) ()) in
+    let polygon = new convex_shape 
+                          ~points:[(0.,0.) ; (0.,10.) ; (25., 5.)]
+                          ~outline_color:Color.red
+                          ~outline_thickness:5.
+                          ~position:(10.,20.) ()) in
     ...
     window#draw polygon
     ]} *)
@@ -1966,19 +1946,6 @@ object
   method set_point_count : int -> unit
 end
 
-(*
-val mk_convex_shape :
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t ->
-  ?outline_thickness:float ->
-  ?points:(float * float) list -> unit -> convex_shape
-*)
 
 type text_style = Bold | Italic | Underline
 
@@ -2005,6 +1972,36 @@ sig
   val get_global_bounds : t -> float rect
 end
 
+
+(** Graphical text that can be drawn to a render target.
+    
+    sf::Text is a drawable class that allows to easily display some text with custom style and color on a render target.
+    
+    It inherits all the functions from sf::Transformable: position, rotation, scale, origin. It also adds text-specific properties such as the font to use, the character size, the font style (bold, italic, underlined), the global color and the text to display of course. It also provides convenience functions to calculate the graphical size of the text, or to get the global position of a given character.
+    
+    sf::Text works in combination with the sf::Font class, which loads and provides the glyphs (visual characters) of a given font.
+    
+    The separation of sf::Font and sf::Text allows more flexibility and better performances: indeed a sf::Font is a heavy resource, and any operation on it is slow (often too slow for real-time applications). On the other side, a sf::Text is a lightweight object which can combine the glyphs data and metrics of a sf::Font to display any text on a render target.
+    
+    It is important to note that the sf::Text instance doesn't copy the font that it uses, it only keeps a reference to it. Thus, a sf::Font must not be destructed while it is used by a sf::Text (i.e. never write a function that uses a local sf::Font instance for creating a text).
+    
+    Usage example:
+    {[
+    (* Declare and load a font *)
+    let font = new font (`File "arial.ttf") in
+    
+    (* Create a text *)
+    let text = new text ~string:"hello" 
+                        ~font
+                        ~character_size:30.
+                        ~style:[Bold]
+                        ~color:Color.red () 
+    in
+    
+    (* Draw it *)
+    window#draw text
+    ]}
+*)
 class text :
   ?string:string ->
   ?position:float * float ->
@@ -2095,16 +2092,6 @@ object
 end
 
 
-(*
-val mk_text :
-  ?string:string ->
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?color:Color.t ->
-  ?font:font -> ?character_size:int -> ?style:text_style list -> unit -> text
-*)
 
 module Sprite :
 sig
@@ -2142,10 +2129,11 @@ end
     let texture = mk_texture (`File "texture.png") in
     
     (* Create a sprite *)
-    let sprite = mk_sprite ~texture 
-                           ~texture_rect:{ top = 10 ; left = 10 ; width = 50 ; height = 30 }
-                           ~color:(Color.rgba 255 255 255 200)
-                           ~position:(100., 25.) () in
+    let sprite = new sprite ~texture 
+                            ~texture_rect:{ top = 10 ; left = 10 ; width = 50 ; height = 30 }
+                            ~color:(Color.rgba 255 255 255 200)
+                            ~position:(100., 25.) () 
+    in
     
     (* Draw it *)
     window#draw sprite
@@ -2215,37 +2203,6 @@ object
       The texture rect is useful when you don't want to display the whole texture, but rather a part of it. By default, the texture rect covers the entire texture. *)
   method set_texture_rect : int rect -> unit
 end
-
-
-(*
-val mk_sprite :
-  ?texture:texture ->
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?color:Color.t -> ?texture_rect:int rect -> unit -> sprite
-*)
-
-type vertex = {
-  position : float * float;
-  color : Color.t;
-  tex_coords : float * float;
-}
-
-
-val mk_vertex :
-  ?position:float * float ->
-  ?color:Color.t -> ?tex_coords:float * float -> unit -> vertex
-
-type primitive_type =
-    Points
-  | Lines
-  | LinesStrip
-  | Triangles
-  | TrianglesStrip
-  | TrianglesFan
-  | Quads
 
 
 module VertexArray :

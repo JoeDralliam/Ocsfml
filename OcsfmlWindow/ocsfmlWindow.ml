@@ -112,9 +112,12 @@ struct
     | Count
 	
 end
-  
-external is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed__impl"
-  
+
+module Keyboard =
+struct
+  external is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed__impl"
+end
+
 module Joystick =
 struct
   type joystick_id = int
