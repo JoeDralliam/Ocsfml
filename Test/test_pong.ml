@@ -99,11 +99,11 @@ let test_pong () =
       if !is_playing 
       then 
 	begin
-	  if is_key_pressed KeyCode.Up && (snd left_paddle#get_position) -. (paddle_sizeY /. 2.) > 5.0 
+	  if Keyboard.is_key_pressed KeyCode.Up && (snd left_paddle#get_position) -. (paddle_sizeY /. 2.) > 5.0 
 	  then left_paddle#move 0.0 (-. paddle_speed *. interpolation) ;
 	  
 	  
-	  if is_key_pressed KeyCode.Down && (snd left_paddle#get_position) +. (paddle_sizeY /. 2.) < float_of_int game_height -. 5.0 
+	  if Keyboard.is_key_pressed KeyCode.Down && (snd left_paddle#get_position) +. (paddle_sizeY /. 2.) < float_of_int game_height -. 5.0 
 	  then left_paddle#move 0.0 (paddle_speed *. interpolation) ;
 	  
 	  if (!right_paddle_speed < 0.0 && (snd right_paddle#get_position ) -. (paddle_sizeY /. 2.) > 5.0) || 
