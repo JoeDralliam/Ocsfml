@@ -248,7 +248,7 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
-  val set_active : t -> bool -> unit
+  val set_active : t -> bool -> bool
 end
 
 (** Class holding a valid drawing context.

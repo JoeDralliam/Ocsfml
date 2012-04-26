@@ -170,7 +170,7 @@ struct
       
   external default : unit -> t = "sf_Context_default_constructor__impl"
       
-  external set_active : t -> bool -> unit = "sf_Context_setActive__impl"      
+  external set_active : t -> bool -> bool = "sf_Context_setActive__impl"      
 end
   
 class context_base t_context_base' =
@@ -178,7 +178,7 @@ object ((self : 'self))
   val t_context_base = (t_context_base' : Context.t)
   method rep__sf_Context = t_context_base
   method destroy = Context.destroy t_context_base
-  method set_active : bool -> unit =
+  method set_active : bool -> bool =
     fun p1 -> Context.set_active t_context_base p1
 end
   
