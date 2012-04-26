@@ -137,7 +137,7 @@ end
     (* quit... *)
     end
     ]} *)
-module Keyboard =
+module Keyboard :
 sig
   (** Check if a key is pressed. 
       @return True if the key is pressed, false otherwise *)
@@ -190,7 +190,7 @@ module Joystick :
 sig
   
   (** type of a joystick identifier *)
-  type joystick_id = private int 
+  type id = private int 
   
   (** Maximum number of supported joysticks. *)
   val count : int
@@ -206,35 +206,35 @@ sig
       
   (** Create a joystick_id from an int n 
       @return a joystick_id if n is between 0 and count-1, raise Invalid_argument otherwise *)
-  val id_from_int : int -> joystick_id
+  val id_from_int : int -> id
 
   (** Check if a joystick is connected. 
       @return True if the joystick is connected, false otherwise *)
-  val is_connected : joystick_id -> bool
+  val is_connected : id -> bool
     
   (** Return the number of buttons supported by a joystick.
       
       If the joystick is not connected, this function returns 0.
       @return Number of buttons supported by the joystick *)
-  val get_button_count : joystick_id -> int
+  val get_button_count : id -> int
     
   (** Check if a joystick supports a given axis.
       
       If the joystick is not connected, this function returns false.
       @return True if the joystick supports the axis, false otherwise *)
-  val has_axis : joystick_id -> axis -> bool
+  val has_axis : id -> axis -> bool
     
   (** Check if a joystick button is pressed.
       
       If the joystick is not connected, this function returns false.
       @return True if the button is pressed, false otherwise *)
-  val is_button_pressed : joystick_id -> int -> bool
+  val is_button_pressed : id -> int -> bool
     
   (** Get the current position of a joystick axis.
       
       If the joystick is not connected, this function returns 0.
       @return Current position of the axis, in range [-100 .. 100] *)
-  val get_axis_position : joystick_id -> axis -> float
+  val get_axis_position : id -> axis -> float
     
   (** Update the states of all joysticks.
       

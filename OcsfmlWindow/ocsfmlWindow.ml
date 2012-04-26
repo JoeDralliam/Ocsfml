@@ -120,7 +120,7 @@ end
 
 module Joystick =
 struct
-  type joystick_id = int
+  type id = int
       
   let count = 8
     
@@ -138,24 +138,24 @@ struct
     |PovX (* The X axis of the point-of-view hat *)
     |PovY (* The Y axis of the point-of-view hat *)
 	
-  let joystick_id_from_int n =
+  let id_from_int n =
     if (n >= 0) && (n < count)
     then n
     else raise (Invalid_argument "Not a valid joystick_id.")
       
-  external is_connected : joystick_id -> bool =
+  external is_connected : id -> bool =
     "Joystick_isConnected__impl"
       
-  external get_button_count : joystick_id -> int =
+  external get_button_count : id -> int =
     "Joystick_getButtonCount__impl"
       
-  external has_axis : joystick_id -> axis -> bool =
+  external has_axis : id -> axis -> bool =
     "Joystick_hasAxis__impl"
       
-  external is_button_pressed : joystick_id -> int -> bool =
+  external is_button_pressed : id -> int -> bool =
     "Joystick_isButtonPressed__impl"
       
-  external get_axis_position : joystick_id -> axis -> float =
+  external get_axis_position : id -> axis -> float =
     "Joystick_getAxisPosition__impl"
       
   external update : unit -> unit = "Joystick_update__impl"
@@ -214,11 +214,11 @@ struct
       
   type mouseWheelEvent = (int * mouseCoord)
       
-  type joystickConnectEvent = Joystick.joystick_id
+  type joystickConnectEvent = Joystick.id
       
-  type joystickMoveEvent = (Joystick.joystick_id * Joystick.axis * float)
+  type joystickMoveEvent = (Joystick.id * Joystick.axis * float)
       
-  type joystickButtonEvent = (Joystick.joystick_id * int)
+  type joystickButtonEvent = (Joystick.id * int)
       
   type t =
     | Closed
