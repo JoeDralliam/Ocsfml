@@ -243,6 +243,7 @@ sig
 end
 
 
+(**/**)
 module Context :
 sig
   type t
@@ -250,6 +251,7 @@ sig
   val default : unit -> t
   val set_active : t -> bool -> bool
 end
+(**/**)
 
 (** Class holding a valid drawing context.
 
@@ -465,26 +467,25 @@ val mk_context_settings :
   antialising_level:int ->
   major_version:int -> minor_version:int -> context_settings
 
-(** Enumeration of the window styles. *)
-type window_style = 
-    Titlebar (** Title bar + fixed border. *)
-  | Resize (** Titlebar + resizable border + maximize button. *)
-  | Close (** Titlebar + close button. *)
-  | Fullscreen (** Fullscreen mode (this flag and all others are mutually exclusive) *)
-
 
 (**/**)
 module WindowBase :
 sig
+  type style = 
+    Titlebar 
+  | Resize
+  | Close
+  | Fullscreen
+
   type t
   val destroy : t -> unit
   val default : unit -> t
   val create_init :
-    ?style:window_style list ->
+    ?style:style list ->
       ?context:context_settings -> VideoMode.t -> string -> t
   val create :
     t ->
-      ?style:window_style list ->
+      ?style:style list ->
 	?context:context_settings -> VideoMode.t -> string -> unit
   val close : t -> unit
   val is_open : t -> bool
@@ -500,7 +501,7 @@ sig
   val set_title : t -> string -> unit
   val set_visible : t -> bool -> unit
   val set_key_repeat_enabled : t -> bool -> unit
-  val set_active : t -> bool -> bool
+  val set_active : t -> ?active:bool -> unit -> bool
   val display : t -> unit
   val set_framerate_limit : t -> int -> unit
   val set_joystick_threshold : t -> float -> unit
@@ -513,7 +514,7 @@ object
   val t_window_base : WindowBase.t
   method close : unit
   method create :
-    ?style:window_style list ->
+    ?style:WindowBase.style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
   method destroy : unit
   method display : unit
@@ -525,7 +526,7 @@ object
   method is_open : bool
   method poll_event : Event.t option
   method rep__sf_Window : WindowBase.t
-  method set_active : bool -> bool
+  method set_active : ?active:bool -> unit -> bool
   method set_framerate_limit : int -> unit
   method set_icon : pixel_array_type -> unit
   method set_joystick_threshold : float -> unit
@@ -542,18 +543,28 @@ object
 end
 (**/**)
 
+
 module Window :
 sig
-  type style = window_style = Titlebar | Resize | Close | Fullscreen
+  (** Enumeration of the window styles. *)
+  type style = 
+      WindowBase.style =
+      Titlebar (** Title bar + fixed border. *)
+    | Resize  (** Titlebar + resizable border + maximize button. *)
+    | Close  (** Titlebar + close button. *)
+    | Fullscreen  (** Fullscreen mode (this flag and all others are mutually exclusive) *)
+	  
+
+  (**/**)
   type t = WindowBase.t
   val destroy : t -> unit
   val default : unit -> t
   val create_init :
-    ?style:window_style list ->
+    ?style:style list ->
       ?context:context_settings -> VideoMode.t -> string -> t
   val create :
     t ->
-      ?style:window_style list ->
+      ?style:style list ->
 	?context:context_settings -> VideoMode.t -> string -> unit
   val close : t -> unit
   val is_open : t -> bool
@@ -569,45 +580,211 @@ sig
   val set_title : t -> string -> unit
   val set_visible : t -> bool -> unit
   val set_key_repeat_enabled : t -> bool -> unit
-  val set_active : t -> bool -> bool
+  val set_active : t -> ?active:bool -> unit -> bool
   val display : t -> unit
   val set_framerate_limit : t -> int -> unit
   val set_joystick_threshold : t -> float -> unit
   val set_icon : t -> pixel_array_type -> unit
 end
 
+
+(** Window that serves as a target for OpenGL rendering.
+    
+    sf::Window is the main class of the Window module.
+    
+    It defines an OS window that is able to receive an OpenGL rendering.
+
+    The OcsfmlWindow.Window class provides a simple interface for manipulating the window: move, resize, show/hide, control mouse cursor, etc. It also provides event handling through its poll_event and wait_event methods.
+    
+    Note that OpenGL experts can pass their own parameters (antialiasing level, bits for the depth and stencil buffers, etc.) to the OpenGL context attached to the window, with the sf::ContextSettings structure which is passed as an optional argument when creating the window.
+    
+    Usage example:
+    {[
+    (* Declare and create a new window *)
+    let window = new window (VideoMode.create ~w:800 ~h:600) "SFML window" in
+    
+    (* Limit the framerate to 60 frames per second (this step is optional) *)
+    window#set_framerate_limit 60.
+
+    (* The main loop - ends as soon as the window is closed *)
+    let rec main_loop () =
+        (* Event processing *)
+        let rec poll_events () =
+            match window#poll_event with
+                (* Request for closing the window *)
+                | Some Closed -> ( window#close ; poll_events () )
+                | Some ev -> poll_events ()
+                | None -> ()
+        in poll_events () ; 
+        (* Activate the window for OpenGL rendering *)
+        window#set_active ();
+
+        (* OpenGL drawing commands go here... *)
+   
+        (* End the current frame and display its contents on screen *)
+        window#display
+        if window#is_open
+        then main_loop ()
+    in main_loop ()
+    ]} *)
 class window :
-  ?style:window_style list ->
+  ?style:Window.style list ->
     ?context:context_settings -> VideoMode.t -> string -> 
 object
+  (**/**)
   val t_window_base : WindowBase.t
+    (**/**)
+  
+  (** Close the window and destroy all the attached resources.
+
+      After calling this function, the sf::Window instance remains valid and you can call create to recreate the window. All other functions such as poll_event or display will still work (i.e. you don't have to test is_open every time), and will have no effect on closed windows. *)
   method close : unit
+  
+  (** Create (or recreate) the window from an existing control.
+
+      Use this function if you want to create an OpenGL rendering area into an already existing control. If the window was already created, it closes it first.
+      @param style Window style 
+      @param contex Additional settings for the underlying OpenGL context *)
   method create :
-    ?style:window_style list ->
+    ?style:Window.style list ->
       ?context:context_settings -> VideoMode.t -> string -> unit
+  
+  (**)
   method destroy : unit
+  
+
+  (** Display on screen what has been rendered to the window so far.
+
+      This function is typically called after all OpenGL rendering has been done for the current frame, in order to show it on screen. *)
   method display : unit
+  
+
   method get_height : int
+  
+  (** Get the position of the window. 
+      @return Position of the window, in pixels. *)
   method get_position : int * int
+  
+
+  (** Get the settings of the OpenGL context of the window.
+
+      Note that these settings may be different from what was passed to the constructor or the create() function, if one or more settings were not supported. In this case, SFML chose the closest match. 
+      @return Structure containing the OpenGL context settings *)
   method get_settings : context_settings
+  
+  (** Get the size of the rendering region of the window.
+
+      The size doesn't include the titlebar and borders of the window.
+      @return Size in pixels *)
   method get_size : int * int
+  
+
   method get_width : int
+  
+  (** Tell whether or not the window is open.
+
+      This function returns whether or not the window exists. Note that a hidden window (setVisible(false)) is open (therefore this function would return true).
+      @return True if the window is open, false if it has been closed *)
   method is_open : bool
+    
+  (** Pop the event on top of events stack, if any, and return it.
+      
+      This function is not blocking: if there's no pending event then it will return None. Note that more than one event may be present in the events stack, thus you should always call this function in a loop or recursive function to make sure that you process every pending event.
+
+      {[
+      let rec poll_events window =
+      match window#poll_event with
+          | Some event -> begin
+              (* process event... *) ;
+              poll_events window
+          | None ()
+      in poll_events ... 
+      ]} 
+      @return The returned event if any, None otherwise *)
   method poll_event : Event.t option
+  
+  (**/**)
   method rep__sf_Window : WindowBase.t
-  method set_active : bool -> bool
+    (**/**)  
+
+  (** Activate or deactivate the window as the current target for OpenGL rendering.
+
+      A window is active only on the current thread, if you want to make it active on another thread you have to deactivate it on the previous thread first if it was active. Only one window can be active on a thread at a time, thus the window previously active (if any) automatically gets deactivated.
+      @param active True to activate, false to deactivate
+      @return True if operation was successful, false otherwise*)
+  method set_active : ?active:bool -> unit -> bool
+  
+  (** Limit the framerate to a maximum fixed frequency.
+      
+      If a limit is set, the window will use a small delay after each call to display to ensure that the current frame lasted long enough to match the framerate limit. SFML will try to match the given limit as much as it can, but since it internally uses sleep, whose precision depends on the underlying OS, the results may be a little unprecise as well (for example, you can get 65 FPS when requesting 60).*)
   method set_framerate_limit : int -> unit
+  
+  (** Change the window's icon.
+
+      pixels must be an array of pixels in 32-bits RGBA format.
+
+      The OS default icon is used by default.*)
   method set_icon : pixel_array_type -> unit
+  
+  (** Change the joystick threshold.
+      
+      The joystick threshold is the value below which no JoystickMoved event will be generated.
+      
+      The threshold value is 0.1 by default.*)
   method set_joystick_threshold : float -> unit
+  
+  (** Enable or disable automatic key-repeat.
+      
+      If key repeat is enabled, you will receive repeated KeyPressed events while keeping a key pressed. If it is disabled, you will only get a single event when the key is pressed.
+      
+      Key repeat is enabled by default.*)
   method set_key_repeat_enabled : bool -> unit
+  
+  (** Show or hide the mouse cursor.
+
+      The mouse cursor is visible by default.*)
   method set_mouse_cursor_visible : bool -> unit
+  
+  (** Change the position of the window on screen.
+
+      This function only works for top-level windows (i.e. it will be ignored for windows created from the handle of a child window/control).*)
   method set_position : int -> int -> unit
+  
+  (** Change the position of the window on screen.
+
+      This function only works for top-level windows (i.e. it will be ignored for windows created from the handle of a child window/control).*)
   method set_position_v : int * int -> unit
+  
+  (** Change the size of the rendering region of the window. *)
   method set_size : int -> int -> unit
+  
+  (** Change the size of the rendering region of the window. *)
   method set_size_v : int * int -> unit
+  
+  (** Change the title of the window. *)
   method set_title : string -> unit
+  
+  (** Enable or disable vertical synchronization.
+
+      Activating vertical synchronization will limit the number of frames displayed to the refresh rate of the monitor. This can avoid some visual artifacts, and limit the framerate to a good value (but not constant across different computers).
+
+      Vertical synchronization is disabled by default.*)
   method set_vertical_sync_enabled : bool -> unit
+  
+  (** Show or hide the window.
+
+      The window is shown by default.*)
   method set_visible : bool -> unit
+  
+  (** Wait for an event and return it.
+      
+      This function is blocking: if there's no pending event then it will wait until an event is received. After this function returns (and no error occured), the event object is always valid and filled properly. This function is typically used when you have a thread that is dedicated to events handling: you want to make this thread sleep as long as no new event is received.
+      {[
+      match window#wait_event with
+          | Some event -> (* process event... *)
+          | None -> (* error... *)      
+      ]}
+      @return None if any error occured, the event otherwise. *)
   method wait_event : Event.t option
 end
 

@@ -128,6 +128,7 @@ type blend_mode =
   | BlendMultiply (** Pixel = Source * Dest. *)
   | BlendNone (** Pixel = Source. *)
 
+(**/**)
 module Transform :
 sig
   type t
@@ -163,6 +164,7 @@ sig
   val scale : t -> ?center_x:float -> ?center_y:float -> float -> float -> unit
   val scale_v : t -> ?center:float * float -> float * float -> unit
 end
+(**/**)
 
 (** Define a 3x3 transform matrix.
 
@@ -256,28 +258,10 @@ object ('a)
   method translate_v : float * float -> unit
 end
 
-module Drawable :
-sig 
-  type t 
-  val destroy : t -> unit
-end
-
-(** Abstract base class for objects that can be drawn to a render target.
-    
-    Drawable is a very simple base class that allows objects of derived classes to be drawn to a RenderTarget.
-    
-    All you have to do in your derived class is to override the draw virtual function.
-    
-    Note that inheriting from Drawable is not mandatory, but it allows this nice syntax "window#draw(object)" rather than "object#draw(window)", which is more consistent with other SFML classes. *)
-class drawable :
-  Drawable.t ->
-object
-  val t_drawable : Drawable.t
-  method destroy : unit
-  method rep__sf_Drawable : Drawable.t
-end
 
 
+
+(**/**)
 module Transformable :
 sig
   type t
@@ -302,7 +286,7 @@ sig
   val get_transform : t -> transform
   val get_inverse_transform : t -> transform
 end
-
+(**/**)
 
 (** Decomposed transform defined by a position, a rotation and a scale.
     
@@ -424,7 +408,7 @@ class transformable_init : ?position:float * float ->
 
 
 
-
+(**/**)
 module Image :
 sig
   type t
@@ -447,6 +431,7 @@ sig
   val flip_horizontally : t -> unit
   val flip_vertically : t -> unit
 end
+(**/**)
   
 (** Class for loading, manipulating and saving images.
     
@@ -554,7 +539,7 @@ end
     @return Maximum size allowed for textures, in pixels. *)
 val get_maximum_size : unit -> int
 
-
+(**/**)
 module Texture :
 sig
   type t
@@ -576,6 +561,7 @@ sig
   val set_repeated : t -> bool -> unit
   val is_repeated : t -> bool
 end
+(**/**)
   
 (** Image living on the graphics card that can be used for drawing.
     
@@ -728,7 +714,7 @@ type glyph = {
   texture_rect : int rect; (** Texture coordinates of the glyph inside the font's texture. *)
 }
 
-
+(**/**)
 module Font :
 sig
   type t
@@ -742,6 +728,7 @@ sig
   val get_line_spacing : t -> int -> int
   val get_texture : t -> int -> texture
 end
+(**/**)
 
 (** Class for loading and manipulating character fonts.
     
@@ -814,6 +801,7 @@ object
     
 end
   
+(**/**)
 module Shader :
 sig
   type t
@@ -838,6 +826,7 @@ sig
   val bind : t -> unit
   val unbind : t -> unit
 end
+(**/**)
 
 (**)
 val shader_is_available : unit -> unit
@@ -1057,6 +1046,7 @@ object
 end
 
 
+(**/**)
 module View :
 sig
   type t
@@ -1080,6 +1070,7 @@ sig
   val rotate : t -> float -> unit
   val zoom : t -> float -> unit
 end
+(**/**)
 
 (** 2D camera that defines what region is shown on screen.
 
@@ -1270,12 +1261,25 @@ type primitive_type =
   | Quads
 
 
+(**/**)
+module Drawable :
+sig 
+  type t 
+  val destroy : t -> unit
+
+  val inherits : unit -> t
+end
+(**/**)
+
+
+(**/**)
 module RenderTarget :
 sig
   type t
   val destroy : t -> unit
   val clear : t -> ?color:Color.t -> unit -> unit
-  val draw : t -> ?render_states:render_states -> #drawable -> unit
+(** Note : changed #drawable into Drawable.t *)
+  val draw : t -> ?render_states:render_states -> Drawable.t -> unit
   val get_size : t -> int * int
   val set_view : t -> view -> unit
   val get_view : t -> view
@@ -1286,7 +1290,30 @@ sig
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
 end
+(**/**)
 
+
+
+(** Abstract base class for objects that can be drawn to a render target.
+    
+    Drawable is a very simple base class that allows objects of derived classes to be drawn to a RenderTarget.
+    
+    All you have to do in your derived class is to override the draw virtual function.
+    
+    Note that inheriting from Drawable is not mandatory, but it allows this nice syntax "window#draw(object)" rather than "object#draw(window)", which is more consistent with other SFML classes. *)
+class drawable : ?overloaded:[`draw] -> Drawable.t ->
+object
+  (**/**)
+  val t_drawable : Drawable.t
+
+  (**)
+  method destroy : unit
+
+  (**/**)
+  method rep__sf_Drawable : Drawable.t
+
+  method private draw : render_target -> render_states -> unit
+end
 (** Base class for all render targets (window, texture, ...)
     
     OcsfmlGraphics.render_target defines the common behaviour of all the 2D render targets usable in the graphics module.
@@ -1296,7 +1323,7 @@ end
     A OcsfmlGraphics.render_target is also able to use views (OcsfmlGraphics.view), which are a kind of 2D cameras. With views you can globally scroll, rotate or zoom everything that is drawn, without having to transform every single entity. See the documentation of OcsfmlGraphics.view for more details and sample pieces of code about this class.
 
     On top of that, render targets are still able to render direct OpenGL stuff. It is even possible to mix together OpenGL calls and regular SFML drawing commands. When doing so, make sure that OpenGL states are not messed up by calling the push_gl_states/pop_gl_states methods. *)
-class render_target :
+and render_target :
   RenderTarget.t ->
 object
   (**/**)
@@ -1323,7 +1350,7 @@ object
 
   (** Draw a drawable object to the render-target. 
       @param render_states Render states to use for drawing. *)
-  method draw : ?render_states:render_states -> #drawable -> unit
+  method draw : ?render_states:render_states -> < rep__sf_Drawable : Drawable.t; .. > -> unit
 
   (** Get the default view of the render target.
 
@@ -1396,6 +1423,7 @@ object
 end
 
 
+(**/**)
 module RenderTexture :
 sig
   type t
@@ -1409,6 +1437,7 @@ sig
   val display : t -> unit
   val get_texture : t -> texture
 end
+(**/**)
 
 (** Target for off-screen 2D rendering into an texture.
 
@@ -1512,6 +1541,7 @@ object
   method set_smooth : bool -> unit
 end
 
+(**/**)
 module RenderWindow :
 sig
   type t
@@ -1525,6 +1555,7 @@ sig
     OcsfmlWindow.VideoMode.t -> string -> t
   val capture : t -> image
 end
+(**/**)
 
 (** Window that can serve as a target for 2D drawing.
     
@@ -1609,6 +1640,7 @@ object
 end
 
 
+(**/**)
 module Shape :
 sig
   type t
@@ -1630,6 +1662,7 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
+(**/**)
 
 (** Base class for textured shapes with outline.
 
@@ -1755,6 +1788,7 @@ object
 end
 
 
+(**/**)
 module RectangleShape :
 sig
   type t
@@ -1765,6 +1799,7 @@ sig
   val set_size : t -> float * float
   val get_size : t -> float * float
 end
+(**/**)
 
 (** Specialized shape representing a rectangle.
 
@@ -1814,6 +1849,7 @@ object
 end
 
 
+(**/**)
 module CircleShape :
 sig
   type t
@@ -1825,7 +1861,7 @@ sig
   val get_radius : t -> float
   val set_point_count : t -> int -> unit
 end
-
+(**/**)
 
 (** Specialized shape representing a circle.
 
@@ -1883,6 +1919,7 @@ object
 end
 
 
+(**/**)
 module ConvexShape :
 sig
   type t
@@ -1893,7 +1930,7 @@ sig
   val set_point_count : t -> int -> unit
   val set_point : t -> int -> float * float -> unit
 end
-
+(**/**)
 
 (** Specialized shape representing a convex polygon.
     
@@ -1950,6 +1987,7 @@ end
 type text_style = Bold | Italic | Underline
 
 
+(**/**)
 module Text :
 sig
   type t
@@ -1971,7 +2009,7 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
-
+(**/**)
 
 (** Graphical text that can be drawn to a render target.
     
@@ -2092,7 +2130,7 @@ object
 end
 
 
-
+(**/**)
 module Sprite :
 sig
   type t
@@ -2110,6 +2148,7 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
+(**/**)
   
 (** Drawable representation of a texture, with its own transformations, color, etc.
     
@@ -2204,7 +2243,7 @@ object
   method set_texture_rect : int rect -> unit
 end
 
-
+(**/**)
 module VertexArray :
 sig
   type t
@@ -2221,6 +2260,7 @@ sig
   val get_primitive_type : t -> primitive_type
   val get_bounds : t -> float rect
 end
+(**/**)
 
 class vertex_array : 
 object
@@ -2289,6 +2329,7 @@ end
 type draw_func_type = RenderTarget.t -> render_states -> unit
 
 
+(*
 module CamlDrawable :
 sig
   type t
@@ -2302,7 +2343,7 @@ end
 class caml_drawable_base :
   CamlDrawable.t ->
 object
-  val t_caml_drawable_base : CamlDrawable.t
+   val t_caml_drawable_base : CamlDrawable.t
   val t_drawable : Drawable.t
   method destroy : unit
   method rep__CamlDrawable : CamlDrawable.t
@@ -2320,3 +2361,4 @@ object
   method rep__sf_Drawable : Drawable.t
   method set_callback : draw_func_type -> unit
 end
+*)

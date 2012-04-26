@@ -906,6 +906,49 @@ camlpp__register_custom_class()
 }
 #undef CAMLPP__CLASS_NAME
 
+
+
+class OverrideDrawable : public sf::Drawable
+{
+public:
+  typedef std::function<void(sf::RenderTarget*, sf::RenderStates )> CallbackType;
+private:
+  CallbackType callback_; 
+private:
+  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
+  {
+    callback_(&target, states );
+  }
+public:
+  OverrideDrawable()
+  {
+  }
+
+  void setCallback(CallbackType c)
+  {
+    callback_ = c;
+  }
+};
+
+NewObject< sf::Drawable > sf_Drawable_inherits()
+{
+  return NewObject<sf::Drawable>( new OverrideDrawable() );
+}
+
+void sf_Drawable_override_draw( sf::Drawable* d, OverrideDrawable::CallbackType c )
+{
+  static_cast<OverrideDrawable*>(d)->setCallback(c);
+}
+
+
+extern "C" 
+{
+  camlpp__register_free_function0(sf_Drawable_inherits)
+  camlpp__register_free_function2(sf_Drawable_override_draw)
+}
+
+#if 0
+
 class CamlDrawable : public sf::Drawable
 {
 private:
@@ -942,6 +985,6 @@ camlpp__register_custom_class()
 }
 #undef CAMLPP__CLASS_NAME
 
-
+#endif
 
 

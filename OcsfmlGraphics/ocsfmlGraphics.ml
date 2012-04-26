@@ -200,21 +200,7 @@ class transform ?matrix () =
           Transform.matrix a00 a01 a02 a10 a11 a12 a20 a21 a22
       | None -> Transform.default ()
   in transform_base t
-       
-module Drawable =
-struct type t
-       external destroy : t -> unit = "sf_Drawable_destroy__impl"
-           
-end
-  
-class drawable t_drawable' =
-object ((self : 'self))
-  val t_drawable = (t_drawable' : Drawable.t)
-  method rep__sf_Drawable = t_drawable
-  method destroy = Drawable.destroy t_drawable
-end
-
-  
+         
 module Transformable =
 struct
   type t
@@ -938,6 +924,14 @@ external mk_render_states :
   ?texture: texture -> ?shader: shader -> unit -> unit =
     "mk_sf_RenderStates__impl"
       
+
+module Drawable =
+struct type t
+       external destroy : t -> unit = "sf_Drawable_destroy__impl"
+
+       external inherits : unit -> t = "sf_Drawable_inherits__impl"
+end
+
 module RenderTarget =
 struct
   type t
@@ -951,7 +945,7 @@ struct
     t ->
     ?render_states: render_states ->
     (*?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader*)
-    (#drawable as 'a) -> unit =
+    Drawable.t -> unit =
       "sf_RenderTarget_draw__impl"
 	
   external get_size : t -> (int * int) = "sf_RenderTarget_getSize__impl"
@@ -980,7 +974,22 @@ struct
 	
 end
   
-class render_target t_render_target' =
+external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> render_states -> unit) -> unit = "sf_Drawable_override_draw__impl"
+
+class drawable ?overloaded t_drawable' =
+object ((self : 'self))
+  val t_drawable = (t_drawable' : Drawable.t)
+
+  initializer match overloaded with
+      Some `draw -> set_drawable_draw_override t_drawable (fun target states -> self#draw (new render_target target) states)
+    | None -> ()
+
+  method rep__sf_Drawable = t_drawable
+  method destroy = Drawable.destroy t_drawable
+
+  method private draw : render_target -> render_states -> unit = fun p1 p2 -> ()
+end
+and render_target t_render_target' =
 object ((self : 'self))
   val t_render_target = (t_render_target' : RenderTarget.t)
   method rep__sf_RenderTarget = t_render_target
@@ -988,9 +997,9 @@ object ((self : 'self))
   method clear : ?color: Color.t -> unit -> unit =
     fun ?color p1 -> RenderTarget.clear t_render_target ?color p1
   method draw :
-    'a. ?render_states: render_states -> (#drawable as 'a) -> unit =
+    'a. ?render_states: render_states -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit =
     fun ?render_states p1 ->
-      RenderTarget.draw t_render_target ?render_states p1
+      RenderTarget.draw t_render_target ?render_states p1#rep__sf_Drawable
   method get_size : (int * int) = RenderTarget.get_size t_render_target
   method set_view : view -> unit =
     fun p1 -> RenderTarget.set_view t_render_target p1
@@ -1649,6 +1658,8 @@ class vertex_array = vertex_array_bis ()
   
 type draw_func_type = RenderTarget.t -> render_states -> unit
 
+
+(*
 module CamlDrawable =
 struct
   type t
@@ -1688,5 +1699,4 @@ object (self)
   initializer
     super#set_callback (fun t s -> self#draw (new render_target t) s)
 end
-  
-
+*)

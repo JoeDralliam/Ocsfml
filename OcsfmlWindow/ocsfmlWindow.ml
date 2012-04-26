@@ -278,10 +278,11 @@ let mk_context_settings ~depth_bits ~stencil_bits ~antialising_level
     minor_version = minor_version;
   }
     
-type window_style = | Titlebar | Resize | Close | Fullscreen
 
 module WindowBase =
 struct
+  type style = | Titlebar | Resize | Close | Fullscreen
+
   type t
     
   external destroy : t -> unit = "sf_Window_destroy__impl"
@@ -289,13 +290,13 @@ struct
   external default : unit -> t = "sf_Window_default_constructor__impl"
       
   external create_init :
-    ?style: (window_style list) ->
+    ?style: (style list) ->
     ?context: context_settings -> VideoMode.t -> string -> t =
       "sf_Window_constructor_create__impl"
 	
   external create :
     t ->
-    ?style: (window_style list) ->
+    ?style: (style list) ->
     ?context: context_settings -> VideoMode.t -> string -> unit =
       "sf_Window_create__impl"
 	
@@ -336,7 +337,7 @@ struct
   external set_icon : t -> pixel_array_type -> unit =
       "sf_Window_setIcon__impl"
 	
-  external set_active : t -> bool -> bool = "sf_Window_setActive__impl"
+  external set_active : t -> ?active:bool -> unit -> bool = "sf_Window_setActive__impl"
       
   external display : t -> unit = "sf_Window_display__impl"
       
@@ -354,7 +355,7 @@ object ((self : 'self))
   method rep__sf_Window = t_window_base
   method destroy = WindowBase.destroy t_window_base
   method create :
-    ?style: (window_style list) ->
+    ?style: (WindowBase.style list) ->
     ?context: context_settings -> VideoMode.t -> string -> unit =
     fun ?style ?context p1 p2 ->
       WindowBase.create t_window_base ?style ?context p1 p2
@@ -386,8 +387,8 @@ object ((self : 'self))
     fun p1 -> WindowBase.set_key_repeat_enabled t_window_base p1
   method set_icon : pixel_array_type -> unit =
     fun p1 -> WindowBase.set_icon t_window_base p1
-  method set_active : bool -> bool =
-    fun p1 -> WindowBase.set_active t_window_base p1
+  method set_active : ?active:bool -> unit -> bool =
+    fun ?active p1  -> WindowBase.set_active t_window_base ?active p1
   method display : unit = WindowBase.display t_window_base
   method set_framerate_limit : int -> unit =
     fun p1 -> WindowBase.set_framerate_limit t_window_base p1
@@ -398,10 +399,7 @@ end
 
 module Window =
 struct
-  type style = window_style = | Titlebar | Resize | Close | Fullscreen
-      
   include WindowBase
-  
 end
   
 class window ?style ?context vm name =

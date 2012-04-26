@@ -6,7 +6,7 @@ let ( & ) f x = f x
 
 class virtual effect (myName :string)  =
 object (this)
-  inherit caml_drawable
+  inherit drawable ~overloaded:`draw (Drawable.inherits ())
   val mutable myIsLoaded = false
   method virtual private on_load : bool
   method virtual private on_update : float -> float -> float -> unit

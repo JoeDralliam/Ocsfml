@@ -76,20 +76,20 @@ sig
   val div_float : t -> float -> t
 end
   
-
+(**/**)
 (** Module Clock & class clock : basic time recording*)
 module Clock : 
-  sig
-    (**/**)
-    type t
-    val destroy : t -> unit 
-    val create : unit -> t
-    val get_elapsed_time : t -> Time.t
-    val restart : t -> Time.t
-  end
+sig
+  type t
+  val destroy : t -> unit 
+  val create : unit -> t
+  val get_elapsed_time : t -> Time.t
+  val restart : t -> Time.t
+end
+(**/**)
   
 (** Utility class that measures the elapsed time. 
-    clock is a lightweight class for measuring time.
+      clock is a lightweight class for measuring time.
     
     Its provides the most precise time that the underlying OS can achieve (generally microseconds or nanoseconds). It also ensures monotonicity, which means that the returned time can never go backward, even if the system time is changed.
     

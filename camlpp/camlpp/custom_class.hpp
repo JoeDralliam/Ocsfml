@@ -715,9 +715,6 @@ using boost::mpl::int_;
   camlpp__register_preregistered_custom_class()
 */
 
-
-
-//#undef CAMLPP__CLASS_NAME
 #endif
 
 
