@@ -141,7 +141,7 @@ struct
   let id_from_int n =
     if (n >= 0) && (n < count)
     then n
-    else raise (Invalid_argument "Not a valid joystick_id.")
+    else raise (Invalid_argument "Not a valid Joystick.id.")
       
   external is_connected : id -> bool =
     "Joystick_isConnected__impl"
