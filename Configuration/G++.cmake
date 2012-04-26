@@ -1,4 +1,5 @@
 set(GCC_COMPATIBLE_COMPILER 1) 
+set(TESTS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/share/Ocsfml")
 set(LIB_MAKER "ar")
 set(DLL_LINKER "${CMAKE_CXX_COMPILER}")
 set(LINK_STDLIB_STA "A \"-cclib\" ; A \"-lstdc++\"")
