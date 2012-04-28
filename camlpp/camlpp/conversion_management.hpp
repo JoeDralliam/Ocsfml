@@ -291,6 +291,8 @@ public:
 };
 
 #ifndef _MSC_VER
+
+
 #if 0
 template<class Ret, class... Args>
 struct ConversionManagement< std::function< Ret(Args...) > >
@@ -395,6 +397,7 @@ struct ConversionManagement< std::function< Ret(Args...) > >
 
 #endif // 0
 
+
 template<class... Args>
 struct ConversionManagement< std::function< void(Args...) > >
 {
@@ -443,7 +446,7 @@ struct ConversionManagement< std::function< void(Args...) > >
     {
       CAMLparam0();
       CAMLlocalN( pN, sizeof...(Args) );
-      CAMLreturn( call_helper( tN..., pN ) );
+      CAMLreturn( call_helper( pN, tN... ) );
     }
 
     template<class T, int I>
@@ -454,7 +457,7 @@ struct ConversionManagement< std::function< void(Args...) > >
     }
 
     template<class... OArgs, class T, int I>
-    value call_helper( value const pN[I], T tN, Args... args )
+    value call_helper( value pN[I], T tN, Args... args )
     {
       AffectationManagement<T>::affect(pN[ I-sizeof...(Args)-1 ], tN);
       return call_helper( pN, args...);
