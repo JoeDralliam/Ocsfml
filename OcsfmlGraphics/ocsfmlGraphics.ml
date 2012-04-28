@@ -1648,13 +1648,17 @@ object ((self : 'self))
     VertexArray.get_primitive_type t_vertex_array_base
   method get_bounds : float rect = VertexArray.get_bounds t_vertex_array_base
 end
-
-    
-class vertex_array_bis () =
-  let t = VertexArray.default ()
-  in vertex_array_base t
        
-class vertex_array = vertex_array_bis ()
+class vertex_array ?primitive_type content = 
+  let t = VertexArray.default () in 
+object (self)
+  inherit vertex_array_base t
+  initializer List.iter self#append content
+  initializer 
+    match primitive_type with 
+      | None -> () 
+      | Some t -> self#set_primitive_type t
+end
   
 type draw_func_type = RenderTarget.t -> render_states -> unit
 

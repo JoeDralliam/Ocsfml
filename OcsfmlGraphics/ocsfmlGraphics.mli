@@ -2263,6 +2263,8 @@ end
 (**/**)
 
 class vertex_array : 
+  ?primitive_type:primitive_type ->
+    vertex list -> 
 object
   inherit drawable
 
