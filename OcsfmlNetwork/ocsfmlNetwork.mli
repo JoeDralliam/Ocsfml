@@ -332,7 +332,8 @@ sig
       then Pervasives.print_string "File uploaded\n" ;
       
   (* Disconnect from the server (optional) *)
-      ftp#disconnect *)
+      ftp#disconnect 
+      ]}*)
   class ftp :
     Ftp.t ->
   object
@@ -1049,7 +1050,7 @@ end
         end ;
         connection_loop ()
     in connection_loop ()
-    }]*)
+    ]}*)
 class socket_selector :
   SocketSelector.t ->
 object ('a)
