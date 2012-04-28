@@ -7,6 +7,8 @@
 #include <camlpp/custom_ops.hpp>
 #include <camlpp/stub_generator.hpp>
 #include <camlpp/unit.hpp>
+#include <camlpp/cstring.hpp>
+
 
 typedef sf::IpAddress sf_IpAddress;
 #define CAMLPP__CLASS_NAME() sf_IpAddress
@@ -373,6 +375,17 @@ std::pair< sf::Socket::Status, intnat > tcpsocket_receivedata_helper( sf::TcpSoc
 	return std::pair< sf::Socket::Status, intnat >(stat, received );
 }
 
+sf::Socket::Status tcpsocket_sendstring_helper( sf::TcpSocket* obj, CString s)
+{
+	return obj->send( s.string , s.size );
+}
+
+std::pair< sf::Socket::Status, intnat > tcpsocket_receivestring_helper( sf::TcpSocket* obj, CString s)
+{
+	size_t received;
+	sf::Socket::Status stat = obj->receive( s.string , s.size, received );
+	return std::pair< sf::Socket::Status, intnat >(stat, received );
+}
 
 typedef sf::TcpSocket sf_TcpSocket;
 
@@ -391,7 +404,9 @@ camlpp__register_custom_class()
   camlpp__register_external_method3( connect, &tcpsocket_connect_helper );
   camlpp__register_method0( disconnect );
   camlpp__register_external_method1( sendData, &tcpsocket_senddata_helper );
-  camlpp__register_external_method1( receiveData, &tcpsocket_receivedata_helper );                 // third param should be returned
+  camlpp__register_external_method1( receiveData, &tcpsocket_receivedata_helper );
+  camlpp__register_external_method1( sendString, &tcpsocket_sendstring_helper );
+  camlpp__register_external_method1( receiveString, &tcpsocket_receivestring_helper );
   camlpp__register_external_method1( sendPacket, ((TransferPacketTcp)&sf::TcpSocket::send) );
   camlpp__register_external_method1( receivePacket,((TransferPacketTcp)&sf::TcpSocket::receive) );
 }

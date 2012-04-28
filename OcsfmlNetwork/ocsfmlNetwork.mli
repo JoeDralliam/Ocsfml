@@ -25,13 +25,13 @@ end
     
     Usage example:
     {[
-    let a0 = mk_ip_address `None in                      (* an invalid address *)
+    let a0 = new ip_address `None in                      (* an invalid address *)
     let a1 = IpAddress.None in                           (* an invalid address (same as a0) *)
-    let a2 = mk_ip_address (`String "127.0.0.1") in      (* the local host address *)
-    let a4 = mk_ip_address (`Bytes (192, 168, 1, 56)) in (* a local address *)
-    let a5 = mk_ip_address (`String "my_computer") in    (* a local address created from a network name *)
-    let a6 = mk_ip_address (`String "89.54.1.169") in    (* a distant address *)
-    let a7 = mk_ip_address (`String "www.google.com") in (* a distant address created from a network name *)
+    let a2 = new ip_address (`String "127.0.0.1") in      (* the local host address *)
+    let a4 = new ip_address (`Bytes (192, 168, 1, 56)) in (* a local address *)
+    let a5 = new ip_address (`String "my_computer") in    (* a local address created from a network name *)
+    let a6 = new ip_address (`String "89.54.1.169") in    (* a distant address *)
+    let a7 = new ip_address (`String "www.google.com") in (* a distant address created from a network name *)
     let a8 = IpAddress.get_local_address () in           (* my address on the local network *)
     let a9 = IpAddress.get_public_address () in          (* my address on the internet *)
     ...
@@ -156,6 +156,7 @@ sig
     val invalidFile : t (** Invalid file to upload / download. *)
   end
 
+  (**/**)
   module Response :
   sig
     type t
@@ -164,6 +165,8 @@ sig
     val get_status : t -> Status.t
     val get_message : t -> string
   end
+  (**/**)
+
 
   (** Define a FTP response. *)
   class response :
@@ -192,7 +195,7 @@ sig
       (**/**)
   end
 
-
+  (**/**)
   module DirectoryResponse :
   sig
     type t
@@ -201,6 +204,7 @@ sig
     val default : response -> t
     val get_directory : t -> string
   end
+  (**/**)
 
   (** Specialization of FTP response returning a directory. *)
   class directory_response :
@@ -223,7 +227,7 @@ sig
       (**/**)
   end
 
-
+  (**/**)
   module ListingResponse :
   sig
     type t
@@ -232,6 +236,7 @@ sig
     val default : response -> char list -> t
     val get_filenames : t -> string list
   end
+  (**/**)
 
   (** Specialization of FTP response returning a filename lisiting. *)
   class listing_response :
@@ -255,6 +260,7 @@ sig
   end
 
 
+  (**/**)
   module Ftp :
   sig
     type t
@@ -275,6 +281,7 @@ sig
     val download : t -> ?mode:transfer_mode -> string -> string -> response
     val upload : t -> ?mode:transfer_mode -> string -> string -> response
   end
+  (**/**)
 
   (** 
       A FTP client.
@@ -462,6 +469,7 @@ sig
   end
   
   
+  (**/**)
   module Request :
   sig
     type t
@@ -474,7 +482,8 @@ sig
     val set_http_version : t -> int -> int -> unit
     val set_body : t -> string -> unit
   end
-  
+  (**/**)  
+
   (** Define a HTTP request. *)
   class request :
     Request.t ->
@@ -517,6 +526,7 @@ sig
   end
     
     
+  (**/**)
   module Response :
   sig
     type t
@@ -528,6 +538,7 @@ sig
     val get_minor_http_version : t -> int
     val get_body : t -> string
   end
+  (**/**)
   
   (** Define a HTTP response. *)
   class response :
@@ -576,6 +587,7 @@ sig
       (**/**)
   end
     
+  (**/**)
   module Http :
   sig
     type t
@@ -586,7 +598,7 @@ sig
     val set_host : t -> ?port:int -> string -> unit
     val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
   end
-  
+  (**/**)  
   
   (** A HTTP client.
 
@@ -663,6 +675,7 @@ sig
 end
 
 
+(**/**)
 module Packet :
 sig
   type t
@@ -693,7 +706,7 @@ sig
   val write_float : t -> float -> unit
   val write_string : t -> string -> unit
 end
-
+  (**/**)
 
 (** Utility class to build blocks of data to transfer over the network.
     
@@ -892,6 +905,7 @@ type socket_status =
   | Disconnected  (** The TCP socket has been disconnected. *)
   | Error (** An unexpected error happened. *)
 
+(**/**)
 module Socket :
 sig
   type t
@@ -899,6 +913,7 @@ sig
   val set_blocking : t -> bool -> unit
   val is_blocking : t -> bool
 end
+(**/**)
 
 (** Base class for all the socket types.
     
@@ -936,6 +951,7 @@ object
 end
 
 
+(**/**)
 module SocketSelector :
 sig
   type t
@@ -960,6 +976,7 @@ sig
   val is_ready : t -> #socket -> bool
   val set : t -> 'a -> 'a
 end
+(**/**)
 
 (** Multiplexer that allows to read from multiple sockets.
 
@@ -1077,6 +1094,7 @@ object ('a)
   method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> bool
 end
 
+(**/**)
 module TcpSocket :
 sig
   type t
@@ -1093,10 +1111,69 @@ sig
   val receive_packet : t -> #packet -> socket_status
   val send_data : t -> OcsfmlSystem.raw_data_type -> socket_status
   val receive_data : t -> OcsfmlSystem.raw_data_type -> (socket_status * int)
+  val send_string : t -> string -> socket_status
+  val receive_string : t -> string -> (socket_status * int)
 end
+(**/**)
+  
+(** Specialized socket using the TCP protocol.
+    
+    TCP is a connected protocol, which means that a TCP socket can only communicate with the host it is connected to.
+    
+    It can't send or receive anything if it is not connected.
+    
+    The TCP protocol is reliable but adds a slight overhead. It ensures that your data will always be received in order and without errors (no data corrupted, lost or duplicated).
+    
+    When a socket is connected to a remote host, you can retrieve informations about this host with the getRemoteAddress and GetRemotePort functions. You can also get the local port to which the socket is bound (which is automatically chosen when the socket is connected), with the getLocalPort function.
+    
+    Sending and receiving data can use either the low-level or the high-level functions. The low-level functions process a raw sequence of bytes, and cannot ensure that one call to Send will exactly match one call to Receive at the other end of the socket.
+    
+    The high-level interface uses packets (see sf::Packet), which are easier to use and provide more safety regarding the data that is exchanged. You can look at the sf::Packet class to get more details about how they work.
+    
+    The socket is automatically disconnected when it is destroyed, but if you want to explicitely close the connection while the socket instance is still alive, you can call disconnect.
+    
+    Usage example:
+    {[
+    (* ----- The client ----- *)
+    
+    (* Create a socket and connect it to 192.168.1.50 on port 55001 *)
+    let socket = new tcp_socket in
+    socket#connect (new ip_address (`String "192.168.1.50")) 55001 ;
+    
+    (* Send a message to the connected host *)
+    let message = "Hi, I am a client" in
+    
+    socket#send_string message;
+    
+    (* Receive an answer from the server *)
+    let buffer = String.create 1024 in
+    let (status, received) = socket#receive_string buffer in
+    print_string "The server said: " ; 
+    output stdout buffer 0 received ;
+    print_newline () ;
+    
+    (* ----- The server ----- *)
 
-
-(** *)
+    (* Create a listener to wait for incoming connections on port 55001 *)
+    let listener = new listener in
+    listener#listen 55001 ;
+    
+    (* Wait for a connection *)
+    let socket = new tcp_socket in
+    listener#accept socket;
+    print_endline ("New client connected: " + socket#get_remote_address#to_string) ;
+    
+    (* Receive a message from the client *)
+    let buffer = String.create 1024 in
+    let (status, received) = socket#receive_string buffer in
+    print_string "The client said: " ; 
+    output stdout buffer 0 received ; 
+    print_newline () ;
+    
+    (* Send an answer *)
+    let message = "Welcome, client";
+    socket#send_string message;
+    ]}*)
 class tcp_socket :
 object
   inherit socket
@@ -1105,45 +1182,84 @@ object
   val t_tcp_socket_base : TcpSocket.t
     (**/**)
 
-  (** *)
+  (** Connect the socket to a remote peer.
+
+      In blocking mode, this function may take a while, especially if the remote peer is not reachable. The timeout parameter allows you to stop trying to connect after a given timeout. If the socket was previously connected, it is first disconnected. 
+      @param timeout Optional maximum time to wait 
+      @return Status code*)
   method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
 
   (**)
   method destroy : unit
 
-  (** *)
+  (** Disconnect the socket from its remote peer.
+
+      This function gracefully closes the connection. If the socket is not connected, this function has no effect. *)
   method disconnect : unit
 
-  (** *)
+  (** Get the port to which the socket is bound locally.
+
+      If the socket is not connected, this function returns 0. 
+      @return Port to which the socket is bound. *)
   method get_local_port : int
 
-  (** *)
+  (** Get the address of the connected peer.
+
+      It the socket is not connected, this function returns IpAddress.none. 
+      @return Address to the remote peer*)
   method get_remote_address : ip_address
 
-  (** *)
+  (** Get the port of the connected peer to which the socket is connected.
+
+      If the socket is not connected, this function returns 0.
+      @return Remote port to which the socket is connected*)
   method get_remote_port : int
 
 
-  (** *)
+  (** Receive raw data from the remote peer.
+
+      In blocking mode, this function will wait until some bytes are actually received. This function will fail if the socket is not connected.
+      @return Status code and the actual number of byte received. *)
   method receive_data : OcsfmlSystem.raw_data_type -> (socket_status * int)
 
-  (** *)
+  (** Receive a formatted packet of data from the remote peer.
+
+      In blocking mode, this function will wait until the whole packet has been received. This function will fail if the socket is not connected.
+      @return Status code *)
   method receive_packet : #packet -> socket_status
+
+  (** Receive raw data from the remote peer.
+
+      In blocking mode, this function will wait until some bytes are actually received. This function will fail if the socket is not connected.
+      @return Status code and the actual number of byte received*)
+  method receive_string : string -> (socket_status * int)
 
   (**/**)
   method rep__sf_TcpSocket : TcpSocket.t
     (**/**)
 
 
-  (** *)
+  (** Send raw data to the remote peer.
+
+      This function will fail if the socket is not connected.
+      @return Status code*)
   method send_data : OcsfmlSystem.raw_data_type -> socket_status
 
-  (** *)
+  (** Send a formatted packet of data to the remote peer.
+
+      This function will fail if the socket is not connected.
+      @return Status code*)
   method send_packet : #packet -> socket_status
 
+  (** Send raw data to the remote peer.
+
+      This function will fail if the socket is not connected.
+      @return Status code*)
+  method send_string : string -> socket_status
 end
 
 
+(**/**)
 module TcpListener :
 sig
   type t
@@ -1155,21 +1271,79 @@ sig
   val close : t -> unit
   val accept : t -> tcp_socket -> socket_status
 end
-
-
+(**/**)
+  
+(** Socket that listens to new TCP connections.
+    
+    A listener socket is a special type of socket that listens to a given port and waits for connections on that port.
+    
+    This is all it can do.
+    
+    When a new connection is received, you must call accept and the listener returns a new instance of sf::TcpSocket that is properly initialized and can be used to communicate with the new client.
+    
+    Listener sockets are specific to the TCP protocol, UDP sockets are connectionless and can therefore communicate directly. As a consequence, a listener socket will always return the new connections as tcp_socket instances.
+    
+    A listener is automatically closed on destruction, like all other types of socket. However if you want to stop listening before the socket is destroyed, you can call its close function.
+    
+    Usage example:
+    {[  
+    (* Create a listener socket and make it wait for new 
+       connections on port 55001 *)
+    let listener = new tcp_listener in
+    listener#listen 55001 
+    
+    (* Endless loop that waits for new connections *)
+    let rec connection_loop running =
+        if running
+        then begin
+            let client = new tcp_socket in
+            if  listener#accept(client) = Done
+            then begin
+                (* A new client just connected! *)
+                print_endline ("New connection received from " ^ client#getçremote_address#to_string) ;
+                do_something_with client
+            end ;
+            connection_loop ...
+        end
+    in connection_loop true
+    ]}*)
 class tcp_listener :
 object
-  val t_socket : Socket.t
+  inherit socket
+
+  (**/**)
   val t_tcp_listener_base : TcpListener.t
+    (**/**)
+
+  (** Accept a new connection.
+
+      If the socket is in blocking mode, this function will not return until a connection is actually received.
+      @return Status code *)
   method accept : tcp_socket -> socket_status
+  
+  (** Stop listening and close the socket.
+
+      This function gracefully stops the listener. If the socket is not listening, this function has no effect. *)
   method close : unit
+
+  (**)
   method destroy : unit
+
+  (** Get the port to which the socket is bound locally.
+
+      If the socket is not listening to a port, this function returns 0.
+      @return Port to which the socket is bound*)
   method get_local_port : int
-  method is_blocking : bool
+
+  (** Start listening for connections.
+
+      This functions makes the socket listen to the specified port, waiting for new connections. If the socket was previously listening to another port, it will be stopped first and bound to the new port.
+      @return Status code*)
   method listen : int -> socket_status
-  method rep__sf_Socket : Socket.t
+
+  (**/**)
   method rep__sf_TcpListener : TcpListener.t
-  method set_blocking : bool -> unit
+    (**/**)
 end
 
 
@@ -1181,6 +1355,7 @@ sig
   type t = private int
 end
 
+(**/**)
 module UdpSocket :
 sig
   type t
@@ -1194,23 +1369,41 @@ sig
   val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status
   val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * UdpRemotePort.t
 end
+(**/**)
 
 
-
+(** *)
 class udp_socket :
 object
-  val t_socket : Socket.t
+  inherit socket
+
+  (**/**)
   val t_udp_socket_base : UdpSocket.t
+    (**/**)
+
+  (** *)
   method bind : int -> socket_status
+
+  (**)
   method destroy : unit
-  method is_blocking : bool
+
+  (** *)
   method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int * UdpRemotePort.t
+
+  (** *)
   method receive_packet : #packet -> ip_address -> socket_status * int
-  method rep__sf_Socket : Socket.t
+
+  (**/**)
   method rep__sf_UdpSocket : UdpSocket.t
+    (**/**)
+
+  (** *)
   method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status
+
+  (** *)
   method send_packet : #packet -> ip_address -> int -> socket_status
-  method set_blocking : bool -> unit
+
+  (** *)
   method unbind : unit
 end
 
