@@ -1018,7 +1018,7 @@ object
 
       Example: 
       {[uniform sampler2D the_texture; // this is the variable in the shader]}
-      {[let texture = new texture in
+      {[let texture = new texture ... in
       ...
       shader#set_texture "the_texture" texture ]} 
 
@@ -1481,7 +1481,7 @@ end
         window#clear ()
     
       (* Draw the texture *)
-        let sprite = mk_sprite ~texture:(texture#get_texture) () in
+        let sprite = new sprite ~texture:(texture#get_texture) () in
         window#draw sprite ;
     
       (* End the current frame and display its contents on screen *)
@@ -2165,7 +2165,7 @@ end
     Usage example:
     {[
     (* Declare and load a texture *)
-    let texture = mk_texture (`File "texture.png") in
+    let texture = new texture (`File "texture.png") in
     
     (* Create a sprite *)
     let sprite = new sprite ~texture 

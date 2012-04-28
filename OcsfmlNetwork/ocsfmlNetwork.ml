@@ -890,34 +890,58 @@ struct
   external receive_data :
     t -> OcsfmlSystem.raw_data_type -> (socket_status * int) =
       "sf_TcpSocket_receiveData__impl"
+
+  external send_string : t -> string -> socket_status =
+      "sf_TcpSocket_sendString__impl"
+	
+  external receive_string : t -> string -> (socket_status * int) =
+      "sf_TcpSocket_receiveString__impl"
 	
 end
   
 class tcp_socket_base t =
 object ((self : 'self))
   val t_tcp_socket_base = (t : TcpSocket.t)
+
   method rep__sf_TcpSocket = t_tcp_socket_base
+
   method destroy = TcpSocket.destroy t_tcp_socket_base
+
   inherit socket (TcpSocket.to_socket t)
+
   method get_local_port : int = TcpSocket.get_local_port t_tcp_socket_base
+
   method get_remote_address : ip_address =
     TcpSocket.get_remote_address t_tcp_socket_base
+
   method get_remote_port : int =
     TcpSocket.get_remote_port t_tcp_socket_base
+
   method connect :
     ?timeout: OcsfmlSystem.Time.t -> ip_address -> int -> socket_status =
     fun ?timeout p1 p2 ->
       TcpSocket.connect t_tcp_socket_base ?timeout p1 p2
+
   method disconnect : unit = TcpSocket.disconnect t_tcp_socket_base
+
   method send_packet : 'a. (#packet as 'a) -> socket_status =
     fun p1 -> TcpSocket.send_packet t_tcp_socket_base p1
+
   method receive_packet : 'a. (#packet as 'a) -> socket_status =
     fun p1 -> TcpSocket.receive_packet t_tcp_socket_base p1
+
   method send_data : OcsfmlSystem.raw_data_type -> socket_status =
     fun p1 -> TcpSocket.send_data t_tcp_socket_base p1
-  method receive_data :
-    OcsfmlSystem.raw_data_type -> (socket_status * int) =
+
+  method receive_data : OcsfmlSystem.raw_data_type -> (socket_status * int) =
     fun p1 -> TcpSocket.receive_data t_tcp_socket_base p1
+
+  method send_string : string -> socket_status =
+    fun p1 -> TcpSocket.send_string t_tcp_socket_base p1
+
+  method receive_string : string -> (socket_status * int) =
+    fun p1 -> TcpSocket.receive_string t_tcp_socket_base p1
+
 end
       
 class tcp_socket_bis () = let t = TcpSocket.default () in tcp_socket_base t
