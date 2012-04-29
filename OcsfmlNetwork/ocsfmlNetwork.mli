@@ -1351,9 +1351,10 @@ end
 
 val max_datagram_size : int
 
-module UdpRemotePort :
+module UdpPort :
 sig
   type t = private int
+  val from_int : int -> t
 end
 
 (**/**)
@@ -1363,17 +1364,77 @@ sig
   val destroy : t -> unit
   val to_socket : t -> Socket.t
   val default : unit -> t
-  val bind : t -> int -> socket_status
+  val bind : t -> UdpPort.t -> socket_status
   val unbind : t -> unit
-  val send_packet : t -> #packet -> ip_address -> UdpRemotePort.t -> socket_status
-  val receive_packet : t -> #packet -> ip_address -> socket_status * UdpRemotePort.t 
-  val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status
-  val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * UdpRemotePort.t
+  val get_local_port : t -> UdpPort.t
+  val send_packet : t -> #packet -> ip_address -> UdpPort.t -> socket_status
+  val receive_packet : t -> #packet -> ip_address -> socket_status * UdpPort.t 
+  val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status
+  val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * UdpPort.t
+  val send_string : t -> string -> ip_address -> UdpPort.t -> socket_status
+  val receive_string : t -> string -> ip_address  -> socket_status * int * UdpPort.t
+
 end
 (**/**)
 
 
-(** *)
+(** Specialized socket using the UDP protocol.
+    
+    A UDP socket is a connectionless socket.
+    
+    Instead of connecting once to a remote host, like TCP sockets, it can send to and receive from any host at any time.
+    
+    It is a datagram protocol: bounded blocks of data (datagrams) are transfered over the network rather than a continuous stream of data (TCP). Therefore, one call to send will always match one call to receive (if the datagram is not lost), with the same data that was sent.
+    
+    The UDP protocol is lightweight but unreliable. Unreliable means that datagrams may be duplicated, be lost or arrive reordered. However, if a datagram arrives, its data is guaranteed to be valid.
+
+    UDP is generally used for real-time communication (audio or video streaming, real-time games, etc.) where speed is crucial and lost data doesn't matter much.
+    
+    Sending and receiving data can use either the low-level or the high-level functions. The low-level functions process a raw sequence of bytes, whereas the high-level interface uses packets (see packet), which are easier to use and provide more safety regarding the data that is exchanged. You can look at the packet class to get more details about how they work.
+    
+    It is important to note that UdpSocket is unable to send datagrams bigger than MaxDatagramSize. In this case, it returns an error and doesn't send anything. This applies to both raw data and packets. Indeed, even packets are unable to split and recompose data, due to the unreliability of the protocol (dropped, mixed or duplicated datagrams may lead to a big mess when trying to recompose a packet).
+    
+    If the socket is bound to a port, it is automatically unbound from it when the socket is destroyed. However, you can unbind the socket explicitely with the Unbind function if necessary, to stop receiving messages or make the port available for other sockets.
+    
+    Usage example:
+    {[
+    (* ----- The client ----- *)
+    
+    (* Create a socket and bind it to the port 55001 *)
+    let socket = new udp_socket in
+    socket.bind (UdpPort.from_int 55001)
+    
+    (* Send a message to 192.168.1.50 on port 55002 *)
+    let message = "Hi, I am " ^ (IpAddress.get_local_address ())#to_string;
+    socket#send message "192.168.1.50" (UdpPort.from_int 55002);
+    
+    (* Receive an answer (most likely from 192.168.1.50, but could be anyone else) *)
+    let buffer = String.create 1024 in
+    let sender = new ip_address `None in
+    let (_, received, _) = socket#receive buffer sender in
+    print_string (sender#to_string ^ " said: ")  ;
+    output stdout buffer 0 received ;
+    print_newline ()
+    
+    (* ----- The server ----- *)
+    
+    (* Create a socket and bind it to the port 55002 *)
+    let socket = new udp_socket in
+    socket#bind (UdpPort.from_int 55002) ;
+    
+    (* Receive a message from anyone *)
+    let buffer = String.create 1024 in
+    let sender = new ip_address `None in
+    let (_, received, port) = socket.receive(buffer, sizeof(buffer), received, sender) in
+    print_string (sender#to_string ^ " said: ")  ;
+    output stdout buffer 0 received ;
+    print_newline ()
+    
+    
+    (* Send an answer *)
+    let message = "Welcome " ^ sender#to_string in
+    socket#send message sender port;
+    ]}*)
 class udp_socket :
 object
   inherit socket
@@ -1382,29 +1443,64 @@ object
   val t_udp_socket_base : UdpSocket.t
     (**/**)
 
-  (** *)
-  method bind : int -> socket_status
+  (** Bind the socket to a specific port.
+
+      Binding the socket to a port is necessary for being able to receive data on that port. You can use the special value Socket::AnyPort to tell the system to automatically pick an available port, and then call getLocalPort to retrieve the chosen port.
+      @return Status code. *)
+  method bind : UdpPort.t -> socket_status
 
   (**)
   method destroy : unit
 
-  (** *)
-  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int * UdpRemotePort.t
+  (** Get the port to which the socket is bound locally.
 
-  (** *)
-  method receive_packet : #packet -> ip_address -> socket_status * int
+      If the socket is not bound to a port, this function returns 0.
+      @return Port to which the socket is bound*)
+  method get_local_port : UdpPort.t
+
+  (** Receive raw data from a remote peer.
+
+      In blocking mode, this function will wait until some bytes are actually received. Be careful to use a buffer which is large enough for the data that you intend to receive, if it is too small then an error will be returned and *all* the data will be lost.
+      @return Status code, actual number of byte received and port of the peer that has sent the data *)
+  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int * UdpPort.t
+
+  (** Receive a formatted packet of data from a remote peer.
+
+      In blocking mode, this function will wait until the whole packet has been received.
+      @return Status and port of the peer tha has sent the data*)
+  method receive_packet : #packet -> ip_address -> socket_status * UdpPort.t
+    
+  (** Receive raw data from a remote peer.
+
+      In blocking mode, this function will wait until some bytes are actually received. Be careful to use a buffer which is large enough for the data that you intend to receive, if it is too small then an error will be returned and *all* the data will be lost.
+      @return Status code, actual number of byte received and port of the peer that has sent the data *)
+  method receive_string : string -> ip_address -> socket_status * int * UdpPort.t
 
   (**/**)
   method rep__sf_UdpSocket : UdpSocket.t
     (**/**)
 
-  (** *)
-  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpRemotePort.t -> socket_status
+  (** Send raw data to a remote peer.
 
-  (** *)
-  method send_packet : #packet -> ip_address -> int -> socket_status
+      Make sure that size is not greater than UdpSocket::MaxDatagramSize, otherwise this function will fail and no data will be sent.
+      @return Status code*)
+  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status
 
-  (** *)
+  (** Send a formatted packet of data to a remote peer.
+
+      Make sure that the packet size is not greater than UdpSocket::MaxDatagramSize, otherwise this function will fail and no data will be sent.
+      @return Status code*)
+  method send_packet : #packet -> ip_address -> UdpPort.t -> socket_status
+
+  (** Send raw data to a remote peer.
+
+      Make sure that size is not greater than UdpSocket::MaxDatagramSize, otherwise this function will fail and no data will be sent.
+      @return Status code*)
+  method send_string : string -> ip_address -> UdpPort.t -> socket_status
+
+  (** Unbind the socket from the local port to which it is bound.
+
+      The port that the socket was previously using is immediately available after this function is called. If the socket is not bound to a port, this function has no effect. *)
   method unbind : unit
 end
 

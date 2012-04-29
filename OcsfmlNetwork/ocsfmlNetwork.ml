@@ -995,9 +995,10 @@ class tcp_listener = tcp_listener_bis ()
   
 let max_datagram_size = 65507
   
-module UdpRemotePort = 
+module UdpPort = 
 struct 
   type t = int
+  let from_int port = port
 end
   
 module UdpSocket =
@@ -1015,25 +1016,28 @@ struct
       
   external unbind : t -> unit = "sf_UdpSocket_unbind__impl"
       
+  external get_local_port : t -> int = "sf_UdpSocket_getLocalPort__impl"
+
   external send_packet :
-    t -> (#packet as 'a) -> ip_address -> UdpRemotePort.t -> socket_status =
+    t -> (#packet as 'a) -> ip_address -> UdpPort.t -> socket_status =
       "sf_UdpSocket_sendPacket__impl"
 	
   external receive_packet :
-    t -> (#packet as 'a) -> ip_address -> (socket_status * UdpRemotePort.t) =
+    t -> (#packet as 'a) -> ip_address -> (socket_status * UdpPort.t) =
       "sf_UdpSocket_receivePacket__impl"
 	
-  external send_data :
-    t ->
-    OcsfmlSystem.raw_data_type ->
-    ip_address -> UdpRemotePort.t -> socket_status =
+  external send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status =
       "sf_UdpSocket_sendData__impl"
 	
-  external receive_data :
-    t ->
-    OcsfmlSystem.raw_data_type ->
-    ip_address -> (socket_status * int * UdpRemotePort.t) =
+  external receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * UdpPort.t) =
       "sf_UdpSocket_receiveData__impl"
+
+  external send_string : t -> string -> ip_address -> UdpPort.t -> socket_status =
+      "sf_UdpSocket_sendString__impl"
+	
+  external receive_string : t -> string -> ip_address -> (socket_status * int * UdpPort.t) =
+      "sf_UdpSocket_receiveString__impl"
+
 	
 end
   
@@ -1043,23 +1047,35 @@ object ((self : 'self))
   method rep__sf_UdpSocket = t_udp_socket_base
   method destroy = UdpSocket.destroy t_udp_socket_base
   inherit socket (UdpSocket.to_socket t)
+
   method bind : int -> socket_status =
     fun p1 -> UdpSocket.bind t_udp_socket_base p1
-  method unbind : unit = UdpSocket.unbind t_udp_socket_base
-  method send_packet :
-    'a. (#packet as 'a) -> ip_address -> UdpRemotePort.t -> socket_status =
+
+  method unbind : unit = 
+    UdpSocket.unbind t_udp_socket_base
+
+  method get_local_port : UdpPort.t = 
+    UdpSocket.get_local_port t_udp_socket_base
+
+  method send_packet : 'a. (#packet as 'a) -> ip_address -> UdpPort.t -> socket_status =
     fun p1 p2 p3 -> UdpSocket.send_packet t_udp_socket_base p1 p2 p3
-  method receive_packet :
-    'a. (#packet as 'a) -> ip_address -> (socket_status * UdpRemotePort.t) =
+
+
+  method receive_packet : 'a. (#packet as 'a) -> ip_address -> (socket_status * UdpPort.t) =
     fun p1 p2 -> UdpSocket.receive_packet t_udp_socket_base p1 p2
-  method send_data :
-    OcsfmlSystem.raw_data_type ->
-    ip_address -> UdpRemotePort.t -> socket_status =
+
+  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status =
     fun p1 p2 p3 -> UdpSocket.send_data t_udp_socket_base p1 p2 p3
-  method receive_data :
-    OcsfmlSystem.raw_data_type ->
-    ip_address -> (socket_status * int * UdpRemotePort.t) =
+
+  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * UdpPort.t) =
     fun p1 p2 -> UdpSocket.receive_data t_udp_socket_base p1 p2
+
+  method send_string : string -> ip_address -> UdpPort.t -> socket_status =
+    fun p1 p2 p3 -> UdpSocket.send_string t_udp_socket_base p1 p2 p3
+
+  method receive_string: string -> ip_address -> (socket_status * int * UdpPort.t) =
+    fun p1 p2 -> UdpSocket.receive_string t_udp_socket_base p1 p2
+
 end
       
 class udp_socket_bis () = let t = UdpSocket.default () in udp_socket_base t

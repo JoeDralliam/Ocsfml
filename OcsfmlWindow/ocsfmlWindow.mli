@@ -278,7 +278,9 @@ end
 *)
 class context :
 object
+  (**/**)
   val t_context_base : Context.t
+    (**/**)
 
   (**)
   method destroy : unit

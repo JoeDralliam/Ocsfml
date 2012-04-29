@@ -446,11 +446,6 @@ udpsocket_receivepacket_helper( sf::UdpSocket* obj, sf::Packet& packet, sf::IpAd
 }
 
 
-sf::Socket::Status udpsocket_senddata_helper( sf::UdpSocket* obj, RawDataType d, sf::IpAddress const& remoteIp, unsigned short remotePort)
-{
-	return obj->send( d.data, d.size[0], remoteIp, remotePort);
-}
-
 std::tuple< sf::Socket::Status, intnat /*bytes receveid*/, unsigned short /* remote port */ > 
 udpsocket_receivedata_helper( sf::UdpSocket* obj, RawDataType d, sf::IpAddress& remoteIp)
 {
@@ -459,6 +454,27 @@ udpsocket_receivedata_helper( sf::UdpSocket* obj, RawDataType d, sf::IpAddress& 
   sf::Socket::Status stat = obj->receive(d.data, d.size[0], received, remoteIp, remotePort);
   return std::make_tuple( stat, received, remotePort);
 }
+
+
+sf::Socket::Status udpsocket_senddata_helper( sf::UdpSocket* obj, RawDataType d, sf::IpAddress const& remoteIp, unsigned short remotePort)
+{
+	return obj->send( d.data, d.size[0], remoteIp, remotePort);
+}
+
+std::tuple< sf::Socket::Status, intnat /*bytes receveid*/, unsigned short /* remote port */ > 
+udpsocket_receivestring_helper( sf::UdpSocket* obj, CString s, sf::IpAddress& remoteIp)
+{
+  std::size_t received;
+  unsigned short remotePort;
+  sf::Socket::Status stat = obj->receive(s.string , s.size, received, remoteIp, remotePort);
+  return std::make_tuple( stat, received, remotePort);
+}
+
+sf::Socket::Status udpsocket_sendstring_helper( sf::UdpSocket* obj, CString s, sf::IpAddress const& remoteIp, unsigned short remotePort)
+{
+	return obj->send( s.string, s.size, remoteIp, remotePort);
+}
+
 
 
 typedef sf::UdpSocket sf_UdpSocket;
@@ -473,6 +489,8 @@ camlpp__register_custom_class()
   camlpp__register_method0( unbind );
   camlpp__register_external_method3( sendData, &udpsocket_senddata_helper);
   camlpp__register_external_method2( receiveData, &udpsocket_receivedata_helper );
+  camlpp__register_external_method3( sendString, &udpsocket_sendstring_helper);
+  camlpp__register_external_method2( receiveString, &udpsocket_receivestring_helper );
   camlpp__register_external_method3( sendPacket, ((TransferPacketUdp)&sf::UdpSocket::send) );
   camlpp__register_external_method2( receivePacket, &udpsocket_receivepacket_helper );
 }

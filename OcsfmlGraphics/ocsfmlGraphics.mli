@@ -177,8 +177,9 @@ end
     Transforms are typically used for drawing. But they can also be used for any computation that requires to transform points between the local and global coordinate systems of an entity (like collision detection). *)
 class transform : ?matrix:(float * float * float * float * float * float * float * float * float) -> unit ->
 object ('a)
+  (**/**)
   val t_transform_base : Transform.t
-
+    (**/**)
 
     (** Combine the current transform with another one.
 
@@ -2244,7 +2245,9 @@ class vertex_array :
 object
   inherit drawable
 
+  (**/**)
   val t_vertex_array_base : VertexArray.t
+    (**/**)
 
   (** Add a vertex to the array. *)
   method append : vertex -> unit
@@ -2304,7 +2307,7 @@ end
 
 (**/**)
 
-type draw_func_type = RenderTarget.t -> render_states -> unit
+(* type draw_func_type = RenderTarget.t -> render_states -> unit *)
 
 
 (*

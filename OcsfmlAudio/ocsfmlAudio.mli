@@ -68,6 +68,7 @@ type status =
   | Playing (** Sound is playing. *)
 
 
+(**/**)
 module SoundSource :
 sig
   type t
@@ -105,6 +106,7 @@ sig
   val get_min_distance : t -> float
   val get_attenuation : t -> float
 end
+(**/**)
 
 (** Base class defining a sound's properties.
     
@@ -191,6 +193,7 @@ object
   method set_volume : float -> unit
 end
 
+(**/**)
 module SoundStream :
 sig
   type t
@@ -207,6 +210,7 @@ sig
   val set_loop : t -> bool -> unit
   val get_loop : t -> bool
 end
+(**/**)
 
 (** Binding does not support custom streams yet.
 
@@ -293,7 +297,7 @@ object
   method stop : unit
 end
 
-
+(**/**)
 module Music :
 sig
   type t
@@ -303,7 +307,7 @@ sig
   val open_from_file : t -> string -> bool
   val get_duration : t -> OcsfmlSystem.Time.t
 end
-
+(**/**)
 
 (** Streamed music played from an audio file.
 
@@ -374,6 +378,8 @@ end
 type samples_type =
     (int, Bigarray.int16_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
 
+
+(**/**)
 module SoundBuffer :
 sig
   type t
@@ -404,6 +410,7 @@ sig
   val get_channel_count : t -> int
   val get_duration : t -> OcsfmlSystem.Time.t
 end
+(**/**)
 
   
 (** Storage for audio samples defining a sound.
@@ -513,13 +520,16 @@ object
 end
 
 
+
 module SoundRecorder :
 sig
+  (**/**)
   type t
   val destroy : t -> unit
   val start : t -> ?sampleRate:int -> unit -> unit
   val stop : t -> unit
   val get_sample_rate : t -> int
+    (**/**)
 
   (** Check if the system supports audio capture.
 
@@ -563,7 +573,16 @@ object
   method stop : unit
 end
 
-
+(**/**)
+module SoundBufferRecorder :
+sig
+  type t
+  val destroy : t -> unit
+  val to_sound_recorder : t -> SoundRecorder.t
+  val default : unit -> t
+  val get_buffer : t -> sound_buffer
+end
+(**/**)
     
 (** Specialized sound_recorder which stores the captured audio data into a sound buffer.
     
@@ -590,15 +609,6 @@ end
     buffer#save_to_file "my_record.ogg"
     end
     ]} *)
-module SoundBufferRecorder :
-sig
-  type t
-  val destroy : t -> unit
-  val to_sound_recorder : t -> SoundRecorder.t
-  val default : unit -> t
-  val get_buffer : t -> sound_buffer
-end
-
 class sound_buffer_recorder :
 object
   inherit sound_recorder
@@ -620,6 +630,7 @@ object
     (**/**)
 end
 
+(**/**)
 module Sound :
 sig
   type t
@@ -638,6 +649,7 @@ sig
   val get_playing_offset : t -> OcsfmlSystem.Time.t
   val get_status : t -> status
 end
+(**/**)
 
 (** Regular sound that can be played in the audio environment.
     
