@@ -26,6 +26,8 @@ extern "C"
 #include <caml/memory.h>
 #include <caml/callback.h>
 #include <caml/threads.h>
+
+  value caml_gc_full_major(value v);
 }
 
 #include <functional>
@@ -427,6 +429,9 @@ struct ConversionManagement< std::function< void(Args...) > >
       CAMLlocal2( p1, p2 );
       AffectationManagement<T1>::affect(p1, t1);
       AffectationManagement<T2>::affect(p2, t2);
+
+      caml_gc_full_major(0);
+
       CAMLreturn( callback2( *callback_, p1, p2 ) );
     }
 
