@@ -578,7 +578,10 @@ struct ConversionManagement< std::function< void(Arg1, Arg2) > >
       CAMLparam0();
       CAMLlocal2( p1, p2 );
       AffectationManagement<Arg1>::affect(p1, t1);
-	  AffectationManagement<Arg2>::affect(p2, t2);
+      AffectationManagement<Arg2>::affect(p2, t2);
+      
+      caml_gc_full_major(0);
+      
       CAMLreturn( callback2( *callback_, p1, p2 ) );
     }
 		
@@ -613,7 +616,7 @@ struct ConversionManagement< std::function< void(Arg1, Arg2) > >
       caml_release_runtime_system() ;
     }
   };
-  CamlCallback from_value( value const& v)
+  CamlCallback from_value(value const& v)
   {
 		
     assert( Tag_val( v ) == Closure_tag );
