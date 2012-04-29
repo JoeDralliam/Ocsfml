@@ -735,25 +735,14 @@ custom_struct_conversion(sf::RenderStates,
 			 &sf::RenderStates::shader );
 
 
-sf::RenderStates mk_sf_RenderStates(Optional< sf::BlendMode > blend,
-				  Optional< sf::Transform const* > transform,
-				  Optional< sf::Texture const* > text,
-				  Optional< sf::Shader const* > shader,
-				  UnitTypeHolder)
+sf::RenderStates sf_RenderStates_default()
 {
-  sf::RenderStates const& def = sf::RenderStates::Default;
-  return sf::RenderStates
-    (
-     blend.get_value_no_fail( def.blendMode ),
-     *transform.get_value_no_fail( &def.transform ),
-     text.get_value_no_fail( def.texture ),
-     shader.get_value_no_fail( def.shader )
-     );
+  return sf::RenderStates::Default;
 }
 
 extern "C"
 {
-  camlpp__register_free_function5( mk_sf_RenderStates )
+  camlpp__register_free_function0( sf_RenderStates_default )
 }
 
 void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color, UnitTypeHolder )
@@ -771,26 +760,25 @@ sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Opti
 }
 
 void render_target_draw_helper( sf::RenderTarget* target,
-				Optional< sf::RenderStates > rs,
-				/* Optional< sf::BlendMode > blend,
+				/*Optional< sf::RenderStates > rs , */
+				Optional< sf::BlendMode > blend,
 				Optional< sf::Transform const* > transform,
 				Optional< sf::Texture const* > text,
-				Optional< sf::Shader const* > shader, */
+				Optional< sf::Shader const* > shader,
 				sf::Drawable const& drawable)
 {
   sf::RenderStates const& def = sf::RenderStates::Default;
   target->draw
     (
      drawable,
-     rs.get_value_no_fail( def )
-     /*    sf::RenderStates
+     // rs.get_value_no_fail( def )
+     sf::RenderStates
      (
       blend.get_value_no_fail( def.blendMode ),
       *transform.get_value_no_fail( &def.transform ),
       text.get_value_no_fail( def.texture ),
       shader.get_value_no_fail( def.shader )
       )
-     */
      );
 }
 
@@ -810,7 +798,7 @@ typedef sf::RenderTarget sf_RenderTarget;
 camlpp__register_custom_class()
 {
   camlpp__register_external_method2( clear, &render_target_clear_helper );
-  camlpp__register_external_method2( draw, &render_target_draw_helper );
+  camlpp__register_external_method5( draw, &render_target_draw_helper );
   //	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper );
   camlpp__register_method0( getSize );
   camlpp__register_method1( setView );
@@ -911,13 +899,13 @@ camlpp__register_custom_class()
 class OverrideDrawable : public sf::Drawable
 {
 public:
-  typedef std::function<void(sf::RenderTarget*, sf::RenderStates )> CallbackType;
+  typedef std::function<void(sf::RenderTarget*, sf::BlendMode, sf::Transform const&, sf::Texture const*, sf::Shader const* )> CallbackType;
 private:
   CallbackType callback_; 
 private:
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
   {
-    callback_(&target, states );
+    callback_(&target, states.blendMode, states.transform, states.texture, states.shader );
   }
 public:
   OverrideDrawable()

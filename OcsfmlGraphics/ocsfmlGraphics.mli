@@ -1212,10 +1212,10 @@ type render_states = {
   mutable shader : shader; (** Shader. *)
 }
 
-
+    
 val mk_render_states :
   ?blend_mode:blend_mode ->
-  ?transform:transform -> ?texture:texture -> ?shader:shader -> unit -> unit
+  ?transform:transform -> ?texture:texture -> ?shader:shader -> unit -> render_states
 
 
 (** Define a point with color and texture coordinates.
@@ -1279,11 +1279,12 @@ sig
   val destroy : t -> unit
   val clear : t -> ?color:Color.t -> unit -> unit
 (** Note : changed #drawable into Drawable.t *)
-  val draw : t -> ?render_states:render_states -> Drawable.t -> unit
+(*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
+  val draw : t -> ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> Drawable.t -> unit
   val get_size : t -> int * int
   val set_view : t -> view -> unit
-  val get_view : t -> view
-  val get_default_view : t -> view
+  val get_view : t -> View.t
+  val get_default_view : t -> View.t
   val get_viewport : t -> view -> int rect
   val convert_coords : t -> ?view:view -> int * int -> float * float
   val push_gl_states : t -> unit
@@ -1312,7 +1313,7 @@ object
   (**/**)
   method rep__sf_Drawable : Drawable.t
 
-  method private draw : render_target -> render_states -> unit
+  method private draw : render_target -> blend_mode -> transform -> texture -> shader -> unit
 end
 (** Base class for all render targets (window, texture, ...)
     
@@ -1350,7 +1351,8 @@ object
 
   (** Draw a drawable object to the render-target. 
       @param render_states Render states to use for drawing. *)
-  method draw : ?render_states:render_states -> < rep__sf_Drawable : Drawable.t; .. > -> unit
+(*  method draw : ?render_states:render_states -> < rep__sf_Drawable : Drawable.t; .. > -> unit *)
+  method draw : ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> < rep__sf_Drawable : Drawable.t; .. > -> unit
 
   (** Get the default view of the render target.
 

@@ -913,16 +913,47 @@ class view tag =
       | `None -> View.default ()
   in view_base t
        
+
 type render_states =
-    { mutable blend_mode : blend_mode; mutable transform : transform;
-      mutable texture : texture; mutable shader : shader
+    {
+      mutable blend_mode : blend_mode; 
+      mutable transform : transform;
+      mutable texture : texture; 
+      mutable shader : shader
     }
 
-external mk_render_states :
-  ?blend_mode: blend_mode ->
-  ?transform: transform ->
-  ?texture: texture -> ?shader: shader -> unit -> unit =
-    "mk_sf_RenderStates__impl"
+module RenderStatesBase =
+struct
+  type t = { 
+    mutable blend_mode_cpp : blend_mode; 
+    mutable transform_cpp : Transform.t ;
+    mutable texture_cpp : Texture.t ; 
+    mutable shader_cpp : Shader.t
+  }
+
+  let caml_render_states : t -> render_states = 
+    fun p1 -> 
+      { 
+	blend_mode = p1.blend_mode_cpp ; 
+	transform = new transform_base p1.transform_cpp ; 
+	texture = new texture_base p1.texture_cpp ;
+	shader = new shader_base p1.shader_cpp
+      }
+  external create_default : unit -> t = "sf_RenderStates_default__impl"
+end
+
+
+module RenderStates =
+struct
+  let default = RenderStatesBase.( caml_render_states (create_default ()) )
+end
+
+
+let mk_render_states
+  ?(blend_mode = RenderStates.default.blend_mode)
+  ?(transform = RenderStates.default.transform)
+  ?(texture = RenderStates.default.texture)
+  ?(shader = RenderStates.default.shader)  () = { blend_mode ; transform ; texture ; shader }
       
 
 module Drawable =
@@ -943,18 +974,19 @@ struct
 	
   external draw :
     t ->
-    ?render_states: render_states ->
-    (*?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader*)
+    (*?render_states: render_states -> *)
+    ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader ->
     Drawable.t -> unit =
+      "sf_RenderTarget_draw__byte"
       "sf_RenderTarget_draw__impl"
 	
   external get_size : t -> (int * int) = "sf_RenderTarget_getSize__impl"
       
   external set_view : t -> view -> unit = "sf_RenderTarget_setView__impl"
       
-  external get_view : t -> view = "sf_RenderTarget_getView__impl"
+  external get_view : t -> View.t = "sf_RenderTarget_getView__impl"
       
-  external get_default_view : t -> view =
+  external get_default_view : t -> View.t =
       "sf_RenderTarget_getDefaultView__impl"
 	
   external get_viewport : t -> view -> int rect =
@@ -974,20 +1006,22 @@ struct
 	
 end
   
-external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> render_states -> unit) -> unit = "sf_Drawable_override_draw__impl"
+(* external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> RenderStatesBase.t -> unit) -> unit = "sf_Drawable_override_draw__impl" *)
+external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> blend_mode ->  Transform.t -> Texture.t ->  Shader.t -> unit) -> unit = "sf_Drawable_override_draw__impl"
 
 class drawable ?overloaded t_drawable' =
 object ((self : 'self))
   val t_drawable = (t_drawable' : Drawable.t)
 
   initializer match overloaded with
-      Some `draw -> set_drawable_draw_override t_drawable (fun target states -> self#draw (new render_target target) states)
+      (*      Some `draw -> set_drawable_draw_override t_drawable (fun target states -> self#draw (new render_target target) (RenderStatesBase.caml_render_states states) ) *)
+      Some `draw -> set_drawable_draw_override t_drawable (fun target b tr tx s -> self#draw (new render_target target) b (new transform_base tr) (new texture_base tx) (new shader_base s) )
     | None -> ()
 
   method rep__sf_Drawable = t_drawable
   method destroy = Drawable.destroy t_drawable
 
-  method private draw : render_target -> render_states -> unit = fun p1 p2 -> ()
+  method private draw : render_target -> blend_mode -> transform -> texture -> shader -> unit = fun p1 p2 p3 p4 p5 -> ()
 end
 and render_target t_render_target' =
 object ((self : 'self))
@@ -997,15 +1031,19 @@ object ((self : 'self))
   method clear : ?color: Color.t -> unit -> unit =
     fun ?color p1 -> RenderTarget.clear t_render_target ?color p1
   method draw :
-    'a. ?render_states: render_states -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit =
-    fun ?render_states p1 ->
-      RenderTarget.draw t_render_target ?render_states p1#rep__sf_Drawable
+(*    'a. ?render_states: render_states -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit = 
+      fun ?render_states p1 ->
+      RenderTarget.draw t_render_target ?render_states p1#rep__sf_Drawable*)
+    'a. ?blend_mode:blend_mode -> ?transform:transform -> ?texture:texture -> ?shader:shader -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit =
+    fun ?blend_mode ?transform ?texture ?shader p1 ->
+      RenderTarget.draw t_render_target ?blend_mode ?transform ?texture ?shader p1#rep__sf_Drawable
   method get_size : (int * int) = RenderTarget.get_size t_render_target
   method set_view : view -> unit =
     fun p1 -> RenderTarget.set_view t_render_target p1
-  method get_view : view = RenderTarget.get_view t_render_target
+  method get_view : view = 
+    new view_base (RenderTarget.get_view t_render_target)
   method get_default_view : view =
-    RenderTarget.get_default_view t_render_target
+    new view_base (RenderTarget.get_default_view t_render_target)
   method get_viewport : view -> int rect =
     fun p1 -> RenderTarget.get_viewport t_render_target p1
   method convert_coords : ?view: view -> (int * int) -> (float * float) =

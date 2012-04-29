@@ -18,7 +18,7 @@ object (self)
   val error = new text ~string:"Shader not\nsupported" 
       ~position:(320.,200.)
       ~character_size:36 ()
-  method private draw target _ = target#draw error
+  method private draw target _ _ _ _ = target#draw error
   method destroy = ()
   method update _ _ _ = () 
 end
@@ -49,9 +49,8 @@ object
   method update time x y =
     myShader#set_parameter "pixel_threshold" & (x +. y) /. 30.
 
-  method private draw target states =
-    states.shader <- myShader ;
-    target#draw ~render_states:states mySprite
+  method private draw target blend_mode transform texture sh =
+    target#draw ~blend_mode ~transform ~texture ~shader:myShader mySprite
 end
     with LoadFailure -> load_failure
   in
@@ -94,9 +93,8 @@ object
     myShader#set_parameter "wave_amplitude" ~x:(x *. 40.) (y *. 40.) ;
     myShader#set_parameter "blur_radius" & (x +. y) *. 0.008
 
-  method private draw target states =
-    states.shader <- myShader ;
-    target#draw ~render_states:states myText
+  method private draw target blend_mode transform texture sh =
+    target#draw ~blend_mode ~transform ~texture ~shader:myShader myText
 end
     with LoadFailure -> load_failure
   in
@@ -128,9 +126,8 @@ object
     myShader#set_parameter "storm_total_radius" radius ;
     myShader#set_parameter "blink_alpha" (0.5 +. (cos (time *. 3.) ) *. 0.25)
 
-  method private draw target states =
-    states.shader <- myShader ;
-    target#draw ~render_states:states myPoints
+  method private draw target blend_mode transform texture sh =
+    target#draw ~blend_mode ~transform ~texture ~shader:myShader myPoints
 end 
     with LoadFailure -> load_failure
   in
@@ -187,11 +184,10 @@ object (self)
     Array.iteri update_entity myEntities ;
     mySurface#display
 
-  method private draw target states =
-    states.shader <- myShader ;
+  method private draw target blend_mode transform texture sh =
     let tex = mySurface#get_texture in
     mySceneSprite#set_texture tex;
-    target#draw ~render_states:states mySceneSprite
+    target#draw ~blend_mode ~transform ~texture ~shader:myShader mySceneSprite
 
 end
     with LoadFailure -> load_failure
