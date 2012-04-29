@@ -101,13 +101,12 @@ protected:
   template<class... Args>
   static void affect_impl(value& v, T const& t, Args... args)
   {
-    bool float_record = ShouldUseRegularTag< Args... >::value;
     v = caml_alloc( sizeof...(Args) * LengthDoubleFactor<Args...>::result_value , RegularOrDoubleArrayTag<Args...>::result_value );
-    affect_impl_helper(v, float_record, 0, t, args...);
+    affect_impl_helper(v, 0, t, args...);
   }
 
   template<class... Args>
-  static void affect_field_impl(value& v, bool float_record, int field, T const& t, Args... args)
+  static void affect_field_impl(value& v, int field, T const& t, Args... args)
   {
     CAMLparam0();
     CAMLlocal1(tmp);

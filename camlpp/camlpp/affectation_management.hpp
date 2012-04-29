@@ -66,6 +66,15 @@ template<class T>
 struct copy_instance_helper< T, true >
 {};
 
+template<class T>
+struct is_floating_point_field : std::false_type
+{};
+
+template<class T, class C>
+struct is_floating_point_field<T (C::*)> : std::integral_constant< bool, std::is_floating_point<T>::value >
+{};
+
+
 #ifndef _MSC_VER
 
 template<class... ArgsToScan>
@@ -74,13 +83,13 @@ struct ShouldUseRegularTag;
 template<class T, class... ArgsToScan>
 struct ShouldUseRegularTag<T, ArgsToScan...>
 {
-  enum { value = ((!std::is_floating_point<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
+  enum { value = ((!std::is_floating_point<T>::value && !is_floating_point_field<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
 };
 
 template<class T>
 struct ShouldUseRegularTag<T>
 {
-  enum { value = !std::is_floating_point<T>::value };
+  enum { value = !std::is_floating_point<T>::value  && !is_floating_point_field<T>::value };
 };
 
 
@@ -239,7 +248,7 @@ struct AffectationManagement<double>
 	CAMLparam0();
 	CAMLlocal1( double_val );
 	affect(double_val, d);
-	Field(v, field) = double_val;
+	Store_field(v, field, double_val);
 	CAMLreturn0;
       }
   }
@@ -264,7 +273,7 @@ struct AffectationManagement<float>
 	CAMLparam0();
 	CAMLlocal1( double_val );
 	affect(double_val, d);
-	Field(v, field) = double_val;
+	Store_field(v, field, double_val);
 	CAMLreturn0;
       }
   }

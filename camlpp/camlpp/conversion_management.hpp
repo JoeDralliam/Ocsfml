@@ -447,11 +447,11 @@ struct ConversionManagement< std::function< void(Args...) > >
     }
 
     template<class... OArgs>
-    value call( OArgs... tN)
+    value call( OArgs&&... tN)
     {
       CAMLparam0();
-      CAMLlocalN( pN, sizeof...(Args) );
-      CAMLreturn( call_helper( pN, tN... ) );
+      CAMLlocalN( pN, sizeof...(OArgs) );
+      CAMLreturn( call_helper( pN, std::forward<OArgs>(tN)... ) );
     }
 
     template<class T, int I>
@@ -465,10 +465,10 @@ struct ConversionManagement< std::function< void(Args...) > >
     }
 
     template<class... OArgs, class T, int I>
-    value call_helper( value (&pN) [I], T tN, Args... args )
+    value call_helper( value (&pN) [I], T tN, OArgs&&... args )
     {
-      AffectationManagement<T>::affect(pN[ I-sizeof...(Args)-1 ], tN);
-      return call_helper( pN, args...);
+      AffectationManagement<T>::affect(pN[ I-sizeof...(OArgs)-1 ], tN);
+      return call_helper( pN, std::forward<OArgs>(args)...);
     }
 		
     CamlCallback& operator=( CamlCallback const& );
