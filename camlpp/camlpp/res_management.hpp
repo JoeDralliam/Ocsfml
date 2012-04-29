@@ -51,7 +51,7 @@ struct ResManagement
   {
     try {
       caml_release_runtime_system();
-      auto tmpRes( f(std::forward<Args>(args)...) );
+      T tmpRes( f(std::forward<Args>(args)...) );
       caml_acquire_runtime_system();
       AffectationManagement<T>::affect(res, tmpRes);
     } 
@@ -117,7 +117,7 @@ struct ResManagement {
   {
     try {
       caml_release_runtime_system();
-      auto tmpRes(ret() );
+      T tmpRes( ret() );
       caml_acquire_runtime_system();
       AffectationManagement<T>::affect(res, tmpRes);
     } 

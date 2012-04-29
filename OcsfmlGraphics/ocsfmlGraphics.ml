@@ -914,46 +914,6 @@ class view tag =
   in view_base t
        
 
-type render_states =
-    {
-      mutable blend_mode : blend_mode; 
-      mutable transform : transform;
-      mutable texture : texture; 
-      mutable shader : shader
-    }
-
-module RenderStatesBase =
-struct
-  type t = { 
-    mutable blend_mode_cpp : blend_mode; 
-    mutable transform_cpp : Transform.t ;
-    mutable texture_cpp : Texture.t ; 
-    mutable shader_cpp : Shader.t
-  }
-
-  let caml_render_states : t -> render_states = 
-    fun p1 -> 
-      { 
-	blend_mode = p1.blend_mode_cpp ; 
-	transform = new transform_base p1.transform_cpp ; 
-	texture = new texture_base p1.texture_cpp ;
-	shader = new shader_base p1.shader_cpp
-      }
-  external create_default : unit -> t = "sf_RenderStates_default__impl"
-end
-
-
-module RenderStates =
-struct
-  let default = RenderStatesBase.( caml_render_states (create_default ()) )
-end
-
-
-let mk_render_states
-  ?(blend_mode = RenderStates.default.blend_mode)
-  ?(transform = RenderStates.default.transform)
-  ?(texture = RenderStates.default.texture)
-  ?(shader = RenderStates.default.shader)  () = { blend_mode ; transform ; texture ; shader }
       
 
 module Drawable =

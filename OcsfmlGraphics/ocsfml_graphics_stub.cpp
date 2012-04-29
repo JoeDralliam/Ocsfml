@@ -692,6 +692,7 @@ sf::View* view_center_and_size_constructor_helper( sf::Vector2f const& center, s
 	return new sf::View( center, size);
 }
 
+
 typedef sf::View sf_View;
 #define CAMLPP__CLASS_NAME() sf_View
 camlpp__register_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
@@ -793,6 +794,16 @@ void render_target_draw_helper( sf::RenderTarget* target,
 */
 
 
+sf::View const* rendertarget_getview_helper( sf::RenderTarget* target )
+{
+  return &target->getView();
+}
+
+sf::View const* rendertarget_getdefaultview_helper( sf::RenderTarget* target )
+{
+  return &target->getDefaultView();
+}
+
 typedef sf::RenderTarget sf_RenderTarget;
 #define CAMLPP__CLASS_NAME() sf_RenderTarget
 camlpp__register_custom_class()
@@ -802,8 +813,8 @@ camlpp__register_custom_class()
   //	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper );
   camlpp__register_method0( getSize );
   camlpp__register_method1( setView );
-  camlpp__register_method0( getView );
-  camlpp__register_method0( getDefaultView );
+  camlpp__register_external_method0( getView, &rendertarget_getview_helper );
+  camlpp__register_external_method0( getDefaultView, &rendertarget_getdefaultview_helper );
   camlpp__register_method1( getViewport );
   camlpp__register_external_method2( convertCoords, &render_target_convert_coords_helper );
   camlpp__register_method0( pushGLStates );
