@@ -1068,7 +1068,7 @@ struct
   external default : unit -> t =
       "sf_RenderTexture_default_constructor__impl"
 	
-  external create : t -> ?dephtBfr: bool -> int -> int -> bool =
+  external create : t -> ?depht_buffer: bool -> int -> int -> bool =
       "sf_RenderTexture_create__impl"
 	
   external set_smooth : t -> bool -> unit =
@@ -1107,11 +1107,14 @@ object ((self : 'self))
 end
   
     
-class render_texture_bis () =
-  let t = RenderTexture.default ()
-  in render_texture_base t
+exception CreateFailure
        
-class render_texture = render_texture_bis ()
+class render_texture ?depht_buffer width height = 
+  let t = RenderTexture.default () in
+object 
+  inherit render_texture_base t
+  initializer if not (self#create ?depht_buffer width height) then raise CreateFailure
+end
   
 module RenderWindow =
 struct

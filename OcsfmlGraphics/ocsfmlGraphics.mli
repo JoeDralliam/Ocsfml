@@ -1425,6 +1425,10 @@ object
 end
 
 
+(** Exception raised by some object constructors (ie render_texture for instance) *)
+exception CreateFailure
+
+
 (**/**)
 module RenderTexture :
 sig
@@ -1460,10 +1464,11 @@ end
     let window = new render_window (OcsfmlWindow.VideoMode.create ~w:800 ~h:600 ()) "SFML window" in
     
 (* Create a new render-texture *)
-    let texture = new OcsfmlGraphics.render_texture in
-    if not (texture#create 500 500)
-    then   failwith "Could not create the render texture"
-    
+    let texture = 
+      try new OcsfmlGraphics.render_texture 500 500 
+      with OcsfmlGraphics.CreateFailure -> failwith "Could not create the render texture"
+    in
+
     let main_loop () =
       (* Event processing *)
       (* ... *)
@@ -1496,6 +1501,7 @@ end
     main_loop ()
     ]}*)
 class render_texture :
+  ?depht_buffer:bool -> int -> int ->
 object
   inherit render_target
   (**/**)
