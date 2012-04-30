@@ -101,7 +101,7 @@ protected:
   template<class... Args>
   static void affect_impl(value& v, T const& t, Args... args)
   {
-    v = caml_alloc( sizeof...(Args) * LengthDoubleFactor<Args...>::result_value , RegularOrDoubleArrayTag<Args...>::result_value );
+    v = caml_alloc_tuple( sizeof...(Args) );
     affect_impl_helper(v, 0, t, args...);
   }
 
@@ -110,7 +110,7 @@ protected:
   {
     CAMLparam0();
     CAMLlocal1(tmp);
-    tmp = caml_alloc( sizeof...(Args) * LengthDoubleFactor<Args...>::result_value, RegularOrDoubleArrayTag<Args...>::result_value );
+    tmp = caml_alloc_tuple( sizeof...(Args) );
     affect_impl_helper(tmp, 0, t, args...);
     Store_field(v, field, tmp);
     CAMLreturn0;
@@ -213,8 +213,6 @@ private:
     t.*std::get<I>(args) = obtain_field<Type>(v,fieldCount);
     from_value_impl_helper(v, fieldCount-1, t, args, Int2Type<I - 1>());
   }
-
-        
 };
 
 template<class T>
@@ -225,7 +223,7 @@ protected:
   template<class Args>
   static void affect_impl(value& v, T const& t, Args const& args)
   {
-    v = caml_alloc( std::tuple_size<Args>::value * LengthDoubleFactor<Args>::result_value , RegularOrDoubleArrayTag<Args>::result_value );
+    v = caml_alloc_tuple( std::tuple_size<Args>::value );
     affect_impl_helper(v, std::tuple_size<Args>::value - 1, t, args, Int2Type<std::tuple_size<Args>::value - 1>());
   }
 
@@ -234,7 +232,7 @@ protected:
   {
     CAMLparam0();
     CAMLlocal1(tmp);
-    tmp =  caml_alloc( std::tuple_size<Args>::value * LengthDoubleFactor<Args>::result_value , RegularOrDoubleArrayTag<Args>::result_value );
+    tmp =  caml_alloc_tuple( std::tuple_size<Args>::value );
     affect_impl_helper(tmp, std::tuple_size<Args>::value - 1, t, args, Int2Type<std::tuple_size<Args>::value - 1>());
     Store_field(v, field, tmp);
     CAMLreturn0;

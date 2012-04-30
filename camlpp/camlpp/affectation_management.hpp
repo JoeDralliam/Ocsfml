@@ -66,14 +66,6 @@ template<class T>
 struct copy_instance_helper< T, true >
 {};
 
-template<class T>
-struct is_floating_point_field : std::false_type
-{};
-
-template<class T, class C>
-struct is_floating_point_field<T (C::*)> : std::integral_constant< bool, std::is_floating_point<T>::value >
-{};
-
 
 #ifndef _MSC_VER
 
@@ -83,13 +75,13 @@ struct ShouldUseRegularTag;
 template<class T, class... ArgsToScan>
 struct ShouldUseRegularTag<T, ArgsToScan...>
 {
-  enum { value = ((!std::is_floating_point<T>::value && !is_floating_point_field<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
+  enum { value = ((!std::is_floating_point<T>::value) || (ShouldUseRegularTag<ArgsToScan...>::value)) };
 };
 
 template<class T>
 struct ShouldUseRegularTag<T>
 {
-  enum { value = !std::is_floating_point<T>::value  && !is_floating_point_field<T>::value };
+  enum { value = !std::is_floating_point<T>::value };
 };
 
 
@@ -502,6 +494,55 @@ struct AffectationManagement< std::tuple< T1, T2, T3, T4 > >
     CAMLreturn0;
   }
 };
+
+template<class T1, class T2, class T3, class T4, class T5>
+struct AffectationManagement< std::tuple< T1, T2, T3, T4, T5 > >
+{
+  static void affect(value& v, std::tuple< T1, T2, T3, T4, T5 > const& tup)
+  {
+    v = caml_alloc_tuple( 5 );
+    AffectationManagement< T1 >::affect_field(v, 0, std::get<0>(tup));
+    AffectationManagement< T2 >::affect_field(v, 1, std::get<1>(tup));
+    AffectationManagement< T3 >::affect_field(v, 2, std::get<2>(tup));
+    AffectationManagement< T4 >::affect_field(v, 3, std::get<3>(tup));
+    AffectationManagement< T5 >::affect_field(v, 4, std::get<4>(tup));
+  }
+
+  static void affect_field(value& v, int field, std::tuple< T1, T2, T3, T4, T5 > const& p)
+  {
+    CAMLparam0();
+    CAMLlocal1( tupleVal );
+    affect( tupleVal, p );
+    Store_field(v, field, tupleVal);
+    CAMLreturn0;
+  }
+};
+
+
+template<class T1, class T2, class T3, class T4, class T5, class T6>
+struct AffectationManagement< std::tuple< T1, T2, T3, T4, T5, T6 > >
+{
+  static void affect(value& v, std::tuple< T1, T2, T3, T4, T5, T6 > const& tup)
+  {
+    v = caml_alloc_tuple( 6 );
+    AffectationManagement< T1 >::affect_field(v, 0, std::get<0>(tup));
+    AffectationManagement< T2 >::affect_field(v, 1, std::get<1>(tup));
+    AffectationManagement< T3 >::affect_field(v, 2, std::get<2>(tup));
+    AffectationManagement< T4 >::affect_field(v, 3, std::get<3>(tup));
+    AffectationManagement< T5 >::affect_field(v, 4, std::get<4>(tup));
+    AffectationManagement< T6 >::affect_field(v, 5, std::get<5>(tup));
+  }
+
+  static void affect_field(value& v, int field, std::tuple< T1, T2, T3, T4, T5, T6 > const& p)
+  {
+    CAMLparam0();
+    CAMLlocal1( tupleVal );
+    affect( tupleVal, p );
+    Store_field(v, field, tupleVal);
+    CAMLreturn0;
+  }
+};
+
 
 #endif
 

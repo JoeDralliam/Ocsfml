@@ -327,12 +327,12 @@ struct
   type t
     
   class type image_base_class_type =
-  object ((*
-	    let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
-	    do_if t#set_position_v position ;
-	    do_if t#set_scale_v scale ;
-	    do_if t#set_origin_v origin ;
-	    do_if t#set_rotation rotation
+  object ((*
+	    let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
+	    do_if t#set_position_v position ;
+	    do_if t#set_scale_v scale ;
+	    do_if t#set_origin_v origin ;
+	    do_if t#set_rotation rotation
 	  *)
     'a)
     val t_image_base : t
@@ -889,19 +889,19 @@ object ((self : 'self))
 end
   
     
-(*external method get_matrix : matrix3 = "" --> matrix3
+(*external method get_matrix : matrix3 = "" --> matrix3
   external method get_inverse_matrix : matrix3 = ""*)
 (** must be called either with param rect, either with both center and size*)
-(* 
-   class view ?rect ?center ?size () =
-   let t = 
-   match rect with
-   | Some r -> View.create_from_rect r
-   | None -> View.default ()
-(*match (center, size) with
-   | ((Some c), (Some s)) -> View.create_from_vectors c s
-   | _ -> View.default ()*)
-   in viewCpp t
+(* 
+   class view ?rect ?center ?size () =
+   let t = 
+   match rect with
+   | Some r -> View.create_from_rect r
+   | None -> View.default ()
+(*match (center, size) with
+   | ((Some c), (Some s)) -> View.create_from_vectors c s
+   | _ -> View.default ()*)
+   in viewCpp t
 *)
 
 
@@ -914,46 +914,6 @@ class view tag =
   in view_base t
        
 
-type render_states =
-    {
-      mutable blend_mode : blend_mode; 
-      mutable transform : transform;
-      mutable texture : texture; 
-      mutable shader : shader
-    }
-
-module RenderStatesBase =
-struct
-  type t = { 
-    mutable blend_mode_cpp : blend_mode; 
-    mutable transform_cpp : Transform.t ;
-    mutable texture_cpp : Texture.t ; 
-    mutable shader_cpp : Shader.t
-  }
-
-  let caml_render_states : t -> render_states = 
-    fun p1 -> 
-      { 
-	blend_mode = p1.blend_mode_cpp ; 
-	transform = new transform_base p1.transform_cpp ; 
-	texture = new texture_base p1.texture_cpp ;
-	shader = new shader_base p1.shader_cpp
-      }
-  external create_default : unit -> t = "sf_RenderStates_default__impl"
-end
-
-
-module RenderStates =
-struct
-  let default = RenderStatesBase.( caml_render_states (create_default ()) )
-end
-
-
-let mk_render_states
-  ?(blend_mode = RenderStates.default.blend_mode)
-  ?(transform = RenderStates.default.transform)
-  ?(texture = RenderStates.default.texture)
-  ?(shader = RenderStates.default.shader)  () = { blend_mode ; transform ; texture ; shader }
       
 
 module Drawable =
@@ -1419,16 +1379,16 @@ class convex_shape ?position ?scale ?rotation ?origin ?new_texture ?texture_rect
   let t = ConvexShape.default ()
   in convex_shape_init ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness ?points t
     
-(*
-  module ShapeObjects =
-  struct 
-  external cpp line : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Line"
-  external cpp line_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_LineV"
-  external cpp rectangle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Rectangle"
-  external cpp rectangle_r : ?outline:float -> ?outlineColor:Color.t -> float rect ->  Color.t -> shape = "sf_Shape_RectangleR"
-  external cpp circle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> Color.t -> shape = "sf_Shape_Circle"
-  external cpp circle_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_CircleV"
-  end 
+(*
+  module ShapeObjects =
+  struct 
+  external cpp line : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Line"
+  external cpp line_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_LineV"
+  external cpp rectangle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> float -> Color.t -> shape = "sf_Shape_Rectangle"
+  external cpp rectangle_r : ?outline:float -> ?outlineColor:Color.t -> float rect ->  Color.t -> shape = "sf_Shape_RectangleR"
+  external cpp circle : ?outline:float -> ?outlineColor:Color.t -> float -> float -> float -> Color.t -> shape = "sf_Shape_Circle"
+  external cpp circle_v : ?outline:float -> ?outlineColor:Color.t -> float * float -> float -> Color.t -> shape = "sf_Shape_CircleV"
+  end 
 *)
 type text_style = | Bold | Italic | Underline
 
@@ -1701,7 +1661,7 @@ object (self)
       | Some t -> self#set_primitive_type t
 end
   
-type draw_func_type = RenderTarget.t -> render_states -> unit
+(* type draw_func_type = RenderTarget.t -> render_states -> unit *)
 
 
 (*

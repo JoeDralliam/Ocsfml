@@ -274,6 +274,134 @@ private:
     from_value_helper( v, res, std::integral_constant<size_t, I-1>() );
   }
 };
+#else
+
+template<class T1, class T2>
+struct ConversionManagement< std::tuple< T1, T2> >
+{
+  std::tuple< T1, T2 > from_value( value const& v )
+  {
+    assert( Is_block( v ) );
+    assert( Tag_val( v ) == 0 );
+    assert( Wosize_val( v ) == 2 );
+
+    std::tuple< T1, T2 > res;
+    std::get< 0 >( res ) = cm1.from_value( Field(v, 0) );
+    std::get< 1 >( res ) = cm2.from_value( Field(v, 1) );
+
+    return res;
+  }
+private:
+  ConversionManagement<T1> cm1;
+  ConversionManagement<T2> cm2;
+};
+
+template<class T1, class T2, class T3>
+struct ConversionManagement< std::tuple< T1, T2, T3> >
+{
+  std::tuple< T1, T2, T3 > from_value( value const& v )
+  {
+    assert( Is_block( v ) );
+    assert( Tag_val( v ) == 0 );
+    assert( Wosize_val( v ) == 3 );
+
+    std::tuple< T1, T2, T3 > res;
+    std::get< 0 >( res ) = cm1.from_value( Field(v, 0) );
+    std::get< 1 >( res ) = cm2.from_value( Field(v, 1) );
+    std::get< 2 >( res ) = cm3.from_value( Field(v, 2) );
+
+
+    return res;
+  }
+private:
+  ConversionManagement<T1> cm1;
+  ConversionManagement<T2> cm2;
+  ConversionManagement<T3> cm3;
+};
+
+template<class T1, class T2, class T3, class T4>
+struct ConversionManagement< std::tuple< T1, T2, T3, T4> >
+{
+  std::tuple< T1, T2, T3, T4 > from_value( value const& v )
+  {
+    assert( Is_block( v ) );
+    assert( Tag_val( v ) == 0 );
+    assert( Wosize_val( v ) == 4 );
+
+    std::tuple< T1, T2, T3, T4 > res;
+    std::get< 0 >( res ) = cm1.from_value( Field(v, 0) );
+    std::get< 1 >( res ) = cm2.from_value( Field(v, 1) );
+    std::get< 2 >( res ) = cm3.from_value( Field(v, 2) );
+    std::get< 3 >( res ) = cm4.from_value( Field(v, 3) );
+
+    return res;
+  }
+private:
+  ConversionManagement<T1> cm1;
+  ConversionManagement<T2> cm2;
+  ConversionManagement<T3> cm3;
+  ConversionManagement<T4> cm4;
+};
+
+template<class T1, class T2, class T3, class T4, class T5>
+struct ConversionManagement< std::tuple< T1, T2, T3, T4, T5 > >
+{
+
+
+  std::tuple< T1, T2, T3, T4, T5 > from_value( value const& v )
+  {
+    assert( Is_block( v ) );
+    assert( Tag_val( v ) == 0 );
+    assert( Wosize_val( v ) == 5 );
+
+    std::tuple< T1, T2, T3, T4, T5 > res;
+    std::get< 0 >( res ) = cm1.from_value( Field(v, 0) );
+    std::get< 1 >( res ) = cm2.from_value( Field(v, 1) );
+    std::get< 2 >( res ) = cm3.from_value( Field(v, 2) );
+    std::get< 3 >( res ) = cm4.from_value( Field(v, 3) );
+    std::get< 4 >( res ) = cm5.from_value( Field(v, 4) );
+
+    return res;
+  }
+private:
+  ConversionManagement<T1> cm1;
+  ConversionManagement<T2> cm2;
+  ConversionManagement<T3> cm3;
+  ConversionManagement<T4> cm4;
+  ConversionManagement<T5> cm5;
+};
+
+template<class T1, class T2, class T3, class T4, class T5, class T6>
+struct ConversionManagement< std::tuple< T1, T2, T3, T4, T5, T6> > 
+{
+
+
+  std::tuple< T1, T2, T3, T4, T5, T6 > from_value( value const& v )
+  {
+    assert( Is_block( v ) );
+    assert( Tag_val( v ) == 0 );
+    assert( Wosize_val( v ) == 6 );
+
+    std::tuple< T1, T2, T3, T4, T5, T6 > res;
+    std::get< 0 >( res ) = cm1.from_value( Field(v, 0) );
+    std::get< 1 >( res ) = cm2.from_value( Field(v, 1) );
+    std::get< 2 >( res ) = cm3.from_value( Field(v, 2) );
+    std::get< 3 >( res ) = cm4.from_value( Field(v, 3) );
+    std::get< 4 >( res ) = cm5.from_value( Field(v, 4) );
+    std::get< 5 >( res ) = cm6.from_value( Field(v, 5) );
+
+    return res;
+  }
+private:
+  ConversionManagement<T1> cm1;
+  ConversionManagement<T2> cm2;
+  ConversionManagement<T3> cm3;
+  ConversionManagement<T4> cm4;
+  ConversionManagement<T5> cm5;
+  ConversionManagement<T6> cm6;
+};
+
+
 #endif
 
 template< class T1, class T2>
