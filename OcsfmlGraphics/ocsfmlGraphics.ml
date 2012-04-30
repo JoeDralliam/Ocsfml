@@ -1052,9 +1052,9 @@ object ((self : 'self))
   method destroy = RenderTexture.destroy t_render_texture_base
   inherit
     render_target (RenderTexture.to_render_target t_render_texture_base')
-  method create : ?dephtBfr: bool -> int -> int -> bool =
-    fun ?dephtBfr p1 p2 ->
-      RenderTexture.create t_render_texture_base ?dephtBfr p1 p2
+  method create : ?depht_buffer: bool -> int -> int -> bool =
+    fun ?depht_buffer p1 p2 ->
+      RenderTexture.create t_render_texture_base ?depht_buffer p1 p2
   method set_smooth : bool -> unit =
     fun p1 -> RenderTexture.set_smooth t_render_texture_base p1
   method is_smooth : bool = RenderTexture.is_smooth t_render_texture_base
@@ -1071,7 +1071,7 @@ exception CreateFailure
        
 class render_texture ?depht_buffer width height = 
   let t = RenderTexture.default () in
-object 
+object (self)
   inherit render_texture_base t
   initializer if not (self#create ?depht_buffer width height) then raise CreateFailure
 end
