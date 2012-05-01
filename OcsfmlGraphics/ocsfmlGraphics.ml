@@ -1028,7 +1028,7 @@ struct
   external default : unit -> t =
       "sf_RenderTexture_default_constructor__impl"
 	
-  external create : t -> ?dephtBfr: bool -> int -> int -> bool =
+  external create : t -> ?depht_buffer: bool -> int -> int -> bool =
       "sf_RenderTexture_create__impl"
 	
   external set_smooth : t -> bool -> unit =
@@ -1052,9 +1052,9 @@ object ((self : 'self))
   method destroy = RenderTexture.destroy t_render_texture_base
   inherit
     render_target (RenderTexture.to_render_target t_render_texture_base')
-  method create : ?dephtBfr: bool -> int -> int -> bool =
-    fun ?dephtBfr p1 p2 ->
-      RenderTexture.create t_render_texture_base ?dephtBfr p1 p2
+  method create : ?depht_buffer: bool -> int -> int -> bool =
+    fun ?depht_buffer p1 p2 ->
+      RenderTexture.create t_render_texture_base ?depht_buffer p1 p2
   method set_smooth : bool -> unit =
     fun p1 -> RenderTexture.set_smooth t_render_texture_base p1
   method is_smooth : bool = RenderTexture.is_smooth t_render_texture_base
@@ -1067,11 +1067,14 @@ object ((self : 'self))
 end
   
     
-class render_texture_bis () =
-  let t = RenderTexture.default ()
-  in render_texture_base t
+exception CreateFailure
        
-class render_texture = render_texture_bis ()
+class render_texture ?depht_buffer width height = 
+  let t = RenderTexture.default () in
+object (self)
+  inherit render_texture_base t
+  initializer if not (self#create ?depht_buffer width height) then raise CreateFailure
+end
   
 module RenderWindow =
 struct

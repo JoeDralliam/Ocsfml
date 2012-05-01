@@ -1400,6 +1400,10 @@ object
 end
 
 
+(** Exception raised by some object constructors (ie render_texture for instance) *)
+exception CreateFailure
+
+
 (**/**)
 module RenderTexture :
 sig
@@ -1407,7 +1411,7 @@ sig
   val destroy : t -> unit
   val to_render_target : t -> RenderTarget.t
   val default : unit -> t
-  val create : t -> ?dephtBfr:bool -> int -> int -> bool
+  val create : t -> ?depht_buffer:bool -> int -> int -> bool
   val set_smooth : t -> bool -> unit
   val is_smooth : t -> bool
   val set_active : t -> ?active:bool -> unit -> bool
@@ -1435,10 +1439,11 @@ end
     let window = new render_window (OcsfmlWindow.VideoMode.create ~w:800 ~h:600 ()) "SFML window" in
     
 (* Create a new render-texture *)
-    let texture = new OcsfmlGraphics.render_texture in
-    if not (texture#create 500 500)
-    then   failwith "Could not create the render texture"
-    
+    let texture = 
+      try new OcsfmlGraphics.render_texture 500 500 
+      with OcsfmlGraphics.CreateFailure -> failwith "Could not create the render texture"
+    in
+
     let main_loop () =
       (* Event processing *)
       (* ... *)
@@ -1471,6 +1476,7 @@ end
     main_loop ()
     ]}*)
 class render_texture :
+  ?depht_buffer:bool -> int -> int ->
 object
   inherit render_target
   (**/**)
@@ -1482,7 +1488,7 @@ object
       Before calling this function, the render-texture is in an invalid state, thus it is mandatory to call it before doing anything with the render-texture. The optional parameter, depthBfr, is useful if you want to use the render-texture for 3D OpenGL rendering that requires a depth-buffer. Otherwise it is unnecessary, and you should leave this parameter to false (which is its default value).
       @param dephtBfr Do you want this render-texture to have a depth buffer?
       @return True if creation has been successful. *)
-  method create : ?dephtBfr:bool -> int -> int -> bool
+  method create : ?depht_buffer:bool -> int -> int -> bool
 
   (**)
   method destroy : unit
