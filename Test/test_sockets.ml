@@ -13,7 +13,7 @@ let run_tcp_server port =
   let listener = new tcp_listener  in
     if listener#listen port <> Done
     then failwith "Could not listen to specified port";
-    Printf.printf "Server is listening to port %d, waiting for connections...\n" port ;
+    Printf.printf "Server is listening to port %d, waiting for connections...\n" (port :> int);
 
   let socket = new tcp_socket in
   if listener#accept socket <> Done
@@ -73,7 +73,7 @@ let run_udp_server port =
   let socket = new udp_socket in
   if socket#bind port <> Done
   then failwith "Could not setup the server on specified port" 
-  else Printf.printf "Server is listening to port %d, waiting for a message \n" port ;
+  else Printf.printf "Server is listening to port %d, waiting for a message \n" (port :> int) ;
     
   let packet = new packet in
   let sender = new ip_address `None in
@@ -131,7 +131,7 @@ let rec get_answer (q : ('a,'b,'c,'d,'e,'f) format6) a1 a2 =
     else c
 
 let _ =
-  let port = 25004 in
+  let port = Port.from_int 25004 in
   let protocol = get_answer "Do you want to use TCP (%c) or UDP (%c) ?\n" 't' 'u' in
   let who = get_answer "Do you want to be a server (%c) or a client (%c) ?\n" 's' 'c' in
   (match (protocol,who) with

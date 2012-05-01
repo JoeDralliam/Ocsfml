@@ -1,26 +1,33 @@
 #ifndef CSTRING_HPP_INCLUDED
 #define CSTRING_HPP_INCLUDED
 
-#include "conversion_management.hpp"
-
-struct CString
+extern "C"
 {
-  char* string;
-  size_t size;
-};
+#include <caml/mlvalues.h>
+}
 
+#include <camlpp/conversion_management.hpp>
 
-template<>
-struct ConversionManagement<CString>
+namespace camlpp
 {
-  CString from_value(value& v)
+  struct c_string
   {
-    assert( Tag_val( v ) == String_tag );
-    CString s = { String_val(v), string_length(v) };
-    return s;
+    char* string;
+    size_t size;
+  };
+  
+  
+  template<>
+  struct conversion_management<c_string>
+  {
+    c_string from_value(value& v)
+    {
+      assert( Tag_val( v ) == String_tag );
+      c_string s = { String_val(v), string_length(v) };
+      return s;
   }
-};
-
+  };
+}
 
 
 

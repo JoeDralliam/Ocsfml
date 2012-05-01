@@ -1095,6 +1095,12 @@ object ('a)
   method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> bool
 end
 
+module Port :
+sig
+  type t = private int
+  val from_int : int -> t
+end
+
 (**/**)
 module TcpSocket :
 sig
@@ -1102,11 +1108,11 @@ sig
   val destroy : t -> unit
   val to_socket : t -> Socket.t
   val default : unit -> t
-  val get_local_port : t -> int
+  val get_local_port : t -> Port.t
   val get_remote_address : t -> ip_address
-  val get_remote_port : t -> int
+  val get_remote_port : t -> Port.t
   val connect :
-    t -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
+    t -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status
   val disconnect : t -> unit
   val send_packet : t -> #packet -> socket_status
   val receive_packet : t -> #packet -> socket_status
@@ -1188,7 +1194,7 @@ object
       In blocking mode, this function may take a while, especially if the remote peer is not reachable. The timeout parameter allows you to stop trying to connect after a given timeout. If the socket was previously connected, it is first disconnected. 
       @param timeout Optional maximum time to wait 
       @return Status code*)
-  method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> int -> socket_status
+  method connect : ?timeout:OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status
 
   (**)
   method destroy : unit
@@ -1202,7 +1208,7 @@ object
 
       If the socket is not connected, this function returns 0. 
       @return Port to which the socket is bound. *)
-  method get_local_port : int
+  method get_local_port : Port.t
 
   (** Get the address of the connected peer.
 
@@ -1214,7 +1220,7 @@ object
 
       If the socket is not connected, this function returns 0.
       @return Remote port to which the socket is connected*)
-  method get_remote_port : int
+  method get_remote_port : Port.t
 
 
   (** Receive raw data from the remote peer.
@@ -1267,13 +1273,13 @@ sig
   val destroy : t -> unit
   val to_socket : t -> Socket.t
   val default : unit -> t
-  val get_local_port : t -> int
-  val listen : t -> int -> socket_status
+  val get_local_port : t -> Port.t
+  val listen : t -> Port.t -> socket_status
   val close : t -> unit
   val accept : t -> tcp_socket -> socket_status
 end
 (**/**)
-  
+
 (** Socket that listens to new TCP connections.
     
     A listener socket is a special type of socket that listens to a given port and waits for connections on that port.
@@ -1334,13 +1340,13 @@ object
 
       If the socket is not listening to a port, this function returns 0.
       @return Port to which the socket is bound*)
-  method get_local_port : int
+  method get_local_port : Port.t
 
   (** Start listening for connections.
 
       This functions makes the socket listen to the specified port, waiting for new connections. If the socket was previously listening to another port, it will be stopped first and bound to the new port.
       @return Status code*)
-  method listen : int -> socket_status
+  method listen : Port.t -> socket_status
 
   (**/**)
   method rep__sf_TcpListener : TcpListener.t
@@ -1351,12 +1357,6 @@ end
 
 val max_datagram_size : int
 
-module UdpPort :
-sig
-  type t = private int
-  val from_int : int -> t
-end
-
 (**/**)
 module UdpSocket :
 sig
@@ -1364,15 +1364,15 @@ sig
   val destroy : t -> unit
   val to_socket : t -> Socket.t
   val default : unit -> t
-  val bind : t -> UdpPort.t -> socket_status
+  val bind : t -> Port.t -> socket_status
   val unbind : t -> unit
-  val get_local_port : t -> UdpPort.t
-  val send_packet : t -> #packet -> ip_address -> UdpPort.t -> socket_status
-  val receive_packet : t -> #packet -> ip_address -> socket_status * UdpPort.t 
-  val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status
-  val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * UdpPort.t
-  val send_string : t -> string -> ip_address -> UdpPort.t -> socket_status
-  val receive_string : t -> string -> ip_address  -> socket_status * int * UdpPort.t
+  val get_local_port : t -> Port.t
+  val send_packet : t -> #packet -> ip_address -> Port.t -> socket_status
+  val receive_packet : t -> #packet -> ip_address -> socket_status * Port.t 
+  val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status
+  val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * Port.t
+  val send_string : t -> string -> ip_address -> Port.t -> socket_status
+  val receive_string : t -> string -> ip_address  -> socket_status * int * Port.t
 
 end
 (**/**)
@@ -1402,11 +1402,11 @@ end
     
     (* Create a socket and bind it to the port 55001 *)
     let socket = new udp_socket in
-    socket.bind (UdpPort.from_int 55001)
+    socket.bind (Port.from_int 55001)
     
     (* Send a message to 192.168.1.50 on port 55002 *)
     let message = "Hi, I am " ^ (IpAddress.get_local_address ())#to_string;
-    socket#send message "192.168.1.50" (UdpPort.from_int 55002);
+    socket#send message "192.168.1.50" (Port.from_int 55002);
     
     (* Receive an answer (most likely from 192.168.1.50, but could be anyone else) *)
     let buffer = String.create 1024 in
@@ -1420,7 +1420,7 @@ end
     
     (* Create a socket and bind it to the port 55002 *)
     let socket = new udp_socket in
-    socket#bind (UdpPort.from_int 55002) ;
+    socket#bind (Port.from_int 55002) ;
     
     (* Receive a message from anyone *)
     let buffer = String.create 1024 in
@@ -1447,7 +1447,7 @@ object
 
       Binding the socket to a port is necessary for being able to receive data on that port. You can use the special value Socket::AnyPort to tell the system to automatically pick an available port, and then call getLocalPort to retrieve the chosen port.
       @return Status code. *)
-  method bind : UdpPort.t -> socket_status
+  method bind : Port.t -> socket_status
 
   (**)
   method destroy : unit
@@ -1456,25 +1456,25 @@ object
 
       If the socket is not bound to a port, this function returns 0.
       @return Port to which the socket is bound*)
-  method get_local_port : UdpPort.t
+  method get_local_port : Port.t
 
   (** Receive raw data from a remote peer.
 
       In blocking mode, this function will wait until some bytes are actually received. Be careful to use a buffer which is large enough for the data that you intend to receive, if it is too small then an error will be returned and *all* the data will be lost.
       @return Status code, actual number of byte received and port of the peer that has sent the data *)
-  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int * UdpPort.t
+  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> socket_status * int * Port.t
 
   (** Receive a formatted packet of data from a remote peer.
 
       In blocking mode, this function will wait until the whole packet has been received.
       @return Status and port of the peer tha has sent the data*)
-  method receive_packet : #packet -> ip_address -> socket_status * UdpPort.t
+  method receive_packet : #packet -> ip_address -> socket_status * Port.t
     
   (** Receive raw data from a remote peer.
 
       In blocking mode, this function will wait until some bytes are actually received. Be careful to use a buffer which is large enough for the data that you intend to receive, if it is too small then an error will be returned and *all* the data will be lost.
       @return Status code, actual number of byte received and port of the peer that has sent the data *)
-  method receive_string : string -> ip_address -> socket_status * int * UdpPort.t
+  method receive_string : string -> ip_address -> socket_status * int * Port.t
 
   (**/**)
   method rep__sf_UdpSocket : UdpSocket.t
@@ -1484,19 +1484,19 @@ object
 
       Make sure that size is not greater than UdpSocket::MaxDatagramSize, otherwise this function will fail and no data will be sent.
       @return Status code*)
-  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status
+  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status
 
   (** Send a formatted packet of data to a remote peer.
 
       Make sure that the packet size is not greater than UdpSocket::MaxDatagramSize, otherwise this function will fail and no data will be sent.
       @return Status code*)
-  method send_packet : #packet -> ip_address -> UdpPort.t -> socket_status
+  method send_packet : #packet -> ip_address -> Port.t -> socket_status
 
   (** Send raw data to a remote peer.
 
       Make sure that size is not greater than UdpSocket::MaxDatagramSize, otherwise this function will fail and no data will be sent.
       @return Status code*)
-  method send_string : string -> ip_address -> UdpPort.t -> socket_status
+  method send_string : string -> ip_address -> Port.t -> socket_status
 
   (** Unbind the socket from the local port to which it is bound.
 

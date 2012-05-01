@@ -16,18 +16,30 @@
  * =====================================================================================
  */
 
-#include "affectation_management.hpp"
+#ifndef CAMLPP_UNIT_HPP_INCLUDED
+#define CAMLPP_UNIT_HPP_INCLUDED
+
+
+extern "C"
+{
+#include <caml/mlvalues.h>
+}
+
 #include "conversion_management.hpp"
 
-struct UnitTypeHolder {};
-
-template<>
-struct ConversionManagement< UnitTypeHolder >
+namespace camlpp
 {
-	UnitTypeHolder from_value(value const&)
-	{
-		return UnitTypeHolder();
-	}	
-};
+  struct unit {};
 
+  template<>
+  struct conversion_management< unit >
+  {
+    unit from_value(value const& v)
+    {
+      assert( v == Val_unit );
+      return unit();
+    }	
+  };
+}
 
+#endif

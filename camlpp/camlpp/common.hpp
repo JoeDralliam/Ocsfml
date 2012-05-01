@@ -7,7 +7,7 @@
 #include <boost/preprocessor/tuple/to_list.hpp>
 
 #define CAMLPP__CONVERT_PARAM1( param1_name, value1_name, type1 )	\
-  ConversionManagement< type1 > BOOST_PP_CAT(cm_, param1_name);		\
+  camlpp::conversion_management< type1 > BOOST_PP_CAT(cm_, param1_name); \
   auto&& param1_name ( BOOST_PP_CAT(cm_, param1_name) . from_value ( value1_name ) )
 
 #define CAMLPP__CONVERT_PARAM2(param1_name, param2_name,		\
@@ -144,7 +144,7 @@
 			 CAMLPP__GENERATE_PARAMS_NAME ## params_count(), \
 			 values_name,					\
 			 obtain_params_type ## params_count (FuncTraits) ); \
-  ResManagement< FuncTraits::result_type> rm;				\
+  camlpp::res_management< FuncTraits::result_type> rm;			\
   CAMLlocal1( res );							\
   CAMLPP__INVOKE( rm, res, call_func, CAMLPP__EXPAND CAMLPP__GENERATE_PARAMS_NAME ## params_count()); \
   CAMLreturn( res )

@@ -1,0 +1,17 @@
+#ifndef CAMLPP_STD_COMPLEX_HPP_INCLUDED
+#define CAMLPP_STD_COMPLEX_HPP_INCLUDED
+
+namespace camlpp
+{
+  
+
+
+
+
+}
+
+
+
+
+
+#endif

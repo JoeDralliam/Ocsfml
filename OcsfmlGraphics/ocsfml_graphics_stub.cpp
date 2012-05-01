@@ -8,6 +8,13 @@
 #include <camlpp/custom_ops.hpp>
 #include <camlpp/big_array.hpp>
 
+
+#include <camlpp/std/string.hpp>
+#include <camlpp/std/vector.hpp>
+#include <camlpp/std/list.hpp>
+#include <camlpp/std/function.hpp>
+
+
 custom_struct_affectation(	 sf::FloatRect,
 				&sf::FloatRect::left,
 				&sf::FloatRect::top,
@@ -74,18 +81,18 @@ extern "C"
 
 #include <SFML/Graphics/Transformable.hpp>
 
-void image_create_with_opt_color_helper( sf::Image* image, Optional<sf::Color> color, unsigned w, unsigned h)
+void image_create_with_opt_color_helper( sf::Image* image, camlpp::optional<sf::Color> color, unsigned w, unsigned h)
 {
   image->create(w, h, color.get_value_no_fail( sf::Color(0, 0, 0) ) );
 }
 
-void image_create_from_pixels( sf::Image* image, BigarrayInterface<sf::Uint8, 3> const& pixels)
+void image_create_from_pixels( sf::Image* image, camlpp::big_array<sf::Uint8, 3> const& pixels)
 {
   assert(pixels.size[2] == 4);
   image->create( pixels.size[0], pixels.size[1], pixels.data );
 }
 
-void image_create_mask_from_color_helper( sf::Image* image, Optional<sf::Uint8> alpha, sf::Color color)
+void image_create_mask_from_color_helper( sf::Image* image, camlpp::optional<sf::Uint8> alpha, sf::Color color)
 {
   image->createMaskFromColor( color, alpha.get_value_no_fail( 0 ) );
 }
@@ -95,17 +102,17 @@ void image_load_from_memory_helper( sf::Image* image, RawDataType d)
   image->loadFromMemory( d.data, d.size[0] );
 }
 
-void image_copy_helper( sf::Image* img, Optional<sf::IntRect> srcRect, Optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
+void image_copy_helper( sf::Image* img, camlpp::optional<sf::IntRect> srcRect, camlpp::optional<bool> applyAlpha, sf::Image const& src, unsigned destX, unsigned destY)
 {
   img->copy( 	src, destX, destY, 
 		srcRect.get_value_no_fail( sf::IntRect(0,0,0,0) ),
 		applyAlpha.get_value_no_fail( false ) );
 }
 
-BigarrayInterface<sf::Uint8, 3> image_get_pixels_ptr_helper( sf::Image* img )
+camlpp::big_array<sf::Uint8, 3> image_get_pixels_ptr_helper( sf::Image* img )
 {
   long size[] = { img->getSize().x, img->getSize().y, 4};
-  return BigarrayInterface<sf::Uint8, 3>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
+  return camlpp::big_array<sf::Uint8, 3>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
 }
 
 
@@ -137,29 +144,29 @@ custom_enum_affectation(sf::Texture::CoordinateType );
 
 
 
-bool texture_load_from_file_helper( sf::Texture* text, Optional<sf::IntRect> area, std::string filename )
+bool texture_load_from_file_helper( sf::Texture* text, camlpp::optional<sf::IntRect> area, std::string filename )
 {
   return text->loadFromFile( filename, area.get_value_no_fail( sf::IntRect() ) );
 }
 
-bool texture_load_from_stream_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::InputStream& stream )
+bool texture_load_from_stream_helper( sf::Texture* text, camlpp::optional<sf::IntRect> area, sf::InputStream& stream )
 {
   return text->loadFromStream( stream, area.get_value_no_fail( sf::IntRect() ) );
 }
 
-bool texture_load_from_image_helper( sf::Texture* text, Optional<sf::IntRect> area, sf::Image const& image)
+bool texture_load_from_image_helper( sf::Texture* text, camlpp::optional<sf::IntRect> area, sf::Image const& image)
 {
   return text->loadFromImage( image , area.get_value_no_fail( sf::IntRect() ) );
 }
 
 
-bool texture_load_from_memory_helper( sf::Texture* text, Optional<sf::IntRect> area, RawDataType d)
+bool texture_load_from_memory_helper( sf::Texture* text, camlpp::optional<sf::IntRect> area, RawDataType d)
 {
   return text->loadFromMemory( d.data, d.size[0], area.get_value_no_fail( sf::IntRect() ) );
 }
 
 
-void texture_update_from_pixels_helper( sf::Texture* tex, Optional<sf::Vector2<unsigned int> > p, BigarrayInterface<sf::Uint8, 3> const& pixels)
+void texture_update_from_pixels_helper( sf::Texture* tex, camlpp::optional<sf::Vector2<unsigned int> > p, camlpp::big_array<sf::Uint8, 3> const& pixels)
 {
   if(p.is_some())
     {
@@ -171,7 +178,7 @@ void texture_update_from_pixels_helper( sf::Texture* tex, Optional<sf::Vector2<u
     }
 }
 
-void texture_update_from_image_helper( sf::Texture* tex, Optional<sf::Vector2<unsigned int> > p, sf::Image const& img)
+void texture_update_from_image_helper( sf::Texture* tex, camlpp::optional<sf::Vector2<unsigned int> > p, sf::Image const& img)
 {
   if(p.is_some())
     {
@@ -183,7 +190,7 @@ void texture_update_from_image_helper( sf::Texture* tex, Optional<sf::Vector2<un
     }
 }
 
-void texture_update_from_window_helper( sf::Texture* tex, Optional<sf::Vector2<unsigned int> > p, sf::Window const& img)
+void texture_update_from_window_helper( sf::Texture* tex, camlpp::optional<sf::Vector2<unsigned int> > p, sf::Window const& img)
 {
   if(p.is_some())
     {
@@ -194,7 +201,7 @@ void texture_update_from_window_helper( sf::Texture* tex, Optional<sf::Vector2<u
       tex->update( img );
     }
 }
-void texture_bind_helper( sf::Texture* tex, Optional<sf::Texture::CoordinateType> coordinateType )
+void texture_bind_helper( sf::Texture* tex, camlpp::optional<sf::Texture::CoordinateType> coordinateType )
 {
   tex->bind( coordinateType.get_value_no_fail( sf::Texture::Normalized ) );
 }
@@ -245,7 +252,7 @@ void transform_translateV_helper(sf::Transform* t, sf::Vector2f v)
   t->translate(v);
 }
 
-void transform_rotate_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float degrees)
+void transform_rotate_helper(sf::Transform* t, camlpp::optional< float > x, camlpp::optional<float> y, float degrees)
 {
   if(x.is_some() && y.is_some())
     {
@@ -257,7 +264,7 @@ void transform_rotate_helper(sf::Transform* t, Optional< float > x, Optional<flo
     }
 }
 
-void transform_rotateV_helper(sf::Transform* t, Optional< sf::Vector2f > v, float degrees)
+void transform_rotateV_helper(sf::Transform* t, camlpp::optional< sf::Vector2f > v, float degrees)
 {
   if(v.is_some())
     {
@@ -269,7 +276,7 @@ void transform_rotateV_helper(sf::Transform* t, Optional< sf::Vector2f > v, floa
     }
 }
 
-void transform_scale_helper(sf::Transform* t, Optional< float > x, Optional<float> y, float scaleX, float scaleY)
+void transform_scale_helper(sf::Transform* t, camlpp::optional< float > x, camlpp::optional<float> y, float scaleX, float scaleY)
 {
   if(x.is_some() && y.is_some())
     {
@@ -281,7 +288,7 @@ void transform_scale_helper(sf::Transform* t, Optional< float > x, Optional<floa
     }
 }
 
-void transform_scaleV_helper(sf::Transform* t, Optional< sf::Vector2f > v, sf::Vector2f scale)
+void transform_scaleV_helper(sf::Transform* t, camlpp::optional< sf::Vector2f > v, sf::Vector2f scale)
 {
   if(v.is_some())
     {
@@ -357,7 +364,7 @@ camlpp__register_custom_class()
 }
 #undef CAMLPP__CLASS_NAME
 
-void shape_set_texture_helper( sf::Shape* shape, Optional<sf::Texture const*> texture, Optional<bool> resetRect, UnitTypeHolder)
+void shape_set_texture_helper( sf::Shape* shape, camlpp::optional<sf::Texture const*> texture, camlpp::optional<bool> resetRect, camlpp::unit)
 {
   shape->setTexture( 	texture.get_value_no_fail( 0 ),
 			resetRect.get_value_no_fail( false ) );
@@ -431,15 +438,15 @@ camlpp__register_custom_class()
 
 
 
-void sprite_set_texture_helper( sf::Sprite* spr, Optional<bool> resize, sf::Texture const& texture )
+void sprite_set_texture_helper( sf::Sprite* spr, camlpp::optional<bool> resize, sf::Texture const& texture )
 {
   spr->setTexture( texture, resize.get_value_no_fail( false ) );
 }
 
-Optional<sf::Texture const*> sprite_get_texture_helper( sf::Sprite const* spr )
+camlpp::optional<sf::Texture const*> sprite_get_texture_helper( sf::Sprite const* spr )
 {
   sf::Texture const* res = spr->getTexture();
-  return (res ? some(res) : none<sf::Texture const*>());
+  return (res ? camlpp::some(res) : camlpp::none<sf::Texture const*>());
 }
 
 typedef sf::Sprite sf_Sprite;
@@ -505,7 +512,7 @@ extern "C"
 custom_enum_affectation(sf::Text::Style );
 custom_enum_conversion( sf::Text::Style );
 
-sf::Text* text_constructor_helper( Optional<sf::Font const*> font, Optional<unsigned> characterSize, char* str)
+sf::Text* text_constructor_helper( camlpp::optional<sf::Font const*> font, camlpp::optional<unsigned> characterSize, char* str)
 {
   return new sf::Text( 	sf::String(str),
 			font.is_some() ? *font.get_value() : sf::Font::getDefaultFont(), 
@@ -620,9 +627,9 @@ typedef void (sf::Shader::*SetTextureParameterType)(std::string const&, sf::Text
 
 #define SHADER_LOAD_FROM_RESOURCE_HELPER_DEF( ResourceName, ResourceType, MemFunc) \
   bool shader_load_from_ ## ResourceName ## _helper( 	sf::Shader* shader, \
-							Optional<ResourceType> vertex, \
-							Optional<ResourceType> frag, \
-							UnitTypeHolder ) \
+							camlpp::optional<ResourceType> vertex, \
+							camlpp::optional<ResourceType> frag, \
+							camlpp::unit ) \
   {									\
     if( vertex.is_some() && frag.is_some() )				\
       {									\
@@ -746,12 +753,12 @@ extern "C"
   camlpp__register_free_function0( sf_RenderStates_default )
 }
 
-void render_target_clear_helper( sf::RenderTarget* target, Optional<sf::Color> color, UnitTypeHolder )
+void render_target_clear_helper( sf::RenderTarget* target, camlpp::optional<sf::Color> color, camlpp::unit )
 {
   return target->clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
 }
 
-sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Optional<sf::View const*> opt, sf::Vector2i const& point)
+sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, camlpp::optional<sf::View const*> opt, sf::Vector2i const& point)
 {
   if( opt.is_some() )
     {
@@ -761,11 +768,11 @@ sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, Opti
 }
 
 void render_target_draw_helper( sf::RenderTarget* target,
-				/*Optional< sf::RenderStates > rs , */
-				Optional< sf::BlendMode > blend,
-				Optional< sf::Transform const* > transform,
-				Optional< sf::Texture const* > text,
-				Optional< sf::Shader const* > shader,
+				/*camlpp::optional< sf::RenderStates > rs , */
+				camlpp::optional< sf::BlendMode > blend,
+				camlpp::optional< sf::Transform const* > transform,
+				camlpp::optional< sf::Texture const* > text,
+				camlpp::optional< sf::Shader const* > shader,
 				sf::Drawable const& drawable)
 {
   sf::RenderStates const& def = sf::RenderStates::Default;
@@ -788,7 +795,7 @@ void render_target_draw_helper( sf::RenderTarget* target,
     const 
     unsigned verticesCount,
     PrimitiveType type, 
-    Optional< sf::RenderStates const* > states )
+    camlpp::optional< sf::RenderStates const* > states )
     {
     }  
 */
@@ -824,12 +831,12 @@ camlpp__register_custom_class()
 #undef CAMLPP__CLASS_NAME
 /* 
 
-bool render_image_create_helper( sf::RenderImage* rI, Optional<bool> depthBfr, unsigned w, unsigned h)
+bool render_image_create_helper( sf::RenderImage* rI, camlpp::optional<bool> depthBfr, unsigned w, unsigned h)
 {
 	return rI->Create( w, h, depthBfr.isSome() ? depthBfr.get_value() : false)
 }
 
-void set_active( sf::RenderImage* rI, Optional<bool> active )
+void set_active( sf::RenderImage* rI, camlpp::optional<bool> active )
 {
 	return rI->SetActive( active.isSome() ? active.get_value() : true );
 }
@@ -851,12 +858,12 @@ camlpp__custom_class_registered()
 
 */
 
-bool render_texture_create_helper( sf::RenderTexture* rI, Optional<bool> depthBfr, unsigned w, unsigned h)
+bool render_texture_create_helper( sf::RenderTexture* rI, camlpp::optional<bool> depthBfr, unsigned w, unsigned h)
 {
   return rI->create( w, h, depthBfr.get_value_no_fail( false ) );
 }
 
-bool render_texture_set_active_helper( sf::RenderTexture* rI, Optional<bool> active, UnitTypeHolder )
+bool render_texture_set_active_helper( sf::RenderTexture* rI, camlpp::optional<bool> active, camlpp::unit )
 {
   return rI->setActive( active.get_value_no_fail( true ) );
 }
@@ -882,7 +889,7 @@ camlpp__register_custom_class()
 }
 #undef CAMLPP__CLASS_NAME
 
-sf::RenderWindow* render_window_constructor_helper(Optional<std::list<unsigned long> > style , Optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
+sf::RenderWindow* render_window_constructor_helper(camlpp::optional<std::list<unsigned long> > style , camlpp::optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
 {
   unsigned long actualStyle =  
     style.is_some() ? style_of_list_unsigned( style.get_value() ) : sf::Style::Default;
@@ -929,9 +936,9 @@ public:
   }
 };
 
-NewObject< sf::Drawable > sf_Drawable_inherits()
+camlpp::new_object< sf::Drawable > sf_Drawable_inherits()
 {
-  return NewObject<sf::Drawable>( new OverrideDrawable() );
+  return camlpp::new_object<sf::Drawable>( new OverrideDrawable() );
 }
 
 void sf_Drawable_override_draw( sf::Drawable* d, OverrideDrawable::CallbackType c )

@@ -2,6 +2,10 @@
 #include <camlpp/type_option.hpp>
 #include <camlpp/custom_ops.hpp>
 
+#include <camlpp/std/list.hpp>
+#include <camlpp/std/vector.hpp>
+#include <camlpp/std/string.hpp>
+
 
 bool VideoMode_isValid( const sf::VideoMode& v )
 {
@@ -28,7 +32,7 @@ unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst )
   return res;
 }
 
-sf::Window* window_constructor_helper(Optional<std::list<unsigned long> > style , Optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
+sf::Window* window_constructor_helper(camlpp::optional<std::list<unsigned long> > style , camlpp::optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
 {
   unsigned long actualStyle =
     style.is_some() ? style_of_list_unsigned( style.get_value() ) : sf::Style::Default;
@@ -36,7 +40,7 @@ sf::Window* window_constructor_helper(Optional<std::list<unsigned long> > style 
   return new sf::Window( vm, title, actualStyle, actualSettings );
 }
 
-void window_create_helper(sf::Window* window, Optional<std::list<unsigned long> > style , Optional<sf::ContextSettings> cs,  sf::VideoMode vm, std::string const& title)
+void window_create_helper(sf::Window* window, camlpp::optional<std::list<unsigned long> > style , camlpp::optional<sf::ContextSettings> cs,  sf::VideoMode vm, std::string const& title)
 {
   unsigned long actualStyle = 
     style.is_some() ? style_of_list_unsigned( style.get_value() ) : sf::Style::Default;
@@ -44,25 +48,25 @@ void window_create_helper(sf::Window* window, Optional<std::list<unsigned long> 
   window->create( vm, title, actualStyle, actualSettings );
 }
 
-Optional<sf::Event> window_poll_event_helper( sf::Window* window )
+camlpp::optional<sf::Event> window_poll_event_helper( sf::Window* window )
 {
   sf::Event e;
-  return (window->pollEvent( e ) ? some<sf::Event>( e ) : none<sf::Event>() );
+  return (window->pollEvent( e ) ? camlpp::some<sf::Event>( e ) : camlpp::none<sf::Event>() );
 }
 
-Optional<sf::Event> window_wait_event_helper( sf::Window* window )
+camlpp::optional<sf::Event> window_wait_event_helper( sf::Window* window )
 {
   sf::Event e;
-  return (window->waitEvent( e ) ? some<sf::Event>( e ) : none<sf::Event>() );
+  return (window->waitEvent( e ) ? camlpp::some<sf::Event>( e ) : camlpp::none<sf::Event>() );
 }
 
-bool window_set_active_helper( sf::Window* window, Optional<bool> active )
+bool window_set_active_helper( sf::Window* window, camlpp::optional<bool> active )
 {
   return window->setActive( active.get_value_no_fail(true) );
 }
 
 
-void window_set_icon_helper( sf::Window* window, BigarrayInterface< sf::Uint8, 3 > const& pixels )
+void window_set_icon_helper( sf::Window* window, camlpp::big_array< sf::Uint8, 3 > const& pixels )
 {
   assert( pixels.size[2] == 4 );
   window->setIcon( pixels.size[0], pixels.size[1], pixels.data );

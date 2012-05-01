@@ -1,5 +1,10 @@
 #include "ocsfml_audio_stub.hpp"
 #include <camlpp/custom_ops.hpp>
+#include <camlpp/big_array.hpp>
+#include <camlpp/unit.hpp>
+#include <camlpp/type_option.hpp>
+#include <camlpp/std/string.hpp>
+
 #include <SFML/Audio.hpp>
 
 extern "C"
@@ -84,18 +89,18 @@ camlpp__register_custom_class()
 
 
 bool sound_buffer_load_from_samples_helper( 	sf::SoundBuffer* buffer, 
-						BigarrayInterface< sf::Int16, 1 > samples, 
+						camlpp::big_array< sf::Int16, 1 > samples, 
 						unsigned channelsCount, 
 						unsigned int sampleRate )
 {
   return buffer->loadFromSamples( samples.data, samples.size[0], channelsCount, sampleRate );
 }
 
-BigarrayInterface< const sf::Int16, 1 > sound_buffer_get_samples_helper( sf::SoundBuffer* buffer )
+camlpp::big_array< const sf::Int16, 1 > sound_buffer_get_samples_helper( sf::SoundBuffer* buffer )
 {
   int size[1];
   size[0] = buffer->getSampleCount();
-  return BigarrayInterface< const sf::Int16, 1>(buffer->getSamples(), size);
+  return camlpp::big_array< const sf::Int16, 1>(buffer->getSamples(), size);
 }
 
 typedef sf::SoundBuffer sf_SoundBuffer;
@@ -119,7 +124,7 @@ camlpp__register_custom_class()
 #undef CAMLPP__CLASS_NAME
 
 
-void sound_recorder_start_helper( sf::SoundRecorder* rec, Optional< unsigned int >  sampleRate, UnitTypeHolder)
+void sound_recorder_start_helper( sf::SoundRecorder* rec, camlpp::optional< unsigned int >  sampleRate, camlpp::unit)
 {
   rec->start( sampleRate.get_value_no_fail( 44100 ) );
 }
@@ -153,14 +158,14 @@ camlpp__register_custom_class()
 #undef CAMLPP__CLASS_NAME
 
 
-Optional< sf::SoundBuffer const* > sound_get_buffer_helper( sf::Sound* snd )
+camlpp::optional< sf::SoundBuffer const* > sound_get_buffer_helper( sf::Sound* snd )
 {
   sf::SoundBuffer const* buf = snd->getBuffer();
   if(buf)
     {
-      return some( buf );
+      return camlpp::some( buf );
     }
-  return none< sf::SoundBuffer const* >();
+  return camlpp::none< sf::SoundBuffer const* >();
 }
 
 typedef sf::Sound sf_Sound;

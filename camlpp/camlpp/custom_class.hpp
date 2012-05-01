@@ -24,112 +24,121 @@
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/parameter_types.hpp>
 #include <boost/functional/factory.hpp>
-#include <boost/preprocessor/library.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
 #include "conversion_management.hpp"
 #include "res_management.hpp"
-#include "memory_management.hpp"
 #include "stub_generator.hpp"
 
 extern "C"
 {
 #include <caml/custom.h>
+#include <caml/callback.h>
 }
 
-template<class MemFunc>
-struct method_traits
+
+namespace camlpp
 {
-  typedef typename boost::function_types::result_type< MemFunc >::type result_type;
-  template<int I>
-  struct args_type_
+  template<class T>
+  struct new_object
   {
-    typedef typename boost::mpl::at<typename boost::function_types::parameter_types< MemFunc>::type, boost::mpl::int_<I> >::type type;
+    new_object(T* p) : pointee(p) 
+    {}
+    
+    T* pointee;
   };
-  typedef typename boost::function_types::parameter_types< MemFunc>::type args_type;
-};
+  
 
-
-template<class T>
-struct NewObject
-{
-  NewObject(T* p) : pointee(p) 
-  {}
-
-  T* pointee;
-};
-
-
-template<class MemFunc>
-struct constructor_traits
-{
-private:
-  typedef typename boost::function_types::result_type< MemFunc >::type pointed_type;
-  typedef typename std::remove_pointer< pointed_type >::type real_type;
-public:
-  typedef NewObject< real_type  > result_type;
-  template<int I>
-  struct args_type_
+  namespace details
   {
-    typedef typename boost::mpl::at<typename boost::function_types::parameter_types< MemFunc>::type, boost::mpl::int_<I> >::type type;
+    namespace func = boost::function_types;
+    namespace mpl = boost::mpl;
+
+    template<class MemFunc>
+    struct method_traits
+    {
+    private:
+      typedef typename func::parameter_types< MemFunc>::type param_types;
+    public:
+      typedef typename func::result_type< MemFunc >::type result_type;
+      template<int I>
+      struct args_type_
+      {
+      public:
+	typedef typename mpl::at< param_types , mpl::int_<I> >::type type;
+      };
+      typedef typename func::parameter_types< MemFunc>::type args_type;
+    };
+
+    template<class MemFunc>
+    struct constructor_traits
+    {
+    private:
+      typedef typename func::result_type< MemFunc >::type pointed_type;
+      typedef typename std::remove_pointer< pointed_type >::type real_type;
+
+      typedef typename func::parameter_types< MemFunc>::type param_types;
+    public:
+      typedef new_object< real_type  > result_type;
+      template<int I>
+      struct args_type_
+      {
+      public:
+	typedef typename mpl::at< param_types, mpl::int_<I> >::type type;
+      };
+      typedef typename func::parameter_types< MemFunc>::type args_type;
+    };
+  }
+
+  template<class T>
+  struct affect_class
+  {
+    static void affect_new( value& v, T const* t)
+    {
+      affectation_management<T const*>::affect( v, t);
+    }
   };
-  typedef typename boost::function_types::parameter_types< MemFunc>::type args_type;
-};
-
-
-template<class T>
-struct AffectClass
-{
-  static void affect_new( value& v, T const* t)
-  {
-    AffectationManagement<T const*>::affect( v, t);
-  }
-  static void affect_field_new( value& v, size_t field, T const* t)
-  {
-    AffectationManagement<T const*>::affect_field( v, field, t);
-  }
-};
-
+}
 
 using boost::mpl::int_;
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE1( func_traits )	\
-  ( FuncTraits::args_type_<0>::type )
+  ( func_traits ::args_type_<0>::type )
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE2( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE1( func_traits ) ,	\
-    FuncTraits::args_type_<1>::type )
+    func_traits ::args_type_<1>::type )
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE3( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE2( func_traits ) ,	\
-    FuncTraits::args_type_<2>::type)
+    func_traits ::args_type_<2>::type)
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE4( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE3( func_traits ) ,	\
-    FuncTraits::args_type_<3>::type)
+    func_traits ::args_type_<3>::type)
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE5( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE4( func_traits ) ,	\
-    FuncTraits::args_type_<4>::type)
+    func_traits ::args_type_<4>::type)
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE6( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE5( func_traits ) ,	\
-    FuncTraits::args_type_<5>::type)
+    func_traits ::args_type_<5>::type)
 
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE7( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE7( func_traits ) ,	\
-    FuncTraits::args_type_<6>::type)
+    func_traits ::args_type_<6>::type)
 
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE8( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE8( func_traits ) ,	\
-    FuncTraits::args_type_<7>::type)
+    func_traits ::args_type_<7>::type)
 
 
 #define CAMLPP__METHOD_OBTAIN_PARAM_TYPE9( func_traits )		\
   ( CAMLPP__EXPAND CAMLPP__METHOD_OBTAIN_PARAM_TYPE9( func_traits ) ,	\
-    FuncTraits::args_type_<8>::type)
+    func_traits ::args_type_<8>::type)
 
 #define CAMLPP__METHOD_PLACEHOLDERS1(func)	\
   ( func, std::placeholders::_1 )
@@ -167,10 +176,14 @@ using boost::mpl::int_;
     std::placeholders::_9 )
 
 #define CAMLPP__METHOD_BODY(func, values_name, params_count)		\
-  CAMLPP__BODY( method_traits, decltype(func), std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
+  CAMLPP__BODY( camlpp::details::method_traits,				\
+		decltype(func),						\
+		std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), \
+		values_name,						\
+		params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
 
 
-#define camlpp__register_external_method0( method_name, func )			\
+#define camlpp__register_external_method0( method_name, func )		\
   CAMLprim value  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _  ## method_name  ## __impl) ( value obj) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -178,14 +191,14 @@ using boost::mpl::int_;
   }
 
 
-#define camlpp__register_external_method1( method_name, func )			\
+#define camlpp__register_external_method1( method_name, func )		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1), 2);				\
   }
    
-#define camlpp__register_external_method2( method_name, func )			\
+#define camlpp__register_external_method2( method_name, func )		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -193,7 +206,7 @@ using boost::mpl::int_;
   }									\
   
 
-#define camlpp__register_external_method3( method_name, func )			\
+#define camlpp__register_external_method3( method_name, func )		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -201,7 +214,7 @@ using boost::mpl::int_;
   }									
 
 
-#define camlpp__register_external_method4( method_name, func )			\
+#define camlpp__register_external_method4( method_name, func )		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -209,7 +222,7 @@ using boost::mpl::int_;
   }									
 
 
-#define camlpp__register_external_method5( method_name, func )			\
+#define camlpp__register_external_method5( method_name, func )		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -221,7 +234,7 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
   }
 
-#define camlpp__register_external_method6( method_name, func )			\
+#define camlpp__register_external_method6( method_name, func )		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -233,7 +246,7 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6] ); \
   }
 
-#define camlpp__register_external_method7( method_name, func)			\
+#define camlpp__register_external_method7( method_name, func)		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -245,7 +258,7 @@ using boost::mpl::int_;
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7]); \
   }
 
-#define camlpp__register_external_method8( method_name, func)			\
+#define camlpp__register_external_method8( method_name, func)		\
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
@@ -285,27 +298,32 @@ using boost::mpl::int_;
   camlpp__register_external_method8( method_name, & CAMLPP__CLASS_NAME() :: method_name )
 
 #define CAMLPP__EXTERNAL_CONSTRUCTOR_BODY(func, values_name, params_count) \
-  CAMLPP__BODY( constructor_traits, decltype(func), func, values_name, params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
+  CAMLPP__BODY( camlpp::details::constructor_traits,			\
+		decltype(func),						\
+		func,							\
+		values_name,						\
+		params_count,						\
+		CAMLPP__METHOD_OBTAIN_PARAM_TYPE)
 
 /*
-#define camlpp__register_external_constructor0( constructor_name, func) \
+  #define camlpp__register_external_constructor0( constructor_name, func) \
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
   {									\
-    typedef std::remove_pointer<decltype(func)>::type FuncType;		\
-    typedef method_traits< FuncType > FuncTraits;			\
-    CAMLparam1( unit );							\
-<<<<<<< HEAD
-    ResManagement< CAMLPP__CLASS_NAME() *, false > rm;			\
-=======
-    ResManagement< CAMLPP__CLASS_NAME() *> rm;				\
->>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
-    CAMLlocal1(res);							\
-    CAMLPP__INVOKE							\
-      (									\
-       rm, res,								\
-       func								\
-									); \
-    CAMLreturn( res );							\
+  typedef std::remove_pointer<decltype(func)>::type FuncType;		\
+  typedef method_traits< FuncType > FuncTraits;			\
+  CAMLparam1( unit );							\
+  <<<<<<< HEAD
+  ResManagement< CAMLPP__CLASS_NAME() *, false > rm;			\
+  =======
+  ResManagement< CAMLPP__CLASS_NAME() *> rm;				\
+  >>>>>>> b135c6fff3179e06caf16c7b15114e461f1268c8
+  CAMLlocal1(res);							\
+  CAMLPP__INVOKE							\
+  (									\
+  rm, res,								\
+  func								\
+  ); \
+  CAMLreturn( res );							\
   }
 */
 
@@ -351,7 +369,7 @@ using boost::mpl::int_;
 
 
 #define CAMLPP__CONSTRUCTOR_BODY(class_name, values_name, params_type, params_count) \
-  CAMLPP__BODY( constructor_traits,					\
+  CAMLPP__BODY( camlpp::details::constructor_traits,			\
 		class_name* (*)(),					\
 		boost::factory<class_name*>(),				\
 		values_name, params_count,				\
@@ -362,7 +380,7 @@ using boost::mpl::int_;
   CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
   {									\
     CAMLparam1( unit );							\
-    ResManagement< NewObject<CAMLPP__CLASS_NAME()> > rm;			\
+    camlpp::res_management< camlpp::new_object<CAMLPP__CLASS_NAME()> > rm; \
     CAMLlocal1(res);							\
     CAMLPP__INVOKE							\
       (									\
@@ -449,8 +467,8 @@ using boost::mpl::int_;
   CAMLprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
   {									\
     CAMLparam1( param1 );						\
-    ResManagement< superclass_name *> rm;				\
-    ConversionManagement< CAMLPP__CLASS_NAME() * > cm1;			\
+    camlpp::res_management< superclass_name *> rm;			\
+    camlpp::conversion_management< CAMLPP__CLASS_NAME() * > cm1;	\
     CAMLPP__CLASS_NAME() * p1 = cm1.from_value( param1 );		\
     CAMLlocal1(res);							\
     CAMLPP__INVOKE							\
@@ -465,116 +483,101 @@ using boost::mpl::int_;
 
 
 #define camlpp__preregister_custom_class( class_name )			\
-  template<>								\
-  struct ConversionManagement< class_name * >				\
+  namespace camlpp							\
   {									\
-    class_name* from_value( value const& v)				\
+    template<>								\
+      struct conversion_management< class_name * >			\
     {									\
-      if( Tag_val( v ) == Object_tag )					\
-	{								\
-	  static value callback_method = 0;				\
-	  if( !callback_method )					\
-	    {								\
-	      callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
-	    }								\
-	  return from_value(callback(caml_get_public_method( v, callback_method),v)); \
-	}								\
-      if( Tag_val( v ) == Abstract_tag )				\
-	{								\
-	  return reinterpret_cast< class_name *>( Field(v, 0) );	\
-	}								\
-      assert( Tag_val( v ) == Custom_tag );				\
-      return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
-    }									\
-  };									\
-  template<>								\
-  struct ConversionManagement< class_name & > : private ConversionManagement< class_name * > \
-  {									\
-    class_name& from_value( value const& v)				\
+      class_name* from_value( value const& v)				\
+      {									\
+	if( Tag_val( v ) == Object_tag )				\
+	  {								\
+	    static value callback_method = 0;				\
+	    if( !callback_method )					\
+	      {								\
+		callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
+	      }								\
+	    return from_value(callback(caml_get_public_method( v, callback_method),v)); \
+	  }								\
+	if( Tag_val( v ) == Abstract_tag )				\
+	  {								\
+	    return reinterpret_cast< class_name *>( Field(v, 0) );	\
+	  }								\
+	assert( Tag_val( v ) == Custom_tag );				\
+	return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
+      }									\
+    };									\
+    template<>								\
+      struct conversion_management< class_name & > : private conversion_management< class_name * > \
     {									\
-      return *ConversionManagement< class_name * >::from_value( v );	\
-    }									\
-  };									\
-  template<>								\
-  struct ConversionManagement< class_name const & > : private ConversionManagement< class_name * > \
-  {									\
-    class_name const& from_value( value const& v)			\
+      class_name& from_value( value const& v)				\
+      {									\
+	return *conversion_management< class_name * >::from_value( v ); \
+      }									\
+    };									\
+    template<>								\
+      struct conversion_management< class_name const & > : private conversion_management< class_name * > \
     {									\
-      return *ConversionManagement< class_name * >::from_value( v );	\
-    }									\
-  };									\
-  template<>								\
-  struct ConversionManagement< class_name const * > : private ConversionManagement< class_name * > \
-  {									\
-    class_name const* from_value( value const& v)			\
+      class_name const& from_value( value const& v)			\
+      {									\
+	return *conversion_management< class_name * >::from_value( v );	\
+      }									\
+    };									\
+    template<>								\
+      struct conversion_management< class_name const * > : private conversion_management< class_name * > \
     {									\
-      return ConversionManagement< class_name * >::from_value( v );	\
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< class_name const&>			\
-  {									\
-    static void affect( value& v, class_name const& obj )		\
+      class_name const* from_value( value const& v)			\
+      {									\
+	return conversion_management< class_name * >::from_value( v );	\
+      }									\
+    };									\
+    template<>								\
+      struct affectation_management< class_name const&>			\
     {									\
-      AffectationManagement< class_name const*>::affect( v, &obj );	\
-    }									\
-    static void affect_field( value& v, int field, class_name const& obj) \
+      static void affect( value& v, class_name const& obj )		\
+      {									\
+	affectation_management< class_name const*>::affect( v, &obj );	\
+      }									\
+    };									\
+    template<>								\
+      struct affectation_management< class_name >			\
     {									\
-      AffectationManagement< class_name const*>::affect_field(v, field, &obj); \
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< class_name >				\
-  {									\
-    template<class T>							\
-      static void affect( value& v, T obj)				\
+      template<class T>							\
+	static void affect( value& v, T obj)				\
+      {									\
+	affect_class< class_name >::affect_new( v, new T(std::move(obj))); \
+      }									\
+    };									\
+    template<>								\
+      struct affectation_management< new_object< class_name > >		\
     {									\
-      AffectClass< class_name >::affect_new( v, new T(std::move(obj)));	\
-    }									\
-    template<class T>							\
-      static void affect_field( value& v, int field, T obj)	\
-    {									\
-      AffectClass< class_name >::affect_field_new(v, field, new T(std::move(obj))); \
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< NewObject< class_name > >		\
-  {									\
-    static void affect( value& v, NewObject< class_name > obj)		\
-    {									\
-      AffectClass< class_name >::affect_new( v, obj.pointee );		\
-    }									\
-    static void affect_field( value& v, int field, NewObject< class_name > obj) \
-    {									\
-      AffectClass< class_name >::affect_field_new(v, field, obj.pointee); \
-    }									\
-  };
+      static void affect( value& v, new_object< class_name > obj)	\
+      {									\
+	affect_class< class_name >::affect_new( v, obj.pointee );	\
+      }									\
+    };									\
+  }
 
 
-#define camlpp__preregister_custom_operations( class_name ) \
+#define camlpp__preregister_custom_operations( class_name )		\
   extern "C" struct custom_operations BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, class_name ), _custom_operations ); \
-  template<>								\
-  struct AffectClass< class_name >					\
+  namespace camlpp							\
   {									\
-    static void affect_new ( value& v, class_name const* objPtr )	\
+    template<>								\
+      struct affect_class< class_name >					\
     {									\
-      v = caml_alloc_custom						\
-	(								\
-	 &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, class_name ), _custom_operations ), \
-	 sizeof( class_name * ),					\
-	 0, 1								\
+      static void affect_new ( value& v, class_name const* objPtr )	\
+      {									\
+	v = caml_alloc_custom						\
+	  (								\
+	   &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, class_name ), _custom_operations ), \
+	   sizeof( class_name * ),					\
+	   0, 1								\
 									); \
-      std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
-    }									\
-    static void affect_field_new( value& v, int field, class_name const* objPtr ) \
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( tmp );						\
-      affect_new( tmp, objPtr );					\
-      Store_field(v, field, tmp);					\
-      CAMLreturn0;							\
-    }									\
-  };
+	std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
+      }									\
+    };									\
+  }
 
 #define camlpp__register_preregistered_custom_operations(finalize_func, compare_func, hash_func) \
   extern "C"								\
@@ -590,103 +593,103 @@ using boost::mpl::int_;
   }									\
 
 #define camlpp__register_custom_operations(finalize_func, compare_func, hash_func) \
-  camlpp__preregister_custom_operations( CAMLPP__CLASS_NAME() ) \
+  camlpp__preregister_custom_operations( CAMLPP__CLASS_NAME() )		\
   camlpp__register_preregistered_custom_operations( finalize_func, compare_func, hash_func ) 
 
 
 /*
 
-#define camlpp__preregister_custom_class_and_ops( class_name, finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
+  #define camlpp__preregister_custom_class_and_ops( class_name, finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
   									\
-  template<>								\
-  struct ConversionManagement< class_name * >				\
-  {									\
-    class_name* from_value( value const& v)				\
-    {									\
-      assert( Tag_val( v ) == Custom_tag );				\
-      return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
-    }									\
-  };									\
-  template<>								\
-  struct ConversionManagement< class_name & > : private ConversionManagement< class_name * > \
-  {									\
-    class_name& from_value( value const& v)				\
-    {									\
-      return *ConversionManagement< class_name * >::from_value( v );	\
-    }									\
-  };									\
-  template<>								\
-  struct ConversionManagement< class_name const & > : private ConversionManagement< class_name * > \
-  {									\
-    class_name const& from_value( value const& v)			\
-    {									\
-      return *ConversionManagement< class_name * >::from_value( v );	\
-    }									\
-  };									\
-  template<>								\
-  struct ConversionManagement< class_name const * > : private ConversionManagement< class_name * > \
-  {									\
-    class_name const* from_value( value const& v)			\
-    {									\
-      return ConversionManagement< class_name * >::from_value( v );	\
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< class_name const*>			\
-  {									\
-    static void affect( value& v, class_name const* objPtr )		\
-    {									\
-      v = caml_alloc_custom						\
-	(								\
-	 &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
-	 sizeof( class_name * ),					\
-	 0, 1								\
+									template<>								\
+									struct ConversionManagement< class_name * >				\
+									{									\
+									class_name* from_value( value const& v)				\
+									{									\
+									assert( Tag_val( v ) == Custom_tag );				\
+									return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\
+									}									\
+									};									\
+									template<>								\
+									struct ConversionManagement< class_name & > : private ConversionManagement< class_name * > \
+									{									\
+									class_name& from_value( value const& v)				\
+									{									\
+									return *ConversionManagement< class_name * >::from_value( v );	\
+									}									\
+									};									\
+									template<>								\
+									struct ConversionManagement< class_name const & > : private ConversionManagement< class_name * > \
+									{									\
+									class_name const& from_value( value const& v)			\
+									{									\
+									return *ConversionManagement< class_name * >::from_value( v );	\
+									}									\
+									};									\
+									template<>								\
+									struct ConversionManagement< class_name const * > : private ConversionManagement< class_name * > \
+									{									\
+									class_name const* from_value( value const& v)			\
+									{									\
+									return ConversionManagement< class_name * >::from_value( v );	\
+									}									\
+									};									\
+									template<>								\
+									struct AffectationManagement< class_name const*>			\
+									{									\
+									static void affect( value& v, class_name const* objPtr )		\
+									{									\
+									v = caml_alloc_custom						\
+									(								\
+									&BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
+									sizeof( class_name * ),					\
+									0, 1								\
 									); \
-      std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
-    }									\
-    static void affect_field( value& v, int field, class_name const* objPtr ) \
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( tmp );						\
-      affect( tmp, objPtr );						\
-      Store_field(v, field, tmp);					\
-      CAMLreturn0;							\
-    }									\
-  };								        \
-  template<>								\
-  struct AffectationManagement< class_name*>				\
-  {									\
-    static void affect( value& v, class_name* objPtr )			\
-    {									\
-      v = caml_alloc_custom						\
-	(								\
-	 &BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
-	 sizeof( class_name * ),					\
-	 0, 1								\
+									std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
+									}									\
+									static void affect_field( value& v, int field, class_name const* objPtr ) \
+									{									\
+									CAMLparam0();							\
+									CAMLlocal1( tmp );						\
+									affect( tmp, objPtr );						\
+									Store_field(v, field, tmp);					\
+									CAMLreturn0;							\
+									}									\
+									};								        \
+									template<>								\
+									struct AffectationManagement< class_name*>				\
+									{									\
+									static void affect( value& v, class_name* objPtr )			\
+									{									\
+									v = caml_alloc_custom						\
+									(								\
+									&BOOST_PP_CAT( BOOST_PP_CAT( camlpp__, CAMLPP__CLASS_NAME() ), _custom_operations ), \
+									sizeof( class_name * ),					\
+									0, 1								\
 									); \
-      std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
-    }									\
-    static void affect_field( value& v, int field, class_name* objPtr ) \
-    {									\
-      CAMLparam0();							\
-      CAMLlocal1( tmp );						\
-      affect( tmp, objPtr );						\
-      Store_field(v, field, tmp);					\
-      CAMLreturn0;							\
-    }									\
-  };									\
-  template<>								\
-  struct AffectationManagement< class_name const&>			\
-  {									\
-    static void affect( value& v, class_name const& obj )		\
-    {									\
-      AffectationManagement< class_name const*>::affect( v, &obj );	\
-    }									\
-    static void affect_field( value& v, int field, class_name const& obj) \
-    {									\
-      AffectationManagement< class_name const*>::affect_field(v, field, &obj); \
-    }									\
-  };
+									std::memcpy( Data_custom_val( v ), &objPtr, sizeof( objPtr ) );	\
+									}									\
+									static void affect_field( value& v, int field, class_name* objPtr ) \
+									{									\
+									CAMLparam0();							\
+									CAMLlocal1( tmp );						\
+									affect( tmp, objPtr );						\
+									Store_field(v, field, tmp);					\
+									CAMLreturn0;							\
+									}									\
+									};									\
+									template<>								\
+									struct AffectationManagement< class_name const&>			\
+									{									\
+									static void affect( value& v, class_name const& obj )		\
+									{									\
+									AffectationManagement< class_name const*>::affect( v, &obj );	\
+									}									\
+									static void affect_field( value& v, int field, class_name const& obj) \
+									{									\
+									AffectationManagement< class_name const*>::affect_field(v, field, &obj); \
+									}									\
+									};
 
 */
 
@@ -700,8 +703,8 @@ using boost::mpl::int_;
   }									\
   extern "C"								\
   {									\
-    camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy ) ) \
-      }									\
+    camlpp__register_free_function1( BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _destroy ) ); \
+  }									\
   extern "C"
 
 
@@ -710,7 +713,7 @@ using boost::mpl::int_;
   camlpp__register_preregistered_custom_class()
 
 /*
-#define camlpp__register_custom_class_and_ops( finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
+  #define camlpp__register_custom_class_and_ops( finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
   camlpp__preregister_custom_class_and_ops( CAMLPP__CLASS_NAME() , finalize_func, compare_func, hash_func, serialize_func, deserialize_func ) \
   camlpp__register_preregistered_custom_class()
 */

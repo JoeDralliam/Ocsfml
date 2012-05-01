@@ -852,6 +852,12 @@ object ((_ : 'self))
     fun p1 -> SocketSelector.set t_socket_selector p1
 end
   
+
+module Port = 
+struct 
+  type t = int
+  let from_int port = port
+end
     
 module TcpSocket =
 struct
@@ -864,16 +870,15 @@ struct
 	
   external default : unit -> t = "sf_TcpSocket_default_constructor__impl"
       
-  external get_local_port : t -> int = "sf_TcpSocket_getLocalPort__impl"
+  external get_local_port : t -> Port.t = "sf_TcpSocket_getLocalPort__impl"
       
   external get_remote_address : t -> ip_address =
       "sf_TcpSocket_getRemoteAddress__impl"
 	
-  external get_remote_port : t -> int = "sf_TcpSocket_getRemotePort__impl"
+  external get_remote_port : t -> Port.t = "sf_TcpSocket_getRemotePort__impl"
       
   external connect :
-    t ->
-    ?timeout: OcsfmlSystem.Time.t -> ip_address -> int -> socket_status =
+    t -> ?timeout: OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status =
       "sf_TcpSocket_connect__impl"
 	
   external disconnect : t -> unit = "sf_TcpSocket_disconnect__impl"
@@ -909,16 +914,17 @@ object ((self : 'self))
 
   inherit socket (TcpSocket.to_socket t)
 
-  method get_local_port : int = TcpSocket.get_local_port t_tcp_socket_base
+  method get_local_port : Port.t = 
+    TcpSocket.get_local_port t_tcp_socket_base
 
   method get_remote_address : ip_address =
     TcpSocket.get_remote_address t_tcp_socket_base
 
-  method get_remote_port : int =
+  method get_remote_port : Port.t =
     TcpSocket.get_remote_port t_tcp_socket_base
 
   method connect :
-    ?timeout: OcsfmlSystem.Time.t -> ip_address -> int -> socket_status =
+    ?timeout: OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status =
     fun ?timeout p1 p2 ->
       TcpSocket.connect t_tcp_socket_base ?timeout p1 p2
 
@@ -959,9 +965,9 @@ struct
 	
   external default : unit -> t = "sf_TcpListener_default_constructor__impl"
       
-  external get_local_port : t -> int = "sf_TcpListener_getLocalPort__impl"
+  external get_local_port : t -> Port.t = "sf_TcpListener_getLocalPort__impl"
       
-  external listen : t -> int -> socket_status =
+  external listen : t -> Port.t -> socket_status =
       "sf_TcpListener_listen__impl"
 	
   external close : t -> unit = "sf_TcpListener_close__impl"
@@ -977,9 +983,9 @@ object ((self : 'self))
   method rep__sf_TcpListener = t_tcp_listener_base
   method destroy = TcpListener.destroy t_tcp_listener_base
   inherit socket (TcpListener.to_socket t)
-  method get_local_port : int =
+  method get_local_port : Port.t =
     TcpListener.get_local_port t_tcp_listener_base
-  method listen : int -> socket_status =
+  method listen : Port.t -> socket_status =
     fun p1 -> TcpListener.listen t_tcp_listener_base p1
   method close : unit = TcpListener.close t_tcp_listener_base
   method accept : tcp_socket -> socket_status =
@@ -994,13 +1000,7 @@ class tcp_listener_bis () =
 class tcp_listener = tcp_listener_bis ()
   
 let max_datagram_size = 65507
-  
-module UdpPort = 
-struct 
-  type t = int
-  let from_int port = port
-end
-  
+    
 module UdpSocket =
 struct
   type t
@@ -1012,30 +1012,30 @@ struct
 	
   external default : unit -> t = "sf_UdpSocket_default_constructor__impl"
       
-  external bind : t -> int -> socket_status = "sf_UdpSocket_bind__impl"
+  external bind : t -> Port.t -> socket_status = "sf_UdpSocket_bind__impl"
       
   external unbind : t -> unit = "sf_UdpSocket_unbind__impl"
       
-  external get_local_port : t -> int = "sf_UdpSocket_getLocalPort__impl"
+  external get_local_port : t -> Port.t = "sf_UdpSocket_getLocalPort__impl"
 
   external send_packet :
-    t -> (#packet as 'a) -> ip_address -> UdpPort.t -> socket_status =
+    t -> (#packet as 'a) -> ip_address -> Port.t -> socket_status =
       "sf_UdpSocket_sendPacket__impl"
 	
   external receive_packet :
-    t -> (#packet as 'a) -> ip_address -> (socket_status * UdpPort.t) =
+    t -> (#packet as 'a) -> ip_address -> (socket_status * Port.t) =
       "sf_UdpSocket_receivePacket__impl"
 	
-  external send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status =
+  external send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status =
       "sf_UdpSocket_sendData__impl"
 	
-  external receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * UdpPort.t) =
+  external receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * Port.t) =
       "sf_UdpSocket_receiveData__impl"
 
-  external send_string : t -> string -> ip_address -> UdpPort.t -> socket_status =
+  external send_string : t -> string -> ip_address -> Port.t -> socket_status =
       "sf_UdpSocket_sendString__impl"
 	
-  external receive_string : t -> string -> ip_address -> (socket_status * int * UdpPort.t) =
+  external receive_string : t -> string -> ip_address -> (socket_status * int * Port.t) =
       "sf_UdpSocket_receiveString__impl"
 
 	
@@ -1048,32 +1048,32 @@ object ((self : 'self))
   method destroy = UdpSocket.destroy t_udp_socket_base
   inherit socket (UdpSocket.to_socket t)
 
-  method bind : int -> socket_status =
+  method bind : Port.t -> socket_status =
     fun p1 -> UdpSocket.bind t_udp_socket_base p1
 
   method unbind : unit = 
     UdpSocket.unbind t_udp_socket_base
 
-  method get_local_port : UdpPort.t = 
+  method get_local_port : Port.t = 
     UdpSocket.get_local_port t_udp_socket_base
 
-  method send_packet : 'a. (#packet as 'a) -> ip_address -> UdpPort.t -> socket_status =
+  method send_packet : 'a. (#packet as 'a) -> ip_address -> Port.t -> socket_status =
     fun p1 p2 p3 -> UdpSocket.send_packet t_udp_socket_base p1 p2 p3
 
 
-  method receive_packet : 'a. (#packet as 'a) -> ip_address -> (socket_status * UdpPort.t) =
+  method receive_packet : 'a. (#packet as 'a) -> ip_address -> (socket_status * Port.t) =
     fun p1 p2 -> UdpSocket.receive_packet t_udp_socket_base p1 p2
 
-  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> UdpPort.t -> socket_status =
+  method send_data : OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status =
     fun p1 p2 p3 -> UdpSocket.send_data t_udp_socket_base p1 p2 p3
 
-  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * UdpPort.t) =
+  method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * Port.t) =
     fun p1 p2 -> UdpSocket.receive_data t_udp_socket_base p1 p2
 
-  method send_string : string -> ip_address -> UdpPort.t -> socket_status =
+  method send_string : string -> ip_address -> Port.t -> socket_status =
     fun p1 p2 p3 -> UdpSocket.send_string t_udp_socket_base p1 p2 p3
 
-  method receive_string: string -> ip_address -> (socket_status * int * UdpPort.t) =
+  method receive_string: string -> ip_address -> (socket_status * int * Port.t) =
     fun p1 p2 -> UdpSocket.receive_string t_udp_socket_base p1 p2
 
 end

@@ -22,11 +22,13 @@
 
 #include <camlpp/custom_class.hpp>
 #include <camlpp/big_array.hpp>
+#include <camlpp/std/pair.hpp>
+
 #include <cstring>
 
 #include <SFML/System.hpp>
 
-typedef BigarrayInterface<void, 1> RawDataType;
+typedef camlpp::big_array<void, 1> RawDataType;
 
 class CamlInputStream : public sf::InputStream
 {
@@ -56,7 +58,7 @@ public:
 					    hash_variant("read") ), 
 		     *inputStreamInst_, 
 		     Val_int( size ) );
-    ConversionManagement< std::pair<char*, sf::Int64> > cm;
+    camlpp::conversion_management< std::pair<char*, sf::Int64> > cm;
     auto tup = cm.from_value( res );
     std::memcpy( data, tup.first, tup.second );
     CAMLreturnT(sf::Int64, tup.second);
@@ -85,97 +87,90 @@ public:
   }
 };
 
-template<>
-struct ConversionManagement< CamlInputStream >
+
+namespace camlpp
 {
-  CamlInputStream from_value( value & v)
+  template<>
+  struct conversion_management< CamlInputStream >
   {
-    return CamlInputStream(v);
-  }
-};
-
-template<>
-class ConversionManagement< sf::InputStream& > : public ConversionManagement< CamlInputStream& >
-{};
-
-template<>
-struct ConversionManagement< sf::Time >
-{
-  sf::Time from_value( value & v)
+    CamlInputStream from_value( value & v)
+    {
+      return CamlInputStream(v);
+    }
+  };
+  
+  template<>
+  class conversion_management< sf::InputStream& > : public conversion_management< CamlInputStream& >
+  {};
+  
+  template<>
+  struct conversion_management< sf::Time >
   {
-    return sf::microseconds( Int64_val(v));
-  }
-};
-
-template<>
-struct AffectationManagement< sf::Time >
-{
-  static void affect( value & v, sf::Time t )
+    sf::Time from_value( value & v)
+    {
+      return sf::microseconds( Int64_val(v));
+    }
+  };
+  
+  template<>
+  struct affectation_management< sf::Time >
   {
-    v = caml_copy_int64(t.asMicroseconds());
-  }
+    static void affect( value & v, sf::Time t )
+    {
+      v = caml_copy_int64(t.asMicroseconds());
+    }
+  };
 
-  static void affect_field( value & v, int field, sf::Time t )
+  template<class T>
+  struct conversion_management< sf::Vector2<T> >
   {
-    Store_field(v, field,  caml_copy_int64(t.asMicroseconds()));
-  }
-};
+    conversion_management< T > cm;
+    sf::Vector2<T> from_value( value const& v)
+    {
+      return sf::Vector2<T>( cm.from_value(Field(v, 0)), cm.from_value(Field(v, 1)) );
+    }
+  };
 
-template<class T>
-struct ConversionManagement< sf::Vector2<T> >
-{
-  ConversionManagement< T > cm;
-  sf::Vector2<T> from_value( value const& v)
+  template<class T>
+  struct affectation_management< sf::Vector2<T> > 
   {
-    return sf::Vector2<T>( cm.from_value(Field(v, 0)), cm.from_value(Field(v, 1)) );
-  }
-};
+    static void affect( value& v, sf::Vector2<T> vec )
+    {
+      affectation_management< std::pair<T, T> >::affect( v, std::make_pair(vec.x, vec.y) );
+    }
 
-template<class T>
-struct AffectationManagement< sf::Vector2<T> > 
-{
-  static void affect( value& v, sf::Vector2<T> vec )
+    static void affect_field( value& v, int field, sf::Vector2<T> vec )
+    {
+      affectation_management< std::pair<T, T> >::affect_field( v, field, std::make_pair(vec.x, vec.y) );
+    }
+  };
+
+
+
+  template<class T>
+  struct conversion_management< sf::Vector3<T> >
   {
-    AffectationManagement< std::pair<T, T> >::affect( v, std::make_pair(vec.x, vec.y) );
-  }
+    conversion_management< T > cm;
+    sf::Vector3<T> from_value( value const& v)
+    {
+      return sf::Vector3<T>( cm.from_value(Field(v, 0)), cm.from_value(Field(v, 1)), cm.from_value(Field(v,2)) );
+    }
+  };
 
-  static void affect_field( value& v, int field, sf::Vector2<T> vec )
+  template<class T>
+  struct affectation_management< sf::Vector3<T> >
   {
-    AffectationManagement< std::pair<T, T> >::affect_field( v, field, std::make_pair(vec.x, vec.y) );
-  }
-};
+    static void affect( value& v, sf::Vector3<T> vec )
+    {
+      affectation_management< std::tuple<T, T, T> >::affect( v, std::make_tuple(vec.x, vec.y, vec.z) );
+    }
 
-
-
-template<class T>
-struct ConversionManagement< sf::Vector3<T> >
-{
-  ConversionManagement< T > cm;
-  sf::Vector3<T> from_value( value const& v)
-  {
-    return sf::Vector3<T>( cm.from_value(Field(v, 0)), cm.from_value(Field(v, 1)), cm.from_value(Field(v,2)) );
-  }
-};
-
-template<class T>
-struct AffectationManagement< sf::Vector3<T> >
-{
-  static void affect( value& v, sf::Vector3<T> vec )
-  {
-    AffectationManagement< std::tuple<T, T, T> >::affect( v, std::make_tuple(vec.x, vec.y, vec.z) );
-  }
-
-  static void affect_field( value& v, int field, sf::Vector3<T> vec )
-  {
-    AffectationManagement< std::tuple<T, T, T> >::affect_field( v, field, std::make_tuple(vec.x, vec.y, vec.z) );
-  }
-};
-
-
-
-
-
-
+    static void affect_field( value& v, int field, sf::Vector3<T> vec )
+    {
+      affectation_management< std::tuple<T, T, T> >::affect_field( v, field, std::make_tuple(vec.x, vec.y, vec.z) );
+    }
+  };
+}
 
 #endif
 

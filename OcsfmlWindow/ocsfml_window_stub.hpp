@@ -4,6 +4,7 @@
 #include <camlpp/custom_class.hpp>
 #include <camlpp/custom_conversion.hpp>
 #include <stdexcept>
+#include <list>
 #include <SFML/Window.hpp>
 
 #include "ocsfml_system_stub.hpp"
@@ -40,69 +41,48 @@ custom_struct_affectation( 	sf::Event::MouseMoveEvent,
 				&sf::Event::MouseMoveEvent::x, 
 				&sf::Event::MouseMoveEvent::y );
 
-template<>
-struct AffectationManagement< sf::Event::MouseButtonEvent >
+
+namespace camlpp
 {
-  static void affect( value & v, sf::Event::MouseButtonEvent e )
+  template<>
+  struct affectation_management< sf::Event::MouseButtonEvent >
   {
-    typedef  std::pair< sf::Mouse::Button, sf::Event::MouseMoveEvent > Ret;
-    Ret r;
-    r.first = e.button;
-    r.second.x = e.x;
-    r.second.y = e.y;
-    AffectationManagement< Ret >::affect(v, r);
-  }
+    static void affect( value & v, sf::Event::MouseButtonEvent e )
+    {
+      typedef  std::pair< sf::Mouse::Button, sf::Event::MouseMoveEvent > Ret;
+      Ret r;
+      r.first = e.button;
+      r.second.x = e.x;
+      r.second.y = e.y;
+      affectation_management< Ret >::affect(v, r);
+    }
+  };
+
+
+  template<>
+  struct affectation_management< sf::Event::MouseWheelEvent >
+  {
+    static void affect( value & v, sf::Event::MouseWheelEvent e )
+    {
+      typedef  std::pair< int, sf::Event::MouseMoveEvent > Ret;
+      Ret r;
+      r.first = e.delta;
+      r.second.x = e.x;
+      r.second.y = e.y;
+      affectation_management< Ret >::affect(v, r);
+    }
   
-  static void affect_field( value & v, int field, sf::Event::MouseButtonEvent e )
-  {
-    typedef  std::pair< sf::Mouse::Button, sf::Event::MouseMoveEvent > Ret;
-    Ret r;
-    r.first = e.button;
-    r.second.x = e.x;
-    r.second.y = e.y;
-    AffectationManagement< Ret >::affect_field(v, field, r);
-  }
-};
+  };
 
-
-template<>
-struct AffectationManagement< sf::Event::MouseWheelEvent >
-{
-  static void affect( value & v, sf::Event::MouseWheelEvent e )
+  template<>
+  struct affectation_management< sf::Event::JoystickConnectEvent >
   {
-    typedef  std::pair< int, sf::Event::MouseMoveEvent > Ret;
-    Ret r;
-    r.first = e.delta;
-    r.second.x = e.x;
-    r.second.y = e.y;
-    AffectationManagement< Ret >::affect(v, r);
-  }
-  
-  static void affect_field( value & v, int field, sf::Event::MouseWheelEvent e )
-  {
-    typedef  std::pair< int, sf::Event::MouseMoveEvent > Ret;
-    Ret r;
-    r.first = e.delta;
-    r.second.x = e.x;
-    r.second.y = e.y;
-    AffectationManagement< Ret >::affect_field(v, field, r);
-  }
-};
-
-template<>
-struct AffectationManagement< sf::Event::JoystickConnectEvent >
-{
-  static void affect( value & v, sf::Event::JoystickConnectEvent e )
-  {
-    v = Val_int( e.joystickId );
-  }
-  
-  static void affect_field( value & v, int field, sf::Event::JoystickConnectEvent e )
-  {
-    Store_field(v, field, Val_int(e.joystickId) );
-  }
-};
-
+    static void affect( value & v, sf::Event::JoystickConnectEvent e )
+    {
+      v = Val_int( e.joystickId );
+    }
+  };
+}
 
 
 custom_struct_affectation( 	sf::Event::JoystickMoveEvent, 
@@ -114,12 +94,11 @@ custom_struct_affectation( 	sf::Event::JoystickButtonEvent,
 				&sf::Event::JoystickButtonEvent::joystickId, 
 				&sf::Event::JoystickButtonEvent::button );
 
-template<>
-struct ConversionManagement<sf::Event>
-{};
+namespace camlpp
+{
 
 template<>
-struct AffectationManagement< sf::Event >
+struct affectation_management< sf::Event >
 {
   static void affect( value& v, sf::Event const& e)
   {
@@ -134,68 +113,59 @@ struct AffectationManagement< sf::Event >
 	break;
       case sf::Event::Resized:
 	v = caml_alloc( 1, 0 );
-	caml_cpp__affect_field( v, 0, e.size );
+	affect_field( v, 0, e.size );
 	break;
       case sf::Event::TextEntered:
 	v = caml_alloc( 1, 1 );
-	caml_cpp__affect_field( v, 0, e.text );
+	affect_field( v, 0, e.text );
 	break;
       case sf::Event::KeyPressed:
 	v = caml_alloc( 1, 2 );
-	caml_cpp__affect_field( v, 0, e.key );
+	affect_field( v, 0, e.key );
 	break;
       case sf::Event::KeyReleased:
 	v = caml_alloc( 1, 3 );
-	caml_cpp__affect_field( v, 0, e.key );
+	affect_field( v, 0, e.key );
 	break;
       case sf::Event::MouseWheelMoved:
 	v = caml_alloc( 1, 4 );
-	caml_cpp__affect_field( v, 0, e.mouseWheel );
+	affect_field( v, 0, e.mouseWheel );
 	break;
       case sf::Event::MouseButtonPressed:
 	v = caml_alloc( 1, 5 );
-	caml_cpp__affect_field( v, 0, e.mouseButton );
+	affect_field( v, 0, e.mouseButton );
 	break;
       case sf::Event::MouseButtonReleased:
 	v = caml_alloc( 1, 6 );
-	caml_cpp__affect_field( v, 0, e.mouseButton );
+	affect_field( v, 0, e.mouseButton );
 	break;
       case sf::Event::MouseMoved: 
 	v = caml_alloc( 1, 7 );
-	caml_cpp__affect_field( v, 0, e.mouseMove );
+	affect_field( v, 0, e.mouseMove );
 	break;
       case sf::Event::JoystickButtonPressed:
 	v = caml_alloc( 1, 8 );
-	caml_cpp__affect_field( v, 0, e.joystickButton );
+	affect_field( v, 0, e.joystickButton );
 	break;
       case sf::Event::JoystickButtonReleased:
 	v = caml_alloc( 1, 9 );
-	caml_cpp__affect_field( v, 0, e.joystickButton );
+	affect_field( v, 0, e.joystickButton );
 	break;
       case sf::Event::JoystickMoved:
 	v = caml_alloc( 1, 10 );
-	caml_cpp__affect_field( v, 0, e.joystickMove );
+	affect_field( v, 0, e.joystickMove );
 	break;
       case sf::Event::JoystickConnected:
 	v = caml_alloc( 1, 11 );
-	caml_cpp__affect_field( v, 0, e.joystickConnect );
+	affect_field( v, 0, e.joystickConnect );
 	break;
       case sf::Event::JoystickDisconnected:
 	v = caml_alloc( 1, 12 );
-	caml_cpp__affect_field( v, 0, e.joystickConnect );
+	affect_field( v, 0, e.joystickConnect );
 	break;
       default:
 	throw std::runtime_error("Unknwown error while converting sf::Event to value");
       }
-  }
-
-  static void affect_field( value& v, int field, sf::Event const& e)
-  {
-    CAMLparam0();
-    CAMLlocal1( eventVal );
-    affect( eventVal, e);
-    Store_field(v, field, eventVal);
-    CAMLreturn0;
   }
 private:
   static int constant_index( sf::Event const& e )
@@ -218,6 +188,7 @@ private:
     throw std::runtime_error("Unknwown error while converting sf::Event to value");
   }
 };
+}
 
 custom_struct_conversion(	 sf::VideoMode,
 				 &sf::VideoMode::width,

@@ -8,6 +8,10 @@
 #include <camlpp/stub_generator.hpp>
 #include <camlpp/unit.hpp>
 #include <camlpp/cstring.hpp>
+#include <camlpp/std/string.hpp>
+#include <camlpp/std/vector.hpp>
+#include <camlpp/std/tuple.hpp>
+#include <camlpp/std/pair.hpp>
 
 
 typedef sf::IpAddress sf_IpAddress;
@@ -24,7 +28,7 @@ camlpp__register_custom_class()
 }
 #undef CAMLPP__CLASS_NAME
 
-sf::IpAddress ipaddress_get_public_address_helper( Optional<sf::Time> timeout, UnitTypeHolder )
+sf::IpAddress ipaddress_get_public_address_helper( camlpp::optional<sf::Time> timeout, camlpp::unit )
 {
   return sf::IpAddress::getPublicAddress( timeout.get_value_no_fail( sf::microseconds(0) ) );
 }
@@ -46,8 +50,8 @@ custom_enum_affectation( sf::Ftp::TransferMode );
 custom_enum_conversion( sf::Ftp::Response::Status );
 custom_enum_affectation( sf::Ftp::Response::Status );
 
-sf::Ftp::Response* ftp_response_default_constructor_helper( Optional<sf::Ftp::Response::Status> a1,
-							  Optional<std::string> a2, UnitTypeHolder )
+sf::Ftp::Response* ftp_response_default_constructor_helper( camlpp::optional<sf::Ftp::Response::Status> a1,
+							  camlpp::optional<std::string> a2, camlpp::unit )
 {
   return new sf::Ftp::Response( 	a1.get_value_no_fail( sf::Ftp::Response::InvalidResponse ),
 					a2.get_value_no_fail( "" ) );
@@ -91,8 +95,8 @@ camlpp__register_custom_class()
 
 
 sf::Ftp::Response ftp_connect_helper( 	sf::Ftp* obj, 
-					Optional<unsigned short> port, 
-					Optional<sf::Time> timeout, 
+					camlpp::optional<unsigned short> port, 
+					camlpp::optional<sf::Time> timeout, 
 					const sf::IpAddress& server)
 {
   return obj->connect
@@ -104,8 +108,8 @@ sf::Ftp::Response ftp_connect_helper( 	sf::Ftp* obj,
 }
 
 sf::Ftp::Response ftp_login_helper( sf::Ftp* obj,
-				    Optional< std::pair<std::string, std::string> > name_and_pswd,
-				    UnitTypeHolder )
+				    camlpp::optional< std::pair<std::string, std::string> > name_and_pswd,
+				    camlpp::unit )
 {
   if(name_and_pswd.is_some())
     {
@@ -115,7 +119,7 @@ sf::Ftp::Response ftp_login_helper( sf::Ftp* obj,
   return obj->login( );
 }
 
-sf::Ftp::Response ftp_download_helper( 	sf::Ftp* obj, Optional<sf::Ftp::TransferMode> mode,
+sf::Ftp::Response ftp_download_helper( 	sf::Ftp* obj, camlpp::optional<sf::Ftp::TransferMode> mode,
 					std::string const& remoteFile, 
 					std::string const& localPath )
 {
@@ -123,7 +127,7 @@ sf::Ftp::Response ftp_download_helper( 	sf::Ftp* obj, Optional<sf::Ftp::Transfer
 		       mode.get_value_no_fail( sf::Ftp::Binary ) );
 }
 
-sf::Ftp::Response ftp_upload_helper( 	sf::Ftp* obj, Optional<sf::Ftp::TransferMode> mode,
+sf::Ftp::Response ftp_upload_helper( 	sf::Ftp* obj, camlpp::optional<sf::Ftp::TransferMode> mode,
 					std::string const& localFile, 
 					std::string const& remotePath )
 {
@@ -165,9 +169,9 @@ custom_enum_affectation( sf::Http::Response::Status );
 
 
 
-sf::Http::Request* http_request_constructor_helper(	Optional<std::string> uri,
-							Optional<sf::Http::Request::Method> method,
-					  		Optional<std::string> body, UnitTypeHolder )
+sf::Http::Request* http_request_constructor_helper(	camlpp::optional<std::string> uri,
+							camlpp::optional<sf::Http::Request::Method> method,
+					  		camlpp::optional<std::string> body, camlpp::unit )
 {
 	return new sf::Http::Request( 	uri.get_value_no_fail( "/" ),
 					method.get_value_no_fail( sf::Http::Request::Get ),
@@ -203,13 +207,13 @@ camlpp__register_custom_class()
 }
 #undef CAMLPP__CLASS_NAME
 
-void http_set_host_helper( sf::Http* obj, Optional<unsigned short> port, std::string const& host)
+void http_set_host_helper( sf::Http* obj, camlpp::optional<unsigned short> port, std::string const& host)
 {
   obj->setHost( host, port.get_value_no_fail( 0 ) );
 }
 
 sf::Http::Response http_send_request_helper( 	sf::Http* obj,
-						Optional< sf::Time > timeout,
+						camlpp::optional< sf::Time > timeout,
 						sf::Http::Request const& request )
 {
   return obj->sendRequest
@@ -332,7 +336,7 @@ camlpp__register_custom_class()
 
 
 bool socketselector_wait_helper( sf::SocketSelector* obj,
-				 Optional<sf::Time> timeout, UnitTypeHolder )
+				 camlpp::optional<sf::Time> timeout, camlpp::unit )
 {
   return obj->wait( timeout.get_value_no_fail( sf::microseconds(0) ) );
 }
@@ -355,7 +359,7 @@ camlpp__register_custom_class()
 
 
 sf::Socket::Status tcpsocket_connect_helper( 	sf::TcpSocket* obj,
-						Optional<sf::Time> timeout,
+						camlpp::optional<sf::Time> timeout,
 						sf::IpAddress const& remoteAddress,
 						unsigned short remotePort )
 {
@@ -375,12 +379,12 @@ std::pair< sf::Socket::Status, intnat > tcpsocket_receivedata_helper( sf::TcpSoc
 	return std::pair< sf::Socket::Status, intnat >(stat, received );
 }
 
-sf::Socket::Status tcpsocket_sendstring_helper( sf::TcpSocket* obj, CString s)
+sf::Socket::Status tcpsocket_sendstring_helper( sf::TcpSocket* obj, camlpp::c_string s)
 {
 	return obj->send( s.string , s.size );
 }
 
-std::pair< sf::Socket::Status, intnat > tcpsocket_receivestring_helper( sf::TcpSocket* obj, CString s)
+std::pair< sf::Socket::Status, intnat > tcpsocket_receivestring_helper( sf::TcpSocket* obj, camlpp::c_string s)
 {
 	size_t received;
 	sf::Socket::Status stat = obj->receive( s.string , s.size, received );
@@ -462,7 +466,7 @@ sf::Socket::Status udpsocket_senddata_helper( sf::UdpSocket* obj, RawDataType d,
 }
 
 std::tuple< sf::Socket::Status, intnat /*bytes receveid*/, unsigned short /* remote port */ > 
-udpsocket_receivestring_helper( sf::UdpSocket* obj, CString s, sf::IpAddress& remoteIp)
+udpsocket_receivestring_helper( sf::UdpSocket* obj, camlpp::c_string s, sf::IpAddress& remoteIp)
 {
   std::size_t received;
   unsigned short remotePort;
@@ -470,7 +474,7 @@ udpsocket_receivestring_helper( sf::UdpSocket* obj, CString s, sf::IpAddress& re
   return std::make_tuple( stat, received, remotePort);
 }
 
-sf::Socket::Status udpsocket_sendstring_helper( sf::UdpSocket* obj, CString s, sf::IpAddress const& remoteIp, unsigned short remotePort)
+sf::Socket::Status udpsocket_sendstring_helper( sf::UdpSocket* obj, camlpp::c_string s, sf::IpAddress const& remoteIp, unsigned short remotePort)
 {
 	return obj->send( s.string, s.size, remoteIp, remotePort);
 }

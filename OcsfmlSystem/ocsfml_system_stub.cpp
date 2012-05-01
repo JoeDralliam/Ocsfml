@@ -18,7 +18,11 @@
 
 
 #include "ocsfml_system_stub.hpp"
+
 #include <camlpp/custom_ops.hpp>
+#include <camlpp/stub_generator.hpp>
+
+
 #include <SFML/System/Clock.hpp>
 
 extern "C"

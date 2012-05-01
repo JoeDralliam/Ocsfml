@@ -79,7 +79,7 @@
     typedef boost::remove_pointer< decltype( func ) >::type FuncType;	\
     typedef boost::function_traits< FuncType > FuncTraits;		\
     CAMLparam1(unit);							\
-    ResManagement< FuncTraits::result_type > rm;			\
+    camlpp::res_management< FuncTraits::result_type > rm;		\
     CAMLlocal1(res);							\
     CAMLPP__INVOKE							\
       (									\

@@ -1,0 +1,15 @@
+#ifndef OCAML_STD_FUNCTION_HPP_INCLUDED
+#define OCAML_STD_FUNCTION_HPP_INCLUDED
+
+#include <camlpp/affectation_management.hpp>
+#include <camlpp/conversion_management.hpp>
+
+namespace camlpp
+{
+
+
+}
+
+
+
+#endif
