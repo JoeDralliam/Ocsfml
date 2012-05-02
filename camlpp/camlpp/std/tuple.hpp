@@ -103,7 +103,7 @@ namespace camlpp
     template<class Tuple, int I>
     struct tuple_conversion_helper
     {
-      ConversionManagement< typename std::tuple_element< I, Tuple>::type > cm;
+      conversion_management< typename std::tuple_element< I, Tuple>::type > cm;
     };
 
 
