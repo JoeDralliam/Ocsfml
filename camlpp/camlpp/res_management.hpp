@@ -75,24 +75,26 @@ namespace camlpp
     }
   };
   
-  
-  struct res_management_integer_base
+  namespace details
   {
-    template<class Func, class... Args>
-    void call(value& res, Func&& f, Args&&... args)
+    struct res_management_integer_base
     {
-      try {
+      template<class Func, class... Args>
+      void call(value& res, Func&& f, Args&&... args)
+      {
+	try {
 	scoped_release_rt runtime_released;
 	res = Val_int(f(std::forward<Args>(args)...));
-      } 
-      catch( std::exception& e ) {
-	caml_failwith( e.what() );
+	} 
+	catch( std::exception& e ) {
+	  caml_failwith( e.what() );
+	}
+	catch( ... ) {
+	  caml_failwith( "Non standard exception thrown from C++" );
+	}
       }
-      catch( ... ) {
-	caml_failwith( "Non standard exception thrown from C++" );
-      }
-    }
-  };
+    };
+  }
   
   template<>
   struct res_management<void>
@@ -198,6 +200,7 @@ namespace camlpp
     } while( 0 )
 
 #endif
+
 namespace camlpp
 {
   template<>
