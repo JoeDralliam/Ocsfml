@@ -28,7 +28,7 @@ namespace camlpp
 
       for( auto it = lst.rbegin(); it != lst.rend(); ++it)
 	{
-	  std::list<T>::const_reference val = *it;
+	  typename std::list<T>::const_reference val = *it;
 	  field_affectation_management< T >::affect_field(tmp, 0, val);
 	  v = tmp;
 	  tmp = caml_alloc( 2 , 0 );
