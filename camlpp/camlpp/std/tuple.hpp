@@ -139,7 +139,7 @@ namespace camlpp
     template<size_t I>
     void from_value_helper( value const& v, std::tuple< Args... >& res, std::integral_constant<size_t, I> )
     {
-      std::get< I >( res ) =   TupleConversionHelper< std::tuple< Args... >, I >::cm.from_value( Field(v, I) );
+      std::get< I >( res ) = details::tuple_conversion_helper< std::tuple< Args... >, I >::cm.from_value( Field(v, I) );
       from_value_helper( v, res, std::integral_constant<size_t, I-1>() );
     }
   };
