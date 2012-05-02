@@ -40,7 +40,7 @@ namespace camlpp
       template<class... ArgsToScan>
       struct are_floating_point< std::tuple<ArgsToScan...> >
       {
-	enum { value = are_floating_point_impl<ArgsToScan...>::value }
+	enum { value = are_floating_point_impl<ArgsToScan...>::value };
       };
 #else
       template<class ArgsToScan, size_t I>
