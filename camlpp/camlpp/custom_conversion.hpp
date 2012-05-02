@@ -117,14 +117,14 @@ namespace camlpp
       template<class FieldType, class... Args>
       static void affect_impl_helper(value& v,int fieldCount, T const& t, FieldType f, Args... args)
       {
-	affectation_management< typename remove_qualifiers<decltype(t.*f)>::type >::affect_field(v, fieldCount, t.*f);
+	field_affectation_management< typename remove_qualifiers<decltype(t.*f)>::type >::affect_field(v, fieldCount, t.*f);
 	affect_impl_helper(v, fieldCount+1, t, args...);
       }
       
       template<class FieldType>
       static void affect_impl_helper(value& v,int fieldCount, T const& t, FieldType f)
       {
-	affectation_management< typename remove_qualifiers<decltype(t.*f)>::type >::affect_field(v, fieldCount, t.*f);
+	field_affectation_management< typename remove_qualifiers<decltype(t.*f)>::type >::affect_field(v, fieldCount, t.*f);
       }
     };
   }
