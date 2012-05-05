@@ -1,1 +1,6 @@
-ocsfml_window_stub.@OBJ_EXTENSION@
+ocsfml_window_stub/Context.@OBJ_EXTENSION@
+ocsfml_window_stub/Joystick.@OBJ_EXTENSION@
+ocsfml_window_stub/Keyboard.@OBJ_EXTENSION@
+ocsfml_window_stub/Mouse.@OBJ_EXTENSION@
+ocsfml_window_stub/VideoMode.@OBJ_EXTENSION@
+ocsfml_window_stub/Window.@OBJ_EXTENSION@

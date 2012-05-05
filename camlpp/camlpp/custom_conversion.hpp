@@ -20,6 +20,9 @@
 #ifndef CUSTOM_CONVERSION_HPP_INCLUDED
 #define CUSTOM_CONVERSION_HPP_INCLUDED
 
+#include <utility>
+#include <tuple>
+
 #include <camlpp/conversion_management.hpp>
 #include <camlpp/affectation_management.hpp>
 #include <camlpp/field_affectation_management.hpp>

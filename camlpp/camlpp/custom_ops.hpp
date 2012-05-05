@@ -19,7 +19,12 @@
 #ifndef CAMLPP_CUSTOM_OPS_HPP_INCLUDED
 #define CAMLPP_CUSTOM_OPS_HPP_INCLUDED
 
-#include "conversion_management.hpp"
+extern "C"
+{
+#include <caml/custom.h>
+}
+
+#include <camlpp/conversion_management.hpp>
 #include <fstream>
 
 namespace camlpp

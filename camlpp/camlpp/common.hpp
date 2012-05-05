@@ -6,6 +6,9 @@
 #include <boost/preprocessor/list/enum.hpp>
 #include <boost/preprocessor/tuple/to_list.hpp>
 
+#include <camlpp/res_management.hpp>
+#include <camlpp/conversion_management.hpp>
+
 #define CAMLPP__CONVERT_PARAM1( param1_name, value1_name, type1 )	\
   camlpp::conversion_management< type1 > BOOST_PP_CAT(cm_, param1_name); \
   auto&& param1_name ( BOOST_PP_CAT(cm_, param1_name) . from_value ( value1_name ) )

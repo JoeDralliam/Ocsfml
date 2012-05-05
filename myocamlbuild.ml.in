@@ -43,12 +43,12 @@ let add_compile_rules () =
   let match_obj = "%."^obj_extension in
 
   rule "g++ : cpp & cpp.depends -> (o|obj)" 
-    ~deps:["%.cpp"; "%.cpp.depends"] 
+    ~deps:["%.cpp"] 
     ~prod:match_obj begin 
       fun env builder ->
 	let cpp = env "%.cpp" in
 	let tags = tags_of_pathname cpp ++ "compile" ++ "c++" in
-	let rec build_transitive_deps = function
+	(* let rec build_transitive_deps = function
 	  | [] -> ()
 	  | (_, []) :: todo -> build_transitive_deps todo
 	  | (path, f :: rest) :: todo ->
@@ -59,7 +59,7 @@ let add_compile_rules () =
 		List.iter Outcome.ignore_good (builder (parallel "" dep_files));
 		build_transitive_deps (((f :: path), deps) :: (path, rest) :: todo)
 	in
-	build_transitive_deps [([],[cpp])];
+	build_transitive_deps [([],[cpp])]; *)
 	let obj_name = env match_obj in
 	let obj_flag = "@OBJ_FLAG@"^obj_name in
 	Cmd (S[A cpp_compiler ; @COMPILATION_FLAGS@ ; T tags ; P cpp ;A obj_flag ])
@@ -109,6 +109,10 @@ let add_compile_rules () =
 
 let get_directory s =
   "Ocsfml" ^ (String.capitalize s)
+
+let get_stub_directory s = 
+  "../" ^ (get_directory s) ^ "/ocsfml_" ^ s ^ "_stub"
+
     
 let static = false
 let debug = true
@@ -119,17 +123,17 @@ let audio = "@SFML_AUDIO@"
 let network = "@SFML_NETWORK@"
 let includedir = "-I" ^ "@SFML_DIR@"
 let libs = [
-  "system", [system] ; 
-  "window", [system ; window] ;
-  "graphics", [system ; window ; graphics] ;
-  "audio", [system ; audio ] ;
-  "network", [system ; network ] ; 
+  "system", [system], ["system"] ; 
+  "window", [system ; window], ["system"; "window"] ;
+  "graphics", [system ; window ; graphics], ["system"; "window"; "graphics"] ;
+  "audio", [system ; audio ], ["system"; "audio"] ;
+  "network", [system ; network ], ["system"; "network"]
 ]
-;; 
+;;
 
 let _ = dispatch begin function 
   | Before_rules ->  
-      let create_libs_flags (s,l) = 
+      let create_libs_flags (s,l, i) = 
 	(* let link_libs = (A libdir)::(List.map (fun x -> A (link_prefix^x)) l) in *)
 	let verbose = if debug then [A"-verbose"] else [] in
 	let libs_sfml = List.fold_left
@@ -140,6 +144,8 @@ let _ = dispatch begin function
 	(*  List.iter (fun x -> dep ["g++"] [(get_directory x)^"/"^x^"_stub.hpp"]) l ; *)
 	
 	(* when a c++ file employ the sfml "s" module is compiled *)
+	
+	List.iter (fun s -> flag ["c++"; "compile"] & A( "-I" ^ (get_stub_directory s) ) ) i ;
 	
 	flag["c++" ; "shared"] & S( libs_sfml );
 	

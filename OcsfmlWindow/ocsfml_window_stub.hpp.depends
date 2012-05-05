@@ -1,2 +1,0 @@
-ocsfml_window_stub.o: OcsfmlWindow/ocsfml_window_stub.hpp \
- ocsfml_system_stub.hpp

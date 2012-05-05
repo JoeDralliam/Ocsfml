@@ -31,7 +31,8 @@ namespace camlpp
     template<size_t I>
     static void affect_helper( value& v, std::tuple< Args... > const& tup, std::integral_constant<size_t, I>)
     {
-      field_affectation_management< typename std::tuple_element< I, std::tuple< Args... >>::type >::affect_field( v, I, std::move( std::get<I>(tup) ) );
+      typedef typename std::tuple_element< I, std::tuple< Args... >>::type CurrentElemType;
+      field_affectation_management< CurrentElemType >::affect_field( v, I, std::move( std::get<I>(tup) ) );
       affect_helper( v, tup, std::integral_constant<size_t, I-1>() );
     }
   };

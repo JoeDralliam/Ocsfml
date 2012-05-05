@@ -1,1 +1,10 @@
-ocsfml_network_stub.@OBJ_EXTENSION@
+ocsfml_network_stub/Ftp.@OBJ_EXTENSION@
+ocsfml_network_stub/Http.@OBJ_EXTENSION@
+ocsfml_network_stub/IpAddress.@OBJ_EXTENSION@
+ocsfml_network_stub/Packet.@OBJ_EXTENSION@
+ocsfml_network_stub/Socket.@OBJ_EXTENSION@
+ocsfml_network_stub/Socket.@OBJ_EXTENSION@
+ocsfml_network_stub/SocketSelector.@OBJ_EXTENSION@
+ocsfml_network_stub/TcpListener.@OBJ_EXTENSION@
+ocsfml_network_stub/TcpSocket.@OBJ_EXTENSION@
+ocsfml_network_stub/UdpSocket.@OBJ_EXTENSION@

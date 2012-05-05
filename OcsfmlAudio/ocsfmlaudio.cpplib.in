@@ -1,1 +1,8 @@
-ocsfml_audio_stub.@OBJ_EXTENSION@
+ocsfml_audio_stub/Listener.@OBJ_EXTENSION@
+ocsfml_audio_stub/Music.@OBJ_EXTENSION@
+ocsfml_audio_stub/Sound.@OBJ_EXTENSION@
+ocsfml_audio_stub/SoundBuffer.@OBJ_EXTENSION@
+ocsfml_audio_stub/SoundBufferRecorder.@OBJ_EXTENSION@
+ocsfml_audio_stub/SoundRecorder.@OBJ_EXTENSION@
+ocsfml_audio_stub/SoundSource.@OBJ_EXTENSION@
+ocsfml_audio_stub/SoundStream.@OBJ_EXTENSION@

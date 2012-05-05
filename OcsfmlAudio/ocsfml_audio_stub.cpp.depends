@@ -1,2 +1,0 @@
-ocsfml_audio_stub.o: OcsfmlAudio/ocsfml_audio_stub.cpp \
- OcsfmlAudio/ocsfml_audio_stub.hpp OcsfmlAudio/ocsfml_system_stub.hpp

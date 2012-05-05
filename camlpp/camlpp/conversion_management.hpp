@@ -20,12 +20,14 @@
 #ifndef CONVERSION_MANAGEMENT_HPP_INCLUDED
 #define CONVERSION_MANAGEMENT_HPP_INCLUDED
 
+#include <cassert>
+#include <memory>
+
+
 extern "C"
 {
 #include <caml/mlvalues.h>
 }
-
-#include <cassert>
 
 namespace camlpp
 {
@@ -44,7 +46,7 @@ namespace camlpp
   template<class T>
   struct conversion_management<T*>
   {
-    T* from_value(value& v)
+    T* from_value(value const& v)
     {
       assert( Is_block( v ) ); 
       assert( Tag_val(v) == Abstract_tag );
@@ -57,7 +59,7 @@ namespace camlpp
   {
     conversion_management<T> cm;
     std::unique_ptr<T> ptr;
-    T& from_value(value& v)
+    T& from_value(value const& v)
     {
       ptr.reset(new T( cm.from_value(v) ) );
       return *ptr;
@@ -67,7 +69,7 @@ namespace camlpp
   template<>
   struct conversion_management<char>
   {
-    char from_value(value& v)
+    char from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -77,7 +79,7 @@ namespace camlpp
   template<>
   struct conversion_management<signed char>
   {
-    char from_value(value& v)
+    char from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -88,7 +90,7 @@ namespace camlpp
   template<>
   struct conversion_management<short>
   {
-    short from_value(value& v)
+    short from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -98,7 +100,7 @@ namespace camlpp
   template<>
   struct conversion_management<int>
   {
-    int from_value(value& v)
+    int from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -107,7 +109,7 @@ namespace camlpp
   template<>
   struct conversion_management<long>
   {
-    long from_value(value& v)
+    long from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -117,7 +119,7 @@ namespace camlpp
   template<>
   struct conversion_management<long long>
   {
-    long long from_value(value& v)
+    long long from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -127,7 +129,7 @@ namespace camlpp
   template<>
   struct conversion_management<unsigned char>
   {
-    char from_value(value& v)
+    char from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -137,7 +139,7 @@ namespace camlpp
   template<>
   struct conversion_management<unsigned short>
   {
-    unsigned short from_value(value& v)
+    unsigned short from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -146,7 +148,7 @@ namespace camlpp
   template<>
   struct conversion_management<unsigned int>
   {
-    unsigned int from_value(value& v)
+    unsigned int from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -155,7 +157,7 @@ namespace camlpp
   template<>
   struct conversion_management<unsigned long>
   {
-    unsigned long from_value(value& v)
+    unsigned long from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -165,7 +167,7 @@ namespace camlpp
   template<>
   struct conversion_management<unsigned long long>
   {
-    unsigned long long from_value(value& v)
+    unsigned long long from_value(value const& v)
     {
       assert( Is_long( v ) );
       return Int_val(v);
@@ -175,7 +177,7 @@ namespace camlpp
   template<>
   struct conversion_management<bool>
   {
-    bool from_value(value& v)
+    bool from_value(value const& v)
     {
       return Bool_val(v);
     }
@@ -184,7 +186,7 @@ namespace camlpp
   template<>
   struct conversion_management<float>
   {
-    float from_value(value& v)
+    float from_value(value const& v)
     {
       assert( Tag_val( v ) == Double_tag );
       return Double_val(v);
@@ -194,7 +196,7 @@ namespace camlpp
   template<>
   struct conversion_management<double>
   {
-    double from_value(value& v)
+    double from_value(value const& v)
     {
       assert( Tag_val( v ) == Double_tag );
       return Double_val(v);
@@ -204,7 +206,7 @@ namespace camlpp
   template<>
   struct conversion_management<char*>
   {
-    char* from_value(value& v)
+    char* from_value(value const& v)
     {
       assert( Tag_val( v ) == String_tag );
       return String_val(v);
