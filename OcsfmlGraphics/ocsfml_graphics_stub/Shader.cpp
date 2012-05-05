@@ -13,6 +13,8 @@
 #include <camlpp/unit.hpp>
 #include <camlpp/std/string.hpp>
 
+#include <stdexcept>
+
 typedef void (sf::Shader::*SetFloatParameterType)(std::string const&, float);
 typedef void (sf::Shader::*SetVec2ParameterType)(std::string const&, float, float);
 typedef void (sf::Shader::*SetVec3ParameterType)(std::string const&, float, float, float);
