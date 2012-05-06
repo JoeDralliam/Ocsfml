@@ -136,7 +136,7 @@ end
 object (self)
   inherit effect "edge post-effect"
   val myEntities = Array.init 6 (fun i -> new sprite ())
-  val mySurface = new render_texture
+  val mySurface = new render_texture 800 600
   val myBackgroundTexture = new texture `None
   val myEntityTexture = new texture `None
   val myBackgroundSprite = new sprite ()
@@ -148,8 +148,7 @@ object (self)
     myEntityTexture#destroy 
 
   method private on_load =
-    if mySurface#create 800 600
-      && myBackgroundTexture#load_from_file "resources/sfml.png"
+    if myBackgroundTexture#load_from_file "resources/sfml.png"
       && myEntityTexture#load_from_file "resources/devices.png"
     then
       let init_entity i spr =
