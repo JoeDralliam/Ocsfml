@@ -74,7 +74,7 @@
   CAMLPP__BODY( boost::function_traits, decltype(func), func, values_name, params_count, CAMLPP__FREE_FUNCTION_OBTAIN_PARAM_TYPE)
 
 #define camlpp__register_overloaded_free_function0( func_name, func )	\
-  CAMLprim value func_name##__impl( value unit )			\
+  CAMLPPprim value func_name##__impl( value unit )			\
   {									\
     typedef boost::remove_pointer< decltype( func ) >::type FuncType;	\
     typedef boost::function_traits< FuncType > FuncTraits;		\
@@ -90,7 +90,7 @@
   }
 
 #define camlpp__register_overloaded_free_function1( func_name, func )	\
-  CAMLprim value func_name##__impl( value param1)			\
+  CAMLPPprim value func_name##__impl( value param1)			\
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1), 1);			\
   }
@@ -98,33 +98,33 @@
 
 
 #define camlpp__register_overloaded_free_function2( func_name, func )  \
-  CAMLprim value func_name##__impl( value param1, value param2 )       \
+  CAMLPPprim value func_name##__impl( value param1, value param2 )       \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2), 2);		\
   }
 
 
 #define camlpp__register_overloaded_free_function3( func_name, func ) \
-  CAMLprim value func_name##__impl( value param1, value param2, value param3 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3), 3);	\
   }
 
 
 #define camlpp__register_overloaded_free_function4( func_name, func )	\
-  CAMLprim value func_name##__impl( value param1, value param2, value param3, value param4 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3, value param4 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3, param4), 4); \
   }
 
 #define camlpp__register_overloaded_free_function5( func_name, func ) \
-  CAMLprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3, param4, param5), 5); \
   }
 
 #define camlpp__register_overloaded_free_function6( func_name, func )	\
-  CAMLprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3, param4, param5, param6), 6); \
   }									\
@@ -135,7 +135,7 @@
   }
 
 #define camlpp__register_overloaded_free_function7( func_name, func )	\
-  CAMLprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6, value param7 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6, value param7 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3, param4, param5, param6, param7), 7); \
   }									\
@@ -146,7 +146,7 @@
   }
 
 #define camlpp__register_overloaded_free_function8( func_name, func )	\
-  CAMLprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3, param4, param5, param6, param7, param8), 8); \
   }									\
@@ -157,7 +157,7 @@
   }
 
 #define camlpp__register_overloaded_free_function9( func_name, func )	\
-  CAMLprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8, value param9 ) \
+  CAMLPPprim value func_name##__impl( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8, value param9 ) \
   {									\
     CAMLPP__FREE_FUNCTION_BODY( func, (param1, param2, param3, param4, param5, param6, param7, param8, param9), 9); \
   }									\

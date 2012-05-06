@@ -185,7 +185,7 @@ using boost::mpl::int_;
 
 
 #define camlpp__register_external_method0( method_name, func )		\
-  CAMLprim value  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _  ## method_name  ## __impl) ( value obj) \
+  CAMLPPprim value  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _  ## method_name  ## __impl) ( value obj) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj), 1);					\
@@ -193,14 +193,14 @@ using boost::mpl::int_;
 
 
 #define camlpp__register_external_method1( method_name, func )		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1), 2);				\
   }
    
 #define camlpp__register_external_method2( method_name, func )		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2), 3);			\
@@ -208,7 +208,7 @@ using boost::mpl::int_;
   
 
 #define camlpp__register_external_method3( method_name, func )		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3), 4);		\
@@ -216,7 +216,7 @@ using boost::mpl::int_;
 
 
 #define camlpp__register_external_method4( method_name, func )		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3, param4), 5);	\
@@ -224,48 +224,48 @@ using boost::mpl::int_;
 
 
 #define camlpp__register_external_method5( method_name, func )		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3, param4, param5), 6); \
   }									\
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
   {									\
     assert( count == 6 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
   }
 
 #define camlpp__register_external_method6( method_name, func )		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3, param4, param5, param6), 7); \
   }									\
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
   {									\
     assert( count == 7 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6] ); \
   }
 
 #define camlpp__register_external_method7( method_name, func)		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3, param4, param5, param6, param7), 8); \
   }									\
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
   {									\
     assert( count == 8 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7]); \
   }
 
 #define camlpp__register_external_method8( method_name, func)		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## method_name  ## __impl) ( value obj, value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8 ) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
 			 (obj, param1, param2, param3, param4, param5, param6, param7, param8), 9); \
   }									\
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __byte ) ( value* v, int count ) \
   {									\
     assert( count == 9 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## method_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7], v[8] ); \
@@ -308,7 +308,7 @@ using boost::mpl::int_;
 
 /*
   #define camlpp__register_external_constructor0( constructor_name, func) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
   {									\
   typedef std::remove_pointer<decltype(func)>::type FuncType;		\
   typedef method_traits< FuncType > FuncTraits;			\
@@ -329,31 +329,31 @@ using boost::mpl::int_;
 */
 
 #define camlpp__register_external_constructor1( constructor_name, func) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
   {									\
     CAMLPP__EXTERNAL_CONSTRUCTOR_BODY( func, (param1), 1);		\
   }
 
 #define camlpp__register_external_constructor2( constructor_name, func ) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
   {									\
     CAMLPP__EXTERNAL_CONSTRUCTOR_BODY( func, (param1, param2), 2);	\
   }
 
 #define camlpp__register_external_constructor3( constructor_name, func ) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
   {									\
     CAMLPP__EXTERNAL_CONSTRUCTOR_BODY( func, (param1, param2, param3), 3); \
   }
 
 #define camlpp__register_external_constructor4( constructor_name, func ) \
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
   {									\
     CAMLPP__EXTERNAL_CONSTRUCTOR_BODY( func, (param1, param2, param3, param4), 4); \
   }
 
 #define camlpp__register_external_constructor5( constructor_name, func) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
   {									\
     CAMLPP__EXTERNAL_CONSTRUCTOR_BODY( func, (param1, param2, param3, param4, param5), 5); \
   }
@@ -378,7 +378,7 @@ using boost::mpl::int_;
 
 
 #define camlpp__register_constructor0( constructor_name)		\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value unit) \
   {									\
     CAMLparam1( unit );							\
     camlpp::res_management< camlpp::new_object<CAMLPP__CLASS_NAME()> > rm; \
@@ -392,13 +392,13 @@ using boost::mpl::int_;
   }
 
 #define camlpp__register_constructor1( constructor_name, param1_type)	\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(), (param1), (param1_type), 1); \
   }
 
 #define camlpp__register_constructor2( constructor_name, param1_type, param2_type) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(),			\
 			      (param1, param2),				\
@@ -406,7 +406,7 @@ using boost::mpl::int_;
   }
 
 #define camlpp__register_constructor3( constructor_name, param1_type, param2_type, param3_type) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(),			\
 			      (param1, param2, param3),			\
@@ -414,7 +414,7 @@ using boost::mpl::int_;
   }
   
 #define camlpp__register_constructor4( constructor_name, param1_type, param2_type, param3_type, param4_type) \
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME(), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(),			\
 			      (param1, param2, param3, param4),		\
@@ -422,7 +422,7 @@ using boost::mpl::int_;
   }
 
 #define camlpp__register_constructor5( constructor_name, param1_type, param2_type, param3_type, param4_type, param5_type) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(),			\
 			      (param1, param2, param3, param4, param5), \
@@ -431,13 +431,13 @@ using boost::mpl::int_;
 
 
 #define camlpp__register_constructor6( constructor_name, param1_type, param2_type, param3_type, param4_type, param5_type, param6_type) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5, value param6 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl) ( value param1, value param2, value param3, value param4, value param5, value param6 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(),			\
 			      (param1, param2, param3, param4, param5, param6), \
 			      (param1_type, param2_type, param3_type, param4_type, param5_type, param6_type), 6); \
   }									\
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __byte ) ( value* v, int count ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __byte ) ( value* v, int count ) \
   {									\
     assert( count == 6 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5] ); \
@@ -445,13 +445,13 @@ using boost::mpl::int_;
 
 		
 #define camlpp__register_constructor9( constructor_name, param1_type, param2_type, param3_type, param4_type, param5_type, param6_type, param7_type, param8_type, param9_type) \
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl)  ( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8, value param9 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _ ## constructor_name ## __impl)  ( value param1, value param2, value param3, value param4, value param5, value param6, value param7, value param8, value param9 ) \
   {									\
     CAMLPP__CONSTRUCTOR_BODY( CAMLPP__CLASS_NAME(),			\
 			      (param1, param2, param3, param4, param5, param6, param7, param8, param9), \
 			      (param1_type, param2_type, param3_type, param4_type, param5_type, param6_type, param7_type, param8_type, param9_type), 9); \
   }									\
-  CAMLprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __byte ) ( value* v, int count ) \
+  CAMLPPprim value BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __byte ) ( value* v, int count ) \
   {									\
     assert( count == 9 );						\
     return BOOST_PP_CAT( CAMLPP__CLASS_NAME() , _## constructor_name ## __impl ) ( v[0], v[1], v[2],v[3], v[4], v[5], v[6], v[7], v[8] ); \
@@ -465,7 +465,7 @@ using boost::mpl::int_;
   {									\
     return sub;								\
   }									\
-  CAMLprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
+  CAMLPPprim value BOOST_PP_CAT( BOOST_PP_CAT( upcast__ ## superclass_name ## _of_, CAMLPP__CLASS_NAME() ), __impl ) ( value param1 ) \
   {									\
     CAMLparam1( param1 );						\
     camlpp::res_management< superclass_name *> rm;			\

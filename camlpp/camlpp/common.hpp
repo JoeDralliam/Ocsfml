@@ -153,4 +153,10 @@
   CAMLreturn( res )
 
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define CAMLPPprim __attribute__ (( visibility ("default") ))
+#else
+#define CAMLPPprim
+#endif
+
 #endif
