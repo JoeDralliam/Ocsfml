@@ -1,7 +1,7 @@
 #ifndef OCSFML_VERTEX_HPP_INCLUDED
 #define OCSFML_VERTEX_HPP_INCLUDED
 
-#include "Vertex.hpp"
+#include "Vector.hpp"
 
 #include "Color.hpp"
 
