@@ -16,16 +16,6 @@
 
 typedef sf::Window sf_Window;
 
-unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst )
-{
-  unsigned long res = 0;
-  for( auto it = lst.begin(); it != lst.end(); ++it)
-    {
-      res |= 1 << *it;
-    }
-  return res;
-}
-
 sf::Window* window_constructor_helper(camlpp::optional<std::list<unsigned long> > style , camlpp::optional<sf::ContextSettings> cs, sf::VideoMode vm, std::string const& title)
 {
   unsigned long actualStyle =

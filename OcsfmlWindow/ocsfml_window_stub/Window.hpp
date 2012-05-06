@@ -7,7 +7,16 @@
 
 #include <SFML/Window/Window.hpp>
 
-unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst );
+inline unsigned long style_of_list_unsigned( std::list<unsigned long> const& lst )
+{
+  unsigned long res = 0;
+  for( auto it = lst.begin(); it != lst.end(); ++it)
+    {
+      res |= 1 << *it;
+    }
+  return res;
+}
+
 
 typedef sf::Window sf_Window;
 camlpp__preregister_custom_operations( sf_Window )
