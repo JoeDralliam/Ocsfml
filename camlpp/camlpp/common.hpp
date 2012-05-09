@@ -1,11 +1,6 @@
 #ifndef CAMLPP_COMMON_HPP_INCLUDED
 #define CAMLPP_COMMON_HPP_INCLUDED
 
-extern "C"
-{
-#include <caml/mlvalues.h>
-}
-
 #include <boost/preprocessor/expand.hpp>
 
 #include <boost/preprocessor/list/enum.hpp>
@@ -161,7 +156,7 @@ extern "C"
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define CAMLPPprim __attribute__ (( visibility ("default") ))
 #else
-#define CAMLPPprim CAMLprim
+#define CAMLPPprim
 #endif
 
 #endif
