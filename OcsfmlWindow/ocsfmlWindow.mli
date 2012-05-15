@@ -464,10 +464,11 @@ type context_settings = {
 
 
 val mk_context_settings :
-  depth_bits:int ->
-  stencil_bits:int ->
-  antialising_level:int ->
-  major_version:int -> minor_version:int -> context_settings
+  ?depth_bits:int ->
+  ?stencil_bits:int ->
+  ?antialising_level:int ->
+  ?major_version:int -> 
+  ?minor_version:int -> unit -> context_settings
 
 
 (**/**)

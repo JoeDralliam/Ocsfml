@@ -21,13 +21,17 @@
 #define STUB_GEBERATOR_HPP_INCLUDED
 
 
-#include "res_management.hpp"
-#include "affectation_management.hpp"
-#include "conversion_management.hpp"
-#include "memory_management.hpp"
+#include <camlpp/conversion_management.hpp>
+#include <camlpp/res_management.hpp>
+#include <camlpp/affectation_management.hpp>
+#include <camlpp/memory_management.hpp>
+#include <camlpp/common.hpp>
+
+
+
 #include <type_traits>
 #include <boost/type_traits.hpp>
-#include "common.hpp"
+
 
 
 #define CAMLPP__FREE_FUNCTION_OBTAIN_PARAM_TYPE1( func_traits )	\

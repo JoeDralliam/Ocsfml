@@ -1,5 +1,4 @@
 open OcsfmlSystem
-  
 open OcsfmlWindow
 
 let do_if f = function | Some x -> f x | None -> ()
@@ -61,9 +60,20 @@ struct
     
   let rgba r g b a = { r = r; g = g; b = b; a = a; }
     
-  external add : t -> t -> t = "color_add__impl"
+  let add c1 c2 = 
+    let add_comp x1 x2 = Pervasives.min (x1 + x2) 255 in
+    rgba (add_comp c1.r c2.r) 
+      (add_comp c1.g c2.g) 
+      (add_comp c1.b c2.b) 
+      (add_comp c1.a c2.a)
     
-  external modulate : t -> t -> t = "color_multiply__impl"
+  let modulate c1 c2 = 
+    let mul_comp x1 x2 = (x1 * x2) / 255 in
+    rgba (mul_comp c1.r c2.r) 
+      (mul_comp c1.g c2.g) 
+      (mul_comp c1.b c2.b) 
+      (mul_comp c1.a c2.a)
+    
     
   let white = rgb 255 255 255
     
@@ -82,11 +92,10 @@ struct
   let cyan = rgb 0 255 255
     
   module Infix =
-  struct let ( +% ) c1 c2 = add c1 c2
-         let ( *% ) c1 c2 = modulate c1 c2
-           
+  struct 
+    let ( +% ) c1 c2 = add c1 c2
+    let ( *% ) c1 c2 = modulate c1 c2
   end
-    
 end
   
 type blend_mode = | BlendAlpha | BlendAdd | BlendMultiply | BlendNone
@@ -822,6 +831,12 @@ struct
   external create_from_vectors : (float * float) -> (float * float) -> t =
       "sf_View_center_and_size_constructor__impl"
 	
+  external copy : t -> t =
+      "sf_View_copy_constructor__impl"
+      
+  external affect : t -> t -> unit =
+      "sf_View_affect__impl"
+
   external set_center : t -> float -> float -> unit =
       "sf_View_setCenter__impl"
 	
@@ -863,28 +878,46 @@ object ((self : 'self))
   val t_view_base = (t_view_base' : View.t)
   method rep__sf_View = t_view_base
   method destroy = View.destroy t_view_base
+
+  method affect : 'self -> unit =
+    fun p1 -> View.affect t_view_base p1#rep__sf_View
+
   method set_center : float -> float -> unit =
     fun p1 p2 -> View.set_center t_view_base p1 p2
+  
   method set_center_v : (float * float) -> unit =
     fun p1 -> View.set_center_v t_view_base p1
+  
   method set_size : float -> float -> unit =
     fun p1 p2 -> View.set_size t_view_base p1 p2
+  
   method set_size_v : (float * float) -> unit =
     fun p1 -> View.set_size_v t_view_base p1
+  
   method set_rotation : float -> unit =
     fun p1 -> View.set_rotation t_view_base p1
+  
   method set_viewport : float rect -> unit =
     fun p1 -> View.set_viewport t_view_base p1
+  
   method reset : float rect -> unit = fun p1 -> View.reset t_view_base p1
+  
   method get_center : (float * float) = View.get_center t_view_base
+  
   method get_size : (float * float) = View.get_size t_view_base
+  
   method get_rotation : float = View.get_rotation t_view_base
+  
   method get_viewport : float rect = View.get_viewport t_view_base
+  
   method move : float -> float -> unit =
-    fun p1 p2 -> View.move t_view_base p1 p2
+  fun p1 p2 -> View.move t_view_base p1 p2
+  
   method move_v : (float * float) -> unit =
     fun p1 -> View.move_v t_view_base p1
+  
   method rotate : float -> unit = fun p1 -> View.rotate t_view_base p1
+  
   method zoom : float -> unit = fun p1 -> View.zoom t_view_base p1
 end
   
@@ -910,6 +943,7 @@ class view tag =
     match tag with
       | `Rect r -> View.create_from_rect r
       | `Center (center, size) -> View.create_from_vectors center size
+      | `Copy other -> View.copy other#rep__sf_View
       | `None -> View.default ()
   in view_base t
        

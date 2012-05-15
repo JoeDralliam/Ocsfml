@@ -1114,14 +1114,18 @@ end
 class view : 
   [ `Center of (float * float) * (float * float)
   | `Rect of float rect
+  | `Copy of < rep__sf_View : View.t ; .. >
   | `None ] ->
-object
+object ('self)
   (**/**)
   val t_view_base : View.t
   (**/**)
 
   (**)
   method destroy : unit
+
+  (** *)
+  method affect : 'self -> unit
 
   (** Get the center of the view. 
       @return Center of the view. *)

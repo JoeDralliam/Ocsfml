@@ -18,3 +18,4 @@ camlpp__register_custom_class()
   camlpp__register_method0( restart );
 }
 #undef CAMLPP__CLASS_NAME
+

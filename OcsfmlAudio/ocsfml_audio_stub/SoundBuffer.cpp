@@ -18,7 +18,7 @@ namespace
   
   camlpp::big_array< const sf::Int16, 1 > sound_buffer_get_samples_helper( sf::SoundBuffer* buffer )
   {
-    int size[1];
+    intnat size[1];
     size[0] = buffer->getSampleCount();
     return camlpp::big_array< const sf::Int16, 1>(buffer->getSamples(), size);
   }

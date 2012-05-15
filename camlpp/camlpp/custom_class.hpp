@@ -27,9 +27,9 @@
 #include <boost/functional/factory.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-#include "conversion_management.hpp"
-#include "res_management.hpp"
-#include "stub_generator.hpp"
+#include <camlpp/conversion_management.hpp>
+#include <camlpp/res_management.hpp>
+#include <camlpp/stub_generator.hpp>
 
 extern "C"
 {

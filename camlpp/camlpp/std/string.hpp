@@ -29,7 +29,7 @@ namespace camlpp
     std::string from_value(value& v)
     {
       assert( Tag_val( v ) == String_tag );
-      return std::string( String_val(v), string_length(v) );
+      return std::string( String_val(v), caml_string_length(v) );
     }
   };
 }

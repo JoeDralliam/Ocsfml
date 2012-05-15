@@ -5,35 +5,35 @@ description = "ocaml port of the C++ SFML library"
 package "system" (
 	requires="bigarray"
 	requires(mt)="threads"
-	archive(byte) = "ocsfmlsystem.d.cma"
-	archive(toploop) = "ocsfmlsystem.d.cma"
+	archive(byte) = "ocsfmlsystem.cma"
+	archive(toploop) = "ocsfmlsystem.cma"
 	archive(native) = "ocsfmlsystem.cmxa"
 )
 
 package "window" (
 	requires="ocsfml.system"
-	archive(byte) = "ocsfmlwindow.d.cma"
-	archive(toploop) = "ocsfmlwindow.d.cma"
+	archive(byte) = "ocsfmlwindow.cma"
+	archive(toploop) = "ocsfmlwindow.cma"
 	archive(native) = "ocsfmlwindow.cmxa"
 )
 
 package "graphics" (
 	requires="ocsfml.window"
-	archive(byte) = "ocsfmlgraphics.d.cma"	
-	archive(toploop) = "ocsfmlgraphics.d.cma"	
+	archive(byte) = "ocsfmlgraphics.cma"	
+	archive(toploop) = "ocsfmlgraphics.cma"	
 	archive(native) = "ocsfmlgraphics.cmxa"
 )
 
 package "audio" (
 	requires="ocsfml.system"
-	archive(byte) = "ocsfmlaudio.d.cma"
-	archive(toploop) = "ocsfmlaudio.d.cma"
+	archive(byte) = "ocsfmlaudio.cma"
+	archive(toploop) = "ocsfmlaudio.cma"
 	archive(native) = "ocsfmlaudio.cmxa"
 )
 
 package "network" (
 	requires="ocsfml.system"
-	archive(byte) = "ocsfmlnetwork.d.cma"
-	archive(toploop) = "ocsfmlnetwork.d.cma"
+	archive(byte) = "ocsfmlnetwork.cma"
+	archive(toploop) = "ocsfmlnetwork.cma"
 	archive(native) = "ocsfmlnetwork.cmxa"
 )
