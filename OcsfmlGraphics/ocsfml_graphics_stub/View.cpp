@@ -28,6 +28,8 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_constructor0( default_constructor );
   camlpp__register_external_constructor1( rectangle_constructor, &view_rectangle_constructor_helper );
   camlpp__register_external_constructor2( center_and_size_constructor, &view_center_and_size_constructor_helper );
+  camlpp__register_constructor1( copy_constructor, sf::View const& );
+  camlpp__register_external_method1( affect, &sf::View::operator= );
   camlpp__register_external_method2( setCenter, ((void (sf::View::*)(float, float)) &sf::View::setCenter) );
   camlpp__register_external_method1( setCenterV, ((void (sf::View::*)(sf::Vector2f const&)) &sf::View::setCenter) );
   camlpp__register_external_method2( setSize, ((void (sf::View::*)(float, float)) &sf::View::setSize) );

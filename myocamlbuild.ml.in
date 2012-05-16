@@ -104,7 +104,7 @@ let add_compile_rules () =
       List.iter Outcome.ignore_good (builder (parallel dir o_files));
       let obtain_spec_obj o = A (dir/o) in
       let spec_obj_list =(List.map obtain_spec_obj o_files) in
-      Cmd( S[A linker ; @LINKING_DLL_FLAGS@  ; S spec_obj_list ; T tags ; A"-o"; Px dynamiclib] )
+      Cmd( S[A linker ; @LINKING_DLL_FLAGS@   ; S spec_obj_list ; T tags ; A"-o"; Px dynamiclib] )
   end
 
 let get_directory s =

@@ -268,8 +268,8 @@ type context_settings =
     }
 
 (* FIXME : add default values and check input values *)
-let mk_context_settings ~depth_bits ~stencil_bits ~antialising_level
-    ~major_version ~minor_version =
+let mk_context_settings ?(depth_bits=0) ?(stencil_bits=0) ?(antialising_level=0)
+    ?(major_version=2) ?(minor_version=0) () =
   {
     depth_bits = depth_bits;
     stencil_bits = stencil_bits;

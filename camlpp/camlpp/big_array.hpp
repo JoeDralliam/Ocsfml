@@ -83,15 +83,6 @@ namespace camlpp
   template<class IntegerType, int dimension>
   struct big_array
   {
-    big_array( IntegerType* d, int s[dimension])
-      :data(d)
-    {
-      for(int i = 0; i < dimension; ++i)
-	{
-	  size[i] = s[i];
-	}
-    }
-
     big_array( IntegerType const* d, intnat s[dimension])
       :data(const_cast<IntegerType*>(d))
     {

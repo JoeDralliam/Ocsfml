@@ -19,12 +19,14 @@
 #ifndef RES_MANAGEMENT_HPP_INCLUDED
 #define RES_MANAGEMENT_HPP_INCLUDED
 
-#include "affectation_management.hpp"
+
+#include <camlpp/affectation_management.hpp>
 #include <functional>
 #include <tuple>
 
 extern "C"
 {
+#include <caml/misc.h>
 #include <caml/threads.h>
 #include <caml/fail.h>
 }
@@ -45,6 +47,7 @@ namespace camlpp
     }
   };
 }
+
 
 #ifndef _MSC_VER
 namespace camlpp
@@ -129,8 +132,9 @@ namespace camlpp
     template<class Func>
     typename auto call_helper(Func&& f) -> decltype(f())
     {
-      scoped_release_rt runtime_released;
+      caml_release_runtime_system();
       return f();
+      caml_acquire_runtime_system();
     }
   public:
     template<class Func>
@@ -140,9 +144,11 @@ namespace camlpp
 	affectation_management<T>::affect(res, call_helper(f) );
       } 
       catch( std::exception& e ) {
+	caml_acquire_runtime_system();
 	caml_failwith( e.what() );
       }
       catch( ... ) {
+	caml_acquire_runtime_system();
 	caml_failwith( "Non standard exception thrown from C++" );
       }
     }
@@ -157,12 +163,16 @@ namespace camlpp
       {
 	try {
 	  scoped_release_rt runtime_released;
+	  caml_release_runtime_system();
 	  res = Val_int( ret() );
+	  caml_acquire_runtime_system();
 	} 
 	catch( std::exception& e ) {
+	  caml_acquire_runtime_system();
 	  caml_failwith( e.what() );
 	}
 	catch( ... ) {
+	  caml_acquire_runtime_system();
 	  caml_failwith( "Non standard exception thrown from C++" );
 	}
 	
@@ -177,13 +187,17 @@ namespace camlpp
     void call(value& res, Func& f)
     {
       try {
-	scoped_release_rt runtime_released;
+	//	scoped_release_rt runtime_released;
+	caml_release_runtime_system();
 	f();
+	caml_acquire_runtime_system();
       } 
       catch( std::exception& e ) {
+	caml_acquire_runtime_system();
 	caml_failwith( e.what() );
       }
       catch( ... ) {
+	caml_acquire_runtime_system();
 	caml_failwith( "Non standard exception thrown from C++" );
       }
       res = Val_unit;

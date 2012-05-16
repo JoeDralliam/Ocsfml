@@ -44,7 +44,7 @@ namespace
 
   camlpp::big_array<sf::Uint8, 3> image_get_pixels_ptr_helper( sf::Image* img )
   {
-    long size[] = { img->getSize().x, img->getSize().y, 4};
+    intnat size[] = { img->getSize().x, img->getSize().y, 4};
     return camlpp::big_array<sf::Uint8, 3>(const_cast<sf::Uint8*>(img->getPixelsPtr()),  size);
   }
 }

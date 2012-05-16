@@ -103,15 +103,15 @@ add_custom_target(
 
 add_custom_target(
 	ocsfml
-	ALL	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.d.cma
+	ALL	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.cma
 	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlsystem.cmxa
-	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.d.cma
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.cma
 	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlwindow.cmxa
-	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.d.cma 
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.cma 
 	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlgraphics.cmxa
-	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.d.cma
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.cma
 	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlnetwork.cmxa
-	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.d.cma
+	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.cma
 	COMMAND	${OCAMLBUILD_COMMAND} -use-ocamlfind ocsfmlaudio.cmxa
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
@@ -124,7 +124,7 @@ macro(ocsfml_library dir name)
     ${name} 
     _build/Ocsfml${dir}/ocsfml${dir}.cmi 
     _build/Ocsfml${dir}/dllocsfml${name}.${DLL_EXTENSION}  
-    _build/Ocsfml${dir}/ocsfml${name}.d.cma 
+    _build/Ocsfml${dir}/ocsfml${name}.cma 
     _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} 
     _build/Ocsfml${dir}/ocsfml${name}.cmxa 
     _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} 
