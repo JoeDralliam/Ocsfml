@@ -1073,6 +1073,33 @@ sig
 end
 (**/**)
 
+class const_view : 
+  [ `Center of (float * float) * (float * float)
+  | `Rect of float rect
+  | `Copy of < rep__sf_View : View.t ; .. >
+  | `None ] ->
+object 
+  (**/**)
+  val t_view_base : View.t
+  (**/**)
+
+  (**)
+  method destroy : unit
+
+  (**/**)
+  method rep__sf_View : View.t
+  (**/**)
+  
+  method get_center : (float * float) 
+  
+  method get_size : (float * float) 
+  
+  method get_rotation : float 
+  
+  method get_viewport : float rect 
+end
+
+
 (** 2D camera that defines what region is shown on screen.
 
     {!OcsfmlGraphics.view} defines a camera in the 2D scene.
@@ -1125,7 +1152,7 @@ object ('self)
   method destroy : unit
 
   (** *)
-  method affect : 'self -> unit
+  method affect : const_view -> unit
 
   (** Get the center of the view. 
       @return Center of the view. *)
@@ -1261,17 +1288,20 @@ sig
 (*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
   val draw : t -> ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> Drawable.t -> unit
   val get_size : t -> int * int
-  val set_view : t -> view -> unit
+  val set_view : t -> const_view -> unit
   val get_view : t -> View.t
   val get_default_view : t -> View.t
-  val get_viewport : t -> view -> int rect
-  val convert_coords : t -> ?view:view -> int * int -> float * float
+  val get_viewport : t -> const_view -> int rect
+  val convert_coords : t -> ?view:const_view -> int * int -> float * float
   val push_gl_states : t -> unit
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
 end
 (**/**)
 
+
+(** Indicates a c++ reference ; be cautious with border-side effects *)
+type 'a reference = 'a
 
 
 (** Abstract base class for objects that can be drawn to a render target.
@@ -1294,6 +1324,8 @@ object
 
   method private draw : render_target -> blend_mode -> transform -> texture -> shader -> unit
 end
+
+
 (** Base class for all render targets (window, texture, ...)
     
     OcsfmlGraphics.render_target defines the common behaviour of all the 2D render targets usable in the graphics module.
@@ -1323,7 +1355,7 @@ object
 
       @param view The view to use for converting the point (default is the current view of the render_target) 
       @return The converted point, in "world" units *)
-  method convert_coords : ?view:view -> int * int -> float * float
+  method convert_coords : ?view:const_view -> int * int -> float * float
 
   (**)
   method destroy : unit
@@ -1337,7 +1369,7 @@ object
 
       The default view has the initial size of the render target, and never changes after the target has been created.
       @return The default view of the render target. *)
-  method get_default_view : view
+  method get_default_view : const_view reference
 
   (** Return the size of the rendering region of the target. 
       @return Size in pixels. *)
@@ -1345,13 +1377,13 @@ object
 
   (** Get the view currently in use in the render target. 
       @return The view object that is currently used. *)
-  method get_view : view
+  method get_view : const_view reference
 
   (** Get the viewport of a view, applied to this render target.
 
       The viewport is defined in the view as a ratio, this function simply applies this ratio to the current dimensions of the render target to calculate the pixels rectangle that the viewport actually covers in the target.
       @return Viewport rectangle, expressed in pixels  *)
-  method get_viewport : view -> int rect
+  method get_viewport : const_view -> int rect
 
   (** Restore the previously saved OpenGL render states and matrices.
 
@@ -1400,7 +1432,7 @@ object
   (** Change the current active view.
       
       The view is like a 2D camera, it controls which part of the 2D scene is visible, and how it is viewed in the render-target. The new view will affect everything that is drawn, until another view is set. The render target keeps its own copy of the view object, so it is not necessary to keep the original one alive after calling this function. To restore the original view of the target, you can pass the result of get_default_view to this function.*)
-  method set_view : view -> unit
+  method set_view : const_view -> unit
 end
 
 

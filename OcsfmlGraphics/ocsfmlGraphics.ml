@@ -873,13 +873,42 @@ struct
       
 end
   
-class view_base t_view_base' =
+type 'a reference = 'a
+
+class const_view_base t_view_base' =
 object ((self : 'self))
   val t_view_base = (t_view_base' : View.t)
   method rep__sf_View = t_view_base
   method destroy = View.destroy t_view_base
+  
+  method get_center : (float * float) = View.get_center t_view_base
+  
+  method get_size : (float * float) = View.get_size t_view_base
+  
+  method get_rotation : float = View.get_rotation t_view_base
+  
+  method get_viewport : float rect = View.get_viewport t_view_base
+end
 
-  method affect : 'self -> unit =
+class const_view tag =
+  let t =
+    match tag with
+      | `Rect r -> View.create_from_rect r
+      | `Center (center, size) -> View.create_from_vectors center size
+      | `Copy other -> View.copy other#rep__sf_View
+      | `None -> View.default ()
+  in const_view_base t
+
+class view_base t_view_base' =
+object ((self : 'self))
+  inherit const_view_base t_view_base'
+  val! t_view_base = (t_view_base' : View.t)
+
+  method rep__sf_View = t_view_base
+
+  method destroy = View.destroy t_view_base
+
+  method affect : const_view -> unit =
     fun p1 -> View.affect t_view_base p1#rep__sf_View
 
   method set_center : float -> float -> unit =
@@ -976,18 +1005,18 @@ struct
 	
   external get_size : t -> (int * int) = "sf_RenderTarget_getSize__impl"
       
-  external set_view : t -> view -> unit = "sf_RenderTarget_setView__impl"
+  external set_view : t -> const_view -> unit = "sf_RenderTarget_setView__impl"
       
   external get_view : t -> View.t = "sf_RenderTarget_getView__impl"
       
   external get_default_view : t -> View.t =
       "sf_RenderTarget_getDefaultView__impl"
 	
-  external get_viewport : t -> view -> int rect =
+  external get_viewport : t -> const_view -> int rect =
       "sf_RenderTarget_getViewport__impl"
 	
   external convert_coords :
-    t -> ?view: view -> (int * int) -> (float * float) =
+    t -> ?view:const_view -> (int * int) -> (float * float) =
       "sf_RenderTarget_convertCoords__impl"
 	
   external push_gl_states : t -> unit =
@@ -1032,15 +1061,15 @@ object ((self : 'self))
     fun ?blend_mode ?transform ?texture ?shader p1 ->
       RenderTarget.draw t_render_target ?blend_mode ?transform ?texture ?shader p1#rep__sf_Drawable
   method get_size : (int * int) = RenderTarget.get_size t_render_target
-  method set_view : view -> unit =
+  method set_view : const_view -> unit =
     fun p1 -> RenderTarget.set_view t_render_target p1
-  method get_view : view = 
-    new view_base (RenderTarget.get_view t_render_target)
-  method get_default_view : view =
-    new view_base (RenderTarget.get_default_view t_render_target)
-  method get_viewport : view -> int rect =
+  method get_view : const_view reference = 
+    new const_view_base (RenderTarget.get_view t_render_target)
+  method get_default_view : const_view reference =
+    new const_view_base (RenderTarget.get_default_view t_render_target)
+  method get_viewport : const_view -> int rect =
     fun p1 -> RenderTarget.get_viewport t_render_target p1
-  method convert_coords : ?view: view -> (int * int) -> (float * float) =
+  method convert_coords : ?view:const_view -> (int * int) -> (float * float) =
     fun ?view p1 -> RenderTarget.convert_coords t_render_target ?view p1
   method push_gl_states : unit =
     RenderTarget.push_gl_states t_render_target
