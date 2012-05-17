@@ -10,7 +10,7 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_SoundRecorder );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_method0( getBuffer );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_method0( getBuffer, 0);
 }
 #undef CAMLPP__CLASS_NAME

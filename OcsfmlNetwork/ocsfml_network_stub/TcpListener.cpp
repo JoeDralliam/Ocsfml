@@ -10,11 +10,11 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Socket );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_method0( getLocalPort );
-  camlpp__register_method1( listen );
-  camlpp__register_method0( close );
-  camlpp__register_method1( accept );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_method0( getLocalPort, 0);
+  camlpp__register_method1( listen, 0);
+  camlpp__register_method0( close,  0);
+  camlpp__register_method1( accept, 0);
 }
 #undef CAMLPP__CLASS_NAME
 

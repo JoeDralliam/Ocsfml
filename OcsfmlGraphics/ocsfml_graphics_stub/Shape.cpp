@@ -27,19 +27,19 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Drawable );
   camlpp__register_inheritance_relationship( sf_Transformable );
-  camlpp__register_external_method3( setTexture, &shape_set_texture_helper );
-  camlpp__register_method1( setTextureRect );
-  camlpp__register_method1( setFillColor );
-  camlpp__register_method1( setOutlineColor );
-  camlpp__register_method1( setOutlineThickness );
-  camlpp__register_method0( getTexture );
-  camlpp__register_method0( getTextureRect );
-  camlpp__register_method0( getFillColor );
-  camlpp__register_method0( getOutlineColor );
-  camlpp__register_method0( getOutlineThickness );
-  camlpp__register_method0( getPointCount ); // pure virtual
-  camlpp__register_method1( getPoint ); // pure virtual
-  camlpp__register_method0( getLocalBounds );
-  camlpp__register_method0( getGlobalBounds );
+  camlpp__register_external_method3( setTexture, &shape_set_texture_helper, 0);
+  camlpp__register_method1( setTextureRect, 0);
+  camlpp__register_method1( setFillColor, 0 );
+  camlpp__register_method1( setOutlineColor, 0 );
+  camlpp__register_method1( setOutlineThickness, 0 );
+  camlpp__register_method0( getTexture, 0 );
+  camlpp__register_method0( getTextureRect, 0 );
+  camlpp__register_method0( getFillColor, 0 );
+  camlpp__register_method0( getOutlineColor, 0 );
+  camlpp__register_method0( getOutlineThickness, 0 );
+  camlpp__register_method0( getPointCount, 0 ); // pure virtual
+  camlpp__register_method1( getPoint, 0 ); // pure virtual
+  camlpp__register_method0( getLocalBounds, 0 );
+  camlpp__register_method0( getGlobalBounds, 0 );
 }
 #undef CAMLPP__CLASS_NAME

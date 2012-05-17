@@ -16,7 +16,9 @@ private:
 private:
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
   {
+    caml_acquire_runtime_system();
     callback_(&target, states.blendMode, states.transform, states.texture, states.shader );
+    caml_release_runtime_system();
   }
 public:
   OverrideDrawable()
@@ -43,7 +45,7 @@ void sf_Drawable_override_draw( sf::Drawable* d, OverrideDrawable::CallbackType 
 
 extern "C" 
 {
-  camlpp__register_free_function0(sf_Drawable_inherits)
-  camlpp__register_free_function2(sf_Drawable_override_draw)
+  camlpp__register_free_function0(sf_Drawable_inherits, 0)
+  camlpp__register_free_function2(sf_Drawable_override_draw, 0)
 }
 

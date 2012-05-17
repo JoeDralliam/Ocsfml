@@ -81,17 +81,17 @@ namespace
 #define CAMLPP__CLASS_NAME() sf_RenderTarget
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_external_method2( clear, &render_target_clear_helper );
-  camlpp__register_external_method5( draw, &render_target_draw_helper );
+  camlpp__register_external_method2( clear, &render_target_clear_helper, camlpp::release_caml_runtime );
+  camlpp__register_external_method5( draw, &render_target_draw_helper, camlpp::release_caml_runtime );
   //	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper );
-  camlpp__register_method0( getSize );
-  camlpp__register_method1( setView );
-  camlpp__register_external_method0( getView, &render_target_get_view_helper );
-  camlpp__register_external_method0( getDefaultView, &render_target_get_default_view_helper );
-  camlpp__register_method1( getViewport );
-  camlpp__register_external_method2( convertCoords, &render_target_convert_coords_helper );
-  camlpp__register_method0( pushGLStates );
-  camlpp__register_method0( popGLStates );
-  camlpp__register_method0( resetGLStates );
+  camlpp__register_method0( getSize, 0);
+  camlpp__register_method1( setView, 0);
+  camlpp__register_external_method0( getView, &render_target_get_view_helper, 0);
+  camlpp__register_external_method0( getDefaultView, &render_target_get_default_view_helper, 0);
+  camlpp__register_method1( getViewport, 0);
+  camlpp__register_external_method2( convertCoords, &render_target_convert_coords_helper, 0);
+  camlpp__register_method0( pushGLStates, camlpp::release_caml_runtime);
+  camlpp__register_method0( popGLStates, camlpp::release_caml_runtime);
+  camlpp__register_method0( resetGLStates, camlpp::release_caml_runtime);
 }
 #undef CAMLPP__CLASS_NAME

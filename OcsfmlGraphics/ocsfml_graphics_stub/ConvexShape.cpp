@@ -12,9 +12,9 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Shape );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_constructor1( point_constructor, int );
-  camlpp__register_method1( setPointCount );
-  camlpp__register_method2( setPoint );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_constructor1( point_constructor, int, 0);
+  camlpp__register_method1( setPointCount, 0);
+  camlpp__register_method2( setPoint, 0);
 }
 #undef CAMLPP__CLASS_NAME

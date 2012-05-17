@@ -28,15 +28,15 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Drawable );
   camlpp__register_inheritance_relationship( sf_Transformable );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_constructor1( texture_constructor, sf::Texture const&);
-  camlpp__register_external_method2( setTexture, &sprite_set_texture_helper );
-  camlpp__register_method1( setTextureRect );
-  camlpp__register_method1( setColor );
-  camlpp__register_external_method0( getTexture, &sprite_get_texture_helper );
-  camlpp__register_method0( getTextureRect );
-  camlpp__register_method0( getColor );
-  camlpp__register_method0( getLocalBounds );
-  camlpp__register_method0( getGlobalBounds );
+  camlpp__register_constructor0( default_constructor, 0 );
+  camlpp__register_constructor1( texture_constructor, sf::Texture const&, 0);
+  camlpp__register_external_method2( setTexture, &sprite_set_texture_helper, 0 );
+  camlpp__register_method1( setTextureRect, 0);
+  camlpp__register_method1( setColor, 0);
+  camlpp__register_external_method0( getTexture, &sprite_get_texture_helper, 0);
+  camlpp__register_method0( getTextureRect, 0);
+  camlpp__register_method0( getColor, 0);
+  camlpp__register_method0( getLocalBounds, 0);
+  camlpp__register_method0( getGlobalBounds, 0);
 }
 #undef CAMLPP__CLASS_NAME

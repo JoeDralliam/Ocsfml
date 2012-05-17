@@ -24,19 +24,19 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_SoundSource );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_constructor1( buffer_constructor, sf::SoundBuffer const&);
-  camlpp__register_constructor1( copy_constructor, sf::Sound const& );
-  camlpp__register_method0( play );
-  camlpp__register_method0( pause );
-  camlpp__register_method0( stop );
-  camlpp__register_method1( setBuffer );
-  camlpp__register_method1( setLoop );
-  camlpp__register_method1( setPlayingOffset );
-  camlpp__register_external_method0( getBuffer, &sound_get_buffer_helper );
-  camlpp__register_method0( getLoop );
-  camlpp__register_method0( getPlayingOffset );
-  camlpp__register_method0( getStatus );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_constructor1( buffer_constructor, sf::SoundBuffer const&, 0);
+  camlpp__register_constructor1( copy_constructor, sf::Sound const&, 0);
+  camlpp__register_method0( play, 0);
+  camlpp__register_method0( pause, 0);
+  camlpp__register_method0( stop, 0);
+  camlpp__register_method1( setBuffer, 0);
+  camlpp__register_method1( setLoop, 0);
+  camlpp__register_method1( setPlayingOffset, 0);
+  camlpp__register_external_method0( getBuffer, &sound_get_buffer_helper, 0);
+  camlpp__register_method0( getLoop, 0);
+  camlpp__register_method0( getPlayingOffset, 0);
+  camlpp__register_method0( getStatus, 0);
 }
 #undef CAMLPP__CLASS_NAME
 

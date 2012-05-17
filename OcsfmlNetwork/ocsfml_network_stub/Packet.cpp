@@ -59,32 +59,32 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_method1( append, &packet_append_helper );
-  camlpp__register_method0( clear );
-  camlpp__register_external_method0( getData, &packet_getdata_helper);
-  camlpp__register_method0( getDataSize );
-  camlpp__register_method0( endOfPacket );
-  camlpp__register_external_method0( isValid, &packet_is_valid_helper );
+  camlpp__register_constructor0( default_constructor, 0 );
+  camlpp__register_external_method1( append, &packet_append_helper, 0 );
+  camlpp__register_method0( clear, 0 );
+  camlpp__register_external_method0( getData, &packet_getdata_helper, 0);
+  camlpp__register_method0( getDataSize, 0 );
+  camlpp__register_method0( endOfPacket, 0 );
+  camlpp__register_external_method0( isValid, &packet_is_valid_helper, 0 );
   
-  camlpp__register_external_method0( readBool, packet_read_bool_helper) ;
-  camlpp__register_external_method0( readInt8, packet_read_sf_Int8_helper);
-  camlpp__register_external_method0( readUint8, packet_read_sf_Uint8_helper );
-  camlpp__register_external_method0( readInt16, packet_read_sf_Int16_helper );
-  camlpp__register_external_method0( readUint16, packet_read_sf_Uint16_helper );
-  camlpp__register_external_method0( readInt32, packet_read_sf_Int32_helper );
-  camlpp__register_external_method0( readUint32, packet_read_sf_Uint32_helper );
-  camlpp__register_external_method0( readFloat, packet_read_double_helper ); // Caml floats are doubles
-  camlpp__register_external_method0( readString, packet_read_std_string_helper );
+  camlpp__register_external_method0( readBool,   packet_read_bool_helper,       0);
+  camlpp__register_external_method0( readInt8,   packet_read_sf_Int8_helper,    0);
+  camlpp__register_external_method0( readUint8,  packet_read_sf_Uint8_helper,   0);
+  camlpp__register_external_method0( readInt16,  packet_read_sf_Int16_helper,   0);
+  camlpp__register_external_method0( readUint16, packet_read_sf_Uint16_helper,  0);
+  camlpp__register_external_method0( readInt32,  packet_read_sf_Int32_helper,   0);
+  camlpp__register_external_method0( readUint32, packet_read_sf_Uint32_helper,  0);
+  camlpp__register_external_method0( readFloat,  packet_read_double_helper,     0); // Caml floats are doubles
+  camlpp__register_external_method0( readString, packet_read_std_string_helper, 0);
   
-  camlpp__register_external_method1( writeBool, packet_write_bool_helper );
-  camlpp__register_external_method1( writeInt8, packet_write_sf_Int8_helper);
-  camlpp__register_external_method1( writeUint8, packet_write_sf_Uint8_helper );
-  camlpp__register_external_method1( writeInt16, packet_write_sf_Int16_helper);
-  camlpp__register_external_method1( writeUint16, packet_write_sf_Uint16_helper );
-  camlpp__register_external_method1( writeInt32, packet_write_sf_Int32_helper );
-  camlpp__register_external_method1( writeUint32, packet_write_sf_Uint32_helper );
-  camlpp__register_external_method1( writeFloat, packet_write_double_helper ); // Caml floats are doubles
-  camlpp__register_external_method1( writeString, packet_write_std_string_helper );  
+  camlpp__register_external_method1( writeBool,   packet_write_bool_helper,       0);
+  camlpp__register_external_method1( writeInt8,   packet_write_sf_Int8_helper,    0);
+  camlpp__register_external_method1( writeUint8,  packet_write_sf_Uint8_helper,   0);
+  camlpp__register_external_method1( writeInt16,  packet_write_sf_Int16_helper,   0);
+  camlpp__register_external_method1( writeUint16, packet_write_sf_Uint16_helper,  0);
+  camlpp__register_external_method1( writeInt32,  packet_write_sf_Int32_helper,   0);
+  camlpp__register_external_method1( writeUint32, packet_write_sf_Uint32_helper,  0);
+  camlpp__register_external_method1( writeFloat,  packet_write_double_helper,     0); // Caml floats are doubles
+  camlpp__register_external_method1( writeString, packet_write_std_string_helper, 0);  
 }
 #undef CAMLPP__CLASS_NAME

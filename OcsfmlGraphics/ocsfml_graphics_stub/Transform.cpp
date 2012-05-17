@@ -75,22 +75,22 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
+  camlpp__register_constructor0( default_constructor, 0);
   camlpp__register_constructor9( matrix_constructor,
 				 float, float, float,
 				 float, float, float,
-				 float, float, float );
-  camlpp__register_method0( getInverse );
-  camlpp__register_external_method2( transformPoint, ((TransformPointFunc) &sf::Transform::transformPoint) );
-  camlpp__register_external_method1( transformPointV, ((TransformPointVFunc) &sf::Transform::transformPoint) );
-  camlpp__register_method1( transformRect );
-  camlpp__register_method1( combine );
-  camlpp__register_external_method2( translate, &transform_translate_helper );
-  camlpp__register_external_method1( translateV, &transform_translateV_helper );
-  camlpp__register_external_method3( rotate, &transform_rotate_helper );
-  camlpp__register_external_method2( rotateV, &transform_rotateV_helper );
-  camlpp__register_external_method4( scale, &transform_scale_helper );
-  camlpp__register_external_method2( scaleV, &transform_scaleV_helper );
+				 float, float, float, 0);
+  camlpp__register_method0( getInverse, 0);
+  camlpp__register_external_method2( transformPoint, ((TransformPointFunc) &sf::Transform::transformPoint), 0);
+  camlpp__register_external_method1( transformPointV, ((TransformPointVFunc) &sf::Transform::transformPoint), 0);
+  camlpp__register_method1( transformRect, 0);
+  camlpp__register_method1( combine, 0);
+  camlpp__register_external_method2( translate, &transform_translate_helper, 0);
+  camlpp__register_external_method1( translateV, &transform_translateV_helper, 0);
+  camlpp__register_external_method3( rotate, &transform_rotate_helper, 0);
+  camlpp__register_external_method2( rotateV, &transform_rotateV_helper, 0);
+  camlpp__register_external_method4( scale, &transform_scale_helper, 0);
+  camlpp__register_external_method2( scaleV, &transform_scaleV_helper, 0);
 }
 #undef CAMLPP__CLASS_NAME
 

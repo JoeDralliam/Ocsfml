@@ -55,17 +55,17 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Socket );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_method0( getLocalPort );
-  camlpp__register_method0( getRemoteAddress );
-  camlpp__register_method0( getRemotePort );
-  camlpp__register_external_method3( connect, &tcpsocket_connect_helper );
-  camlpp__register_method0( disconnect );
-  camlpp__register_external_method1( sendData, &tcpsocket_senddata_helper );
-  camlpp__register_external_method1( receiveData, &tcpsocket_receivedata_helper );
-  camlpp__register_external_method1( sendString, &tcpsocket_sendstring_helper );
-  camlpp__register_external_method1( receiveString, &tcpsocket_receivestring_helper );
-  camlpp__register_external_method1( sendPacket, ((TransferPacketTcp)&sf::TcpSocket::send) );
-  camlpp__register_external_method1( receivePacket,((TransferPacketTcp)&sf::TcpSocket::receive) );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_method0( getLocalPort, 0);
+  camlpp__register_method0( getRemoteAddress, 0);
+  camlpp__register_method0( getRemotePort, 0);
+  camlpp__register_method0( disconnect, 0);
+  camlpp__register_external_method3( connect,                           &tcpsocket_connect_helper,       camlpp::release_caml_runtime);
+  camlpp__register_external_method1( sendData,                          &tcpsocket_senddata_helper,      camlpp::release_caml_runtime);
+  camlpp__register_external_method1( receiveData,                       &tcpsocket_receivedata_helper,   camlpp::release_caml_runtime);
+  camlpp__register_external_method1( sendString,                        &tcpsocket_sendstring_helper,    camlpp::release_caml_runtime);
+  camlpp__register_external_method1( receiveString,                     &tcpsocket_receivestring_helper, camlpp::release_caml_runtime);
+  camlpp__register_external_method1( sendPacket,    ((TransferPacketTcp)&sf::TcpSocket::send),           camlpp::release_caml_runtime);
+  camlpp__register_external_method1( receivePacket, ((TransferPacketTcp)&sf::TcpSocket::receive),        camlpp::release_caml_runtime);
 }
 #undef CAMLPP__CLASS_NAME

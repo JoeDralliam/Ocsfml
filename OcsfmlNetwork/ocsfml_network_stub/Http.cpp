@@ -26,12 +26,12 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_external_constructor4( default_constructor, &http_request_constructor_helper);
-  camlpp__register_method2( setField );
-  camlpp__register_method1( setMethod );
-  camlpp__register_method1( setUri );
-  camlpp__register_method2( setHttpVersion );
-  camlpp__register_method1( setBody );
+  camlpp__register_external_constructor4( default_constructor, &http_request_constructor_helper, 0);
+  camlpp__register_method2( setField, 0 );
+  camlpp__register_method1( setMethod, 0 );
+  camlpp__register_method1( setUri, 0 );
+  camlpp__register_method2( setHttpVersion, 0 );
+  camlpp__register_method1( setBody, 0 );
 }
 #undef CAMLPP__CLASS_NAME
 
@@ -41,12 +41,12 @@ camlpp__register_preregistered_custom_class()
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_method1( getField );
-  camlpp__register_method0( getStatus );
-  camlpp__register_method0( getMajorHttpVersion );
-  camlpp__register_method0( getMinorHttpVersion );
-  camlpp__register_method0( getBody );
+  camlpp__register_constructor0( default_constructor, 0 );
+  camlpp__register_method1( getField, 0 );
+  camlpp__register_method0( getStatus, 0 );
+  camlpp__register_method0( getMajorHttpVersion, 0 );
+  camlpp__register_method0( getMinorHttpVersion, 0 );
+  camlpp__register_method0( getBody, 0 );
 }
 #undef CAMLPP__CLASS_NAME
 
@@ -74,10 +74,10 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_constructor1( host_constructor, std::string );
-  camlpp__register_constructor2( host_and_port_constructor, std::string, unsigned short );
-  camlpp__register_external_method2( setHost, &http_set_host_helper );
-  camlpp__register_external_method2( sendRequest, &http_send_request_helper );
+  camlpp__register_constructor0( default_constructor, 0 );
+  camlpp__register_constructor1( host_constructor, std::string, 0 );
+  camlpp__register_constructor2( host_and_port_constructor, std::string, unsigned short, 0 );
+  camlpp__register_external_method2( setHost, &http_set_host_helper, 0 );
+  camlpp__register_external_method2( sendRequest, &http_send_request_helper, 0 );
 }
 #undef CAMLPP__CLASS_NAME

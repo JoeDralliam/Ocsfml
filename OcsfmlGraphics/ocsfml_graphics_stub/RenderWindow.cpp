@@ -29,9 +29,9 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_RenderTarget );
   camlpp__register_inheritance_relationship( sf_Window );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper);
-  camlpp__register_method0( capture );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_external_constructor4( create_constructor, &render_window_constructor_helper, 0);
+  camlpp__register_method0( capture, camlpp::release_caml_runtime);
 }
 #undef CAMLPP__CLASS_NAME
 

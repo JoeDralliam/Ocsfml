@@ -27,18 +27,18 @@ namespace
 #define CAMLPP__CLASS_NAME() sf_SoundBuffer
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_constructor1( copy_constructor, sf::SoundBuffer const& );
-  camlpp__register_external_method1( affect, &sf::SoundBuffer::operator= );
-  camlpp__register_method1( loadFromFile );
+  camlpp__register_constructor0( default_constructor, 0 );
+  camlpp__register_constructor1( copy_constructor, sf::SoundBuffer const&, 0 );
+  camlpp__register_external_method1( affect, &sf::SoundBuffer::operator=, 0 );
+  camlpp__register_method1( loadFromFile, camlpp::release_caml_runtime );
   //	camlpp__register_method2( LoadFromMemory, &sf::SoundBuffer::LoadFromMemory );
-  camlpp__register_method1( loadFromStream );
-  camlpp__register_external_method3( loadFromSamples, &sound_buffer_load_from_samples_helper );
-  camlpp__register_method1( saveToFile );
-  camlpp__register_external_method0( getSamples, &sound_buffer_get_samples_helper );
-  camlpp__register_method0( getSampleCount );
-  camlpp__register_method0( getSampleRate );
-  camlpp__register_method0( getChannelCount );
-  camlpp__register_method0( getDuration );
+  camlpp__register_method1( loadFromStream, 0);
+  camlpp__register_external_method3( loadFromSamples, &sound_buffer_load_from_samples_helper, 0);
+  camlpp__register_method1( saveToFile, camlpp::release_caml_runtime );
+  camlpp__register_external_method0( getSamples, &sound_buffer_get_samples_helper, 0 );
+  camlpp__register_method0( getSampleCount, 0 );
+  camlpp__register_method0( getSampleRate, 0 );
+  camlpp__register_method0( getChannelCount, 0 );
+  camlpp__register_method0( getDuration, 0);
 }
 #undef CAMLPP__CLASS_NAME

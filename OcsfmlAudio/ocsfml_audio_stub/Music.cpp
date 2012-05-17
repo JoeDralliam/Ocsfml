@@ -12,11 +12,11 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_SoundStream );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_method1( openFromFile );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_method1( openFromFile, 0);
   //	camlpp__register_method1( OpenFromMemory
   //	camlpp__register_method1( OpenFromStream, &sf::Music::OpenFromStream ) 
   //	/* Should not be implemented : it loads music from a different thread and calls Caml functions*/
-  camlpp__register_method0( getDuration );
+  camlpp__register_method0( getDuration, 0);
 }
 #undef CAMLPP__CLASS_NAME

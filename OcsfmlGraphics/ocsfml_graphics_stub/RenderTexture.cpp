@@ -27,12 +27,12 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_RenderTarget );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_method3( create, &render_texture_create_helper );
-  camlpp__register_method1( setSmooth );
-  camlpp__register_method0( isSmooth );
-  camlpp__register_external_method2( setActive, &render_texture_set_active_helper );
-  camlpp__register_method0( display );
-  camlpp__register_external_method0( getTexture, &render_texture_get_texture_helper );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_external_method3( create, &render_texture_create_helper, 0);
+  camlpp__register_method1( setSmooth, 0);
+  camlpp__register_method0( isSmooth, 0);
+  camlpp__register_external_method2( setActive, &render_texture_set_active_helper, 0);
+  camlpp__register_method0( display, camlpp::release_caml_runtime);
+  camlpp__register_external_method0( getTexture, &render_texture_get_texture_helper, 0);
 }
 #undef CAMLPP__CLASS_NAME

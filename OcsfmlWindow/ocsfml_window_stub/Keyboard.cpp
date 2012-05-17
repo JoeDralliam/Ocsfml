@@ -4,5 +4,5 @@
 
 extern "C" 
 {
-  camlpp__register_overloaded_free_function1( Keyboard_isKeyPressed, &sf::Keyboard::isKeyPressed)
+  camlpp__register_overloaded_free_function1( Keyboard_isKeyPressed, &sf::Keyboard::isKeyPressed, 0)
 }
