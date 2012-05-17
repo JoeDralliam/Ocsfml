@@ -39,7 +39,7 @@ camlpp__register_preregistered_custom_class()
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_inheritance_relationship( sf_Ftp_Response, 0 );
+  camlpp__register_inheritance_relationship( sf_Ftp_Response );
   camlpp__register_constructor1( default_constructor, const sf_Ftp_Response&, 0 );
   camlpp__register_method0( getDirectory, 0 );
 }
