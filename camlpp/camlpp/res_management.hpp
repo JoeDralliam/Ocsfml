@@ -94,15 +94,15 @@ namespace camlpp
     template<class Func, class... Args>
     void call_exception_flag(value& res, Func&& f, Args&&... args, std::false_type)
     {
-      affectation_management<T>::affect(res, call_helper(std::forward(f), std::forward<Args>(args)...) );
+      affectation_management<T>::affect(res, call_helper(std::forward<Func>(f), std::forward<Args>(args)...) );
     }
 
   public:
     template<class Func,class... Args>
     void call(value& res, Func&& f, Args&&... args)
     {
-      call_exception_flag(res, std::forward(f), std::forward(args)..., 
-			   std::integral_constant<bool, flags & catch_exceptions> );	
+      call_exception_flag(res, std::forward<Func>(f), std::forward<Args>(args)..., 
+			  std::integral_constant<bool, flags & catch_exceptions>() );	
     }
   };
   
@@ -137,8 +137,8 @@ namespace camlpp
       template<class Func, class... Args>
       void call(value& res, Func&& f, Args&&... args)
       {
-	call_exception_flag(res, std::forward(f), std::forward(args)..., 
-			    std::integral_constant<bool, flags & catch_exceptions> );
+	call_exception_flag(res, std::forward<Func>(f), std::forward<Args>(args)..., 
+			    std::integral_constant<bool, flags & catch_exceptions>() );
       }
     };
   }
@@ -172,8 +172,8 @@ namespace camlpp
     template<class Func, class... Args>
     void call(value& res, Func&& f, Args&&... args)
     {
-      call_exception_flag( std::forward(f), std::forward(args)..., 
-			   std::integral_constant<bool, flags & catch_exceptions> );
+      call_exception_flag( std::forward<Func>(f), std::forward<Args>(args)..., 
+			   std::integral_constant<bool, flags & catch_exceptions>() );
       res = Val_unit;
     }
   };
@@ -195,11 +195,11 @@ namespace camlpp
       return f();
     }
 
-    template<class fUNC>
+    template<class Func>
     void call_exception_flag(value& res, Func&& f, std::true_type)
     {
       try {
-	affectation_management<T>::affect(res, call_helper(std::forward(f)) );
+	affectation_management<T>::affect(res, call_helper(std::forward<Func>(f)) );
       }
       catch( std::exception& e ) {
 	caml_failwith( e.what() );
@@ -212,14 +212,15 @@ namespace camlpp
     template<class Func>
     void call_exception_flag(value& res, Func&& f, std::false_type)
     {
-      affectation_management<T>::affect(res, call_helper(std::forward(f)) );
+      affectation_management<T>::affect(res, call_helper(std::forward<Func>(f)) );
     }
 
   public:
     template<class Func>
     void call(value& res, Func&& f)
     {
-      
+      call_exception_flag(res, std::forward<Func>(f), 
+			  std::integral_constant<bool, flags & catch_exceptions>());
     }
   };
   
@@ -229,21 +230,34 @@ namespace camlpp
     struct res_management_integer_base
     {
     private:
-    public:
       template<class Func>
-      void call(value& res, Func& ret)
+      void call_exception_flag(value& res, Func&& f, std::true_type)
       {
 	try {
 	  scoped_release_rt<flags & release_caml_runtime> runtime_released;
-	  res = Val_int( ret() );
-	} 
+	  res = Val_int( f() );
+	}
 	catch( std::exception& e ) {
 	  caml_failwith( e.what() );
 	}
 	catch( ... ) {
 	  caml_failwith( "Non standard exception thrown from C++" );
 	}
-	
+      }
+    
+      template<class Func>
+      void call_exception_flag(value& res, Func&& f, std::false_type)
+      {
+	scoped_release_rt<flags & release_caml_runtime> runtime_released;
+	res = Val_int( f() );
+      }
+
+    public:
+      template<class Func>
+      void call(value& res, Func& f)
+      {
+	call_exception_flag(res, std::forward<Func>(f), 
+			    std::integral_constant<bool, flags & catch_exceptions>());
       }
     };
   }
@@ -251,19 +265,35 @@ namespace camlpp
   template<int flags>
   struct res_management<void, flags>
   {
+    private:
+      template<class Func>
+      void call_exception_flag(Func&& f, std::true_type)
+      {
+	try {
+	  scoped_release_rt<flags & release_caml_runtime> runtime_released;
+	  f();
+	}
+	catch( std::exception& e ) {
+	  caml_failwith( e.what() );
+	}
+	catch( ... ) {
+	  caml_failwith( "Non standard exception thrown from C++" );
+	}
+      }
+    
+      template<class Func>
+      void call_exception_flag(Func&& f, std::false_type)
+      {
+	scoped_release_rt<flags & release_caml_runtime> runtime_released;
+	f();
+      }
+    public:
+
     template<class Func>
     void call(value& res, Func& f)
     {
-      try {
-	scoped_release_rt<flags & release_caml_runtime> runtime_released;
-	f();
-      } 
-      catch( std::exception& e ) {
-	caml_failwith( e.what() );
-      }
-      catch( ... ) {
-	caml_failwith( "Non standard exception thrown from C++" );
-      }
+      call_exception_flag(std::forward<Func>(f), 
+			  std::integral_constant<bool, flags & catch_exceptions>());
       res = Val_unit;
     }
   };
