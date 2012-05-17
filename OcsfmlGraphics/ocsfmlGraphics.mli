@@ -1152,7 +1152,7 @@ object ('self)
   method destroy : unit
 
   (** *)
-  method affect : const_view -> unit
+  method affect : 'a. (#const_view as 'a) -> unit
 
   (** Get the center of the view. 
       @return Center of the view. *)
@@ -1288,11 +1288,11 @@ sig
 (*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
   val draw : t -> ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> Drawable.t -> unit
   val get_size : t -> int * int
-  val set_view : t -> const_view -> unit
+  val set_view : t -> #const_view -> unit
   val get_view : t -> View.t
   val get_default_view : t -> View.t
-  val get_viewport : t -> const_view -> int rect
-  val convert_coords : t -> ?view:const_view -> int * int -> float * float
+  val get_viewport : t -> #const_view -> int rect
+  val convert_coords : t -> ?view:#const_view -> int * int -> float * float
   val push_gl_states : t -> unit
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
@@ -1355,7 +1355,7 @@ object
 
       @param view The view to use for converting the point (default is the current view of the render_target) 
       @return The converted point, in "world" units *)
-  method convert_coords : ?view:const_view -> int * int -> float * float
+  method convert_coords : 'a. ?view:(#const_view as 'a) -> int * int -> float * float
 
   (**)
   method destroy : unit
@@ -1383,7 +1383,7 @@ object
 
       The viewport is defined in the view as a ratio, this function simply applies this ratio to the current dimensions of the render target to calculate the pixels rectangle that the viewport actually covers in the target.
       @return Viewport rectangle, expressed in pixels  *)
-  method get_viewport : const_view -> int rect
+  method get_viewport : 'a. (#const_view as 'a) -> int rect
 
   (** Restore the previously saved OpenGL render states and matrices.
 
@@ -1432,7 +1432,7 @@ object
   (** Change the current active view.
       
       The view is like a 2D camera, it controls which part of the 2D scene is visible, and how it is viewed in the render-target. The new view will affect everything that is drawn, until another view is set. The render target keeps its own copy of the view object, so it is not necessary to keep the original one alive after calling this function. To restore the original view of the target, you can pass the result of get_default_view to this function.*)
-  method set_view : const_view -> unit
+  method set_view : 'a. (#const_view as 'a) -> unit
 end
 
 
