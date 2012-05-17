@@ -70,9 +70,9 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_constructor0( default_constructor, 0);
-  camlpp__register_external_method3( loadFromFile, &shader_load_from_file_helper, camlpp::release_caml_runtime);
-  camlpp__register_external_method3( loadFromMemory, &shader_load_from_memory_helper, 0);
-  camlpp__register_external_method3( loadFromStream, &shader_load_from_stream_helper, 0);
+  camlpp__register_external_method3( loadFromFile, &shader_load_from_file_helper, camlpp::release_caml_runtime | camlpp::catch_exceptions);
+  camlpp__register_external_method3( loadFromMemory, &shader_load_from_memory_helper, camlpp::catch_exceptions);
+  camlpp__register_external_method3( loadFromStream, &shader_load_from_stream_helper, camlpp::catch_exceptions);
   camlpp__register_external_method2( setFloatParameter,     ((SetFloatParameterType)     &sf::Shader::setParameter), 0);
   camlpp__register_external_method3( setVec2Parameter,      ((SetVec2ParameterType)      &sf::Shader::setParameter), 0);
   camlpp__register_external_method4( setVec3Parameter,      ((SetVec3ParameterType)      &sf::Shader::setParameter), 0);
