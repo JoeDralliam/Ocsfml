@@ -1297,7 +1297,7 @@ end
     (* Create a listener socket and make it wait for new 
        connections on port 55001 *)
     let listener = new tcp_listener in
-    listener#listen (Port.from_int 55001)
+    listener#listen (Port.from_int 55001) 
     
     (* Endless loop that waits for new connections *)
     let rec connection_loop running =
