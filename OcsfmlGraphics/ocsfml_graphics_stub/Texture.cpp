@@ -83,28 +83,28 @@ namespace
 #define CAMLPP__CLASS_NAME() sf_Texture
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_constructor1( copy_constructor, sf::Texture const& );
-  camlpp__register_method2( create );
-  camlpp__register_external_method2( loadFromFile, &texture_load_from_file_helper );
-  camlpp__register_external_method2( loadFromStream, &texture_load_from_stream_helper );
-  camlpp__register_external_method2( loadFromImage, &texture_load_from_image_helper );
-  camlpp__register_external_method2( loadFromMemory, &texture_load_from_memory_helper );
-  camlpp__register_method0( getSize );
-  camlpp__register_method0( copyToImage );
-  camlpp__register_external_method2( updateFromPixels, &texture_update_from_pixels_helper );
-  camlpp__register_external_method2( updateFromImage , &texture_update_from_image_helper );
-  camlpp__register_external_method2( updateFromWindow, &texture_update_from_window_helper );
-  camlpp__register_method1( bind );
-  camlpp__register_method1( setSmooth );
-  camlpp__register_method0( isSmooth );
-  camlpp__register_method1( setRepeated );
-  camlpp__register_method0( isRepeated );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_constructor1( copy_constructor, sf::Texture const&, 0);
+  camlpp__register_method2( create, 0);
+  camlpp__register_external_method2( loadFromFile, &texture_load_from_file_helper, camlpp::release_caml_runtime);
+  camlpp__register_external_method2( loadFromStream, &texture_load_from_stream_helper, 0);
+  camlpp__register_external_method2( loadFromImage, &texture_load_from_image_helper, 0);
+  camlpp__register_external_method2( loadFromMemory, &texture_load_from_memory_helper, 0);
+  camlpp__register_method0( getSize, 0);
+  camlpp__register_method0( copyToImage, 0);
+  camlpp__register_external_method2( updateFromPixels, &texture_update_from_pixels_helper, 0);
+  camlpp__register_external_method2( updateFromImage , &texture_update_from_image_helper, 0);
+  camlpp__register_external_method2( updateFromWindow, &texture_update_from_window_helper, 0);
+  camlpp__register_method1( bind, 0);
+  camlpp__register_method1( setSmooth, 0);
+  camlpp__register_method0( isSmooth, 0);
+  camlpp__register_method1( setRepeated, 0);
+  camlpp__register_method0( isRepeated, 0);
 } 
 #undef CAMLPP__CLASS_NAME
 
 
 extern "C"
 {
-  camlpp__register_overloaded_free_function0( Texture_getMaximumSize, &sf::Texture::getMaximumSize)
+  camlpp__register_overloaded_free_function0( Texture_getMaximumSize, &sf::Texture::getMaximumSize, 0)
 }

@@ -145,7 +145,7 @@ extern "C"
   BOOST_PP_EXPAND( CAMLPP__CONVERT_PARAM ## params_count CAMLPP__OBTAIN_PARAMS_HELPER(params_count, params_name, values_name , params_type) )
 
 
-#define CAMLPP__BODY( traits, func_type, call_func, values_name, params_count, obtain_params_type) \
+#define CAMLPP__BODY( traits, func_type, call_func, values_name, params_count, obtain_params_type, call_flags) \
   typedef boost::remove_pointer< func_type >::type FuncType;		\
   typedef traits< FuncType > FuncTraits;				\
   CAMLPP__REGISTER_PARAMS ## params_count (values_name);		\
@@ -153,7 +153,7 @@ extern "C"
 			 CAMLPP__GENERATE_PARAMS_NAME ## params_count(), \
 			 values_name,					\
 			 obtain_params_type ## params_count (FuncTraits) ); \
-  camlpp::res_management< FuncTraits::result_type> rm;			\
+  camlpp::res_management< FuncTraits::result_type, call_flags > rm;			\
   CAMLlocal1( res );							\
   CAMLPP__INVOKE( rm, res, call_func, CAMLPP__EXPAND CAMLPP__GENERATE_PARAMS_NAME ## params_count()); \
   CAMLreturn( res )

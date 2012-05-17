@@ -63,15 +63,15 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Socket );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_method0( getLocalPort );
-  camlpp__register_method1( bind );
-  camlpp__register_method0( unbind );
-  camlpp__register_external_method3( sendData, &udpsocket_senddata_helper);
-  camlpp__register_external_method2( receiveData, &udpsocket_receivedata_helper );
-  camlpp__register_external_method3( sendString, &udpsocket_sendstring_helper);
-  camlpp__register_external_method2( receiveString, &udpsocket_receivestring_helper );
-  camlpp__register_external_method3( sendPacket, ((TransferPacketUdp)&sf::UdpSocket::send) );
-  camlpp__register_external_method2( receivePacket, &udpsocket_receivepacket_helper );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_method0( getLocalPort, 0);
+  camlpp__register_method1( bind,   0);
+  camlpp__register_method0( unbind, 0);
+  camlpp__register_external_method3( sendData,                        &udpsocket_senddata_helper,      camlpp::release_caml_runtime);
+  camlpp__register_external_method2( receiveData,                     &udpsocket_receivedata_helper,   camlpp::release_caml_runtime);
+  camlpp__register_external_method3( sendString,                      &udpsocket_sendstring_helper,    camlpp::release_caml_runtime);
+  camlpp__register_external_method2( receiveString,                   &udpsocket_receivestring_helper, camlpp::release_caml_runtime);
+  camlpp__register_external_method3( sendPacket,  ((TransferPacketUdp)&sf::UdpSocket::send),           camlpp::release_caml_runtime);
+  camlpp__register_external_method2( receivePacket,                   &udpsocket_receivepacket_helper, camlpp::release_caml_runtime);
 }
 #undef CAMLPP__CLASS_NAME

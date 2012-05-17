@@ -10,8 +10,11 @@
 #include "Rect.hpp"
 #include "Transformable.hpp"
 
+#include <SFML/System/Utf.hpp>
+
 #include <camlpp/custom_ops.hpp>
 #include <camlpp/type_option.hpp>
+#include <camlpp/cstring.hpp>
 #include <camlpp/std/list.hpp>
 #include <camlpp/std/string.hpp>
 
@@ -24,9 +27,11 @@ namespace
 				characterSize.get_value_no_fail( 30 ) );
   }
 
-  void text_set_string_helper( sf::Text* txt, char* str)
+  void text_set_string_helper( sf::Text* txt, camlpp::c_string latin1Str)
   {
-    txt->setString( sf::String( str ) );
+    sf::String s(std::string(latin1Str.size, ' '));
+    sf::Utf<8>::toUtf32( latin1Str.string, latin1Str.string+latin1Str.size, s.begin() );
+    txt->setString( s );
   }
 
   std::string text_get_string_helper( sf::Text const* txt )
@@ -59,20 +64,20 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Drawable );
   camlpp__register_inheritance_relationship( sf_Transformable );
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_constructor3( init_constructor, &text_constructor_helper );
-  camlpp__register_external_method1( setString, &text_set_string_helper );
-  camlpp__register_method1( setFont );
-  camlpp__register_method1( setCharacterSize );
-  camlpp__register_external_method1( setStyle, &text_set_style_helper );
-  camlpp__register_method1( setColor );
-  camlpp__register_external_method0( getString, &text_get_string_helper );
-  camlpp__register_method0( getFont );
-  camlpp__register_method0( getCharacterSize );
-  camlpp__register_external_method0( getStyle, &text_get_style_helper );
-  camlpp__register_method0( getColor );
-  camlpp__register_method1( findCharacterPos );
-  camlpp__register_method0( getLocalBounds );
-  camlpp__register_method0( getGlobalBounds );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_external_constructor3( init_constructor, &text_constructor_helper, 0);
+  camlpp__register_external_method1( setString, &text_set_string_helper, 0);
+  camlpp__register_method1( setFont, 0);
+  camlpp__register_method1( setCharacterSize, 0);
+  camlpp__register_external_method1( setStyle, &text_set_style_helper, 0);
+  camlpp__register_method1( setColor, 0);
+  camlpp__register_external_method0( getString, &text_get_string_helper, 0);
+  camlpp__register_method0( getFont, 0);
+  camlpp__register_method0( getCharacterSize, 0);
+  camlpp__register_external_method0( getStyle, &text_get_style_helper, 0);
+  camlpp__register_method0( getColor, 0);
+  camlpp__register_method1( findCharacterPos, 0);
+  camlpp__register_method0( getLocalBounds, 0);
+  camlpp__register_method0( getGlobalBounds, 0);
 }
 #undef CAMLPP__CLASS_NAME

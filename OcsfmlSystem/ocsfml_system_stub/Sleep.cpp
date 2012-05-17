@@ -7,7 +7,7 @@
 
 extern "C"
 {
-  camlpp__register_overloaded_free_function1( sf_sleep, &sf::sleep)
+  camlpp__register_overloaded_free_function1( sf_sleep, &sf::sleep, camlpp::release_caml_runtime)
 }
 
 

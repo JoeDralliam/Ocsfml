@@ -54,20 +54,20 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_method3( createFromColor, &image_create_with_opt_color_helper );
-  camlpp__register_external_method1( createFromPixels, &image_create_from_pixels );
-  camlpp__register_method1( loadFromFile );
-  camlpp__register_external_method1( loadFromMemory, &image_load_from_memory_helper );
-  camlpp__register_method1( loadFromStream );
-  camlpp__register_method1( saveToFile );
-  camlpp__register_method0( getSize );
-  camlpp__register_external_method2( createMaskFromColor, &image_create_mask_from_color_helper );
-  camlpp__register_external_method5( copy, &image_copy_helper );
-  camlpp__register_method3( setPixel );
-  camlpp__register_method2( getPixel );
-  camlpp__register_external_method0( getPixelsPtr, &image_get_pixels_ptr_helper );
-  camlpp__register_method0( flipHorizontally );
-  camlpp__register_method0( flipVertically );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_external_method3( createFromColor, &image_create_with_opt_color_helper, 0 );
+  camlpp__register_external_method1( createFromPixels, &image_create_from_pixels, 0 );
+  camlpp__register_method1( loadFromFile, camlpp::release_caml_runtime );
+  camlpp__register_external_method1( loadFromMemory, &image_load_from_memory_helper, 0 );
+  camlpp__register_method1( loadFromStream, 0 );
+  camlpp__register_method1( saveToFile, camlpp::release_caml_runtime );
+  camlpp__register_method0( getSize, 0 );
+  camlpp__register_external_method2( createMaskFromColor, &image_create_mask_from_color_helper, 0 );
+  camlpp__register_external_method5( copy, &image_copy_helper, camlpp::release_caml_runtime );
+  camlpp__register_method3( setPixel, 0);
+  camlpp__register_method2( getPixel, 0);
+  camlpp__register_external_method0( getPixelsPtr, &image_get_pixels_ptr_helper, 0);
+  camlpp__register_method0( flipHorizontally, 0);
+  camlpp__register_method0( flipVertically, 0);
 }
 #undef CAMLPP__CLASS_NAME

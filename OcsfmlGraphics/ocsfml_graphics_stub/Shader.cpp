@@ -69,26 +69,26 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_method3( loadFromFile, &shader_load_from_file_helper );
-  camlpp__register_external_method3( loadFromMemory, &shader_load_from_memory_helper);
-  camlpp__register_external_method3( loadFromStream, &shader_load_from_stream_helper );
-  camlpp__register_external_method2( setFloatParameter, ((SetFloatParameterType) &sf::Shader::setParameter) );
-  camlpp__register_external_method3( setVec2Parameter, ((SetVec2ParameterType) &sf::Shader::setParameter) );
-  camlpp__register_external_method4( setVec3Parameter, ((SetVec3ParameterType) &sf::Shader::setParameter) );
-  camlpp__register_external_method5( setVec4Parameter, ((SetVec4ParameterType) &sf::Shader::setParameter) );
-  camlpp__register_external_method2( setVec2ParameterV, ((SetVec2ParameterTypeV) &sf::Shader::setParameter) );
-  camlpp__register_external_method2( setVec3ParameterV, ((SetVec3ParameterTypeV) &sf::Shader::setParameter) );
-  camlpp__register_external_method2( setColorParameter, ((SetColorParameterType) &sf::Shader::setParameter)  );
-  camlpp__register_external_method2( setTransformParameter, ((SetTransformParameterType) &sf::Shader::setParameter) );
-  camlpp__register_external_method2( setTextureParameter, ((SetTextureParameterType) &sf::Shader::setParameter) );
-  camlpp__register_external_method1( setCurrentTexture, &shader_set_current_texture_helper);
-  camlpp__register_method0( bind );
-  camlpp__register_method0( unbind );
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_external_method3( loadFromFile, &shader_load_from_file_helper, camlpp::release_caml_runtime);
+  camlpp__register_external_method3( loadFromMemory, &shader_load_from_memory_helper, 0);
+  camlpp__register_external_method3( loadFromStream, &shader_load_from_stream_helper, 0);
+  camlpp__register_external_method2( setFloatParameter,     ((SetFloatParameterType)     &sf::Shader::setParameter), 0);
+  camlpp__register_external_method3( setVec2Parameter,      ((SetVec2ParameterType)      &sf::Shader::setParameter), 0);
+  camlpp__register_external_method4( setVec3Parameter,      ((SetVec3ParameterType)      &sf::Shader::setParameter), 0);
+  camlpp__register_external_method5( setVec4Parameter ,     ((SetVec4ParameterType)      &sf::Shader::setParameter), 0);
+  camlpp__register_external_method2( setVec2ParameterV,     ((SetVec2ParameterTypeV)     &sf::Shader::setParameter), 0);
+  camlpp__register_external_method2( setVec3ParameterV,     ((SetVec3ParameterTypeV)     &sf::Shader::setParameter), 0);
+  camlpp__register_external_method2( setColorParameter,     ((SetColorParameterType)     &sf::Shader::setParameter), 0);
+  camlpp__register_external_method2( setTransformParameter, ((SetTransformParameterType) &sf::Shader::setParameter), 0);
+  camlpp__register_external_method2( setTextureParameter,   ((SetTextureParameterType)   &sf::Shader::setParameter), 0);
+  camlpp__register_external_method1( setCurrentTexture, &shader_set_current_texture_helper, 0);
+  camlpp__register_method0( bind, 0);
+  camlpp__register_method0( unbind, 0);
 }
 #undef CAMLPP__CLASS_NAME
 
 extern "C"
 {
-  camlpp__register_overloaded_free_function0( Shader_isAvailable, &sf::Shader::isAvailable )
+  camlpp__register_overloaded_free_function0( Shader_isAvailable, &sf::Shader::isAvailable, 0)
 }

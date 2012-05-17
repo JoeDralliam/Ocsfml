@@ -11,7 +11,7 @@ bool VideoMode_isValid( const sf::VideoMode& v )
 
 extern "C"
 {
-  camlpp__register_free_function1( VideoMode_isValid )
-  camlpp__register_overloaded_free_function0( VideoMode_getFullscreenModes, &sf::VideoMode::getFullscreenModes)
-  camlpp__register_overloaded_free_function0( VideoMode_getDesktopMode, &sf::VideoMode::getDesktopMode)
+  camlpp__register_free_function1( VideoMode_isValid, 0)
+  camlpp__register_overloaded_free_function0( VideoMode_getFullscreenModes, &sf::VideoMode::getFullscreenModes, 0)
+  camlpp__register_overloaded_free_function0( VideoMode_getDesktopMode,     &sf::VideoMode::getDesktopMode,     0)
 }

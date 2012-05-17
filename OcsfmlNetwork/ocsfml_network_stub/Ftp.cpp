@@ -26,10 +26,10 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_external_constructor3( default_constructor, &ftp_response_default_constructor_helper );
-  camlpp__register_method0( getStatus );
-  camlpp__register_method0( getMessage );
-  camlpp__register_method0( isOk );
+  camlpp__register_external_constructor3( default_constructor, &ftp_response_default_constructor_helper, 0 );
+  camlpp__register_method0( getStatus, 0 );
+  camlpp__register_method0( getMessage, 0 );
+  camlpp__register_method0( isOk, 0 );
 }
 #undef CAMLPP__CLASS_NAME
 
@@ -39,9 +39,9 @@ camlpp__register_preregistered_custom_class()
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_inheritance_relationship( sf_Ftp_Response );
-  camlpp__register_constructor1( default_constructor, const sf_Ftp_Response& );
-  camlpp__register_method0( getDirectory );
+  camlpp__register_inheritance_relationship( sf_Ftp_Response, 0 );
+  camlpp__register_constructor1( default_constructor, const sf_Ftp_Response&, 0 );
+  camlpp__register_method0( getDirectory, 0 );
 }
 #undef CAMLPP__CLASS_NAME
 
@@ -52,8 +52,8 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Ftp_Response );
   camlpp__register_constructor2(default_constructor, 
-				const sf_Ftp_Response&, const std::vector<char>& );
-  camlpp__register_method0( getFilenames );
+				const sf_Ftp_Response&, const std::vector<char>&, 0 );
+  camlpp__register_method0( getFilenames, 0 );
 }
 #undef CAMLPP__CLASS_NAME
 
@@ -107,21 +107,21 @@ namespace
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor );
-  camlpp__register_external_method3( connect, &ftp_connect_helper );
-  camlpp__register_method0( disconnect );
-  camlpp__register_external_method2( login, &ftp_login_helper );
-  camlpp__register_method0( keepAlive );
-  camlpp__register_method0( getWorkingDirectory );
+  camlpp__register_constructor0( default_constructor, 0 );
+  camlpp__register_external_method3( connect, &ftp_connect_helper, camlpp::release_caml_runtime );
+  camlpp__register_method0( disconnect, 0 );
+  camlpp__register_external_method2( login, &ftp_login_helper, camlpp::release_caml_runtime );
+  camlpp__register_method0( keepAlive, 0 );
+  camlpp__register_method0( getWorkingDirectory, 0 );
     // la méthode ci dessous devrait avoir son premier param optionnel et donc rajouter unit à la fin
-  camlpp__register_method1( getDirectoryListing );
-  camlpp__register_method1( changeDirectory );
-  camlpp__register_method0( parentDirectory );
-  camlpp__register_method1( createDirectory );
-  camlpp__register_method1( deleteDirectory );
-  camlpp__register_method2( renameFile );
-  camlpp__register_method1( deleteFile );
-  camlpp__register_external_method3( download, &ftp_download_helper );
-  camlpp__register_external_method3( upload, &ftp_upload_helper );
+  camlpp__register_method1( getDirectoryListing, 0 );
+  camlpp__register_method1( changeDirectory, 0 );
+  camlpp__register_method0( parentDirectory, 0 );
+  camlpp__register_method1( createDirectory, 0 );
+  camlpp__register_method1( deleteDirectory, 0 );
+  camlpp__register_method2( renameFile, 0 );
+  camlpp__register_method1( deleteFile, 0 );
+  camlpp__register_external_method3( download, &ftp_download_helper, camlpp::release_caml_runtime );
+  camlpp__register_external_method3( upload,   &ftp_upload_helper,   camlpp::release_caml_runtime );
 }
 #undef CAMLPP__CLASS_NAME
