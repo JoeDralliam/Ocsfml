@@ -45,12 +45,10 @@ endif()
 
 if(${OCSFML_LINK_NATIVE_DYNAMIC})
 set(OCSFML_LINK_NATIVE_DYNAMIC true)
-set(OCSFML_LINK_NATIVE "-dllib" )
 else()
 set(OCSFML_LINK_NATIVE_DYNAMIC false)
-set(OCSFML_LINK_NATIVE "-cclib" )
 endif()
-
+set(OCSFML_LINK_NATIVE "-cclib" )
 
 ##
 set( DEV_MODE FALSE)
