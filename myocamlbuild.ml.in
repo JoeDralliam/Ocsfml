@@ -152,10 +152,10 @@ let _ = dispatch begin function
 	
 	List.iter (fun s -> flag ["c++"; "compile"] & A( "-I" ^ (get_stub_directory s) ) ) i ;
 	
-	flag["c++" ; "shared" ; s] & S( libs_sfml );
+	flag["c++" ; "shared" ; "ocsfml"^s] & S( libs_sfml );
 	
 	if sfml_static_libraries
-	then flag["c++" ; "archive" ; s] & S( libs_sfml )
+	then flag["c++" ; "archive" ; "ocsfml"^s] & S( libs_sfml )
 	else flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] & S link_libs_ocaml ;
 	
 	(* when we link an ocaml bytecode target with the c++ lib "s" *) 
