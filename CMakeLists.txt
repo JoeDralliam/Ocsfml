@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
+set(SFML_STATIC_LIBRARIES FALSE CACHE BOOL "Use SFML static library version")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Configuration/Modules/")
 
 find_package( 
@@ -34,6 +35,13 @@ else()
 set( OCSFML_LINK_BYTECODE_DYNAMIC FALSE CACHE BOOL "Link dynamically c++ primitives against byte-code executable" )
 set( OCSFML_LINK_NATIVE_DYNAMIC FALSE CACHE BOOL "Link dynamically c++ primitives against native executable" )
 endif()
+
+if(${SFML_STATIC_LIBRARIES})
+set(SFML_STATIC_LIBRARIES true)
+else()
+set(SFML_STATIC_LIBRARIES false)
+endif()
+
 
 if(${OCSFML_LINK_BYTECODE_DYNAMIC})
 set(OCSFML_LINK_BYTECODE_DYNAMIC true)

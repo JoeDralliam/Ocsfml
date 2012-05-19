@@ -15,6 +15,7 @@ set(MAKE_STATIC_COMMAND "make_archive")
 set(OBJ_EXTENSION "o")
 set(LIB_EXTENSION "a")
 set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
+
 if(${CPP_DEV_MODE})
   add_definitions(
     -fPIC -std=c++0x -fpermissive
