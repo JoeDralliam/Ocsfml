@@ -2,6 +2,8 @@
 
 #include "Vector.hpp"
 
+#include "Transform.hpp"
+
 #include <camlpp/custom_ops.hpp>
 
 typedef void (sf_Transformable::* Transfo2f)(float, float);
