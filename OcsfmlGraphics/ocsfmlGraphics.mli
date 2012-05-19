@@ -132,31 +132,13 @@ type blend_mode =
 module Transform :
 sig
   type t
-  class type transform_base_class_type =
-  object ('a)
-    val t_transform_base : t
-    method combine : 'a -> 'a
-    method destroy : unit
-    method get_inverse : 'a
-    method rep__sf_Transform : t
-    method rotate : ?center_x:float -> ?center_y:float -> float -> unit
-    method rotate_v : ?center:float * float -> float -> unit
-    method scale :
-      ?center_x:float -> ?center_y:float -> float -> float -> unit
-    method scale_v : ?center:float * float -> float * float -> unit
-    method transform_point : float -> float -> float * float
-    method transform_point_v : float * float -> float * float
-    method transform_rect : float rect -> float rect
-    method translate : float -> float -> unit
-    method translate_v : float * float -> unit
-  end
 
   val destroy : t -> unit
-  val get_inverse : t -> 'a
+  val get_inverse : t -> t
   val transform_point : t -> float -> float -> float * float
   val transform_point_v : t -> float * float -> float * float
   val transform_rect : t -> float rect -> float rect
-  val combine : t -> 'a -> 'a
+  val combine : t -> t -> t
   val translate : t -> float -> float -> unit
   val translate_v : t -> float * float -> unit
   val rotate : t -> ?center_x:float -> ?center_y:float -> float -> unit

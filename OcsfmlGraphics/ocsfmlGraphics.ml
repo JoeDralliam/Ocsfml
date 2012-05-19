@@ -104,25 +104,6 @@ module Transform =
 struct
   type t
     
-  class type transform_base_class_type =
-  object ('a)
-    val t_transform_base : t
-    method rep__sf_Transform : t
-    method destroy : unit
-    method get_inverse : 'a
-    method transform_point : float -> float -> (float * float)
-    method transform_point_v : (float * float) -> (float * float)
-    method transform_rect : float rect -> float rect
-    method combine : 'a -> 'a
-    method translate : float -> float -> unit
-    method translate_v : (float * float) -> unit
-    method rotate : ?center_x: float -> ?center_y: float -> float -> unit
-    method rotate_v : ?center: (float * float) -> float -> unit
-    method scale :
-      ?center_x: float -> ?center_y: float -> float -> float -> unit
-    method scale_v : ?center: (float * float) -> (float * float) -> unit
-  end
-    
   external destroy : t -> unit = "sf_Transform_destroy__impl"
 	    
   external default : unit -> t = "sf_Transform_default_constructor__impl"
@@ -134,7 +115,7 @@ struct
 	    "sf_Transform_matrix_constructor__byte"
 	      "sf_Transform_matrix_constructor__impl"
 	      
-  external get_inverse : t -> 'a = "sf_Transform_getInverse__impl"
+  external get_inverse : t -> t = "sf_Transform_getInverse__impl"
 	    
   external transform_point : t -> float -> float -> (float * float) =
 	    "sf_Transform_transformPoint__impl"
@@ -145,7 +126,7 @@ struct
   external transform_rect : t -> float rect -> float rect =
 	    "sf_Transform_transformRect__impl"
 	      
-  external combine : t -> 'a -> 'a = "sf_Transform_combine__impl"
+  external combine : t -> t -> t = "sf_Transform_combine__impl"
 	    
   external translate : t -> float -> float -> unit =
 	    "sf_Transform_translate__impl"
@@ -175,7 +156,7 @@ object ((self : 'a))
   val t_transform_base = (t : Transform.t)
   method rep__sf_Transform = t_transform_base
   method destroy = Transform.destroy t_transform_base
-  method get_inverse : 'a = Transform.get_inverse t_transform_base
+  method get_inverse : 'a = {< t_transform_base = Transform.get_inverse t_transform_base >}
   method transform_point : float -> float -> (float * float) =
     fun p1 p2 -> Transform.transform_point t_transform_base p1 p2
   method transform_point_v : (float * float) -> (float * float) =
@@ -183,7 +164,7 @@ object ((self : 'a))
   method transform_rect : float rect -> float rect =
     fun p1 -> Transform.transform_rect t_transform_base p1
   method combine : 'a -> 'a =
-    fun p1 -> Transform.combine t_transform_base p1
+    fun p1 -> {< t_transform_base = Transform.combine t_transform_base p1#rep__sf_Transform >}
   method translate : float -> float -> unit =
     fun p1 p2 -> Transform.translate t_transform_base p1 p2
   method translate_v : (float * float) -> unit =
