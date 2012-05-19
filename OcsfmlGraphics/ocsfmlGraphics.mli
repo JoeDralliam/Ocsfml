@@ -284,8 +284,8 @@ sig
   val scale : t -> float -> float -> unit
   val scale_v : t -> float * float -> unit
   val rotate : t -> float -> unit
-  val get_transform : t -> transform
-  val get_inverse_transform : t -> transform
+  val get_transform : t -> Transform.t
+  val get_inverse_transform : t -> Transform.t
 end
 (**/**)
 

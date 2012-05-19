@@ -265,10 +265,10 @@ struct
 	
   external rotate : t -> float -> unit = "sf_Transformable_rotate__impl"
       
-  external get_transform : t -> transform =
+  external get_transform : t -> Transform.t =
       "sf_Transformable_getTransform__impl"
 	
-  external get_inverse_transform : t -> transform =
+  external get_inverse_transform : t -> Transform.t =
       "sf_Transformable_getInverseTransform__impl"
 	
 end
@@ -311,9 +311,9 @@ object ((self : 'self))
   method rotate : float -> unit =
     fun p1 -> Transformable.rotate t_transformable_base p1
   method get_transform : transform =
-    Transformable.get_transform t_transformable_base
+    new transform_base (Transformable.get_transform t_transformable_base)
   method get_inverse_transform : transform =
-    Transformable.get_inverse_transform t_transformable_base
+    new transform_base (Transformable.get_inverse_transform t_transformable_base)
 end
 
    
