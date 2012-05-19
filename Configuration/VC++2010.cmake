@@ -16,12 +16,14 @@ if(${CAMLPP_ARCHITECTURE_SIXTYFOUR})
 else()
     set(CAMLPP_FLEXLINK_TOOLCHAIN "msvc")
 endif()
+
 set(LINKING_DLL_FLAGS "A \"-chain\"; A \"${CAMLPP_FLEXLINK_TOOLCHAIN}\" ; A \"-merge-manifest\"")
 
 set(MAKE_STATIC_COMMAND "make_library")
 set(OBJ_EXTENSION "obj")
 set(LIB_EXTENSION "lib")
-set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
+set(OCSFML_LINKPATH "A \"-LD:/Programs\"")
+# set(OCSFML_LINKPATH "A \"-L${OCAML_DIR}/site-lib/ocsfml\"")
 
 if(${CPP_DEV_MODE})
   add_definitions(

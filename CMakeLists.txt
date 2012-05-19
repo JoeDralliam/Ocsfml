@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Configuration/Modules/")
 
-
 find_package( 
 	SFML 
 	COMPONENTS system window graphics audio network
@@ -26,9 +25,37 @@ set( SFML_AUDIO ${SFML_AUDIO_LIBRARY_RELEASE} CACHE FILEPATH "SFML audio library
 set( SFML_NETWORK ${SFML_NETWORK_LIBRARY_RELEASE} CACHE FILEPATH "SFML network library path" )
 set( BOOST_DIR ${Boost_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" )
 set( OCAML_DIR ${OCAML_LIB_DIR} CACHE PATH "Ocaml 'include' directory path (where 'caml' directory is)" )
-set( DEV_MODE FALSE CACHE BOOL "")
-set( CPP_DEV_MODE FALSE CACHE BOOL "")
-set( CAML_DEV_MODE FALSE CACHE BOOL "")
+
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+set( OCSFML_LINK_BYTECODE_DYNAMIC TRUE CACHE BOOL "Link dynamically c++ primitives against byte-code executable" )
+set( OCSFML_LINK_NATIVE_DYNAMIC TRUE CACHE BOOL "Link dynamically c++ primitives against native executable" 	 )
+else()
+set( OCSFML_LINK_BYTECODE_DYNAMIC FALSE CACHE BOOL "Link dynamically c++ primitives against byte-code executable" )
+set( OCSFML_LINK_NATIVE_DYNAMIC FALSE CACHE BOOL "Link dynamically c++ primitives against native executable" )
+endif()
+
+if(${OCSFML_LINK_BYTECODE_DYNAMIC})
+set(OCSFML_LINK_BYTECODE_DYNAMIC true)
+set(OCSFML_LINK_BYTECODE "-dllib" )
+else()
+set(OCSFML_LINK_BYTECODE_DYNAMIC false)
+set(OCSFML_LINK_BYTECODE "-cclib" )
+endif()
+
+if(${OCSFML_LINK_NATIVE_DYNAMIC})
+set(OCSFML_LINK_NATIVE_DYNAMIC true)
+set(OCSFML_LINK_NATIVE "-dllib" )
+else()
+set(OCSFML_LINK_NATIVE_DYNAMIC false)
+set(OCSFML_LINK_NATIVE "-cclib" )
+endif()
+
+
+##
+set( DEV_MODE FALSE)
+set( CPP_DEV_MODE FALSE)
+set( CAML_DEV_MODE FALSE)
 
 set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/camlpp")
@@ -53,6 +80,8 @@ macro(correct_osx_framework module_name)
     string( REGEX REPLACE ".*/([^/]+)\\.framework$" "${SFML_${module_name}}/\\1" SFML_${module_name} "${SFML_${module_name}}" )
   endif()
 endmacro()
+
+
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DLL_EXTENSION "so")

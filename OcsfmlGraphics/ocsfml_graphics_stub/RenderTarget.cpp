@@ -86,8 +86,8 @@ camlpp__register_preregistered_custom_class()
   //	camlpp__register_method2( DrawPrimitives, &render_target_draw_prim_helper );
   camlpp__register_method0( getSize, 0);
   camlpp__register_method1( setView, 0);
-  camlpp__register_external_method0( getView, &render_target_get_view_helper, 0);
-  camlpp__register_external_method0( getDefaultView, &render_target_get_default_view_helper, 0);
+  camlpp__register_method0( getView, 0);
+  camlpp__register_method0( getDefaultView, 0);
   camlpp__register_method1( getViewport, 0);
   camlpp__register_external_method2( convertCoords, &render_target_convert_coords_helper, 0);
   camlpp__register_method0( pushGLStates, camlpp::release_caml_runtime);

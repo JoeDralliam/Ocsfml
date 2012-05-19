@@ -142,44 +142,46 @@ using boost::mpl::int_;
     func_traits ::args_type_<8>::type)
 
 #define CAMLPP__METHOD_PLACEHOLDERS1(func)	\
-  ( func, std::placeholders::_1 )
+  func, std::placeholders::_1
 
 #define CAMLPP__METHOD_PLACEHOLDERS2(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS1(func),	\
-    std::placeholders::_2 )
+  CAMLPP__METHOD_PLACEHOLDERS1(func),			\
+    std::placeholders::_2
 
 #define CAMLPP__METHOD_PLACEHOLDERS3(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS2(func),	\
-    std::placeholders::_3 )
+  CAMLPP__METHOD_PLACEHOLDERS2(func),			\
+    std::placeholders::_3
 
 #define CAMLPP__METHOD_PLACEHOLDERS4(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS3(func),	\
-    std::placeholders::_4 )
+  CAMLPP__METHOD_PLACEHOLDERS3(func),			\
+    std::placeholders::_4
 
 #define CAMLPP__METHOD_PLACEHOLDERS5(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS4(func),	\
-    std::placeholders::_5 )
+  CAMLPP__METHOD_PLACEHOLDERS4(func),			\
+    std::placeholders::_5
 
 #define CAMLPP__METHOD_PLACEHOLDERS6(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS5(func),	\
-    std::placeholders::_6 )
+  CAMLPP__METHOD_PLACEHOLDERS5(func),			\
+    std::placeholders::_6
 
 #define CAMLPP__METHOD_PLACEHOLDERS7(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS6(func),	\
-    std::placeholders::_7 )
+  CAMLPP__METHOD_PLACEHOLDERS6(func),			\
+    std::placeholders::_7
 
 #define CAMLPP__METHOD_PLACEHOLDERS8(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS7(func),	\
-    std::placeholders::_8 )
+  CAMLPP__METHOD_PLACEHOLDERS7(func),			\
+    std::placeholders::_8
 
 #define CAMLPP__METHOD_PLACEHOLDERS9(func)		\
-  ( CAMLPP__EXPAND CAMLPP__METHOD_PLACEHOLDERS8(func),	\
-    std::placeholders::_9 )
+  CAMLPP__METHOD_PLACEHOLDERS8(func),			\
+    std::placeholders::_9
+
 
 #define CAMLPP__METHOD_BODY(func, values_name, params_count, call_flags) \
   CAMLPP__BODY( camlpp::details::method_traits,				\
 		decltype(func),						\
-		std::bind CAMLPP__METHOD_PLACEHOLDERS ## params_count (func), \
+		std::bind<typename camlpp::details::method_traits<decltype(func)>::result_type> \
+		(CAMLPP__METHOD_PLACEHOLDERS ## params_count (func)),	\
 		values_name,						\
 		params_count, CAMLPP__METHOD_OBTAIN_PARAM_TYPE, call_flags)
 
@@ -188,7 +190,7 @@ using boost::mpl::int_;
   CAMLPPprim value  BOOST_PP_CAT( BOOST_PP_EXPAND( CAMLPP__CLASS_NAME()), _  ## method_name  ## __impl) ( value obj) \
   {									\
     CAMLPP__METHOD_BODY( func,						\
-			 (obj), 1, call_flags);					\
+			 (obj), 1, call_flags);				\
   }
 
 
@@ -529,7 +531,7 @@ using boost::mpl::int_;
     {									\
       class_name const* from_value( value const& v)			\
       {									\
-	return conversion_management< class_name * >::from_value( v );	\
+	return conversion_management< class_name* >::from_value( v );	\
       }									\
     };									\
     template<>								\
@@ -537,7 +539,7 @@ using boost::mpl::int_;
     {									\
       static void affect( value& v, class_name const& obj )		\
       {									\
-	affectation_management< class_name const*>::affect( v, &obj );	\
+	affectation_management< class_name const* >::affect( v, &obj );	\
       }									\
     };									\
     template<>								\
