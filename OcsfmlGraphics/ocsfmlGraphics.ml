@@ -815,7 +815,7 @@ struct
   external copy : t -> t =
       "sf_View_copy_constructor__impl"
       
-  external affect : t -> t -> unit =
+  external affect : t -> t -> t =
       "sf_View_affect__impl"
 
   external set_center : t -> float -> float -> unit =
@@ -890,7 +890,7 @@ object ((self : 'self))
   method destroy = View.destroy t_view_base
 
   method affect : 'a. (#const_view as 'a) -> unit =
-    fun p1 -> View.affect t_view_base p1#rep__sf_View
+    fun p1 -> ignore (View.affect t_view_base p1#rep__sf_View)
 
   method set_center : float -> float -> unit =
     fun p1 p2 -> View.set_center t_view_base p1 p2

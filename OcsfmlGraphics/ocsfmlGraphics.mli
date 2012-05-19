@@ -132,7 +132,6 @@ type blend_mode =
 module Transform :
 sig
   type t
-
   val destroy : t -> unit
   val get_inverse : t -> t
   val transform_point : t -> float -> float -> float * float

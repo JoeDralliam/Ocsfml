@@ -830,12 +830,12 @@ struct
   external is_ready : t -> (#socket as 'a) -> bool =
 	    "sf_SocketSelector_isReady__impl"
 	      
-  external set : t -> 'self -> 'self = "sf_SocketSelector_affect__impl"
+  external affect : t -> t -> t = "sf_SocketSelector_affect__impl"
 	    
 end
   
-class socket_selector t =
-object ((_ : 'self))
+class socket_selector_base t =
+object ((_: 'self))
   val t_socket_selector = (t : SocketSelector.t)
   method rep__sf_SocketSelector = t_socket_selector
   method destroy = SocketSelector.destroy t_socket_selector
@@ -848,10 +848,15 @@ object ((_ : 'self))
     fun ?timeout p1 -> SocketSelector.wait t_socket_selector ?timeout p1
   method is_ready : 'a. (#socket as 'a) -> bool =
     fun p1 -> SocketSelector.is_ready t_socket_selector p1
-  method set : 'self -> 'self =
-    fun p1 -> SocketSelector.set t_socket_selector p1
+  method affect : 'self -> unit =
+    fun p1 -> ignore (SocketSelector.affect t_socket_selector p1#rep__sf_SocketSelector)
 end
-  
+
+class socket_selector_bis () =
+  let t = SocketSelector.default () in
+  socket_selector_base t
+
+class socket_selector = socket_selector_bis ()
 
 module Port = 
 struct 

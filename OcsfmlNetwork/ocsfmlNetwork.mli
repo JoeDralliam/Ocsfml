@@ -956,18 +956,6 @@ end
 module SocketSelector :
 sig
   type t
-  class type socket_selector_class_type =
-  object ('a)
-    val t_socket_selector : t
-    method add : #socket -> unit
-    method clear : unit
-    method destroy : unit
-    method is_ready : #socket -> bool
-    method remove : #socket -> unit
-    method rep__sf_SocketSelector : t
-    method set : 'a -> 'a
-    method wait : ?timeout:OcsfmlSystem.Time.t -> unit -> bool
-  end
   val destroy : t -> unit
   val default : unit -> t
   val add : t -> #socket -> unit
@@ -975,7 +963,7 @@ sig
   val clear : t -> unit
   val wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> bool
   val is_ready : t -> #socket -> bool
-  val set : t -> 'a -> 'a
+  val affect : t -> t -> t
 end
 (**/**)
 
@@ -1052,8 +1040,7 @@ end
     in connection_loop ()
     ]}*)
 class socket_selector :
-  SocketSelector.t ->
-object ('a)
+object ('self)
   (**/**)
   val t_socket_selector : SocketSelector.t
     (**/**)
@@ -1086,7 +1073,7 @@ object ('a)
   method rep__sf_SocketSelector : SocketSelector.t
 
   (** *)
-  method set : 'a -> 'a
+  method affect : 'self -> unit
 
   (** Wait until one or more sockets are ready to receive.
 

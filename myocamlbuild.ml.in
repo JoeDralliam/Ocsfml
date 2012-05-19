@@ -175,8 +175,7 @@ let _ = dispatch begin function
 	  
 	  (* if the c++ "s" lib is employed we add it to the dependencies *)
 	dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] [d^"/libocsfml"^s^"."^lib_extension] ;
-	if dynlink_byte or dynlink_nat
-	then dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] [d^"/dllocsfml"^s^"."^dll_extension] ;
+	dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] [d^"/dllocsfml"^s^"."^dll_extension] ;
 	  (* to obtain the flags use_ocsfml"s" and include_ocsfml"s" *)
 	  ocaml_lib (d ^ "/ocsfml" ^ s);
       in 
