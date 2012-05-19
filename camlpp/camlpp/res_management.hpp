@@ -71,7 +71,7 @@ namespace camlpp
   {
   private:
     template<class Func, class... Args>
-    typename std::result_of<Func(Args...)>::type call_helper(Func&& f, Args&&... args)
+    T call_helper(Func&& f, Args&&... args)
     {
       scoped_release_rt<(flags & release_caml_runtime) != 0> runtime_released;
       return f(std::forward<Args>(args)...);
