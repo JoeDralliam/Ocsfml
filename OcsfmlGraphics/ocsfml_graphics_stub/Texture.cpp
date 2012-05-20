@@ -85,6 +85,7 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_constructor0( default_constructor, 0);
   camlpp__register_constructor1( copy_constructor, sf::Texture const&, 0);
+  camlpp__register_external_method1( affect, &sf::Texture::operator=, 0);
   camlpp__register_method2( create, 0);
   camlpp__register_external_method2( loadFromFile, &texture_load_from_file_helper, camlpp::release_caml_runtime);
   camlpp__register_external_method2( loadFromStream, &texture_load_from_stream_helper, 0);

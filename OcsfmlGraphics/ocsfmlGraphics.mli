@@ -19,7 +19,7 @@ type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a; }
 (**/**)
 module type RECT_VAL =
 sig type t val add : t -> t -> t val sub : t -> t -> t end
-(**/**)
+  (**/**)
 
 module Rect :
   functor (M : RECT_VAL) ->
@@ -48,20 +48,20 @@ end
 
 module Color :
 sig
-    (** Utility class for manpulating RGBA colors.
-	
-	sf::Color is a simple color class composed of 4 components:
-	
-	- Red
-	- Green
-	- Blue
-	- Alpha (opacity)
-	
-	Each component is an integer in the range [0, 255].
-	
-	The fourth component of colors, named "alpha", represents the opacity of the color. A color with an alpha value of 255 will be fully opaque, while an alpha value of 0 will make a color fully transparent, whatever the value of the other components is.
-	
-	Colors can also be added and modulated (multiplied) using the overloaded operators Infix.+% and Infix.*%. *)
+  (** Utility class for manpulating RGBA colors.
+      
+      sf::Color is a simple color class composed of 4 components:
+      
+      - Red
+      - Green
+      - Blue
+      - Alpha (opacity)
+      
+      Each component is an integer in the range [0, 255].
+      
+      The fourth component of colors, named "alpha", represents the opacity of the color. A color with an alpha value of 255 will be fully opaque, while an alpha value of 0 will make a color fully transparent, whatever the value of the other components is.
+      
+      Colors can also be added and modulated (multiplied) using the overloaded operators Infix.+% and Infix.*%. *)
   type t = { 
     r : int; (** Red component. *)
     g : int; (** Green component. *)
@@ -70,47 +70,47 @@ sig
   }
       
       
-    (** Construct the color from its 3 RGB components (alpha is set to 255).
-	@return Color constructed from the 3 RGB components. *)
+  (** Construct the color from its 3 RGB components (alpha is set to 255).
+      @return Color constructed from the 3 RGB components. *)
   val rgb : int -> int -> int -> t
     
     
-    (** Construct the color from its 4 RGBA components. 
-	@return Color constructed from the 4 RGBA components. *)
+  (** Construct the color from its 4 RGBA components. 
+      @return Color constructed from the 4 RGBA components. *)
   val rgba : int -> int -> int -> int -> t
     
     
-    (** Compute the the component-wise sum of two colors. Components that exceed 255 are clamped to 255. 
-	@return Result of the sum. *) 
+  (** Compute the the component-wise sum of two colors. Components that exceed 255 are clamped to 255. 
+      @return Result of the sum. *) 
   val add : t -> t -> t
 
     
-    (** Compute the the component-wise multiplication (also called "modulation") of two colors. Components are then divided by 255 so that the result is still in the range [0, 255].
-	@return Result of the multiplication. *)
+  (** Compute the the component-wise multiplication (also called "modulation") of two colors. Components are then divided by 255 so that the result is still in the range [0, 255].
+      @return Result of the multiplication. *)
   val modulate : t -> t -> t
     
-    (** White predefined color. *)
+  (** White predefined color. *)
   val white : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val black : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val red : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val green : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val blue : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val yellow : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val magenta : t
 
-    (** White predefined color. *)
+  (** White predefined color. *)
   val cyan : t
 
 
@@ -132,7 +132,10 @@ type blend_mode =
 module Transform :
 sig
   type t
+  val default : unit -> t
+  val copy : t -> t
   val destroy : t -> unit
+  val affect : t -> t -> t
   val get_inverse : t -> t
   val transform_point : t -> float -> float -> float * float
   val transform_point_v : t -> float * float -> float * float
@@ -145,7 +148,7 @@ sig
   val scale : t -> ?center_x:float -> ?center_y:float -> float -> float -> unit
   val scale_v : t -> ?center:float * float -> float * float -> unit
 end
-(**/**)
+  (**/**)
 
 (** Define a 3x3 transform matrix.
 
@@ -156,87 +159,93 @@ end
     For example, if you apply a rotation transform to a sprite, the result will be a rotated sprite. And anything that is transformed by this rotation transform will be rotated the same way, according to its initial position.
     
     Transforms are typically used for drawing. But they can also be used for any computation that requires to transform points between the local and global coordinate systems of an entity (like collision detection). *)
-class transform : ?matrix:(float * float * float * float * float * float * float * float * float) -> unit ->
-object ('a)
+class transform : 
+  [ `None
+  | `Matrix of (float * float * float * float * float * float * float * float * float) 
+  | `Copy of < rep__sf_Transform : Transform.t ; .. > ]->
+object ('self)
   (**/**)
   val t_transform_base : Transform.t
     (**/**)
 
-    (** Combine the current transform with another one.
+  (**)
+  method affect : 'self -> unit
 
-	The result is a transform that is equivalent to applying this followed by transform. Mathematically, it is equivalent to a matrix multiplication.
-	@return Reference to self. *)
-  method combine : 'a -> 'a
-
-
-    (**)
+  (** Combine the current transform with another one.
+      
+      The result is a transform that is equivalent to applying this followed by transform. Mathematically, it is equivalent to a matrix multiplication.
+      @return Reference to self. *)
+  method combine : 'self -> 'self
+    
+    
+  (**)
   method destroy : unit
+    
+    
+  (** Return the inverse of the transform.
+      
+      If the inverse cannot be computed, an identity transform is returned.
+      @return A new transform which is the inverse of self. *)
+  method get_inverse : 'self
 
 
-    (** Return the inverse of the transform.
-
-	If the inverse cannot be computed, an identity transform is returned.
-	@return A new transform which is the inverse of self. *)
-  method get_inverse : 'a
-
-
-    (**/**)
+  (**/**)
   method rep__sf_Transform : Transform.t
     (**/**)
 
     
-    (** Combine the current transform with a rotation.
+  (** Combine the current transform with a rotation.
 
-	The center of rotation is provided for convenience as a second argument, so that you can build rotations around arbitrary points more easily (and efficiently) than the usual translate(-center).rotate(angle).translate(center).
-	@param center_x X coordinate of the center of rotation. 
-	@param center_y Y coordinate of the center of rotation. *)
+      The center of rotation is provided for convenience as a second argument, so that you can build rotations around arbitrary points more easily (and efficiently) than the usual translate(-center).rotate(angle).translate(center).
+      @param center_x X coordinate of the center of rotation. 
+      @param center_y Y coordinate of the center of rotation. *)
   method rotate : ?center_x:float -> ?center_y:float -> float -> unit
 
 
-    (** Combine the current transform with a rotation.
-	
-	The center of rotation is provided for convenience as a second argument, so that you can build rotations around arbitrary points more easily (and efficiently) than the usual translate(-center).rotate(angle).translate(center).
-	@param center Center of rotation.*)
+  (** Combine the current transform with a rotation.
+      
+      The center of rotation is provided for convenience as a second argument, so that you can build rotations around arbitrary points more easily (and efficiently) than the usual translate(-center).rotate(angle).translate(center).
+      @param center Center of rotation.*)
   method rotate_v : ?center:float * float -> float -> unit
 
     
-    (** Combine the current transform with a scaling.
-	
-	The center of scaling is provided for convenience as a second argument, so that you can build scaling around arbitrary points more easily (and efficiently) than the usual translate(-center).scale(factors).translate(center).
-	@param center_x X coordinate of the center of scaling 
-	@param center_y Y coordinate of the center of scaling *)
+  (** Combine the current transform with a scaling.
+      
+      The center of scaling is provided for convenience as a second argument, so that you can build scaling around arbitrary points more easily (and efficiently) than the usual translate(-center).scale(factors).translate(center).
+      @param center_x X coordinate of the center of scaling 
+      @param center_y Y coordinate of the center of scaling *)
   method scale : ?center_x:float -> ?center_y:float -> float -> float -> unit
     
 
-    (** Combine the current transform with a scaling.
-	
-	The center of scaling is provided for convenience as a second argument, so that you can build scaling around arbitrary points more easily (and efficiently) than the usual translate(-center).scale(factors).translate(center).
-	@param center Center of scaling. *)
+  (** Combine the current transform with a scaling.
+      
+      The center of scaling is provided for convenience as a second argument, so that you can build scaling around arbitrary points more easily (and efficiently) than the usual translate(-center).scale(factors).translate(center).
+      @param center Center of scaling. *)
   method scale_v : ?center:float * float -> float * float -> unit
     
 
-    (** Transform a 2D point. 
-	@return Transformed point. *)
+  (** Transform a 2D point. 
+      @return Transformed point. *)
   method transform_point : float -> float -> float * float
     
 
-    (** Transform a 2D point. 
-	@return Transformed point. *)
+  (** Transform a 2D point. 
+      @return Transformed point. *)
   method transform_point_v : float * float -> float * float
     
 
-    (** Transform a rectangle.
-	
-	Since SFML doesn't provide support for oriented rectangles, the result of this function is always an axis-aligned rectangle. Which means that if the transform contains a rotation, the bounding rectangle of the transformed rectangle is returned.
-	@return Transformed rectangle *)
+  (** Transform a rectangle.
+      
+      Since SFML doesn't provide support for oriented rectangles, the result of this function is always an axis-aligned rectangle. Which means that if the transform contains a rotation, the bounding rectangle of the transformed rectangle is returned.
+      @return Transformed rectangle *)
   method transform_rect : float rect -> float rect
     
 
-    (** Combine the current transform with a translation. *)
+  (** Combine the current transform with a translation. *)
   method translate : float -> float -> unit
     
 
-    (** Combine the current transform with a translation. *)
+  (** Combine the current transform with a translation. *)
   method translate_v : float * float -> unit
 end
 
@@ -249,6 +258,7 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
+  val affect : t -> t -> t
   val set_position : t -> float -> float -> unit
   val set_position_v : t -> float * float -> unit
   val set_scale : t -> float -> float -> unit
@@ -268,7 +278,7 @@ sig
   val get_transform : t -> Transform.t
   val get_inverse_transform : t -> Transform.t
 end
-(**/**)
+  (**/**)
 
 (** Decomposed transform defined by a position, a rotation and a scale.
     
@@ -284,106 +294,109 @@ end
     
     Transformable can be used as a base class. It is often combined with Drawable -- that's what SFML's sprites, texts and shapes do. *)
 class transformable : ?position:(float * float) -> ?scale:(float * float) -> ?origin:(float * float) -> ?rotation:float -> unit ->
-object
-    (**/**)
+object ('self)
+  (**/**)
   val t_transformable_base : Transformable.t
     (**/**)
 
   method destroy : unit
 
-    (** Get the inverse of the combined transform of the object
-	@return Inverse of the combined transformations applied to the object. *)
+  (**)
+  method affect : 'self -> unit
+
+  (** Get the inverse of the combined transform of the object
+      @return Inverse of the combined transformations applied to the object. *)
   method get_inverse_transform : transform
 
-    (** Get the local origin of the object.
-	@return Current origin. *)
+  (** Get the local origin of the object.
+      @return Current origin. *)
   method get_origin : float * float
     
-    (** Getthe position of the object.
-	@return Current position *)
+  (** Getthe position of the object.
+      @return Current position *)
   method get_position : float * float
 
-    (** Get the the orientation of the object.
-	
-	The rotation is always in the range [0, 360].
-	@return Current rotation, in degrees. *)
+  (** Get the the orientation of the object.
+      
+      The rotation is always in the range [0, 360].
+      @return Current rotation, in degrees. *)
   method get_rotation : float
 
-    (** Get the scale of the object.
-	@return Current scale factors. *)
+  (** Get the scale of the object.
+      @return Current scale factors. *)
   method get_scale : float * float
 
-    (** Get the combined transform of the object.
-	@return Transform combining the position/rotation/scale/origin of the object *)
+  (** Get the combined transform of the object.
+      @return Transform combining the position/rotation/scale/origin of the object *)
   method get_transform : transform
 
-    (** Move the object by a given offset.
-	
-	This function adds to the current position of the object, unlike setPosition which overwrites it. *)
+  (** Move the object by a given offset.
+      
+      This function adds to the current position of the object, unlike setPosition which overwrites it. *)
   method move : float -> float -> unit
     
-    (** Move the object by a given offset.
-	
-	This function adds to the current position of the object, unlike setPosition which overwrites it. *)
+  (** Move the object by a given offset.
+      
+      This function adds to the current position of the object, unlike setPosition which overwrites it. *)
   method move_v : float * float -> unit
     
-    (**/**)
+  (**/**)
   method rep__sf_Transformable : Transformable.t
     (**/**)
 
-    (** Rotate the object.
+  (** Rotate the object.
 
-	This function adds to the current rotation of the object, unlike setRotation which overwrites it. *)
+      This function adds to the current rotation of the object, unlike setRotation which overwrites it. *)
   method rotate : float -> unit
     
-    (** Scale the object.
-	
-	This function multiplies the current scale of the object, unlike setScale which overwrites it. *)
+  (** Scale the object.
+      
+      This function multiplies the current scale of the object, unlike setScale which overwrites it. *)
   method scale : float -> float -> unit
     
-    (** Scale the object.
-	
-	This function multiplies the current scale of the object, unlike setScale which overwrites it. *)
+  (** Scale the object.
+      
+      This function multiplies the current scale of the object, unlike setScale which overwrites it. *)
   method scale_v : float * float -> unit
     
-    (** Set the local origin of the object
-	
-	The origin of an object defines the center point for all transformations (position, scale, rotation). The coordinates of this point must be relative to the top-left corner of the object, and ignore all transformations (position, scale, rotation). The default origin of a transformable object is (0, 0). *)
+  (** Set the local origin of the object
+      
+      The origin of an object defines the center point for all transformations (position, scale, rotation). The coordinates of this point must be relative to the top-left corner of the object, and ignore all transformations (position, scale, rotation). The default origin of a transformable object is (0, 0). *)
   method set_origin : float -> float -> unit
     
-    (** Set the local origin of the object
-	
-	The origin of an object defines the center point for all transformations (position, scale, rotation). The coordinates of this point must be relative to the top-left corner of the object, and ignore all transformations (position, scale, rotation). The default origin of a transformable object is (0, 0). *)
+  (** Set the local origin of the object
+      
+      The origin of an object defines the center point for all transformations (position, scale, rotation). The coordinates of this point must be relative to the top-left corner of the object, and ignore all transformations (position, scale, rotation). The default origin of a transformable object is (0, 0). *)
   method set_origin_v : float * float -> unit
     
-    (** Set the position of the object
-	
-	This function completely overwrites the previous position. See Move to apply an offset based on the previous position instead. The default position of a transformable object is (0, 0). *)
+  (** Set the position of the object
+      
+      This function completely overwrites the previous position. See Move to apply an offset based on the previous position instead. The default position of a transformable object is (0, 0). *)
   method set_position : float -> float -> unit
     
-    (** Set the position of the object
-	
-	This function completely overwrites the previous position. See Move to apply an offset based on the previous position instead. The default position of a transformable object is (0, 0). *)
+  (** Set the position of the object
+      
+      This function completely overwrites the previous position. See Move to apply an offset based on the previous position instead. The default position of a transformable object is (0, 0). *)
   method set_position_v : float * float -> unit
     
-    (** Set the orientation of the object
-	
-	This function completely overwrites the previous rotation. See Rotate to add an angle based on the previous rotation instead. The default rotation of a transformable object is 0.*)
+  (** Set the orientation of the object
+      
+      This function completely overwrites the previous rotation. See Rotate to add an angle based on the previous rotation instead. The default rotation of a transformable object is 0.*)
   method set_rotation : float -> unit
     
-    (** Set the scale factors of the object
+  (** Set the scale factors of the object
 
-	This function completely overwrites the previous scale. See Scale to add a factor based on the previous scale instead. The default scale of a transformable object is (1, 1).*)
+      This function completely overwrites the previous scale. See Scale to add a factor based on the previous scale instead. The default scale of a transformable object is (1, 1).*)
   method set_scale : float -> float -> unit
     
-    (** Set the scale factors of the object
+  (** Set the scale factors of the object
 
-	This function completely overwrites the previous scale. See Scale to add a factor based on the previous scale instead. The default scale of a transformable object is (1, 1).*)
+      This function completely overwrites the previous scale. See Scale to add a factor based on the previous scale instead. The default scale of a transformable object is (1, 1).*)
   method set_scale_v : float * float -> unit
 end
 
 (*
-class transformable_init : ?position:float * float ->
+  class transformable_init : ?position:float * float ->
   ?scale:float * float ->
   ?origin:float * float -> ?rotation:float -> Transformable.t -> transformable
 *)
@@ -397,6 +410,8 @@ sig
 
   val destroy : t -> unit
   val default : unit -> t
+  val copy : t -> t
+  val affect : t -> t -> t
   val create_from_color : t -> ?color:Color.t -> int -> int -> unit
   val create_from_pixels : t -> OcsfmlWindow.pixel_array_type -> unit
   val load_from_file : t -> string -> bool
@@ -406,14 +421,14 @@ sig
   val get_size : t -> int * int
   val get_pixels_ptr : t -> OcsfmlWindow.pixel_array_type
   val create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
-  val copy :
-    t -> ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
+  val copy_image :
+    t -> ?srcRect:int rect -> ?alpha:bool -> t -> int -> int -> unit
   val set_pixel : t -> int -> int -> Color.t -> unit
   val get_pixel : t -> int -> int -> Color.t
   val flip_horizontally : t -> unit
   val flip_vertically : t -> unit
 end
-(**/**)
+  (**/**)
   
 (** Class for loading, manipulating and saving images.
     
@@ -425,22 +440,26 @@ end
     
     A image can be copied, but it is a heavy resource and if possible you should always use [const] references to pass or return them to avoid useless copies. *)
 class image :
-  [< `Color of Color.t * int * int
+  [ `Color of Color.t * int * int
   | `Create of int * int
   | `File of string
   | `Stream of OcsfmlSystem.input_stream 
+  | `Copy of < rep__sf_Image : Image.t ; .. >
   | `None ] ->
-object ('a)
+object ('self)
   (**/**)
   val t_image_base : Image.t
-  (**/**)
+    (**/**)
+
+  (**)
+  method affect : 'self -> unit
 
   (** Copy pixels from another image onto this one.
       
       This function does a slow pixel copy and should not be used intensively. It can be used to prepare a complex static image from several others, but if you need this kind of feature in real-time you'd better use render_texture.
       @param srcRect Sub-rectangle of the source image to copy.
       @param alpha Should the copy take in account the source transparency ? *)
-  method copy : ?srcRect:int rect -> ?alpha:bool -> 'a -> int -> int -> unit
+  method copy : ?srcRect:int rect -> ?alpha:bool -> 'self -> int -> int -> unit
 
 
   (** Create the image and fill it with a unique color. 
@@ -499,7 +518,7 @@ object ('a)
 
   (**/**)
   method rep__sf_Image : Image.t
-  (**/**)
+    (**/**)
 
   (** Save the image to a file on disk.
 
@@ -527,6 +546,8 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
+  val copy : t -> t
+  val affect : t -> t -> t
   val create : t -> int -> int -> unit
   val load_from_file : t -> ?rect:int rect -> string -> bool
   val load_from_stream : t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
@@ -543,7 +564,7 @@ sig
   val set_repeated : t -> bool -> unit
   val is_repeated : t -> bool
 end
-(**/**)
+  (**/**)
   
 (** Image living on the graphics card that can be used for drawing.
     
@@ -562,45 +583,50 @@ end
     Like image, texture can handle a unique internal representation of pixels, which is RGBA 32 bits. This means that a pixel must be composed of 8 bits red, green, blue and alpha channels -- just like a color.*)
 class texture :
   ?rect:int rect -> 
-  [< `File of string
+  [ `File of string
   | `Image of image
   | `Stream of OcsfmlSystem.input_stream 
   | `Memory of OcsfmlSystem.raw_data_type
+  | `Copy of < rep__sf_Texture : Texture.t ; .. >
   | `None ] ->
-object
+object ('self)
   (**/**)
   val t_texture_base : Texture.t
-  (**/**)
-  
+    (**/**)
+    
   (* TODO: add Coordinate type *)
+
+  (**)
+  method affect : 'self -> unit
+
   (** Activate the texture for rendering.
       
       This function is mainly used internally by the SFML rendering system. However it can be useful when using sf::Texture together with OpenGL code (this function is equivalent to glBindTexture).
       
       The coordinateType argument controls how texture coordinates will be interpreted. If Normalized (the default), they must be in range [0 .. 1], which is the default way of handling texture coordinates with OpenGL. If Pixels, they must be given in pixels (range [0 .. size]). This mode is used internally by the graphics classes of SFML, it makes the definition of texture coordinates more intuitive for the high-level API, users don't need to compute normalized values. *)
   method bind : unit
-  
+    
   (** Copy the texture pixels to an image.
 
       This function performs a slow operation that downloads the texture's pixels from the graphics card and copies them to a new image, potentially applying transformations to pixels if necessary (texture may be padded or flipped).*)
   method copy_to_image : image
-  
+    
   (** Create the texture.
 
       If this function fails, the texture is left unchanged.*)
   method create : int -> int -> unit
-  
+    
 
   method destroy : unit
-  
+    
   (** Return the size of the texture. 
       @return Size in pixels.*)
   method get_size : int * int
-  
+    
   (** Tell whether the texture is repeated or not. 
       @return True if repeat mode is enabled, false if it is disabled. *)
   method is_repeated : bool
-  
+    
   (** Tell whether the smooth filter is enabled or not. 
       @return True if smoothing is enabled, false if it is disabled. *)
   method is_smooth : bool -> unit
@@ -640,14 +666,14 @@ object
       @param rect Area of the image to load.
       @return True if loading was successful. *)
   method load_from_stream : ?rect:int rect -> OcsfmlSystem.input_stream -> bool
-  
+    
   (**/**)
   method rep__sf_Texture : Texture.t
-  (**/**)
+    (**/**)
 
   (** Enable or disable repeating.
 
-    Repeating is involved when using texture coordinates outside the texture rectangle [0, 0, width, height]. In this case, if repeat mode is enabled, the whole texture will be repeated as many times as needed to reach the coordinate (for example, if the X texture coordinate is 3 * width, the texture will be repeated 3 times). If repeat mode is disabled, the "extra space" will instead be filled with border pixels. Warning: on very old graphics cards, white pixels may appear when the texture is repeated. With such cards, repeat mode can be used reliably only if the texture has power-of-two dimensions (such as 256x128). Repeating is disabled by default. *)
+      Repeating is involved when using texture coordinates outside the texture rectangle [0, 0, width, height]. In this case, if repeat mode is enabled, the whole texture will be repeated as many times as needed to reach the coordinate (for example, if the X texture coordinate is 3 * width, the texture will be repeated 3 times). If repeat mode is disabled, the "extra space" will instead be filled with border pixels. Warning: on very old graphics cards, white pixels may appear when the texture is repeated. With such cards, repeat mode can be used reliably only if the texture has power-of-two dimensions (such as 256x128). Repeating is disabled by default. *)
   method set_repeated : bool -> unit
 
 
@@ -702,6 +728,8 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
+  val copy : t -> t
+  val affect : t -> t -> t
   val load_from_file : t -> string -> bool
   val load_from_memory : t -> OcsfmlSystem.raw_data_type -> bool
   val load_from_stream : t -> #OcsfmlSystem.input_stream -> bool
@@ -710,7 +738,7 @@ sig
   val get_line_spacing : t -> int -> int
   val get_texture : t -> int -> texture
 end
-(**/**)
+  (**/**)
 
 (** Class for loading and manipulating character fonts.
     
@@ -728,17 +756,21 @@ end
     
     It is important to note that the text instance doesn't copy the font that it uses, it only keeps a reference to it. Thus, a font must not be destructed while it is used by a text (i.e. never write a function that uses a local font instance for creating a text).*)
 class font :
-  [< `File of string
-  |  `Memory of OcsfmlSystem.raw_data_type
-  |  `Stream of OcsfmlSystem.input_stream
-  |  `None ] ->
-object
+  [ `File of string
+  | `Memory of OcsfmlSystem.raw_data_type
+  | `Stream of OcsfmlSystem.input_stream
+  | `Copy of < rep__sf_Font : Font.t ; .. >
+  | `None ] ->
+object ('self)
   (**/**)
   val t_font_base : Font.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
+
+  (**)
+  method affect : 'self -> unit
 
   (** Retrieve a glyph of the font. 
       @return The glyph corresponding to codePoint and characterSize.*)
@@ -755,7 +787,7 @@ object
       Line spacing is the vertical offset to apply between two consecutive lines of text.
       @return Line spacing, in pixels *)
   method get_line_spacing : int -> int
- 
+    
   (** Retrieve the texture containing the loaded glyphs of a certain size.
 
       The contents of the returned texture changes as more glyphs are requested, thus it is not very relevant. It is mainly used internally by text.
@@ -779,10 +811,10 @@ object
     
   (**/**)
   method rep__sf_Font : Font.t
-(**/**)
+    (**/**)
     
 end
-  
+
 (**/**)
 module Shader :
 sig
@@ -808,7 +840,7 @@ sig
   val bind : t -> unit
   val unbind : t -> unit
 end
-(**/**)
+  (**/**)
 
 (**)
 val shader_is_available : unit -> unit
@@ -872,14 +904,14 @@ end
     {[  
     window#set_active () ;
     shader#bind ;
-    (* ... render OpenGL geometry ... *)
+(* ... render OpenGL geometry ... *)
     shader#unbind 
     ]} *)
 class shader : ?vertex:('a ShaderSource.source) -> ?fragment:('a ShaderSource.source) -> unit ->
 object
   (**/**)
   val t_shader_base : Shader.t
-  (**/**)
+    (**/**)
 
   (** Bind the shader for rendering (activate it)
 
@@ -914,7 +946,7 @@ object
 
   (**/**)
   method rep__sf_Shader : Shader.t
-  (**/**)
+    (**/**)
 
   (** Change a color parameter of the shader.
 
@@ -947,7 +979,7 @@ object
       {[uniform float myparam; // this is the variable in the shader]}
       {[shader#set_parameter1 "myparam" 5.2]} *)
   method set_parameter1 : string -> float -> unit
-  
+    
   (** Change a 2-components vector parameter of the shader.
       
       The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 2x1 vector (vec2 GLSL type).
@@ -975,7 +1007,7 @@ object
       {[shader#set_parameter3 "myparam" 5.2 6.0 -8.1]} *)
   method set_parameter3 : string -> float -> float -> float -> unit
 
-      
+    
   (** Change a 3-components vector parameter of the shader.
       
       The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 3x1 vector (vec3 GLSL type).
@@ -1011,7 +1043,7 @@ object
   method set_texture : string -> texture -> unit
     
   (** Change a matrix parameter of the shader.
-    
+      
       The string argument is the name of the variable to change in the shader. The corresponding parameter in the shader must be a 4x4 matrix (mat4 GLSL type).
       
       Example:
@@ -1052,7 +1084,7 @@ sig
   val rotate : t -> float -> unit
   val zoom : t -> float -> unit
 end
-(**/**)
+  (**/**)
 
 class const_view : 
   [ `Center of (float * float) * (float * float)
@@ -1062,21 +1094,21 @@ class const_view :
 object 
   (**/**)
   val t_view_base : View.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
 
   (**/**)
   method rep__sf_View : View.t
-  (**/**)
-  
+    (**/**)
+    
   method get_center : (float * float) 
-  
+    
   method get_size : (float * float) 
-  
+    
   method get_rotation : float 
-  
+    
   method get_viewport : float rect 
 end
 
@@ -1127,7 +1159,7 @@ class view :
 object ('self)
   (**/**)
   val t_view_base : View.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -1164,7 +1196,7 @@ object ('self)
 
   (**/**)
   method rep__sf_View : View.t
-  (**/**)
+    (**/**)
 
   (** Reset the view to the given rectangle.
 
@@ -1218,13 +1250,13 @@ end
     
     Example:
     {[
-    (* define a 100x100 square, red, with a 10x10 texture mapped on it *)
+(* define a 100x100 square, red, with a 10x10 texture mapped on it *)
     let vertices =
     [
-        { position = (0.,0.)     ; color = Color.Red ; tex_coords = (0.,0.) } ;
-        { position = (0.,100.)   ; color = Color.Red ; tex_coords = (0.,10.) } ;
-        { position = (100.,100.) ; color = Color.Red ; tex_coords = (10.,10.) } ;
-        { position = (100.,0.)   ; color = Color.Red ; tex_coords = (10.,0.) } 
+    { position = (0.,0.)     ; color = Color.Red ; tex_coords = (0.,0.) } ;
+    { position = (0.,100.)   ; color = Color.Red ; tex_coords = (0.,10.) } ;
+    { position = (100.,100.) ; color = Color.Red ; tex_coords = (10.,10.) } ;
+    { position = (100.,0.)   ; color = Color.Red ; tex_coords = (10.,0.) } 
     ] in
     ]}
     Note: although texture coordinates are supposed to be an integer amount of pixels, their type is float because of some buggy graphics drivers that are not able to process integer coordinates correctly. *)
@@ -1256,7 +1288,7 @@ sig
   val destroy : t -> unit
   val inherits : unit -> t
 end
-(**/**)
+  (**/**)
 
 
 (**/**)
@@ -1265,8 +1297,8 @@ sig
   type t
   val destroy : t -> unit
   val clear : t -> ?color:Color.t -> unit -> unit
-(** Note : changed #drawable into Drawable.t *)
-(*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
+    (** Note : changed #drawable into Drawable.t *)
+    (*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
   val draw : t -> ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> Drawable.t -> unit
   val get_size : t -> int * int
   val set_view : t -> #const_view -> unit
@@ -1278,7 +1310,7 @@ sig
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
 end
-(**/**)
+  (**/**)
 
 
 (** Indicates a c++ reference ; be cautious with border-side effects *)
@@ -1321,7 +1353,7 @@ and render_target :
 object
   (**/**)
   val t_render_target : RenderTarget.t
-  (**/**)
+    (**/**)
 
   (** Clear the entire target with a single color.
 
@@ -1343,7 +1375,7 @@ object
 
   (** Draw a drawable object to the render-target. 
       @param render_states Render states to use for drawing. *)
-(*  method draw : ?render_states:render_states -> < rep__sf_Drawable : Drawable.t; .. > -> unit *)
+  (*  method draw : ?render_states:render_states -> < rep__sf_Drawable : Drawable.t; .. > -> unit *)
   method draw : ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> < rep__sf_Drawable : Drawable.t; .. > -> unit
 
   (** Get the default view of the render target.
@@ -1372,9 +1404,9 @@ object
   method pop_gl_states : unit
 
   (** Save the current OpenGL render states and matrices.
-    
+      
       This function can be used when you mix SFML drawing and direct OpenGL rendering. Combined with pop_gl_states, it ensures that:
-    
+      
       - SFML's internal states are not messed up by your OpenGL code
       - your OpenGL states are not modified by a call to a SFML function
       
@@ -1389,10 +1421,10 @@ object
       ]}
       Note that this function is quite expensive: it saves all the possible OpenGL states and matrices, even the ones you don't care about. Therefore it should be used wisely. It is provided for convenience, but the best results will be achieved if you handle OpenGL states yourself (because you know which states have really changed, and need to be saved and restored). Take a look at the ResetGLStates function if you do so. *)
   method push_gl_states : unit
-  
+    
   (**/**)
   method rep__sf_RenderTarget : RenderTarget.t
-  (**/**)
+    (**/**)
     
   (** Reset the internal OpenGL states so that the target is ready for drawing.
       
@@ -1400,7 +1432,7 @@ object
       
       Example:
       {[
-      (* OpenGL code here... *)
+  (* OpenGL code here... *)
       glPushAttrib (* ... *) ;
       window#reset_gl_states ;
       window#draw (* ... *) ;
@@ -1435,7 +1467,7 @@ sig
   val display : t -> unit
   val get_texture : t -> texture
 end
-(**/**)
+  (**/**)
 
 (** Target for off-screen 2D rendering into an texture.
 
@@ -1457,37 +1489,37 @@ end
     
 (* Create a new render-texture *)
     let texture = 
-      try new OcsfmlGraphics.render_texture 500 500 
-      with OcsfmlGraphics.CreateFailure -> failwith "Could not create the render texture"
+    try new OcsfmlGraphics.render_texture 500 500 
+    with OcsfmlGraphics.CreateFailure -> failwith "Could not create the render texture"
     in
 
     let main_loop () =
-      (* Event processing *)
-      (* ... *)
+(* Event processing *)
+(* ... *)
 
-      (* Clear the whole texture with red color *)
-        texture#clear ~color:OcsfmlGraphics.Color.red ();
+(* Clear the whole texture with red color *)
+    texture#clear ~color:OcsfmlGraphics.Color.red ();
     
-      (* Draw stuff to the texture *)
-        texture#draw sprite ;  (* sprite is an Ocsfml.sprite *)
-        texture#draw shape ;   (* shape is an Ocsfml.shape *)
-        texture#draw text ;    (* text is an Ocsfml.text *)
+(* Draw stuff to the texture *)
+    texture#draw sprite ;  (* sprite is an Ocsfml.sprite *)
+    texture#draw shape ;   (* shape is an Ocsfml.shape *)
+    texture#draw text ;    (* text is an Ocsfml.text *)
     
-      (* We're done drawing to the texture *)
-        texture#display ;
+(* We're done drawing to the texture *)
+    texture#display ;
 
-      (* Now we start rendering to the window, clear it first *)
-        window#clear ()
+(* Now we start rendering to the window, clear it first *)
+    window#clear ()
     
-      (* Draw the texture *)
-        let sprite = new sprite ~texture:(texture#get_texture) () in
-        window#draw sprite ;
+(* Draw the texture *)
+    let sprite = new sprite ~texture:(texture#get_texture) () in
+    window#draw sprite ;
     
-      (* End the current frame and display its contents on screen *)
-        window#display ;
+(* End the current frame and display its contents on screen *)
+    window#display ;
     
-        if window#is_open 
-        then main_loop ()
+    if window#is_open 
+    then main_loop ()
     in
 
     main_loop ()
@@ -1496,9 +1528,9 @@ class render_texture :
   ?depht_buffer:bool -> int -> int ->
 object
   inherit render_target
-  (**/**)
+    (**/**)
   val t_render_texture_base : RenderTexture.t
-  (**/**)
+    (**/**)
 
   (** Create the render-texture.
 
@@ -1527,7 +1559,7 @@ object
 
   (**/**)
   method rep__sf_RenderTexture : RenderTexture.t
-  (**/**)
+    (**/**)
 
   (** Activate of deactivate the render-texture for rendering.
 
@@ -1555,7 +1587,7 @@ sig
     OcsfmlWindow.VideoMode.t -> string -> t
   val capture : t -> image
 end
-(**/**)
+  (**/**)
 
 (** Window that can serve as a target for 2D drawing.
     
@@ -1567,56 +1599,56 @@ end
 
     On top of that, OcsfmlWindow.render_window adds more features related to 2D drawing with the graphics module (see its base class OcsfmlGraphics.render_target for more details). Here is a typical rendering and event loop with a OcsfmlWindow.render_window:
     {[
-    (* Declare and create a new render-window *)
+(* Declare and create a new render-window *)
     let window = new window (OcsfmlGraphics.VideoMode.create ~w:800 ~h:600) "SFML window" in
     
-    (* Limit the framerate to 60 frames per second (this step is optional) *)
+(* Limit the framerate to 60 frames per second (this step is optional) *)
     window#set_framerate_limit 60 
 
-    (* Event processing *)
+(* Event processing *)
     let rec process_events () =
-        match window#poll_event with
-          | Some e -> 
-            begin 
-              match e with
-                | OcsfmlWindow.Event.Closed -> window#close
-                | _ -> () ;
-              process_events ()
-            end
-          | _ -> ()
+    match window#poll_event with
+    | Some e -> 
+    begin 
+    match e with
+    | OcsfmlWindow.Event.Closed -> window#close
+    | _ -> () ;
+    process_events ()
+    end
+    | _ -> ()
     in
 
-    (* The main loop - ends as soon as the window is closed *)
+(* The main loop - ends as soon as the window is closed *)
     let rec main_loop () =
-       process_events () ;
-       
-       (* Clear the whole window before rendering a new frame *)
-       window#clear () ;
+    process_events () ;
+    
+(* Clear the whole window before rendering a new frame *)
+    window#clear () ;
 
-       (* Draw some graphical entities *)
-       window#draw sprite ;
-       window#draw circle ;
-       window#draw text ;
+(* Draw some graphical entities *)
+    window#draw sprite ;
+    window#draw circle ;
+    window#draw text ;
 
-       (* End the current frame and display its contents on screen *)
-        window.display();
+(* End the current frame and display its contents on screen *)
+    window.display();
 
-        if window#is_open
-        then main_loop () 
+    if window#is_open
+    then main_loop () 
     in
     main_loop ()
     ]} *)
 class render_window :
   ?style:OcsfmlWindow.Window.style list ->
     ?context:OcsfmlWindow.context_settings ->
-      OcsfmlWindow.VideoMode.t -> string -> 
+    OcsfmlWindow.VideoMode.t -> string -> 
 object
   inherit OcsfmlWindow.window
   inherit render_target
 
   (**/**)
   val t_render_window_base : RenderWindow.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -1629,7 +1661,7 @@ object
 
   (**/**)
   method rep__sf_RenderWindow : RenderWindow.t
-  (**/**)
+    (**/**)
 
   (** Change the window's icon.
 
@@ -1662,15 +1694,15 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
-(**/**)
+  (**/**)
 
 (** Base class for textured shapes with outline.
 
-Ocsfml.Shape is a drawable class that allows to define and display a custom convex shape on a render target.
+    Ocsfml.Shape is a drawable class that allows to define and display a custom convex shape on a render target.
 
-It's only an abstract base, it needs to be specialized for concrete types of shapes (circle, rectangle, convex polygon, star, ...).
+    It's only an abstract base, it needs to be specialized for concrete types of shapes (circle, rectangle, convex polygon, star, ...).
 
-In addition to the attributes provided by the specialized shape classes, a shape always has the following attributes:
+    In addition to the attributes provided by the specialized shape classes, a shape always has the following attributes:
 
     - a texture
     - a texture rectangle
@@ -1678,34 +1710,34 @@ In addition to the attributes provided by the specialized shape classes, a shape
     - an outline color
     - an outline thickness
 
-Each feature is optional, and can be disabled easily:
+    Each feature is optional, and can be disabled easily:
 
     - the texture can be none
     - the fill/outline colors can be OcsfmlGraphics.Color.Transparent
     - the outline thickness can be zero
 
-You can write your own derived shape class, there are only two virtual functions to override:
+    You can write your own derived shape class, there are only two virtual functions to override:
 
     - get_point_count must return the number of points of the shape
     - get_point must return the points of the shape *)
 class shape :
   ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t -> 
-  ?outline_thickness:float ->
-  Shape.t ->
+    ?scale:float * float ->
+    ?rotation:float ->
+    ?origin:float * float ->
+    ?new_texture:texture ->
+    ?texture_rect:int rect ->
+    ?fill_color:Color.t ->
+    ?outline_color:Color.t -> 
+    ?outline_thickness:float ->
+    Shape.t ->
 object
   inherit drawable
   inherit transformable
     
   (**/**)
   val t_shape_base : Shape.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -1756,7 +1788,7 @@ object
 
   (**/**)
   method rep__sf_Shape : Shape.t
-  (**/**)
+    (**/**)
 
   (** Set the fill color of the shape.
 
@@ -1778,7 +1810,7 @@ object
       The new_texture argument refers to a texture that must exist as long as the shape uses it. Indeed, the shape doesn't store its own copy of the texture, but rather keeps a pointer to the one that you passed to this function. If the source texture is destroyed and the shape tries to use it, the behaviour is undefined. If reset_rect is true, the TextureRect property of the shape is automatically adjusted to the size of the new texture. If it is false (the default), the texture rect is left unchanged.
       @param new_texture The new texture. Default disables texturing
       @param reset_rect Should the texture rect be reset to the size of the new texture?
-*)
+  *)
   method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
 
   (** Set the sub-rectangle of the texture that the shape will display.
@@ -1799,7 +1831,7 @@ sig
   val set_size : t -> float * float
   val get_size : t -> float * float
 end
-(**/**)
+  (**/**)
 
 (** Specialized shape representing a rectangle.
 
@@ -1808,30 +1840,30 @@ end
     Usage example: 
     {[
     let rectangle = new rectangle_shape 
-                           ~size:(100.,50.)
-                           ~outline_color:Color.red
-                           ~outline_thickness:5.
-                           ~position:(10., 20.) ()) in
+    ~size:(100.,50.)
+    ~outline_color:Color.red
+    ~outline_thickness:5.
+    ~position:(10., 20.) ()) in
     ...
     window#draw rectangle
     ]} *)
 class rectangle_shape : 
   ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t ->
-  ?outline_thickness:float -> 
-  ?size:float * float -> unit ->
+    ?scale:float * float ->
+    ?rotation:float ->
+    ?origin:float * float ->
+    ?new_texture:texture ->
+    ?texture_rect:int rect ->
+    ?fill_color:Color.t ->
+    ?outline_color:Color.t ->
+    ?outline_thickness:float -> 
+    ?size:float * float -> unit ->
 object
   inherit shape
 
   (**/**)
   val t_rectangle_shape_base : RectangleShape.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -1841,7 +1873,7 @@ object
 
   (**/**)
   method rep__sf_RectangleShape : RectangleShape.t
-  (**/**)
+    (**/**)
 
   (** Get the size of the rectangle. 
       @return Size of the rectangle. *)
@@ -1861,7 +1893,7 @@ sig
   val get_radius : t -> float
   val set_point_count : t -> int -> unit
 end
-(**/**)
+  (**/**)
 
 (** Specialized shape representing a circle.
 
@@ -1870,10 +1902,10 @@ end
     Usage example:
     {[
     let circle = new circle_shape
-                         ~radius:150.
-                         ~outline_color:Color.red
-                         ~outline_thickness:5.
-                         ~position:(10, 20) () in
+    ~radius:150.
+    ~outline_color:Color.red
+    ~outline_thickness:5.
+    ~position:(10, 20) () in
     ...
     window#draw circle 
     ]}
@@ -1882,23 +1914,23 @@ end
     The number of points can also be used for another purpose; with small numbers you can create any regular polygon shape: equilateral triangle, square, pentagon, hexagon, ... *)
 class circle_shape :
   ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t ->
-  ?outline_thickness:float -> 
-  ?point_count:int -> 
-  ?radius:float -> unit ->
+    ?scale:float * float ->
+    ?rotation:float ->
+    ?origin:float * float ->
+    ?new_texture:texture ->
+    ?texture_rect:int rect ->
+    ?fill_color:Color.t ->
+    ?outline_color:Color.t ->
+    ?outline_thickness:float -> 
+    ?point_count:int -> 
+    ?radius:float -> unit ->
 object
   
   inherit shape
 
   (**/**)
   val t_circle_shape_base : CircleShape.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -1909,7 +1941,7 @@ object
 
   (**/**)
   method rep__sf_CircleShape : CircleShape.t
-  (**/**)
+    (**/**)
 
   (** Set the radius of the circle. *)
   method set_radius : float -> unit
@@ -1930,7 +1962,7 @@ sig
   val set_point_count : t -> int -> unit
   val set_point : t -> int -> float * float -> unit
 end
-(**/**)
+  (**/**)
 
 (** Specialized shape representing a convex polygon.
     
@@ -1941,36 +1973,36 @@ end
     Usage example:
     {[
     let polygon = new convex_shape 
-                          ~points:[(0.,0.) ; (0.,10.) ; (25., 5.)]
-                          ~outline_color:Color.red
-                          ~outline_thickness:5.
-                          ~position:(10.,20.) ()) in
+    ~points:[(0.,0.) ; (0.,10.) ; (25., 5.)]
+    ~outline_color:Color.red
+    ~outline_thickness:5.
+    ~position:(10.,20.) ()) in
     ...
     window#draw polygon
     ]} *)
 class convex_shape :
   ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?new_texture:texture ->
-  ?texture_rect:int rect ->
-  ?fill_color:Color.t ->
-  ?outline_color:Color.t ->
-  ?outline_thickness:float ->
-  ?points:(float * float) list -> unit ->
+    ?scale:float * float ->
+    ?rotation:float ->
+    ?origin:float * float ->
+    ?new_texture:texture ->
+    ?texture_rect:int rect ->
+    ?fill_color:Color.t ->
+    ?outline_color:Color.t ->
+    ?outline_thickness:float ->
+    ?points:(float * float) list -> unit ->
 object
   inherit shape
-  (**/**)
+    (**/**)
   val t_convex_shape_base : ConvexShape.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
 
   (**/**)
   method rep__sf_ConvexShape : ConvexShape.t
-  (**/**)
+    (**/**)
 
   (** Set the position of a point.
 
@@ -2009,7 +2041,7 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
-(**/**)
+  (**/**)
 
 (** Graphical text that can be drawn to a render target.
     
@@ -2025,38 +2057,38 @@ end
     
     Usage example:
     {[
-    (* Declare and load a font *)
+(* Declare and load a font *)
     let font = new font (`File "arial.ttf") in
     
-    (* Create a text *)
+(* Create a text *)
     let text = new text ~string:"hello" 
-                        ~font
-                        ~character_size:30.
-                        ~style:[Bold]
-                        ~color:Color.red () 
+    ~font
+    ~character_size:30.
+    ~style:[Bold]
+    ~color:Color.red () 
     in
     
-    (* Draw it *)
+(* Draw it *)
     window#draw text
     ]}
 *)
 class text :
   ?string:string ->
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?color:Color.t ->
-  ?font:font -> 
-  ?character_size:int -> 
-  ?style:text_style list -> unit ->
+    ?position:float * float ->
+    ?scale:float * float ->
+    ?rotation:float ->
+    ?origin:float * float ->
+    ?color:Color.t ->
+    ?font:font -> 
+    ?character_size:int -> 
+    ?style:text_style list -> unit ->
 object
   inherit drawable
   inherit transformable
     
   (**/**)
   val t_text_base : Text.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -2103,7 +2135,7 @@ object
 
   (**/**)
   method rep__sf_Text : Text.t
-  (**/**)
+    (**/**)
 
   (** Set the character size.
 
@@ -2148,7 +2180,7 @@ sig
   val get_local_bounds : t -> float rect
   val get_global_bounds : t -> float rect
 end
-(**/**)
+  (**/**)
   
 (** Drawable representation of a texture, with its own transformations, color, etc.
     
@@ -2164,27 +2196,27 @@ end
     
     Usage example:
     {[
-    (* Declare and load a texture *)
+(* Declare and load a texture *)
     let texture = new texture (`File "texture.png") in
     
-    (* Create a sprite *)
+(* Create a sprite *)
     let sprite = new sprite ~texture 
-                            ~texture_rect:{ top = 10 ; left = 10 ; width = 50 ; height = 30 }
-                            ~color:(Color.rgba 255 255 255 200)
-                            ~position:(100., 25.) () 
+    ~texture_rect:{ top = 10 ; left = 10 ; width = 50 ; height = 30 }
+    ~color:(Color.rgba 255 255 255 200)
+    ~position:(100., 25.) () 
     in
     
-    (* Draw it *)
+(* Draw it *)
     window#draw sprite
     ]}*)
 class sprite :
   ?texture:texture ->
-  ?position:float * float ->
-  ?scale:float * float ->
-  ?rotation:float ->
-  ?origin:float * float ->
-  ?color:Color.t -> 
-  ?texture_rect:int rect -> unit ->
+    ?position:float * float ->
+    ?scale:float * float ->
+    ?rotation:float ->
+    ?origin:float * float ->
+    ?color:Color.t -> 
+    ?texture_rect:int rect -> unit ->
 object
 
   inherit drawable
@@ -2192,7 +2224,7 @@ object
 
   (**/**)
   val t_sprite_base : Sprite.t
-  (**/**)
+    (**/**)
 
   (**)
   method destroy : unit
@@ -2225,7 +2257,7 @@ object
 
   (**/**)
   method rep__sf_Sprite : Sprite.t
-  (**/**)
+    (**/**)
 
   (** Set the global color of the sprite.
 
@@ -2260,7 +2292,7 @@ sig
   val get_primitive_type : t -> primitive_type
   val get_bounds : t -> float rect
 end
-(**/**)
+  (**/**)
 
 class vertex_array : 
   ?primitive_type:primitive_type ->
@@ -2304,7 +2336,7 @@ object
 
   (**/**)
   method rep__sf_VertexArray : VertexArray.t
-  (**/**)
+    (**/**)
 
   (** Resize the vertex array.
 
@@ -2334,29 +2366,29 @@ end
 
 
 (*
-module CamlDrawable :
-sig
+  module CamlDrawable :
+  sig
   type t
   val destroy : t -> unit
   val to_drawable : t -> Drawable.t
   val default : unit -> t
   val callback : draw_func_type -> t
   val set_callback : t -> draw_func_type -> unit
-end
+  end
 
-class caml_drawable_base :
+  class caml_drawable_base :
   CamlDrawable.t ->
-object
-   val t_caml_drawable_base : CamlDrawable.t
+  object
+  val t_caml_drawable_base : CamlDrawable.t
   val t_drawable : Drawable.t
   method destroy : unit
   method rep__CamlDrawable : CamlDrawable.t
   method rep__sf_Drawable : Drawable.t
   method set_callback : draw_func_type -> unit
-end
+  end
 
-class virtual caml_drawable :
-object
+  class virtual caml_drawable :
+  object
   val t_caml_drawable_base : CamlDrawable.t
   val t_drawable : Drawable.t
   method destroy : unit
@@ -2364,5 +2396,5 @@ object
   method rep__CamlDrawable : CamlDrawable.t
   method rep__sf_Drawable : Drawable.t
   method set_callback : draw_func_type -> unit
-end
+  end
 *)

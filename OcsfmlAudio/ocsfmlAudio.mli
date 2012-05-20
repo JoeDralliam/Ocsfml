@@ -72,25 +72,7 @@ type status =
 module SoundSource :
 sig
   type t
-  class type sound_source_class_type =
-  object
-    val t_sound_source : t
-    method destroy : unit
-    method get_attenuation : float
-    method get_min_distance : float
-    method get_pitch : float
-    method get_position : float * float * float
-    method get_volume : float
-    method is_relative_to_listener : bool
-    method rep__sf_SoundSource : t
-    method set_attenuation : float -> unit
-    method set_min_distance : float -> unit
-    method set_pitch : float -> unit
-    method set_position : float -> float -> float -> unit
-    method set_position_v : float * float * float -> unit
-    method set_relative_to_listener : bool -> unit
-    method set_volume : float -> unit
-  end
+
   val destroy : t -> unit
   val set_pitch : t -> float -> unit
   val set_volume : t -> float -> unit
@@ -383,23 +365,10 @@ type samples_type =
 module SoundBuffer :
 sig
   type t
-  class type sound_buffer_base_class_type =
-  object
-    val t_sound_buffer_base : t
-    method destroy : unit
-    method get_channel_count : int
-    method get_duration : OcsfmlSystem.Time.t
-    method get_sample_count : int
-    method get_sample_rate : int
-    method get_samples : samples_type
-    method load_from_file : string -> bool
-    method load_from_samples : samples_type -> int -> int -> bool
-    method load_from_stream : OcsfmlSystem.input_stream -> bool
-    method rep__sf_SoundBuffer : t
-    method save_to_file : string -> bool
-  end
   val destroy : t -> unit
   val default : unit -> t 
+  val copy : t -> t
+  val affect : t -> t -> t
   val load_from_file : t -> string -> bool
   val load_from_stream : t -> OcsfmlSystem.input_stream -> bool
   val load_from_samples : t -> samples_type -> int -> int -> bool
@@ -450,16 +419,21 @@ end
     sound2#play
     ]}*)
 class sound_buffer :
-  [< `File of string
+  [ `File of string
   | `Samples of samples_type * int * int
-  | `Stream of OcsfmlSystem.input_stream ] ->
-object
+  | `Stream of OcsfmlSystem.input_stream 
+  | `Copy of < rep__sf_SoundBuffer : SoundBuffer.t ; .. >
+  | `None ] ->
+object ('self)
   (**/**)
   val t_sound_buffer_base : SoundBuffer.t
     (**/**)
 
   (**)
   method destroy : unit
+
+  (**)
+  method affect : 'self -> unit
 
   (** Get the number of channels used by the sound.
 

@@ -36,28 +36,6 @@ module SoundSource =
 struct
   type t
     
-  class type sound_source_class_type =
-  object ('a)
-    val t_sound_source : t
-    method rep__sf_SoundSource : t
-    method destroy : unit
-    method set_pitch :
-      (* constructor copy : 'a -> 'a = "copy_constructor" *)
-      float -> unit
-    method set_volume : float -> unit
-    method set_position : float -> float -> float -> unit
-    method set_position_v : (float * float * float) -> unit
-    method set_relative_to_listener : bool -> unit
-    method set_min_distance : float -> unit
-    method set_attenuation : float -> unit
-    method get_pitch : float
-    method get_volume : float
-    method get_position : (float * float * float)
-    method is_relative_to_listener : bool
-    method get_min_distance : float
-    method get_attenuation : float
-  end
-    
   external destroy : t -> unit = "sf_SoundSource_destroy__impl"
 	    
   external set_pitch : t -> float -> unit = "sf_SoundSource_setPitch__impl"
@@ -254,29 +232,15 @@ type samples_type = (int, Bigarray.int16_signed_elt, Bigarray.c_layout) Bigarray
 module SoundBuffer =
 struct
   type t
-    
-  class type sound_buffer_base_class_type =
-  object ('a)
-    val t_sound_buffer_base : t
-    method rep__sf_SoundBuffer : t
-    method destroy : unit
-    method load_from_file :
-      (* constructor copy : 'a -> 'a = "copy_constructor" *)
-      string -> bool
-    method load_from_stream : input_stream -> bool
-    method load_from_samples : samples_type -> int -> int -> bool
-    method save_to_file : string -> bool
-    method get_samples : samples_type
-    method get_sample_count : int
-    method get_sample_rate : int
-    method get_channel_count : int
-    method get_duration : Time.t
-  end
-    
+        
   external destroy : t -> unit = "sf_SoundBuffer_destroy__impl"
 	    
   external default : unit -> t = "sf_SoundBuffer_default_constructor__impl"
 	    
+  external copy : t -> t = "sf_SoundBuffer_copy_constructor__impl"
+
+  external affect : t -> t -> t = "sf_SoundBuffer_affect__impl"
+
   external load_from_file : t -> string -> bool =
 	    "sf_SoundBuffer_loadFromFile__impl"
 	      
@@ -306,10 +270,12 @@ struct
 end
   
 class sound_buffer_base t =
-object ((_ : 'a))
+object ((_ : 'self))
   val t_sound_buffer_base = (t : SoundBuffer.t)
   method rep__sf_SoundBuffer = t_sound_buffer_base
   method destroy = SoundBuffer.destroy t_sound_buffer_base
+  method affect : 'self -> unit =
+    fun p1 -> ignore (SoundBuffer.affect t_sound_buffer_base p1#rep__sf_SoundBuffer)
   method load_from_file : string -> bool =
     fun p1 -> SoundBuffer.load_from_file t_sound_buffer_base p1
   method load_from_stream : input_stream -> bool =
@@ -330,8 +296,6 @@ object ((_ : 'a))
   method get_duration : Time.t = SoundBuffer.get_duration t_sound_buffer_base
 end
   
-
-
     
 class sound_buffer_init tag t =
 object (self)
@@ -343,12 +307,15 @@ object (self)
 	| `File s -> self#load_from_file s
 	| `Stream s -> self#load_from_stream s
 	| `Samples (s, i, j) -> self#load_from_samples s i j
+	| `Copy _ | `None -> true
     then ()
     else raise LoadFailure
 end
-       
+
 class sound_buffer tag = 
-  let t = SoundBuffer.default ()
+  let t = match tag with
+    | `Copy other -> SoundBuffer.copy other#rep__sf_SoundBuffer
+    | _ -> SoundBuffer.default ()
   in sound_buffer_init tag t
   
     

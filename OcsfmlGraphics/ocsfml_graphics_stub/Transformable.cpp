@@ -14,7 +14,8 @@ typedef void (sf_Transformable::* TransfoVf)(sf::Vector2f const&);
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__NO_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()
 {
-  camlpp__register_constructor0( default_constructor, 0)
+  camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_external_method1( affect, &sf::Transformable::operator=, 0);
   camlpp__register_external_method2( setPosition,  ((Transfo2f)&sf::Transformable::setPosition), 0);
   camlpp__register_external_method1( setPositionV, ((TransfoVf)&sf::Transformable::setPosition), 0);
   camlpp__register_external_method2( setScale,     ((Transfo2f)&sf::Transformable::setScale),    0);

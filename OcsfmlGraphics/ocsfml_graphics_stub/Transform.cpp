@@ -76,10 +76,12 @@ camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CA
 camlpp__register_preregistered_custom_class()
 {
   camlpp__register_constructor0( default_constructor, 0);
+  camlpp__register_constructor1( copy_constructor, sf::Transform const&, 0);
   camlpp__register_constructor9( matrix_constructor,
 				 float, float, float,
 				 float, float, float,
 				 float, float, float, 0);
+  camlpp__register_external_method1( affect, &sf::Transform::operator=, 0);
   camlpp__register_method0( getInverse, 0);
   camlpp__register_external_method2( transformPoint, ((TransformPointFunc) &sf::Transform::transformPoint), 0);
   camlpp__register_external_method1( transformPointV, ((TransformPointVFunc) &sf::Transform::transformPoint), 0);

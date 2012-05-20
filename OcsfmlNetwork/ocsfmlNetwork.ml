@@ -5,6 +5,10 @@ struct
   external destroy : t -> unit = "sf_IpAddress_destroy__impl"
       
   external default : unit -> t = "sf_IpAddress_default_constructor__impl"
+
+  external copy : t -> t = "sf_IpAddress_copy_constructor__impl"
+
+  external affect : t -> t -> t = "sf_IpAddress_affect__impl"
       
   external from_string : string -> t =
       "sf_IpAddress_string_constructor__impl"
@@ -17,7 +21,6 @@ struct
   external to_string : t -> string = "sf_IpAddress_toString__impl"
       
   external to_integer : t -> int = "sf_IpAddress_toInteger__impl"
-
 
   external get_local_address : unit -> t =
       "sf_IpAddress_getLocalAddress__impl"
@@ -34,6 +37,8 @@ object ((self : 'self))
   val t_ip_address = (t : IPAddressBase.t)
   method rep__sf_IpAddress = t_ip_address
   method destroy = IPAddressBase.destroy t_ip_address
+  method affect : 'self -> unit =
+    fun p1 -> ignore (IPAddressBase.affect t_ip_address p1#rep__sf_IpAddress)
   method to_string : string = IPAddressBase.to_string t_ip_address
   method to_integer : int = IPAddressBase.to_integer t_ip_address
 end
@@ -41,8 +46,6 @@ end
 module IPAddress =
 struct
   type t = IPAddressBase.t
-      
-
       
   let get_local_address () = new ip_address_base (IPAddressBase.get_local_address ())
 
@@ -62,6 +65,7 @@ class ip_address tag =
     | `String s -> (IPAddressBase.from_string s)
     | `Bytes (x, y, z, w) -> (IPAddressBase.from_bytes x y z w)
     | `Int i -> (IPAddressBase.from_int i)
+    | `Copy other -> (IPAddressBase.copy other#rep__sf_IpAddress)
   in ip_address_base t
 
 

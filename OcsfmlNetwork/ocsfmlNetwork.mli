@@ -7,6 +7,8 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
+  val copy : t -> t
+  val affect : t -> t -> t
   val from_string : string -> t
   val from_bytes : int -> int -> int -> int -> t
   val from_int : int -> t
@@ -38,11 +40,12 @@ end
     ]}
 *)
 class ip_address :
-  [< `Bytes of int * int * int * int
+  [ `Bytes of int * int * int * int
   | `Int of int
   | `None
-  | `String of string ] ->
-object
+  | `String of string 
+  | `Copy of < rep__sf_IpAddress : IPAddressBase.t ; .. > ] ->
+object ('self)
   (**/**)
   val t_ip_address : IPAddressBase.t
     (**/**)
@@ -50,6 +53,9 @@ object
   (**)
   method destroy : unit
     
+  (**)
+  method affect : 'self -> unit
+
   (**/**)
   method rep__sf_IpAddress : IPAddressBase.t
     (**/**)
@@ -91,9 +97,7 @@ sig
   val localhost : ip_address
 
 
-  val equal :
-    ip_address ->
-      ip_address -> bool
+  val equal : ip_address -> ip_address -> bool
 end
 
 

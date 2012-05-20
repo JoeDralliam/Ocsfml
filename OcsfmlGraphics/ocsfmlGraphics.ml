@@ -107,7 +107,9 @@ struct
   external destroy : t -> unit = "sf_Transform_destroy__impl"
 	    
   external default : unit -> t = "sf_Transform_default_constructor__impl"
-	    
+
+  external copy : t -> t = "sf_Transform_copy_constructor__impl"
+
   external matrix :
     float ->
     float ->
@@ -115,6 +117,8 @@ struct
 	    "sf_Transform_matrix_constructor__byte"
 	      "sf_Transform_matrix_constructor__impl"
 	      
+  external affect : t -> t -> t = "sf_Transform_affect__impl"
+
   external get_inverse : t -> t = "sf_Transform_getInverse__impl"
 	    
   external transform_point : t -> float -> float -> (float * float) =
@@ -152,18 +156,20 @@ struct
 end
   
 class transform_base t =
-object ((self : 'a))
+object ((self : 'self))
   val t_transform_base = (t : Transform.t)
   method rep__sf_Transform = t_transform_base
   method destroy = Transform.destroy t_transform_base
-  method get_inverse : 'a = {< t_transform_base = Transform.get_inverse t_transform_base >}
+  method affect : 'self -> unit =
+    fun p1 -> ignore( Transform.affect t_transform_base (p1#rep__sf_Transform) )
+  method get_inverse : 'self = {< t_transform_base = Transform.get_inverse t_transform_base >}
   method transform_point : float -> float -> (float * float) =
     fun p1 p2 -> Transform.transform_point t_transform_base p1 p2
   method transform_point_v : (float * float) -> (float * float) =
     fun p1 -> Transform.transform_point_v t_transform_base p1
   method transform_rect : float rect -> float rect =
     fun p1 -> Transform.transform_rect t_transform_base p1
-  method combine : 'a -> 'a =
+  method combine : 'self -> 'self =
     fun p1 -> {< t_transform_base = Transform.combine t_transform_base p1#rep__sf_Transform >}
   method translate : float -> float -> unit =
     fun p1 p2 -> Transform.translate t_transform_base p1 p2
@@ -183,12 +189,13 @@ object ((self : 'a))
 end
   
     
-class transform ?matrix () =
+class transform tag =
   let t =
-    match matrix with
-      | Some (a00, a01, a02, a10, a11, a12, a20, a21, a22) ->
+    match tag with
+      | `Matrix (a00, a01, a02, a10, a11, a12, a20, a21, a22) ->
           Transform.matrix a00 a01 a02 a10 a11 a12 a20 a21 a22
-      | None -> Transform.default ()
+      | `Copy other -> Transform.copy (other#rep__sf_Transform)
+      | `None -> Transform.default ()
   in transform_base t
          
 module Transformable =
@@ -200,6 +207,9 @@ struct
   external default : unit -> t =
       "sf_Transformable_default_constructor__impl"
 	
+  external affect : t -> t -> t =
+      "sf_Transformable_affect__impl"
+
   external set_position : t -> float -> float -> unit =
       "sf_Transformable_setPosition__impl"
 	
@@ -259,6 +269,8 @@ object ((self : 'self))
   val t_transformable_base = (t : Transformable.t)
   method rep__sf_Transformable = t_transformable_base
   method destroy = Transformable.destroy t_transformable_base
+  method affect : 'self -> unit =
+    fun p1 -> ignore( Transformable.affect t_transformable_base p1#rep__sf_Transformable )
   method set_position : float -> float -> unit =
     fun p1 p2 -> Transformable.set_position t_transformable_base p1 p2
   method set_position_v : (float * float) -> unit =
@@ -315,40 +327,14 @@ class transformable ?position ?scale ?origin ?rotation () =
 module Image =
 struct
   type t
-    
-  class type image_base_class_type =
-  object ((*
-	    let mk_transformable ?position ?scale ?origin ?rotation (t: #transformable) =
-	    do_if t#set_position_v position ;
-	    do_if t#set_scale_v scale ;
-	    do_if t#set_origin_v origin ;
-	    do_if t#set_rotation rotation
-	  *)
-    'a)
-    val t_image_base : t
-    method rep__sf_Image : t
-    method destroy : unit
-    method create_from_color : ?color: Color.t -> int -> int -> unit
-    method create_from_pixels : OcsfmlWindow.pixel_array_type -> unit
-    method load_from_file : string -> bool
-    method load_from_memory : raw_data_type -> bool
-    method load_from_stream : input_stream -> bool
-    method save_to_file : string -> bool
-    method get_size : (int * int)
-    method get_pixels_ptr : OcsfmlWindow.pixel_array_type
-    method create_mask_from_color : ?alpha: int -> Color.t -> unit
-    method copy :
-      ?srcRect: (int rect) -> ?alpha: bool -> 'a -> int -> int -> unit
-    method set_pixel : (* à mettre private *)
-      int -> int -> Color.t -> unit
-    method get_pixel : int -> int -> Color.t
-    method flip_horizontally : unit
-    method flip_vertically : unit
-  end
-    
+        
   external destroy : t -> unit = "sf_Image_destroy__impl"
 	    
   external default : unit -> t = "sf_Image_default_constructor__impl"
+
+  external copy : t -> t = "sf_Image_copy_constructor__impl"
+
+  external affect : t -> t -> t = "sf_Image_affect__impl"
 	    
   external create_from_color : t -> ?color: Color.t -> int -> int -> unit =
 	    "sf_Image_createFromColor__impl"
@@ -376,8 +362,8 @@ struct
   external create_mask_from_color : t -> ?alpha: int -> Color.t -> unit =
 	    "sf_Image_createMaskFromColor__impl"
 	      
-  external copy :
-    t -> ?srcRect: (int rect) -> ?alpha: bool -> 'a -> int -> int -> unit =
+  external copy_image :
+    t -> ?srcRect: (int rect) -> ?alpha: bool -> t -> int -> int -> unit =
 	    "sf_Image_copy__byte" "sf_Image_copy__impl"
 	      
   external set_pixel : t -> int -> int -> Color.t -> unit =
@@ -394,10 +380,12 @@ struct
 end
   
 class image_base t =
-object ((self : 'a))
+object ((self : 'self))
   val t_image_base = (t : Image.t)
   method rep__sf_Image = t_image_base
   method destroy = Image.destroy t_image_base
+  method affect : 'self -> unit =
+    fun p1 -> ignore (Image.affect t_image_base p1#rep__sf_Image)
   method create_from_color : ?color: Color.t -> int -> int -> unit =
     fun ?color p1 p2 -> Image.create_from_color t_image_base ?color p1 p2
   method create_from_pixels : OcsfmlWindow.pixel_array_type -> unit =
@@ -416,9 +404,9 @@ object ((self : 'a))
   method create_mask_from_color : ?alpha: int -> Color.t -> unit =
     fun ?alpha p1 -> Image.create_mask_from_color t_image_base ?alpha p1
   method copy :
-    ?srcRect: (int rect) -> ?alpha: bool -> 'a -> int -> int -> unit =
+    ?srcRect: (int rect) -> ?alpha: bool -> 'self -> int -> int -> unit =
     fun ?srcRect ?alpha p1 p2 p3 ->
-      Image.copy t_image_base ?srcRect ?alpha p1 p2 p3
+      Image.copy_image t_image_base ?srcRect ?alpha (p1#rep__sf_Image) p2 p3
   method set_pixel : int -> int -> Color.t -> unit =
     fun p1 p2 p3 -> Image.set_pixel t_image_base p1 p2 p3
   method get_pixel : int -> int -> Color.t =
@@ -438,13 +426,16 @@ object (self)
         | `Color (color, w, h) -> (self#create_from_color ~color w h; true)
         | `File filename -> self#load_from_file filename
         | `Stream inputstream -> self#load_from_stream inputstream
-        | `None -> true
+        | `Copy _ | `None -> true
     then ()
     else raise LoadFailure
 end
 
 class image tag =
-  let t = Image.default ()
+  let t = 
+    match tag with 
+      |	`Copy other -> Image.copy (other#rep__sf_Image)
+      | _ -> Image.default ()
   in image_init tag t
   
 external get_maximum_size : unit -> int = "Texture_getMaximumSize__impl"
@@ -457,6 +448,10 @@ struct
       
   external default : unit -> t = "sf_Texture_default_constructor__impl"
       
+  external copy : t -> t = "sf_Texture_copy_constructor__impl"
+
+  external affect : t -> t -> t = "sf_Texture_affect__impl"
+
   external create : t -> int -> int -> unit = "sf_Texture_create__impl"
       
   external load_from_file : t -> ?rect: (int rect) -> string -> bool =
@@ -506,6 +501,8 @@ object ((self : 'self))
   val t_texture_base = (t : Texture.t)
   method rep__sf_Texture = t_texture_base
   method destroy = Texture.destroy t_texture_base
+  method affect : 'self -> unit =
+    fun p1 -> ignore (Texture.affect t_texture_base p1#rep__sf_Texture)
   method create : int -> int -> unit =
     fun p1 p2 -> Texture.create t_texture_base p1 p2
   method load_from_file : ?rect: (int rect) -> string -> bool =
@@ -547,13 +544,15 @@ object (self)
         | `File filename -> self#load_from_file ?rect filename
         | `Stream inputstream -> self#load_from_stream ?rect inputstream
         | `Memory memory -> self#load_from_memory ?rect memory
-        | `None -> true
+        | `Copy _ | `None -> true
     then ()
     else raise LoadFailure
 end
   
 class texture ?rect tag =
-  let t = Texture.default ()
+  let t = match tag with
+    | `Copy other -> Texture.copy other#rep__sf_Texture
+    | _ -> Texture.default ()
   in texture_init ?rect tag t
 
 
@@ -566,7 +565,11 @@ struct
   external destroy : t -> unit = "sf_Font_destroy__impl"
       
   external default : unit -> t = "sf_Font_default_constructor__impl"
-      
+
+  external copy : t -> t = "sf_Font_copy_constructor__impl"
+
+  external affect : t -> t -> t = "sf_Font_affect__impl"
+
   external load_from_file : t -> string -> bool =
       "sf_Font_loadFromFile__impl"
 	
@@ -590,10 +593,12 @@ struct
 end
   
 class font_base t =
-object ((_ : 'b))
+object ((_ : 'self))
   val t_font_base = (t : Font.t)
   method rep__sf_Font = t_font_base
   method destroy = Font.destroy t_font_base
+  method affect : 'self -> unit =
+    fun p1 -> ignore (Font.affect t_font_base p1#rep__sf_Font)
   method load_from_file : string -> bool =
     fun p1 -> Font.load_from_file t_font_base p1
   method load_from_memory : raw_data_type -> bool =
@@ -620,13 +625,15 @@ object (self)
         | `File s -> self#load_from_file s
         | `Stream s -> self#load_from_stream s
         | `Memory m -> self#load_from_memory m
-        | `None -> true
+        | `Copy _ | `None -> true
     then ()
     else raise LoadFailure
 end
 
 class font tag =
-  let t = Font.default ()
+  let t = match tag with
+    | `Copy other -> Font.copy other#rep__sf_Font
+    | _ -> Font.default ()
   in font_init tag t
   
 module Shader =
@@ -635,7 +642,7 @@ struct
     
   external destroy : t -> unit = "sf_Shader_destroy__impl"
       
-  external default : (* shader *) unit -> t =
+  external default : unit -> t =
       "sf_Shader_default_constructor__impl"
 	
   external load_from_file :
@@ -1261,7 +1268,6 @@ end
 class shape_init ?position ?scale ?rotation ?origin ?new_texture ?texture_rect ?fill_color ?outline_color ?outline_thickness t =
 object (self)
   inherit shape_base ?position ?scale ?rotation ?origin t
-
 
   initializer self#set_texture ?new_texture ~reset_rect: true ()
   initializer do_if self#set_texture_rect texture_rect
