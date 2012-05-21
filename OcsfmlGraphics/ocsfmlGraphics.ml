@@ -1092,7 +1092,7 @@ struct
 	
   external display : t -> unit = "sf_RenderTexture_display__impl"
       
-  external get_texture : t -> texture = "sf_RenderTexture_getTexture__impl"
+  external get_texture : t -> Texture.t = "sf_RenderTexture_getTexture__impl"
       
 end
   
@@ -1114,7 +1114,7 @@ object ((self : 'self))
       RenderTexture.set_active t_render_texture_base ?active p1
   method display : unit = RenderTexture.display t_render_texture_base
   method get_texture : texture =
-    RenderTexture.get_texture t_render_texture_base
+    new texture (RenderTexture.get_texture t_render_texture_base)
 end
   
     
