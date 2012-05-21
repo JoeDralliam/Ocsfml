@@ -50,7 +50,8 @@ namespace
 
   RawDataType packet_getdata_helper( sf::Packet* packet )
   {
-    intnat dim[1] = { packet->getDataSize() };
+    intnat dim[1]; 
+    dim[0] = static_cast<intnat>(packet->getDataSize());
     return RawDataType( packet->getData(), dim );
   }
 }

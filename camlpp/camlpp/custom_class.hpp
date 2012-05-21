@@ -485,6 +485,11 @@ using boost::mpl::int_;
 
 
 
+#define camlpp__register_affectation_operator( name, flags )		\
+  camlpp__register_external_method1( name,				\
+				     (CAMLPP__CLASS_NAME()& (CAMLPP__CLASS_NAME()::*)(CAMLPP__CLASS_NAME() const&)) &CAMLPP__CLASS_NAME()::operator=, \
+				     flags)
+
 #define camlpp__preregister_custom_class( class_name )			\
   namespace camlpp							\
   {									\

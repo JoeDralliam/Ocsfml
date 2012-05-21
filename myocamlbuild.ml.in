@@ -154,9 +154,9 @@ let _ = dispatch begin function
 	
 	flag["c++" ; "shared" ; "ocsfml"^s] & S( libs_sfml );
 	
-	if sfml_static_libraries
-	then flag["c++" ; "archive" ; "ocsfml"^s] & S( libs_sfml )
-	else flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] & S link_libs_ocaml ;
+	let link_sfml_cmxa = if sfml_static_libraries
+	  then ( flag["c++" ; "archive" ; "ocsfml"^s] & S( libs_sfml ) ; [] )
+	  else link_libs_ocaml in
 	
 	(* when we link an ocaml bytecode target with the c++ lib "s" *) 
 	flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s] &
@@ -168,6 +168,7 @@ let _ = dispatch begin function
 	flag ["link"; "ocaml"; "native"; "use_libocsfml"^s] &
 	  S(verbose
 	    @[ A "@OCSFML_LINK_NATIVE@" ;  A("-locsfml"^s) ]
+	    @link_sfml_cmxa
 	    @[ @LINK_STDLIB_STA@ ]); 
 	
 	  (* when we link an ocaml file against the sfml "s" module *)

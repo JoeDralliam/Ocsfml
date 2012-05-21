@@ -81,7 +81,7 @@ camlpp__register_preregistered_custom_class()
 				 float, float, float,
 				 float, float, float,
 				 float, float, float, 0);
-  camlpp__register_external_method1( affect, &sf::Transform::operator=, 0);
+  camlpp__register_affectation_operator( affect, 0);
   camlpp__register_method0( getInverse, 0);
   camlpp__register_external_method2( transformPoint, ((TransformPointFunc) &sf::Transform::transformPoint), 0);
   camlpp__register_external_method1( transformPointV, ((TransformPointVFunc) &sf::Transform::transformPoint), 0);

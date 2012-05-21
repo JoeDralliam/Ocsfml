@@ -56,7 +56,7 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_constructor0( default_constructor, 0);
   camlpp__register_constructor1( copy_constructor, sf::Image const&, 0);
-  camlpp__register_external_method1( affect, &sf::Image::operator=, 0);
+  camlpp__register_affectation_operator( affect, 0);
   camlpp__register_external_method3( createFromColor, &image_create_with_opt_color_helper, 0 );
   camlpp__register_external_method1( createFromPixels, &image_create_from_pixels, 0 );
   camlpp__register_method1( loadFromFile, camlpp::release_caml_runtime );

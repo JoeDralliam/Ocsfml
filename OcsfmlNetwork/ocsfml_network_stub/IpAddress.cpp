@@ -15,7 +15,7 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_constructor4( bytes_constructor, sf::Uint8, sf::Uint8, sf::Uint8, sf::Uint8, camlpp::release_caml_runtime );
   camlpp__register_constructor1( integer_constructor, sf::Uint32, camlpp::release_caml_runtime );
   camlpp__register_constructor1( copy_constructor, sf::IpAddress const&, 0);
-  camlpp__register_external_method1( affect, &sf::IpAddress::operator=, 0);
+  camlpp__register_affectation_operator( affect, 0);
   camlpp__register_method0( toString, 0 );
   camlpp__register_method0( toInteger, 0 ); // perte de donnees possible (int caml sur 31 bits et non 32)
 }
