@@ -421,8 +421,7 @@ sig
   val get_size : t -> int * int
   val get_pixels_ptr : t -> OcsfmlWindow.pixel_array_type
   val create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
-  val copy_image :
-    t -> ?srcRect:int rect -> ?alpha:bool -> t -> int -> int -> unit
+  val copy_image : t -> ?srcRect:int rect -> ?alpha:bool -> t -> int -> int -> unit
   val set_pixel : t -> int -> int -> Color.t -> unit
   val get_pixel : t -> int -> int -> Color.t
   val flip_horizontally : t -> unit
@@ -551,12 +550,12 @@ sig
   val create : t -> int -> int -> unit
   val load_from_file : t -> ?rect:int rect -> string -> bool
   val load_from_stream : t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
-  val load_from_image : t -> ?rect:int rect -> image -> bool
+  val load_from_image : t -> ?rect:int rect -> Image.t -> bool
   val load_from_memory : t -> ?rect:int rect -> OcsfmlSystem.raw_data_type -> bool
   val get_size : t -> int * int
-  val copy_to_image : t -> image
-  val update_from_image : t -> ?coords:int * int -> image -> unit
-  val update_from_window : t -> ?coords:int * int -> #OcsfmlWindow.window -> unit
+  val copy_to_image : t -> Image.t
+  val update_from_image : t -> ?coords:int * int -> Image.t -> unit
+  val update_from_window : t -> ?coords:int * int -> OcsfmlWindow.Window.t -> unit
   val update_from_pixels : t -> ?coords:int * int -> OcsfmlWindow.pixel_array_type -> unit
   val bind : t -> unit
   val set_smooth : t -> bool -> unit
@@ -828,19 +827,16 @@ sig
   val default : unit -> t
   val load_from_file : t -> ?vertex:string -> ?fragment:string -> unit -> bool
   val load_from_memory : t -> ?vertex:string -> ?fragment:string -> unit -> bool
-  val load_from_stream : t ->
-    ?vertex:(#OcsfmlSystem.input_stream as 'a) ->
-    ?fragment:(#OcsfmlSystem.input_stream as 'a) -> unit -> bool
+  val load_from_stream : t -> ?vertex:(#OcsfmlSystem.input_stream as 'a) -> ?fragment:(#OcsfmlSystem.input_stream as 'a) -> unit -> bool
   val set_parameter1 : t -> string -> float -> unit
   val set_parameter2 : t -> string -> float -> float -> unit
   val set_parameter3 : t -> string -> float -> float -> float -> unit
-  val set_parameter4 :
-    t -> string -> float -> float -> float -> float -> unit
+  val set_parameter4 : t -> string -> float -> float -> float -> float -> unit
   val set_parameter2v : t -> string -> float * float -> unit
   val set_parameter3v : t -> string -> float * float * float -> unit
   val set_color : t -> string -> Color.t -> unit
-  val set_transform : t -> string -> transform -> unit
-  val set_texture : t -> string -> texture -> unit
+  val set_transform : t -> string -> Transform.t -> unit
+  val set_texture : t -> string -> Texture.t -> unit
   val set_current_texture : t -> string -> unit
   val bind : t -> unit
   val unbind : t -> unit
@@ -1304,13 +1300,13 @@ sig
   val clear : t -> ?color:Color.t -> unit -> unit
     (** Note : changed #drawable into Drawable.t *)
     (*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
-  val draw : t -> ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> Drawable.t -> unit
+  val draw : t -> ?blend_mode:blend_mode ->  ?transform:Transform.t -> ?texture:Texture.t ->  ?shader:Shader.t -> Drawable.t -> unit
   val get_size : t -> int * int
-  val set_view : t -> #const_view -> unit
+  val set_view : t -> View.t -> unit
   val get_view : t -> View.t
   val get_default_view : t -> View.t
-  val get_viewport : t -> #const_view -> int rect
-  val convert_coords : t -> ?view:#const_view -> int * int -> float * float
+  val get_viewport : t -> View.t -> int rect
+  val convert_coords : t -> ?view:View.t -> int * int -> float * float
   val push_gl_states : t -> unit
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
@@ -1586,11 +1582,8 @@ sig
   val to_window_base : t -> OcsfmlWindow.Window.t
   val to_render_target : t -> RenderTarget.t
   val default : unit -> t
-  val create :
-    ?style:OcsfmlWindow.Window.style list ->
-    ?context:OcsfmlWindow.context_settings ->
-    OcsfmlWindow.VideoMode.t -> string -> t
-  val capture : t -> image
+  val create : ?style:OcsfmlWindow.Window.style list -> ?context:OcsfmlWindow.context_settings -> OcsfmlWindow.VideoMode.t -> string -> t
+  val capture : t -> Image.t
 end
   (**/**)
 
@@ -1684,12 +1677,12 @@ sig
   val destroy : t -> unit
   val to_transformable : t -> Transformable.t
   val to_drawable : t -> Drawable.t
-  val set_texture : t -> ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
+  val set_texture : t -> ?texture:Texture.t -> ?reset_rect:bool -> unit -> unit
   val set_texture_rect : t -> int rect -> unit
   val set_fill_color : t -> Color.t -> unit
   val set_outline_color : t -> Color.t -> unit
   val set_outline_thickness : t -> float -> unit
-  val get_texture : t -> texture option
+  val get_texture : t -> Texture.t option
   val get_texture_rect : t -> int rect
   val get_fill_color : t -> Color.t
   val get_outline_color : t -> Color.t
@@ -1730,7 +1723,7 @@ class shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?new_texture:texture ->
+    ?texture:texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t -> 
@@ -1812,11 +1805,11 @@ object
 
   (** Change the source texture of the shape.
 
-      The new_texture argument refers to a texture that must exist as long as the shape uses it. Indeed, the shape doesn't store its own copy of the texture, but rather keeps a pointer to the one that you passed to this function. If the source texture is destroyed and the shape tries to use it, the behaviour is undefined. If reset_rect is true, the TextureRect property of the shape is automatically adjusted to the size of the new texture. If it is false (the default), the texture rect is left unchanged.
-      @param new_texture The new texture. Default disables texturing
+      The texture argument refers to a texture that must exist as long as the shape uses it. Indeed, the shape doesn't store its own copy of the texture, but rather keeps a pointer to the one that you passed to this function. If the source texture is destroyed and the shape tries to use it, the behaviour is undefined. If reset_rect is true, the TextureRect property of the shape is automatically adjusted to the size of the new texture. If it is false (the default), the texture rect is left unchanged.
+      @param texture The new texture. Default disables texturing
       @param reset_rect Should the texture rect be reset to the size of the new texture?
   *)
-  method set_texture : ?new_texture:texture -> ?reset_rect:bool -> unit -> unit
+  method set_texture : ?texture:texture -> ?reset_rect:bool -> unit -> unit
 
   (** Set the sub-rectangle of the texture that the shape will display.
 
@@ -1857,7 +1850,7 @@ class rectangle_shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?new_texture:texture ->
+    ?texture:texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
@@ -1922,7 +1915,7 @@ class circle_shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?new_texture:texture ->
+    ?texture:texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
@@ -1990,7 +1983,7 @@ class convex_shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?new_texture:texture ->
+    ?texture:texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
@@ -2032,14 +2025,14 @@ sig
   val to_transformable : t -> Transformable.t
   val to_drawable : t -> Drawable.t
   val default : unit -> t
-  val create : string -> font -> int -> t
+  val create : string -> Font.t -> int -> t
   val set_string : t -> string -> unit
-  val set_font : t -> font -> unit
+  val set_font : t -> Font.t -> unit
   val set_character_size : t -> int -> unit
   val set_style : t -> text_style list -> unit
   val set_color : t -> Color.t -> unit
   val get_string : t -> string
-  val get_font : t -> font
+  val get_font : t -> Font.t
   val get_character_size : t -> int
   val get_style : t -> text_style list
   val find_character_pos : t -> int -> float * float
@@ -2175,11 +2168,11 @@ sig
   val to_transformable : t -> Transformable.t
   val to_drawable : t -> Drawable.t
   val default : unit -> t
-  val create_from_texture : texture -> t
-  val set_texture : t -> ?resize:bool -> texture -> unit
+  val create_from_texture : Texture.t -> t
+  val set_texture : t -> ?resize:bool -> Texture.t -> unit
   val set_texture_rect : t -> int rect -> unit
   val set_color : t -> Color.t -> unit
-  val get_texture : t -> texture option
+  val get_texture : t -> Texture.t option
   val get_texture_rect : t -> int rect
   val get_color : t -> Color.t
   val get_local_bounds : t -> float rect
