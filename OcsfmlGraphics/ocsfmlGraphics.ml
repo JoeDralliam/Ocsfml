@@ -588,6 +588,7 @@ struct
   external get_line_spacing : t -> int -> int =
       "sf_Font_getLineSpacing__impl"
 	
+	(* c'est pas Texture.t  ? *)
   external get_texture : t -> int -> texture = "sf_Font_getTexture__impl"
       
 end
@@ -611,7 +612,7 @@ object ((_ : 'self))
     fun p1 p2 p3 -> Font.get_kerning t_font_base p1 p2 p3
   method get_line_spacing : int -> int =
     fun p1 -> Font.get_line_spacing t_font_base p1
-  method get_texture : int -> texture =
+  method get_texture: int -> texture =
     fun p1 -> Font.get_texture t_font_base p1
 end
   
@@ -1114,7 +1115,7 @@ object ((self : 'self))
       RenderTexture.set_active t_render_texture_base ?active p1
   method display : unit = RenderTexture.display t_render_texture_base
   method get_texture : texture =
-    new texture (RenderTexture.get_texture t_render_texture_base)
+    new texture_base (RenderTexture.get_texture t_render_texture_base)
 end
   
     

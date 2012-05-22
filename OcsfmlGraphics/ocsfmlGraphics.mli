@@ -1465,7 +1465,7 @@ sig
   val is_smooth : t -> bool
   val set_active : t -> ?active:bool -> unit -> bool
   val display : t -> unit
-  val get_texture : t -> texture
+  val get_texture : t -> Texture.t
 end
   (**/**)
 
