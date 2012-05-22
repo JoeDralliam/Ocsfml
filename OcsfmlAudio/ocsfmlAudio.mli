@@ -554,7 +554,7 @@ sig
   val destroy : t -> unit
   val to_sound_recorder : t -> SoundRecorder.t
   val default : unit -> t
-  val get_buffer : t -> sound_buffer
+  val get_buffer : t -> SoundBuffer.t
 end
 (**/**)
     
@@ -611,14 +611,14 @@ sig
   val destroy : t -> unit
   val to_sound_source : t -> SoundSource.t
   val default : unit -> t
-  val create_from_sound_buffer : sound_buffer -> t
+  val create_from_sound_buffer : SoundBuffer.t -> t
   val play : t -> unit
   val pause : t -> unit
   val stop : t -> unit
-  val set_buffer : t -> sound_buffer -> unit
+  val set_buffer : t -> SoundBuffer.t -> unit
   val set_loop : t -> bool -> unit
   val set_playing_offset : t -> OcsfmlSystem.Time.t -> unit
-  val get_buffer : t -> sound_buffer
+  val get_buffer : t -> SoundBuffer.t
   val get_loop : t -> bool
   val get_playing_offset : t -> OcsfmlSystem.Time.t
   val get_status : t -> status

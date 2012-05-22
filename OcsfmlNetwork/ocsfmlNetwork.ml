@@ -36,11 +36,17 @@ class ip_address_base t =
 object ((self : 'self))
   val t_ip_address = (t : IPAddressBase.t)
   method rep__sf_IpAddress = t_ip_address
+
   method destroy = IPAddressBase.destroy t_ip_address
+
   method affect : 'self -> unit =
     fun p1 -> ignore (IPAddressBase.affect t_ip_address p1#rep__sf_IpAddress)
-  method to_string : string = IPAddressBase.to_string t_ip_address
-  method to_integer : int = IPAddressBase.to_integer t_ip_address
+
+  method to_string : string = 
+    IPAddressBase.to_string t_ip_address
+
+  method to_integer : int = 
+    IPAddressBase.to_integer t_ip_address
 end
 
 module IPAddress =
@@ -225,9 +231,7 @@ struct
       
     external destroy : t -> unit = "sf_Ftp_Response_destroy__impl"
         
-    external default :
-      ?code: Status.t ->
-      ?msg: string -> unit -> t =
+    external default : ?code: Status.t -> ?msg: string -> unit -> t =
         "sf_Ftp_Response_default_constructor__impl"
           
     external get_status : t -> Status.t =
@@ -244,9 +248,13 @@ struct
   object ((self : 'self))
     val t_response = (t : Response.t)
     method rep__sf_Ftp_Response = t_response
+
     method destroy = Response.destroy t_response
+
     method get_status : Status.t = Response.get_status t_response
+
     method get_message : string = Response.get_message t_response
+
     method is_ok : bool = Response.is_ok t_response
   end
     
@@ -261,7 +269,7 @@ struct
     external to_response : t -> Response.t =
         "upcast__sf_Ftp_Response_of_sf_Ftp_DirectoryResponse__impl"
           
-    external default : response -> t =
+    external default : Response.t -> t =
         "sf_Ftp_DirectoryResponse_default_constructor__impl"
           
     external get_directory : t -> string =
@@ -271,12 +279,12 @@ struct
     
   class directory_response t =
   object ((self : 'self))
-    val t_directory_response =
-      (t : DirectoryResponse.t)
+    val t_directory_response = (t : DirectoryResponse.t)
     method rep__sf_Ftp_DirectoryResponse = t_directory_response
-    method destroy = DirectoryResponse.destroy t_directory_response
 
     inherit response (DirectoryResponse.to_response t)
+
+    method destroy = DirectoryResponse.destroy t_directory_response
 
     method get_directory : string =
       DirectoryResponse.get_directory t_directory_response
@@ -303,8 +311,11 @@ struct
   object ((self : 'self))
     val t_listing_response = (t : ListingResponse.t)
     method rep__sf_Ftp_ListingResponse = t_listing_response
-    method destroy = ListingResponse.destroy t_listing_response
+
     inherit response (ListingResponse.to_response t)
+
+    method destroy = ListingResponse.destroy t_listing_response
+
     method get_filenames : string list =
       ListingResponse.get_filenames t_listing_response
   end
@@ -320,49 +331,46 @@ struct
         "sf_Ftp_default_constructor__impl"
           
     external connect :
-      t ->
-      ?port: int ->
-      ?timeout: OcsfmlSystem.Time.t -> ip_address -> response =
+      t -> ?port: int -> ?timeout: OcsfmlSystem.Time.t -> IPAddress.t -> Response.t =
         "sf_Ftp_connect__impl"
           
-    external disconnect : t -> response = "sf_Ftp_disconnect__impl"
+    external disconnect : t -> Response.t = "sf_Ftp_disconnect__impl"
         
-    external login : t -> ?log: (string * string) -> unit -> response =
+    external login : t -> ?log: (string * string) -> unit -> Response.t =
         "sf_Ftp_login__impl"
           
-    external keep_alive : t -> response = "sf_Ftp_keepAlive__impl"
+    external keep_alive : t -> Response.t = "sf_Ftp_keepAlive__impl"
         
-    external get_working_directory : t -> directory_response =
+    external get_working_directory : t -> DirectoryResponse.t =
         "sf_Ftp_getWorkingDirectory__impl"
           
-    external get_directory_listing :
-      t -> ?dir: string -> unit -> listing_response =
+    external get_directory_listing : t -> ?dir: string -> unit -> ListingResponse.t =
         "sf_Ftp_getDirectoryListing__impl"
           
-    external change_directory : t -> string -> response =
+    external change_directory : t -> string -> Response.t =
         "sf_Ftp_changeDirectory__impl"
           
-    external parent_directory : t -> response =
+    external parent_directory : t -> Response.t =
         "sf_Ftp_parentDirectory__impl"
           
-    external create_directory : t -> string -> response =
+    external create_directory : t -> string -> Response.t =
         "sf_Ftp_createDirectory__impl"
           
-    external delete_directory : t -> string -> response =
+    external delete_directory : t -> string -> Response.t =
         "sf_Ftp_deleteDirectory__impl"
           
-    external rename_file : t -> string -> string -> response =
+    external rename_file : t -> string -> string -> Response.t =
         "sf_Ftp_renameFile__impl"
           
-    external delete_file : t -> string -> response =
+    external delete_file : t -> string -> Response.t =
         "sf_Ftp_deleteFile__impl"
           
     external download :
-      t -> ?mode: transfer_mode -> string -> string -> response =
+      t -> ?mode: transfer_mode -> string -> string -> Response.t =
         "sf_Ftp_download__impl"
           
     external upload :
-      t -> ?mode: transfer_mode -> string -> string -> response =
+      t -> ?mode: transfer_mode -> string -> string -> Response.t =
         "sf_Ftp_upload__impl"
           
   end
@@ -371,37 +379,50 @@ struct
   object ((self : 'self))
     val t_ftp = (t : Ftp.t)
     method rep__sf_Ftp = t_ftp
+
     method destroy = Ftp.destroy t_ftp
-    method connect :
-      ?port: int ->
-      ?timeout: OcsfmlSystem.Time.t -> ip_address -> response =
-      fun ?port ?timeout p1 -> Ftp.connect t_ftp ?port ?timeout p1
-    method disconnect : response = Ftp.disconnect t_ftp
+
+    method connect : ?port: int -> ?timeout: OcsfmlSystem.Time.t -> ip_address -> response =
+      fun ?port ?timeout p1 -> new response (Ftp.connect t_ftp ?port ?timeout p1#rep__sf_IpAddress)
+
+    method disconnect : response = 
+      new response (Ftp.disconnect t_ftp)
+
     method login : ?log: (string * string) -> unit -> response =
-      fun ?log p1 -> Ftp.login t_ftp ?log p1
-    method keep_alive : response = Ftp.keep_alive t_ftp
+      fun ?log p1 -> new response (Ftp.login t_ftp ?log p1)
+
+    method keep_alive : response = 
+      new response (Ftp.keep_alive t_ftp)
+
     method get_working_directory : directory_response =
-      Ftp.get_working_directory t_ftp
-    method get_directory_listing :
-      ?dir: string -> unit -> listing_response =
-      fun ?dir p1 -> Ftp.get_directory_listing t_ftp ?dir p1
+      new directory_response (Ftp.get_working_directory t_ftp)
+
+    method get_directory_listing : ?dir: string -> unit -> listing_response =
+      fun ?dir p1 -> new listing_response (Ftp.get_directory_listing t_ftp ?dir p1)
+
     method change_directory : string -> response =
-      fun p1 -> Ftp.change_directory t_ftp p1
-    method parent_directory : response = Ftp.parent_directory t_ftp
+      fun p1 -> new response (Ftp.change_directory t_ftp p1)
+
+    method parent_directory : response = 
+      new response (Ftp.parent_directory t_ftp)
+
     method create_directory : string -> response =
-      fun p1 -> Ftp.create_directory t_ftp p1
+      fun p1 -> new response (Ftp.create_directory t_ftp p1)
+
     method delete_directory : string -> response =
-      fun p1 -> Ftp.delete_directory t_ftp p1
+      fun p1 -> new response (Ftp.delete_directory t_ftp p1)
+
     method rename_file : string -> string -> response =
-      fun p1 p2 -> Ftp.rename_file t_ftp p1 p2
+      fun p1 p2 -> new response (Ftp.rename_file t_ftp p1 p2)
+
     method delete_file : string -> response =
-      fun p1 -> Ftp.delete_file t_ftp p1
-    method download :
-      ?mode: transfer_mode -> string -> string -> response =
-      fun ?mode p1 p2 -> Ftp.download t_ftp ?mode p1 p2
-    method upload :
-      ?mode: transfer_mode -> string -> string -> response =
-      fun ?mode p1 p2 -> Ftp.upload t_ftp ?mode p1 p2
+      fun p1 -> new response (Ftp.delete_file t_ftp p1)
+
+    method download : ?mode: transfer_mode -> string -> string -> response =
+      fun ?mode p1 p2 -> new response (Ftp.download t_ftp ?mode p1 p2)
+
+    method upload : ?mode: transfer_mode -> string -> string -> response =
+      fun ?mode p1 p2 -> new response (Ftp.upload t_ftp ?mode p1 p2)
   end
     
 end
@@ -486,7 +507,7 @@ struct
       
     (**< Response is not a valid HTTP one*)
     let connectionFailed = 1001
-      
+  (**< Connection with server failed*) 
   end
     
   module Request =
@@ -495,9 +516,7 @@ struct
       
     external destroy : t -> unit = "sf_Http_Request_destroy__impl"
         
-    external default :
-      (**< Connection with server failed*) ?uri: string ->
-      ?meth: request_method -> ?body: string -> unit -> t =
+    external default : ?uri:string -> ?meth:request_method -> ?body:string -> unit -> t =
         "sf_Http_Request_default_constructor__impl"
           
     external set_field : t -> string -> string -> unit =
@@ -517,23 +536,32 @@ struct
           
   end
     
-  class request t =
+  class request_base t =
   object ((self : 'self))
     val t_request = (t : Request.t)
     method rep__sf_Http_Request = t_request
+
     method destroy = Request.destroy t_request
+
     method set_field : string -> string -> unit =
       fun p1 p2 -> Request.set_field t_request p1 p2
+
     method set_method : request_method -> unit =
       fun p1 -> Request.set_method t_request p1
+
     method set_uri : string -> unit =
       fun p1 -> Request.set_uri t_request p1
+
     method set_http_version : int -> int -> unit =
       fun p1 p2 -> Request.set_http_version t_request p1 p2
+
     method set_body : string -> unit =
       fun p1 -> Request.set_body t_request p1
   end
-    
+
+  class request ?uri ?meth ?body () =
+    let t = Request.default ?uri ?meth ?body ()
+    in request_base t
       
   module Response =
   struct
@@ -564,14 +592,20 @@ struct
   object ((self : 'self))
     val t_response = (t : Response.t)
     method rep__sf_Http_Response = t_response
+
     method destroy = Response.destroy t_response
+
     method get_field : string -> string =
       fun p1 -> Response.get_field t_response p1
+
     method get_status : Status.t = Response.get_status t_response
+
     method get_major_http_version : int =
       Response.get_major_http_version t_response
+
     method get_minor_http_version : int =
       Response.get_minor_http_version t_response
+
     method get_body : string = Response.get_body t_response
   end
     
@@ -592,8 +626,7 @@ struct
     external set_host : t -> ?port: int -> string -> unit =
         "sf_Http_setHost__impl"
           
-    external send_request :
-      t -> ?timeout: OcsfmlSystem.Time.t -> request -> response =
+    external send_request : t -> ?timeout: OcsfmlSystem.Time.t -> Request.t -> Response.t =
         "sf_Http_sendRequest__impl"
           
   end
@@ -602,12 +635,14 @@ struct
   object ((self : 'self))
     val t_http = (t : Http.t)
     method rep__sf_Http = t_http
+
     method destroy = Http.destroy t_http
+
     method set_host : ?port: int -> string -> unit =
       fun ?port p1 -> Http.set_host t_http ?port p1
-    method send_request :
-      ?timeout: OcsfmlSystem.Time.t -> request -> response =
-      fun ?timeout p1 -> Http.send_request t_http ?timeout p1
+
+    method send_request : ?timeout: OcsfmlSystem.Time.t -> request -> response =
+      fun ?timeout p1 -> new response (Http.send_request t_http ?timeout p1#rep__sf_Http_Request)
   end
     
 end
@@ -677,45 +712,69 @@ class packet_base t =
 object ((self : 'self))
   val t_packet_base = (t : Packet.t)
   method rep__sf_Packet = t_packet_base
+
   method destroy = Packet.destroy t_packet_base
+
   method append : OcsfmlSystem.raw_data_type -> unit =
     fun p1 -> Packet.append t_packet_base p1
+
   method clear : unit = Packet.clear t_packet_base
+
   method get_data : OcsfmlSystem.raw_data_type =
     Packet.get_data t_packet_base
+
   method get_data_size : int = Packet.get_data_size t_packet_base
+
   method end_of_packet : bool = Packet.end_of_packet t_packet_base
+
   method is_valid : bool = Packet.is_valid t_packet_base
+
   method read_bool : bool = Packet.read_bool t_packet_base
+
   method read_int8 : int = Packet.read_int8 t_packet_base
+
   method read_uint8 : int = Packet.read_uint8 t_packet_base
+
   method read_int16 : int = Packet.read_int16 t_packet_base
+
   method read_uint16 : int = Packet.read_uint16 t_packet_base
+
   method read_int32 : int = Packet.read_int32 t_packet_base
+
   method read_uint32 : int = Packet.read_uint32 t_packet_base
+
   method read_float : float = Packet.read_float t_packet_base
+
   method read_string : string = Packet.read_string t_packet_base
+
   method write_bool : bool -> unit =
     fun p1 -> Packet.write_bool t_packet_base p1
+
   method write_int8 : int -> unit =
     fun p1 -> Packet.write_int8 t_packet_base p1
+
   method write_uint8 : int -> unit =
     fun p1 -> Packet.write_uint8 t_packet_base p1
+
   method write_int16 : int -> unit =
     fun p1 -> Packet.write_int16 t_packet_base p1
+
   method write_uint16 : int -> unit =
     fun p1 -> Packet.write_uint16 t_packet_base p1
+
   method write_int32 : int -> unit =
     fun p1 -> Packet.write_int32 t_packet_base p1
+
   method write_uint32 : int -> unit =
     fun p1 -> Packet.write_uint32 t_packet_base p1
+
   method write_float : float -> unit =
     fun p1 -> Packet.write_float t_packet_base p1
+
   method write_string : string -> unit =
     fun p1 -> Packet.write_string t_packet_base p1
 end
   
-    
 class packet_bis () = 
   let t = Packet.default () 
   in packet_base t
@@ -792,8 +851,10 @@ object ((self : 'self))
   val t_socket = (t : Socket.t)
   method rep__sf_Socket = t_socket
   method destroy = Socket.destroy t_socket
+
   method set_blocking : bool -> unit =
     fun p1 -> Socket.set_blocking t_socket p1
+
   method is_blocking : bool = Socket.is_blocking t_socket
 end
       
@@ -801,40 +862,28 @@ module SocketSelector =
 struct
   type t
     
-  class type socket_selector_class_type =
-  object ('self)
-    val t_socket_selector : t
-    method rep__sf_SocketSelector : t
-    method destroy : unit
-    method add : (* constructor copy : 'self = "copy_constructor" *)
-      'a. (#socket as 'a) -> unit
-    method remove : 'a. (#socket as 'a) -> unit
-    method clear : unit
-    method wait : ?timeout: OcsfmlSystem.Time.t -> unit -> bool
-    method is_ready : 'a. (#socket as 'a) -> bool
-    method set : 'self -> 'self
-  end
-    
   external destroy : t -> unit = "sf_SocketSelector_destroy__impl"
 	    
   external default : unit -> t =
-	    "sf_SocketSelector_default_constructor__impl"
+      "sf_SocketSelector_default_constructor__impl"
+	
+  external add : t -> Socket.t -> unit =
+      "sf_SocketSelector_add__impl"
+	
+  external remove : t -> Socket.t -> unit =
+      "sf_SocketSelector_remove__impl"
 	      
-  external add : t -> (#socket as 'a) -> unit =
-	    "sf_SocketSelector_add__impl"
-	      
-  external remove : t -> (#socket as 'a) -> unit =
-	    "sf_SocketSelector_remove__impl"
-	      
-  external clear : t -> unit = "sf_SocketSelector_clear__impl"
+  external clear : t -> unit = 
+      "sf_SocketSelector_clear__impl"
 	    
   external wait : t -> ?timeout: OcsfmlSystem.Time.t -> unit -> bool =
-	    "sf_SocketSelector_wait__impl"
+      "sf_SocketSelector_wait__impl"
 	      
-  external is_ready : t -> (#socket as 'a) -> bool =
-	    "sf_SocketSelector_isReady__impl"
+  external is_ready : t -> Socket.t -> bool =
+      "sf_SocketSelector_isReady__impl"
 	      
-  external affect : t -> t -> t = "sf_SocketSelector_affect__impl"
+  external affect : t -> t -> t = 
+      "sf_SocketSelector_affect__impl"
 	    
 end
   
@@ -842,16 +891,23 @@ class socket_selector_base t =
 object ((_: 'self))
   val t_socket_selector = (t : SocketSelector.t)
   method rep__sf_SocketSelector = t_socket_selector
+
   method destroy = SocketSelector.destroy t_socket_selector
+
   method add : 'a. (#socket as 'a) -> unit =
-    fun p1 -> SocketSelector.add t_socket_selector p1
+    fun p1 -> SocketSelector.add t_socket_selector p1#rep__sf_Socket
+
   method remove : 'a. (#socket as 'a) -> unit =
-    fun p1 -> SocketSelector.remove t_socket_selector p1
+    fun p1 -> SocketSelector.remove t_socket_selector p1#rep__sf_Socket
+
   method clear : unit = SocketSelector.clear t_socket_selector
+
   method wait : ?timeout: OcsfmlSystem.Time.t -> unit -> bool =
     fun ?timeout p1 -> SocketSelector.wait t_socket_selector ?timeout p1
+
   method is_ready : 'a. (#socket as 'a) -> bool =
-    fun p1 -> SocketSelector.is_ready t_socket_selector p1
+    fun p1 -> SocketSelector.is_ready t_socket_selector p1#rep__sf_Socket
+
   method affect : 'self -> unit =
     fun p1 -> ignore (SocketSelector.affect t_socket_selector p1#rep__sf_SocketSelector)
 end
@@ -881,28 +937,27 @@ struct
       
   external get_local_port : t -> Port.t = "sf_TcpSocket_getLocalPort__impl"
       
-  external get_remote_address : t -> ip_address =
+  external get_remote_address : t -> IPAddress.t =
       "sf_TcpSocket_getRemoteAddress__impl"
 	
   external get_remote_port : t -> Port.t = "sf_TcpSocket_getRemotePort__impl"
       
   external connect :
-    t -> ?timeout: OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status =
+    t -> ?timeout: OcsfmlSystem.Time.t -> IPAddress.t -> Port.t -> socket_status =
       "sf_TcpSocket_connect__impl"
 	
   external disconnect : t -> unit = "sf_TcpSocket_disconnect__impl"
       
-  external send_packet : t -> (#packet as 'a) -> socket_status =
+  external send_packet : t -> Packet.t -> socket_status =
       "sf_TcpSocket_sendPacket__impl"
 	
-  external receive_packet : t -> (#packet as 'a) -> socket_status =
+  external receive_packet : t -> Packet.t -> socket_status =
       "sf_TcpSocket_receivePacket__impl"
 	
   external send_data : t -> OcsfmlSystem.raw_data_type -> socket_status =
       "sf_TcpSocket_sendData__impl"
 	
-  external receive_data :
-    t -> OcsfmlSystem.raw_data_type -> (socket_status * int) =
+  external receive_data : t -> OcsfmlSystem.raw_data_type -> (socket_status * int) =
       "sf_TcpSocket_receiveData__impl"
 
   external send_string : t -> string -> socket_status =
@@ -919,31 +974,29 @@ object ((self : 'self))
 
   method rep__sf_TcpSocket = t_tcp_socket_base
 
-  method destroy = TcpSocket.destroy t_tcp_socket_base
-
   inherit socket (TcpSocket.to_socket t)
+
+  method destroy = TcpSocket.destroy t_tcp_socket_base
 
   method get_local_port : Port.t = 
     TcpSocket.get_local_port t_tcp_socket_base
 
   method get_remote_address : ip_address =
-    TcpSocket.get_remote_address t_tcp_socket_base
+    new ip_address_base (TcpSocket.get_remote_address t_tcp_socket_base)
 
   method get_remote_port : Port.t =
     TcpSocket.get_remote_port t_tcp_socket_base
 
-  method connect :
-    ?timeout: OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status =
-    fun ?timeout p1 p2 ->
-      TcpSocket.connect t_tcp_socket_base ?timeout p1 p2
+  method connect : ?timeout: OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status =
+    fun ?timeout add p2 -> TcpSocket.connect t_tcp_socket_base ?timeout add#rep__sf_IpAddress p2
 
   method disconnect : unit = TcpSocket.disconnect t_tcp_socket_base
 
   method send_packet : 'a. (#packet as 'a) -> socket_status =
-    fun p1 -> TcpSocket.send_packet t_tcp_socket_base p1
+    fun p1 -> TcpSocket.send_packet t_tcp_socket_base p1#rep__sf_Packet
 
   method receive_packet : 'a. (#packet as 'a) -> socket_status =
-    fun p1 -> TcpSocket.receive_packet t_tcp_socket_base p1
+    fun p1 -> TcpSocket.receive_packet t_tcp_socket_base p1#rep__sf_Packet
 
   method send_data : OcsfmlSystem.raw_data_type -> socket_status =
     fun p1 -> TcpSocket.send_data t_tcp_socket_base p1
@@ -981,7 +1034,7 @@ struct
 	
   external close : t -> unit = "sf_TcpListener_close__impl"
       
-  external accept : t -> tcp_socket -> socket_status =
+  external accept : t -> TcpSocket.t -> socket_status =
       "sf_TcpListener_accept__impl"
 	
 end
@@ -998,7 +1051,7 @@ object ((self : 'self))
     fun p1 -> TcpListener.listen t_tcp_listener_base p1
   method close : unit = TcpListener.close t_tcp_listener_base
   method accept : tcp_socket -> socket_status =
-    fun p1 -> TcpListener.accept t_tcp_listener_base p1
+    fun p1 -> TcpListener.accept t_tcp_listener_base p1#rep__sf_TcpSocket
 end
   
     
@@ -1028,23 +1081,23 @@ struct
   external get_local_port : t -> Port.t = "sf_UdpSocket_getLocalPort__impl"
 
   external send_packet :
-    t -> (#packet as 'a) -> ip_address -> Port.t -> socket_status =
+    t -> Packet.t -> IPAddress.t -> Port.t -> socket_status =
       "sf_UdpSocket_sendPacket__impl"
 	
   external receive_packet :
-    t -> (#packet as 'a) -> ip_address -> (socket_status * Port.t) =
+    t -> Packet.t -> IPAddress.t -> (socket_status * Port.t) =
       "sf_UdpSocket_receivePacket__impl"
 	
-  external send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status =
+  external send_data : t -> OcsfmlSystem.raw_data_type -> IPAddress.t -> Port.t -> socket_status =
       "sf_UdpSocket_sendData__impl"
 	
-  external receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * Port.t) =
+  external receive_data : t -> OcsfmlSystem.raw_data_type -> IPAddress.t -> (socket_status * int * Port.t) =
       "sf_UdpSocket_receiveData__impl"
 
-  external send_string : t -> string -> ip_address -> Port.t -> socket_status =
+  external send_string : t -> string -> IPAddress.t -> Port.t -> socket_status =
       "sf_UdpSocket_sendString__impl"
 	
-  external receive_string : t -> string -> ip_address -> (socket_status * int * Port.t) =
+  external receive_string : t -> string -> IPAddress.t -> (socket_status * int * Port.t) =
       "sf_UdpSocket_receiveString__impl"
 
 	
@@ -1067,23 +1120,23 @@ object ((self : 'self))
     UdpSocket.get_local_port t_udp_socket_base
 
   method send_packet : 'a. (#packet as 'a) -> ip_address -> Port.t -> socket_status =
-    fun p1 p2 p3 -> UdpSocket.send_packet t_udp_socket_base p1 p2 p3
+    fun pck add p3 -> UdpSocket.send_packet t_udp_socket_base pck#rep__sf_Packet add#rep__sf_IpAddress p3
 
 
   method receive_packet : 'a. (#packet as 'a) -> ip_address -> (socket_status * Port.t) =
-    fun p1 p2 -> UdpSocket.receive_packet t_udp_socket_base p1 p2
+    fun pck add -> UdpSocket.receive_packet t_udp_socket_base pck#rep__sf_Packet add#rep__sf_IpAddress
 
   method send_data : OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status =
-    fun p1 p2 p3 -> UdpSocket.send_data t_udp_socket_base p1 p2 p3
+    fun p1 add p3 -> UdpSocket.send_data t_udp_socket_base p1 add#rep__sf_IpAddress p3
 
   method receive_data : OcsfmlSystem.raw_data_type -> ip_address -> (socket_status * int * Port.t) =
-    fun p1 p2 -> UdpSocket.receive_data t_udp_socket_base p1 p2
+    fun p1 add -> UdpSocket.receive_data t_udp_socket_base p1 add#rep__sf_IpAddress
 
   method send_string : string -> ip_address -> Port.t -> socket_status =
-    fun p1 p2 p3 -> UdpSocket.send_string t_udp_socket_base p1 p2 p3
+    fun p1 add p3 -> UdpSocket.send_string t_udp_socket_base p1 add#rep__sf_IpAddress p3
 
   method receive_string: string -> ip_address -> (socket_status * int * Port.t) =
-    fun p1 p2 -> UdpSocket.receive_string t_udp_socket_base p1 p2
+    fun p1 add -> UdpSocket.receive_string t_udp_socket_base p1 add#rep__sf_IpAddress
 
 end
       

@@ -28,14 +28,14 @@ end
     Usage example:
     {[
     let a0 = new ip_address `None in                      (* an invalid address *)
-    let a1 = IpAddress.None in                           (* an invalid address (same as a0) *)
+    let a1 = IPAddress.None in                           (* an invalid address (same as a0) *)
     let a2 = new ip_address (`String "127.0.0.1") in      (* the local host address *)
     let a4 = new ip_address (`Bytes (192, 168, 1, 56)) in (* a local address *)
     let a5 = new ip_address (`String "my_computer") in    (* a local address created from a network name *)
     let a6 = new ip_address (`String "89.54.1.169") in    (* a distant address *)
     let a7 = new ip_address (`String "www.google.com") in (* a distant address created from a network name *)
-    let a8 = IpAddress.get_local_address () in           (* my address on the local network *)
-    let a9 = IpAddress.get_public_address () in          (* my address on the internet *)
+    let a8 = IPAddress.get_local_address () in           (* my address on the local network *)
+    let a9 = IPAddress.get_public_address () in          (* my address on the internet *)
     ...
     ]}
 *)
@@ -205,7 +205,7 @@ sig
     type t
     val destroy : t -> unit
     val to_response : t -> Response.t
-    val default : response -> t
+    val default : Response.t -> t
     val get_directory : t -> string
   end
   (**/**)
@@ -270,20 +270,20 @@ sig
     type t
     val destroy : t -> unit
     val default : unit -> t
-    val connect : t -> ?port:int -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> response
-    val disconnect : t -> response
-    val login : t -> ?log:string * string -> unit -> response
-    val keep_alive : t -> response
-    val get_working_directory : t -> directory_response
-    val get_directory_listing : t -> ?dir:string -> unit -> listing_response
-    val change_directory : t -> string -> response
-    val parent_directory : t -> response
-    val create_directory : t -> string -> response
-    val delete_directory : t -> string -> response
-    val rename_file : t -> string -> string -> response
-    val delete_file : t -> string -> response
-    val download : t -> ?mode:transfer_mode -> string -> string -> response
-    val upload : t -> ?mode:transfer_mode -> string -> string -> response
+    val connect : t -> ?port:int -> ?timeout:OcsfmlSystem.Time.t -> IPAddress.t -> Response.t
+    val disconnect : t -> Response.t
+    val login : t -> ?log:string * string -> unit -> Response.t
+    val keep_alive : t -> Response.t
+    val get_working_directory : t -> DirectoryResponse.t
+    val get_directory_listing : t -> ?dir:string -> unit -> ListingResponse.t
+    val change_directory : t -> string -> Response.t
+    val parent_directory : t -> Response.t
+    val create_directory : t -> string -> Response.t
+    val delete_directory : t -> string -> Response.t
+    val rename_file : t -> string -> string -> Response.t
+    val delete_file : t -> string -> Response.t
+    val download : t -> ?mode:transfer_mode -> string -> string -> Response.t
+    val upload : t -> ?mode:transfer_mode -> string -> string -> Response.t
   end
   (**/**)
 
@@ -490,8 +490,7 @@ sig
   (**/**)  
 
   (** Define a HTTP request. *)
-  class request :
-    Request.t ->
+  class request : ?uri:string -> ?meth:request_method -> ?body:string -> unit ->
   object
     (**/**)
     val t_request : Request.t
@@ -601,7 +600,7 @@ sig
     val from_host : string -> t
     val from_host_and_port : string -> int -> t
     val set_host : t -> ?port:int -> string -> unit
-    val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> request -> response
+    val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> Request.t -> Response.t
   end
   (**/**)  
   
@@ -962,11 +961,11 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
-  val add : t -> #socket -> unit
-  val remove : t -> #socket -> unit
+  val add : t -> Socket.t -> unit
+  val remove : t -> Socket.t -> unit
   val clear : t -> unit
   val wait : t -> ?timeout:OcsfmlSystem.Time.t -> unit -> bool
-  val is_ready : t -> #socket -> bool
+  val is_ready : t -> Socket.t -> bool
   val affect : t -> t -> t
 end
 (**/**)
@@ -1100,13 +1099,13 @@ sig
   val to_socket : t -> Socket.t
   val default : unit -> t
   val get_local_port : t -> Port.t
-  val get_remote_address : t -> ip_address
+  val get_remote_address : t -> IPAddress.t
   val get_remote_port : t -> Port.t
   val connect :
-    t -> ?timeout:OcsfmlSystem.Time.t -> ip_address -> Port.t -> socket_status
+    t -> ?timeout:OcsfmlSystem.Time.t -> IPAddress.t -> Port.t -> socket_status
   val disconnect : t -> unit
-  val send_packet : t -> #packet -> socket_status
-  val receive_packet : t -> #packet -> socket_status
+  val send_packet : t -> Packet.t -> socket_status
+  val receive_packet : t -> Packet.t -> socket_status
   val send_data : t -> OcsfmlSystem.raw_data_type -> socket_status
   val receive_data : t -> OcsfmlSystem.raw_data_type -> (socket_status * int)
   val send_string : t -> string -> socket_status
@@ -1203,7 +1202,7 @@ object
 
   (** Get the address of the connected peer.
 
-      It the socket is not connected, this function returns IpAddress.none. 
+      It the socket is not connected, this function returns IPAddress.none. 
       @return Address to the remote peer*)
   method get_remote_address : ip_address
 
@@ -1267,7 +1266,7 @@ sig
   val get_local_port : t -> Port.t
   val listen : t -> Port.t -> socket_status
   val close : t -> unit
-  val accept : t -> tcp_socket -> socket_status
+  val accept : t -> TcpSocket.t -> socket_status
 end
 (**/**)
 
@@ -1358,12 +1357,12 @@ sig
   val bind : t -> Port.t -> socket_status
   val unbind : t -> unit
   val get_local_port : t -> Port.t
-  val send_packet : t -> #packet -> ip_address -> Port.t -> socket_status
-  val receive_packet : t -> #packet -> ip_address -> socket_status * Port.t 
-  val send_data : t -> OcsfmlSystem.raw_data_type -> ip_address -> Port.t -> socket_status
-  val receive_data : t -> OcsfmlSystem.raw_data_type -> ip_address  -> socket_status * int * Port.t
-  val send_string : t -> string -> ip_address -> Port.t -> socket_status
-  val receive_string : t -> string -> ip_address  -> socket_status * int * Port.t
+  val send_packet : t -> Packet.t -> IPAddress.t -> Port.t -> socket_status
+  val receive_packet : t -> Packet.t -> IPAddress.t -> socket_status * Port.t 
+  val send_data : t -> OcsfmlSystem.raw_data_type -> IPAddress.t -> Port.t -> socket_status
+  val receive_data : t -> OcsfmlSystem.raw_data_type -> IPAddress.t  -> socket_status * int * Port.t
+  val send_string : t -> string -> IPAddress.t -> Port.t -> socket_status
+  val receive_string : t -> string -> IPAddress.t  -> socket_status * int * Port.t
 
 end
 (**/**)
@@ -1396,7 +1395,7 @@ end
     socket.bind (Port.from_int 55001)
     
     (* Send a message to 192.168.1.50 on port 55002 *)
-    let message = "Hi, I am " ^ (IpAddress.get_local_address ())#to_string;
+    let message = "Hi, I am " ^ (IPAddress.get_local_address ())#to_string;
     socket#send message "192.168.1.50" (Port.from_int 55002);
     
     (* Receive an answer (most likely from 192.168.1.50, but could be anyone else) *)

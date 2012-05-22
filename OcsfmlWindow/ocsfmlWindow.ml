@@ -406,6 +406,14 @@ class window ?style ?context vm name =
   let t = Window.create_init ?style ?context vm name
   in window_base t
        
+
+module MouseBase =
+struct
+  external get_relative_position : Window.t -> (int * int) = "Mouse_getRelativePosition__impl"
+
+  external set_relative_position : (int * int) -> Window.t -> unit = "Mouse_setRelativePosition__impl"
+end
+
 module Mouse =
 struct
   type button = Event.mouseButton
@@ -414,11 +422,13 @@ struct
       
   external get_position : unit -> (int * int) = "Mouse_getPosition__impl"
       
-  external get_relative_position : (#window as 'a) -> (int * int) = "Mouse_getRelativePosition__impl"
+  let get_relative_position : (#window as 'a) -> (int * int) = 
+      fun win -> MouseBase.get_relative_position win#rep__sf_Window
       
   external set_position : (int * int) -> unit = "Mouse_setPosition__impl"
       
-  external set_relative_position : (int * int) -> (#window as 'a) -> unit = "Mouse_setRelativePosition__impl"
+  let set_relative_position : (int * int) -> (#window as 'a) -> unit =
+      fun pos win -> MouseBase.set_relative_position pos win#rep__sf_Window
 end
   
 

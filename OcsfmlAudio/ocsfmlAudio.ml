@@ -80,29 +80,43 @@ class sound_source_base t =
 object ((_ : 'a))
   val t_sound_source = (t : SoundSource.t)
   method rep__sf_SoundSource = t_sound_source
+
   method destroy = SoundSource.destroy t_sound_source
+
   method set_pitch : float -> unit =
     fun p1 -> SoundSource.set_pitch t_sound_source p1
+
   method set_volume : float -> unit =
     fun p1 -> SoundSource.set_volume t_sound_source p1
+
   method set_position : float -> float -> float -> unit =
     fun p1 p2 p3 -> SoundSource.set_position t_sound_source p1 p2 p3
+
   method set_position_v : (float * float * float) -> unit =
     fun p1 -> SoundSource.set_position_v t_sound_source p1
+
   method set_relative_to_listener : bool -> unit =
     fun p1 -> SoundSource.set_relative_to_listener t_sound_source p1
+
   method set_min_distance : float -> unit =
     fun p1 -> SoundSource.set_min_distance t_sound_source p1
+
   method set_attenuation : float -> unit =
     fun p1 -> SoundSource.set_attenuation t_sound_source p1
+
   method get_pitch : float = SoundSource.get_pitch t_sound_source
+
   method get_volume : float = SoundSource.get_volume t_sound_source
+
   method get_position : (float * float * float) =
     SoundSource.get_position t_sound_source
+
   method is_relative_to_listener : bool =
     SoundSource.is_relative_to_listener t_sound_source
+
   method get_min_distance : float =
     SoundSource.get_min_distance t_sound_source
+
   method get_attenuation : float =
     SoundSource.get_attenuation t_sound_source
 end
@@ -161,24 +175,34 @@ class sound_stream_base ?pitch ?volume ?position ?relative_to_listener ?min_dist
 object ((self : 'self))
   val t_sound_stream = (t : SoundStream.t)
   method rep__sf_SoundStream = t_sound_stream
-  method destroy = SoundStream.destroy t_sound_stream
 
   inherit sound_source_init ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (SoundStream.to_sound_source t)
 
+  method destroy = SoundStream.destroy t_sound_stream
+
   method play : unit = SoundStream.play t_sound_stream
+
   method pause : unit = SoundStream.pause t_sound_stream
+
   method stop : unit = SoundStream.stop t_sound_stream
+
   method get_channel_count : int =
     SoundStream.get_channel_count t_sound_stream
+
   method get_sample_rate : int =
     SoundStream.get_sample_rate t_sound_stream
+
   method get_status : status = SoundStream.get_status t_sound_stream
+
   method set_playing_offset : Time.t -> unit =
     fun p1 -> SoundStream.set_playing_offset t_sound_stream p1
+
   method get_playing_offset : Time.t =
     SoundStream.get_playing_offset t_sound_stream
+
   method set_loop : bool -> unit =
     fun p1 -> SoundStream.set_loop t_sound_stream p1
+
   method get_loop : bool = SoundStream.get_loop t_sound_stream
 end
 
@@ -214,12 +238,14 @@ class music_base ?pitch ?volume ?position ?relative_to_listener ?min_distance ?a
 object ((self : 'self))
   val t_music_base = (t : Music.t)
   method rep__sf_Music = t_music_base
-  method destroy = Music.destroy t_music_base
 
   inherit sound_stream_init ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation ?playing_offset ?loop (Music.to_sound_stream t)
 
+  method destroy = Music.destroy t_music_base
+
   method open_from_file : string -> bool =
     fun p1 -> Music.open_from_file t_music_base p1
+
   method get_duration : Time.t = Music.get_duration t_music_base
 end
 						   
@@ -273,26 +299,36 @@ class sound_buffer_base t =
 object ((_ : 'self))
   val t_sound_buffer_base = (t : SoundBuffer.t)
   method rep__sf_SoundBuffer = t_sound_buffer_base
+
   method destroy = SoundBuffer.destroy t_sound_buffer_base
+
   method affect : 'self -> unit =
     fun p1 -> ignore (SoundBuffer.affect t_sound_buffer_base p1#rep__sf_SoundBuffer)
+
   method load_from_file : string -> bool =
     fun p1 -> SoundBuffer.load_from_file t_sound_buffer_base p1
+
   method load_from_stream : input_stream -> bool =
     fun p1 -> SoundBuffer.load_from_stream t_sound_buffer_base p1
+
   method load_from_samples : samples_type -> int -> int -> bool =
-    fun p1 p2 p3 ->
-      SoundBuffer.load_from_samples t_sound_buffer_base p1 p2 p3
+    fun p1 p2 p3 -> SoundBuffer.load_from_samples t_sound_buffer_base p1 p2 p3
+
   method save_to_file : string -> bool =
     fun p1 -> SoundBuffer.save_to_file t_sound_buffer_base p1
+
   method get_samples : samples_type =
     SoundBuffer.get_samples t_sound_buffer_base
+
   method get_sample_count : int =
     SoundBuffer.get_sample_count t_sound_buffer_base
+
   method get_sample_rate : int =
     SoundBuffer.get_sample_rate t_sound_buffer_base
+
   method get_channel_count : int =
     SoundBuffer.get_channel_count t_sound_buffer_base
+
   method get_duration : Time.t = SoundBuffer.get_duration t_sound_buffer_base
 end
   
@@ -333,7 +369,6 @@ struct
   external get_sample_rate : t -> int =
       "sf_SoundRecorder_getSampleRate__impl"
 	
-
   external is_available : unit -> bool = "SoundRecorder_isAvailable__impl"
 end
   
@@ -341,11 +376,14 @@ class sound_recorder_base t =
 object ((self : 'self))
   val t_sound_recorder = (t : SoundRecorder.t)
   method rep__sf_SoundRecorder = t_sound_recorder
+
   method destroy = SoundRecorder.destroy t_sound_recorder
+
   method start : ?sampleRate: int -> unit -> unit =
-    fun ?sampleRate p1 ->
-      SoundRecorder.start t_sound_recorder ?sampleRate p1
+    fun ?sampleRate p1 -> SoundRecorder.start t_sound_recorder ?sampleRate p1
+
   method stop : unit = SoundRecorder.stop t_sound_recorder
+
   method get_sample_rate : int =
     SoundRecorder.get_sample_rate t_sound_recorder
 end
@@ -364,7 +402,7 @@ struct
   external default : unit -> t =
       "sf_SoundBufferRecorder_default_constructor__impl"
 	
-  external get_buffer : t -> sound_buffer =
+  external get_buffer : t -> SoundBuffer.t =
       "sf_SoundBufferRecorder_getBuffer__impl"
 	
 end
@@ -373,12 +411,13 @@ class sound_buffer_recorder_base t =
 object ((self : 'self))
   val t_sound_buffer_recorder_base = (t : SoundBufferRecorder.t)
   method rep__sf_SoundBufferRecorder = t_sound_buffer_recorder_base
-  method destroy = SoundBufferRecorder.destroy t_sound_buffer_recorder_base
 
   inherit sound_recorder (SoundBufferRecorder.to_sound_recorder t)
 
+  method destroy = SoundBufferRecorder.destroy t_sound_buffer_recorder_base
+
   method get_buffer : sound_buffer =
-    SoundBufferRecorder.get_buffer t_sound_buffer_recorder_base
+    new sound_buffer_base (SoundBufferRecorder.get_buffer t_sound_buffer_recorder_base)
 end
   
     
@@ -399,7 +438,7 @@ struct
 	
   external default : unit -> t = "sf_Sound_default_constructor__impl"
       
-  external create_from_sound_buffer : sound_buffer -> t =
+  external create_from_sound_buffer : SoundBuffer.t -> t =
       "sf_Sound_buffer_constructor__impl"
 	
   external play : t -> (* constructor copy *) unit = "sf_Sound_play__impl"
@@ -408,7 +447,7 @@ struct
       
   external stop : t -> unit = "sf_Sound_stop__impl"
       
-  external set_buffer : t -> sound_buffer -> unit =
+  external set_buffer : t -> SoundBuffer.t -> unit =
       "sf_Sound_setBuffer__impl"
 	
   external set_loop : t -> bool -> unit = "sf_Sound_setLoop__impl"
@@ -416,7 +455,7 @@ struct
   external set_playing_offset : t -> Time.t -> unit =
       "sf_Sound_setPlayingOffset__impl"
 	
-  external get_buffer : t -> sound_buffer = "sf_Sound_getBuffer__impl"
+  external get_buffer : t -> SoundBuffer.t = "sf_Sound_getBuffer__impl"
       
   external get_loop : t -> bool = "sf_Sound_getLoop__impl"
       
@@ -435,17 +474,31 @@ object ((self : 'self))
   
   inherit sound_source_init ?pitch ?volume ?position ?relative_to_listener ?min_distance ?attenuation (Sound.to_sound_source t)
   
-  method play : unit = Sound.play t_sound_base
-  method pause : unit = Sound.pause t_sound_base
-  method stop : unit = Sound.stop t_sound_base
+  method play : unit = 
+    Sound.play t_sound_base
+  
+  method pause : unit = 
+    Sound.pause t_sound_base
+  
+  method stop : unit = 
+    Sound.stop t_sound_base
+  
   method set_buffer : sound_buffer -> unit =
-    fun p1 -> Sound.set_buffer t_sound_base p1
-  method set_loop : bool -> unit = fun p1 -> Sound.set_loop t_sound_base p1
+    fun buf -> Sound.set_buffer t_sound_base buf#rep__sf_SoundBuffer
+
+  method set_loop : bool -> unit = 
+    fun p1 -> Sound.set_loop t_sound_base p1
+
   method set_playing_offset : Time.t -> unit =
     fun p1 -> Sound.set_playing_offset t_sound_base p1
-  method get_buffer : sound_buffer = Sound.get_buffer t_sound_base
+
+  method get_buffer : sound_buffer = 
+    new sound_buffer_base (Sound.get_buffer t_sound_base)
+
   method get_loop : bool = Sound.get_loop t_sound_base
+
   method get_playing_offset : Time.t = Sound.get_playing_offset t_sound_base
+
   method get_status : status = Sound.get_status t_sound_base
 end
   
