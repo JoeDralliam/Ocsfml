@@ -150,7 +150,7 @@ let _ = dispatch begin function
 	
 	(* when a c++ file employ the sfml "s" module is compiled *)
 	
-	List.iter (fun s -> flag ["c++"; "compile"] & A( "-I" ^ (get_stub_directory s) ) ) i ;
+	List.iter (fun i_dep -> flag ["c++"; "compile" ; "ocsfml"^s] & A( "-I" ^ (get_stub_directory i_dep) ) ) i ;
 	
 	flag["c++" ; "shared" ; "ocsfml"^s] & S( libs_sfml );
 	

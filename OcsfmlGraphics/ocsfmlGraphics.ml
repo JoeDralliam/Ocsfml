@@ -588,9 +588,9 @@ struct
   external get_line_spacing : t -> int -> int =
       "sf_Font_getLineSpacing__impl"
 	
-	(* c'est pas Texture.t  ? *)
-  external get_texture : t -> int -> texture = "sf_Font_getTexture__impl"
-      
+  external get_texture : t -> int -> Texture.t = "sf_Font_getTexture__impl"
+
+  external get_default_font : unit -> t = "sf_Font_getDefaultFont__impl"
 end
   
 class font_base t =
@@ -613,9 +613,11 @@ object ((_ : 'self))
   method get_line_spacing : int -> int =
     fun p1 -> Font.get_line_spacing t_font_base p1
   method get_texture: int -> texture =
-    fun p1 -> Font.get_texture t_font_base p1
+    fun p1 -> new texture_base (Font.get_texture t_font_base p1)
 end
-  
+
+let get_default_font () =
+  new font_base (Font.get_default_font)
     
 class font_init tag t =
 object (self)

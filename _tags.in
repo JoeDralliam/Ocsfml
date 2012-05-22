@@ -3,30 +3,30 @@
 
 <OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <OcsfmlNetwork> or <Test> : include
 
-<OcsfmlSystem/*.{h,c}pp> : include_sfml_system
+<OcsfmlSystem/ocsfml_system_stub/*.{h,c}pp> : include_sfml_system, ocsfmlsystem
 "OcsfmlSystem/libocsfmlsystem.@LIB_EXTENSION@" : use_sfml_system
 "OcsfmlSystem/dllocsfmlsystem.@DLL_EXTENSION@" : use_sfml_system
 <OcsfmlSystem/*.cm{x,}a> : use_sfml_system, use_libocsfmlsystem
 
 
-<OcsfmlWindow/*.{h,c}pp> : include_sfml_window
+<OcsfmlWindow/ocsfml_window_stub/*.{h,c}pp> : include_sfml_window, ocsfmlwindow
 "OcsfmlWindow/libocsfmlwindow.@LIB_EXTENSION@" : use_sfml_window
 "OcsfmlWindow/dllocsfmlwindow.@DLL_EXTENSION@" : use_sfml_window
 <OcsfmlWindow/*.cm{x,}a> : use_sfml_window, use_libocsfmlwindow
 
 
-<OcsfmlGraphics/*.{h,c}pp> : include_sfml_graphics
+<OcsfmlGraphics/ocsfml_graphics_stub/*.{h,c}pp> : include_sfml_graphics, ocsfmlgraphics
 "OcsfmlGraphics/libocsfmlgraphics.@LIB_EXTENSION@" : use_sfml_graphics
 "OcsfmlGraphics/dllocsfmlgraphics.@DLL_EXTENSION@" : use_sfml_window
 <OcsfmlGraphics/*.cm{x,}a> : use_sfml_graphics, use_libocsfmlgraphics
 
 
-<OcsfmlAudio/*.{h,c}pp> : include_sfml_audio
+<OcsfmlAudio/ocsfml_audio_stub/*.{h,c}pp> : include_sfml_audio, ocsfmlaudio
 "OcsfmlAudio/libocsfmlaudio.@LIB_EXTENSION@" : use_sfml_audio
 "OcsfmlAudio/dllocsfmlaudio.@DLL_EXTENSION@" : use_sfml_window
 <OcsfmlAudio/*.cm{x,}a> : use_sfml_audio, use_libocsfmlaudio
 
-<OcsfmlNetwork/*.{h,c}pp> : include_sfml_network
+<OcsfmlNetwork/ocsfml_network_stub/*.{h,c}pp> : include_sfml_network, ocsfmlnetwork
 "OcsfmlNetwork/libocsfmlnetwork.@LIB_EXTENSION@" : use_sfml_network
 "OcsfmlNetwork/dllocsfmlnetwork.@DLL_EXTENSION@" : use_sfml_network
 <OcsfmlNetwork/*.cm{x,}a> : use_sfml_network, use_libocsfmlnetwork

@@ -736,7 +736,7 @@ sig
   val get_glyph : t -> int -> int -> bool -> glyph
   val get_kerning : t -> int -> int -> int -> int
   val get_line_spacing : t -> int -> int
-  val get_texture : t -> int -> texture
+  val get_texture : t -> int -> Texture.t
 end
   (**/**)
 
@@ -814,6 +814,11 @@ object ('self)
     (**/**)
     
 end
+
+(** Return the default built-in font.
+    
+    This font is provided for convenience, it is used by text instances by default. It is provided so that users don't have to provide and load a font file in order to display text on screen. The font used is Arial. *)
+val get_default_font : unit -> font
 
 (**/**)
 module Shader :

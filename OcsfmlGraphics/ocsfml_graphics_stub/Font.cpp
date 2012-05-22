@@ -37,5 +37,5 @@ camlpp__register_preregistered_custom_class()
 
 extern "C"
 {
-  camlpp__register_overloaded_free_function0( getDefaultFont, &sf::Font::getDefaultFont, 0)
+  camlpp__register_overloaded_free_function0( sf_Font_getDefaultFont, &sf::Font::getDefaultFont, 0)
 }
