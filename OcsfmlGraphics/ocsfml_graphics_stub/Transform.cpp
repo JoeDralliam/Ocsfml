@@ -12,61 +12,61 @@ typedef sf::Vector2f (sf::Transform::*TransformPointVFunc)(sf::Vector2f const&) 
 
 namespace
 {
-  void transform_translate_helper(sf::Transform* t, float x, float y)
+  sf::Transform& transform_translate_helper(sf::Transform* t, float x, float y)
   {
-    t->translate(x,y);
+    return t->translate(x,y);
   }
 
-  void transform_translateV_helper(sf::Transform* t, sf::Vector2f v)
+  sf::Transform& transform_translateV_helper(sf::Transform* t, sf::Vector2f v)
   {
-    t->translate(v);
+    return t->translate(v);
   }
 
-  void transform_rotate_helper(sf::Transform* t, camlpp::optional< float > x, camlpp::optional<float> y, float degrees)
+  sf::Transform& transform_rotate_helper(sf::Transform* t, camlpp::optional< float > x, camlpp::optional<float> y, float degrees)
   {
     if(x.is_some() && y.is_some())
       {
-	t->rotate(degrees, x.get_value(), y.get_value());
+	return t->rotate(degrees, x.get_value(), y.get_value());
       }
     else
       {
-	t->rotate(degrees);
+	return t->rotate(degrees);
       }
   }
 
-  void transform_rotateV_helper(sf::Transform* t, camlpp::optional< sf::Vector2f > v, float degrees)
+  sf::Transform& transform_rotateV_helper(sf::Transform* t, camlpp::optional< sf::Vector2f > v, float degrees)
   {
     if(v.is_some())
       {
-	t->rotate(degrees, v.get_value());
+	return t->rotate(degrees, v.get_value());
       }
     else
       {
-	t->rotate(degrees);
+	return t->rotate(degrees);
       }
   }
 
-  void transform_scale_helper(sf::Transform* t, camlpp::optional< float > x, camlpp::optional<float> y, float scaleX, float scaleY)
+  sf::Transform& transform_scale_helper(sf::Transform* t, camlpp::optional< float > x, camlpp::optional<float> y, float scaleX, float scaleY)
   {
     if(x.is_some() && y.is_some())
       {
-	t->scale(scaleX, scaleY, x.get_value(), y.get_value());
+	return t->scale(scaleX, scaleY, x.get_value(), y.get_value());
       }
     else
       {
-	t->scale(scaleX, scaleY);
+	return t->scale(scaleX, scaleY);
       }
   }
 
-  void transform_scaleV_helper(sf::Transform* t, camlpp::optional< sf::Vector2f > v, sf::Vector2f scale)
+  sf::Transform& transform_scaleV_helper(sf::Transform* t, camlpp::optional< sf::Vector2f > v, sf::Vector2f scale)
   {
     if(v.is_some())
       {
-	t->scale(scale, v.get_value());
+	return t->scale(scale, v.get_value());
       }
     else
       {
-	t->scale(scale);
+	return t->scale(scale);
       }
   }
 }

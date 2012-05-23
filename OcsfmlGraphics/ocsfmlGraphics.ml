@@ -136,41 +136,35 @@ struct
 	      
   external combine : t -> t -> t = "sf_Transform_combine__impl"
 	    
-  external translate : t -> float -> float -> unit =
+  external translate : t -> float -> float -> t =
 	    "sf_Transform_translate__impl"
 	      
-  external translate_v : t -> (float * float) -> unit =
+  external translate_v : t -> (float * float) -> t =
 	    "sf_Transform_translateV__impl"
 	      
   external rotate :
-    t -> ?center_x: float -> ?center_y: float -> float -> unit =
+    t -> ?center_x: float -> ?center_y: float -> float -> t =
 	    "sf_Transform_rotate__impl"
 	      
-  external rotate_v : t -> ?center: (float * float) -> float -> unit =
+  external rotate_v : t -> ?center: (float * float) -> float -> t =
 	    "sf_Transform_rotateV__impl"
 	      
   external scale :
-    t -> ?center_x: float -> ?center_y: float -> float -> float -> unit =
+    t -> ?center_x: float -> ?center_y: float -> float -> float -> t =
 	    "sf_Transform_scale__impl"
 	      
   external scale_v :
-    t -> ?center: (float * float) -> (float * float) -> unit =
+    t -> ?center: (float * float) -> (float * float) -> t =
 	    "sf_Transform_scaleV__impl"
 	      
 end
   
-class transform_base t =
-object ((self : 'self))
+class const_transform_base t = 
+object
   val t_transform_base = (t : Transform.t)
   method rep__sf_Transform = t_transform_base
 
   method destroy = Transform.destroy t_transform_base
-
-  method affect : 'self -> unit =
-    fun p1 -> ignore( Transform.affect t_transform_base (p1#rep__sf_Transform) )
-
-  method get_inverse : 'self = 
-    {< t_transform_base = Transform.get_inverse t_transform_base >}
   
   method transform_point : float -> float -> (float * float) =
     fun p1 p2 -> Transform.transform_point t_transform_base p1 p2
@@ -180,36 +174,57 @@ object ((self : 'self))
   
   method transform_rect : float rect -> float rect =
     fun p1 -> Transform.transform_rect t_transform_base p1
+end
+
+class transform_base t =
+object ((_ : 'self))
+  inherit const_transform_base t
+
+  method affect : 'a. (#const_transform_base as 'a) -> unit =
+    fun p1 -> ignore( Transform.affect t_transform_base (p1#rep__sf_Transform) )
   
-  method combine : 'self -> 'self =
-    fun p1 -> {< t_transform_base = Transform.combine t_transform_base p1#rep__sf_Transform >}
-  
+  method get_inverse : 'self = 
+    {< t_transform_base = Transform.get_inverse t_transform_base >}
+
   method translate : float -> float -> unit =
-    fun p1 p2 -> Transform.translate t_transform_base p1 p2
+    fun p1 p2 -> ignore (Transform.translate t_transform_base p1 p2)
   
   method translate_v : (float * float) -> unit =
-    fun p1 -> Transform.translate_v t_transform_base p1
+    fun p1 -> ignore (Transform.translate_v t_transform_base p1)
   
   method rotate : ?center_x: float -> ?center_y: float -> float -> unit =
     fun ?center_x ?center_y p1 ->
-      Transform.rotate t_transform_base ?center_x ?center_y p1
+      ignore (Transform.rotate t_transform_base ?center_x ?center_y p1)
   
   method rotate_v : ?center: (float * float) -> float -> unit =
-    fun ?center p1 -> Transform.rotate_v t_transform_base ?center p1
+    fun ?center p1 -> ignore (Transform.rotate_v t_transform_base ?center p1)
   
   method scale : ?center_x: float -> ?center_y: float -> float -> float -> unit =
-    fun ?center_x ?center_y p1 p2 -> Transform.scale t_transform_base ?center_x ?center_y p1 p2
+    fun ?center_x ?center_y p1 p2 -> ignore (Transform.scale t_transform_base ?center_x ?center_y p1 p2)
 
   method scale_v : ?center: (float * float) -> (float * float) -> unit =
-    fun ?center p1 -> Transform.scale_v t_transform_base ?center p1
+    fun ?center p1 -> ignore (Transform.scale_v t_transform_base ?center p1)
+
+  method combine : 'a. (#const_transform_base as 'a) -> unit =
+    fun p1 -> ignore (Transform.combine t_transform_base p1#rep__sf_Transform)
 end
+  
+
+class const_transform tag =
+  let t =
+    match tag with
+      | `Matrix (a00, a01, a02, a10, a11, a12, a20, a21, a22) ->
+        Transform.matrix a00 a01 a02 a10 a11 a12 a20 a21 a22
+      | `Copy other -> Transform.copy (other#rep__sf_Transform)
+      | `None -> Transform.default ()
+  in const_transform_base t
   
     
 class transform tag =
   let t =
     match tag with
       | `Matrix (a00, a01, a02, a10, a11, a12, a20, a21, a22) ->
-          Transform.matrix a00 a01 a02 a10 a11 a12 a20 a21 a22
+        Transform.matrix a00 a01 a02 a10 a11 a12 a20 a21 a22
       | `Copy other -> Transform.copy (other#rep__sf_Transform)
       | `None -> Transform.default ()
   in transform_base t
@@ -286,10 +301,10 @@ object ((self : 'self))
   method rep__sf_Transformable = t_transformable_base
 
   method destroy = Transformable.destroy t_transformable_base
-
+    
   method affect : 'self -> unit =
     fun p1 -> ignore( Transformable.affect t_transformable_base p1#rep__sf_Transformable )
-
+      
   method set_position : float -> float -> unit =
     fun p1 p2 -> Transformable.set_position t_transformable_base p1 p2
 
@@ -338,11 +353,11 @@ object ((self : 'self))
   method rotate : float -> unit =
     fun p1 -> Transformable.rotate t_transformable_base p1
 
-  method get_transform : transform =
-    new transform_base (Transformable.get_transform t_transformable_base)
+  method get_transform : const_transform =
+    new const_transform_base (Transformable.get_transform t_transformable_base)
 
-  method get_inverse_transform : transform =
-    new transform_base (Transformable.get_inverse_transform t_transformable_base)
+  method get_inverse_transform : const_transform =
+    new const_transform_base (Transformable.get_inverse_transform t_transformable_base)
 end
 
    
@@ -534,7 +549,7 @@ struct
       
   external set_smooth : t -> bool -> unit = "sf_Texture_setSmooth__impl"
       
-  external is_smooth : t -> bool -> unit = "sf_Texture_isSmooth__impl"
+  external is_smooth : t -> bool  = "sf_Texture_isSmooth__impl"
       
   external set_repeated : t -> bool -> unit =
       "sf_Texture_setRepeated__impl"
@@ -542,15 +557,31 @@ struct
   external is_repeated : t -> bool = "sf_Texture_isRepeated__impl"
       
 end
-  
-class texture_base t =
-object ((self : 'self))
+
+class const_texture_base t =
+object
   val t_texture_base = (t : Texture.t)
   method rep__sf_Texture = t_texture_base
 
   method destroy = Texture.destroy t_texture_base
 
-  method affect : 'self -> unit =
+  method get_size : (int * int) = 
+    Texture.get_size t_texture_base
+
+  method copy_to_image : image = 
+    new image_base (Texture.copy_to_image t_texture_base)
+
+  method is_smooth : bool =
+    Texture.is_smooth t_texture_base
+
+  method is_repeated : bool = Texture.is_repeated t_texture_base
+end
+  
+class texture_base t =
+object
+  inherit const_texture_base t
+
+  method affect : 'a. (#const_texture_base as 'a) -> unit =
     fun p1 -> ignore (Texture.affect t_texture_base p1#rep__sf_Texture)
 
   method create : int -> int -> unit =
@@ -568,12 +599,6 @@ object ((self : 'self))
   method load_from_image : ?rect: (int rect) -> image -> bool =
     fun ?rect p1 -> Texture.load_from_image t_texture_base ?rect p1#rep__sf_Image
 
-  method get_size : (int * int) = 
-    Texture.get_size t_texture_base
-
-  method copy_to_image : image = 
-    new image_base (Texture.copy_to_image t_texture_base)
-
   method update_from_pixels : ?coords: (int * int) -> OcsfmlWindow.pixel_array_type -> unit =
     fun ?coords p1 -> Texture.update_from_pixels t_texture_base ?coords p1
 
@@ -589,15 +614,15 @@ object ((self : 'self))
   method set_smooth : bool -> unit =
     fun p1 -> Texture.set_smooth t_texture_base p1
 
-  method is_smooth : bool -> unit =
-    fun p1 -> Texture.is_smooth t_texture_base p1
-
   method set_repeated : bool -> unit =
     fun p1 -> Texture.set_repeated t_texture_base p1
-
-  method is_repeated : bool = Texture.is_repeated t_texture_base
 end
   
+class const_texture tag =
+  let t = match tag with
+    | `Copy other -> Texture.copy other#rep__sf_Texture
+    | `None -> Texture.default ()
+  in const_texture_base t
     
 class texture_init ?rect tag t =
 object (self)
@@ -658,24 +683,13 @@ struct
   external get_default_font : unit -> t = "sf_Font_getDefaultFont__impl"
 end
   
-class font_base t =
-object ((_ : 'self))
+
+class const_font_base t =
+object
   val t_font_base = (t : Font.t)
   method rep__sf_Font = t_font_base
 
   method destroy = Font.destroy t_font_base
-
-  method affect : 'self -> unit =
-    fun p1 -> ignore (Font.affect t_font_base p1#rep__sf_Font)
-
-  method load_from_file : string -> bool =
-    fun p1 -> Font.load_from_file t_font_base p1
-
-  method load_from_memory : raw_data_type -> bool =
-    fun p1 -> Font.load_from_memory t_font_base p1
-
-  method load_from_stream : 'a. (#input_stream as 'a) -> bool =
-    fun p1 -> Font.load_from_stream t_font_base p1
 
   method get_glyph : int -> int -> bool -> glyph =
     fun p1 p2 p3 -> Font.get_glyph t_font_base p1 p2 p3
@@ -686,12 +700,36 @@ object ((_ : 'self))
   method get_line_spacing : int -> int =
     fun p1 -> Font.get_line_spacing t_font_base p1
 
-  method get_texture: int -> texture =
-    fun p1 -> new texture_base (Font.get_texture t_font_base p1)
+  method get_texture: int -> const_texture reference =
+    fun p1 -> new const_texture_base (Font.get_texture t_font_base p1)
+end
+
+class font_base t =
+object
+  inherit const_font_base t
+
+  method affect : 'a. (#const_font_base as 'a) -> unit =
+    fun p1 -> ignore (Font.affect t_font_base p1#rep__sf_Font)
+
+  method load_from_file : string -> bool =
+    fun p1 -> Font.load_from_file t_font_base p1
+
+  method load_from_memory : raw_data_type -> bool =
+    fun p1 -> Font.load_from_memory t_font_base p1
+
+  method load_from_stream : 'a. (#input_stream as 'a) -> bool =
+    fun p1 -> Font.load_from_stream t_font_base p1
 end
 
 let get_default_font () =
-  new font_base (Font.get_default_font ())
+  new const_font_base (Font.get_default_font ())
+
+class const_font tag =
+  let t = match tag with
+    | `Copy other -> Font.copy other#rep__sf_Font
+    | `None -> Font.default ()
+  in const_font_base t
+
     
 class font_init tag t =
 object (self)
@@ -832,7 +870,7 @@ object ((self : 'self))
   method set_transform : string -> transform -> unit =
     fun p1 tr -> Shader.set_transform t_shader_base p1 tr#rep__sf_Transform
   
-  method set_texture : string -> texture -> unit =
+  method set_texture : 'a. string -> (#const_texture as 'a) -> unit =
     fun p1 tx -> Shader.set_texture t_shader_base p1 tx#rep__sf_Texture
   
   method set_current_texture : string -> unit =
@@ -1217,8 +1255,8 @@ object ((self : 'self))
   method display : unit = 
     RenderTexture.display t_render_texture_base
   
-  method get_texture : texture =
-    new texture_base (RenderTexture.get_texture t_render_texture_base)
+  method get_texture : const_texture reference =
+    new const_texture_base (RenderTexture.get_texture t_render_texture_base)
 end
   
     
@@ -1338,7 +1376,7 @@ object ((self : 'self))
 
   method destroy = Shape.destroy t_shape_base 
 
-  method set_texture : ?texture:texture -> ?reset_rect:bool -> unit -> unit =
+  method set_texture : 'a. ?texture:(#const_texture as 'a) -> ?reset_rect:bool -> unit -> unit =
     fun ?texture ?reset_rect p1 ->
       let texture = get_if (fun x -> x#rep__sf_Texture) texture in
       Shape.set_texture t_shape_base ?texture ?reset_rect p1
@@ -1355,8 +1393,8 @@ object ((self : 'self))
   method set_outline_thickness : float -> unit =
     fun p1 -> Shape.set_outline_thickness t_shape_base p1
 
-  method get_texture : texture option =
-    get_if (fun t -> new texture_base t) (Shape.get_texture t_shape_base)
+  method get_texture : const_texture reference option =
+    get_if (fun t -> new const_texture_base t) (Shape.get_texture t_shape_base)
 
   method get_texture_rect : int rect =
     Shape.get_texture_rect t_shape_base
@@ -1620,7 +1658,7 @@ object ((self : 'self))
   method set_string : string -> unit =
     fun p1 -> Text.set_string t_text_base p1
 
-  method set_font : font -> unit =
+  method set_font : 'a. (#const_font as 'a) -> unit =
     fun ft -> Text.set_font t_text_base ft#rep__sf_Font
 
   method set_character_size : int -> unit =
@@ -1635,8 +1673,8 @@ object ((self : 'self))
   method get_string : string = 
     Text.get_string t_text_base
 
-  method get_font : font = 
-    new font_base (Text.get_font t_text_base)
+  method get_font : const_font reference = 
+    new const_font_base (Text.get_font t_text_base)
   
   method get_character_size : int =
     Text.get_character_size t_text_base
@@ -1722,7 +1760,7 @@ object ((self : 'self))
   method destroy = 
     Sprite.destroy t_sprite_base
 
-  method set_texture : ?resize: bool -> texture -> unit =
+  method set_texture : 'a. ?resize: bool -> (#const_texture as 'a) -> unit =
     fun ?resize tx -> Sprite.set_texture t_sprite_base ?resize tx#rep__sf_Texture
 
   method set_texture_rect : int rect -> unit =
@@ -1731,8 +1769,8 @@ object ((self : 'self))
   method set_color : Color.t -> unit =
     fun p1 -> Sprite.set_color t_sprite_base p1
 
-  method get_texture : texture option =
-    get_if (fun t -> new texture_base t) (Sprite.get_texture t_sprite_base)
+  method get_texture : const_texture reference option =
+    get_if (fun t -> new const_texture_base t) (Sprite.get_texture t_sprite_base)
 
   method get_texture_rect : int rect =
     Sprite.get_texture_rect t_sprite_base

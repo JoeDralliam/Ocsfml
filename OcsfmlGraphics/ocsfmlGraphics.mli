@@ -1,5 +1,9 @@
 (** *)
 
+(** Indicates a c++ reference ; be cautious with border-side effects *)
+type 'a reference = 'a
+
+
 (** Utility class for manipulating 2D axis aligned rectangles.
     
     A rectangle is defined by its top-left corner and its size.
@@ -141,14 +145,37 @@ sig
   val transform_point_v : t -> float * float -> float * float
   val transform_rect : t -> float rect -> float rect
   val combine : t -> t -> t
-  val translate : t -> float -> float -> unit
-  val translate_v : t -> float * float -> unit
-  val rotate : t -> ?center_x:float -> ?center_y:float -> float -> unit
-  val rotate_v : t -> ?center:float * float -> float -> unit
-  val scale : t -> ?center_x:float -> ?center_y:float -> float -> float -> unit
-  val scale_v : t -> ?center:float * float -> float * float -> unit
+  val translate : t -> float -> float -> t
+  val translate_v : t -> float * float -> t
+  val rotate : t -> ?center_x:float -> ?center_y:float -> float -> t
+  val rotate_v : t -> ?center:float * float -> float -> t
+  val scale : t -> ?center_x:float -> ?center_y:float -> float -> float -> t
+  val scale_v : t -> ?center:float * float -> float * float -> t
 end
   (**/**)
+
+class const_transform :
+  [ `None
+  | `Matrix of (float * float * float * float * float * float * float * float * float) 
+  | `Copy of < rep__sf_Transform : Transform.t ; .. > ]->
+object
+  (**/**)
+  val t_transform_base : Transform.t
+    (**/**)    
+  method destroy : unit
+    
+  (* method get_inverse : transform *)
+
+  (**/**)
+  method rep__sf_Transform : Transform.t
+    (**/**)
+
+  method transform_point : float -> float -> float * float
+    
+  method transform_point_v : float * float -> float * float
+    
+  method transform_rect : float rect -> float rect
+end
 
 (** Define a 3x3 transform matrix.
 
@@ -169,13 +196,12 @@ object ('self)
     (**/**)
 
   (**)
-  method affect : 'self -> unit
+  method affect : #const_transform -> unit
 
   (** Combine the current transform with another one.
       
-      The result is a transform that is equivalent to applying this followed by transform. Mathematically, it is equivalent to a matrix multiplication.
-      @return Reference to self. *)
-  method combine : 'self -> 'self
+      The result is a transform that is equivalent to applying this followed by transform. Mathematically, it is equivalent to a matrix multiplication. *)
+  method combine : #const_transform -> unit
     
     
   (**)
@@ -306,7 +332,7 @@ object ('self)
 
   (** Get the inverse of the combined transform of the object
       @return Inverse of the combined transformations applied to the object. *)
-  method get_inverse_transform : transform
+  method get_inverse_transform : const_transform reference
 
   (** Get the local origin of the object.
       @return Current origin. *)
@@ -328,7 +354,7 @@ object ('self)
 
   (** Get the combined transform of the object.
       @return Transform combining the position/rotation/scale/origin of the object *)
-  method get_transform : transform
+  method get_transform : const_transform reference
 
   (** Move the object by a given offset.
       
@@ -559,11 +585,34 @@ sig
   val update_from_pixels : t -> ?coords:int * int -> OcsfmlWindow.pixel_array_type -> unit
   val bind : t -> unit
   val set_smooth : t -> bool -> unit
-  val is_smooth : t -> bool -> unit
+  val is_smooth : t -> bool
   val set_repeated : t -> bool -> unit
   val is_repeated : t -> bool
 end
   (**/**)
+
+class const_texture :
+  [ `Copy of < rep__sf_Texture : Texture.t ; .. >
+  | `None ] ->
+object
+  (**/**)
+  val t_texture_base : Texture.t
+    (**/**)
+
+  method copy_to_image : image
+
+  method destroy : unit
+
+  method get_size : int * int
+
+  method is_repeated : bool
+
+  method is_smooth : bool
+
+  (**/**)
+  method rep__sf_Texture : Texture.t
+    (**/**)
+end
   
 (** Image living on the graphics card that can be used for drawing.
     
@@ -588,7 +637,7 @@ class texture :
   | `Memory of OcsfmlSystem.raw_data_type
   | `Copy of < rep__sf_Texture : Texture.t ; .. >
   | `None ] ->
-object ('self)
+object
   (**/**)
   val t_texture_base : Texture.t
     (**/**)
@@ -596,7 +645,7 @@ object ('self)
   (* TODO: add Coordinate type *)
 
   (**)
-  method affect : 'self -> unit
+  method affect : #const_texture -> unit
 
   (** Activate the texture for rendering.
       
@@ -628,7 +677,7 @@ object ('self)
     
   (** Tell whether the smooth filter is enabled or not. 
       @return True if smoothing is enabled, false if it is disabled. *)
-  method is_smooth : bool -> unit
+  method is_smooth : bool
 
   (** Load the texture from a file on disk. 
 
@@ -739,6 +788,28 @@ sig
 end
   (**/**)
 
+class const_font :
+  [ `Copy of < rep__sf_Font : Font.t ; .. >
+  | `None ] ->
+object
+  (**/**)
+  val t_font_base : Font.t
+    (**/**)
+
+  method destroy : unit
+
+  method get_glyph : int -> int -> bool -> glyph
+
+  method get_kerning : int -> int -> int -> int
+    
+  method get_line_spacing : int -> int
+    
+  method get_texture : int -> const_texture reference
+
+  (**/**)
+  method rep__sf_Font : Font.t
+    (**/**)
+end
 (** Class for loading and manipulating character fonts.
     
     Fonts can be loaded from a file, from memory or from a custom stream, and supports the most common types of fonts.
@@ -760,7 +831,7 @@ class font :
   | `Stream of OcsfmlSystem.input_stream
   | `Copy of < rep__sf_Font : Font.t ; .. >
   | `None ] ->
-object ('self)
+object
   (**/**)
   val t_font_base : Font.t
     (**/**)
@@ -769,7 +840,7 @@ object ('self)
   method destroy : unit
 
   (**)
-  method affect : 'self -> unit
+  method affect : #const_font -> unit
 
   (** Retrieve a glyph of the font. 
       @return The glyph corresponding to codePoint and characterSize.*)
@@ -791,7 +862,7 @@ object ('self)
 
       The contents of the returned texture changes as more glyphs are requested, thus it is not very relevant. It is mainly used internally by text.
       @return Texture containing the glyphs of the requested size. *)
-  method get_texture : int -> texture
+  method get_texture : int -> const_texture reference
 
   (** Load the font from a file.
 
@@ -817,7 +888,7 @@ end
 (** Return the default built-in font.
     
     This font is provided for convenience, it is used by text instances by default. It is provided so that users don't have to provide and load a font file in order to display text on screen. The font used is Arial. *)
-val get_default_font : unit -> font
+val get_default_font : unit -> const_font reference
 
 (**/**)
 module Shader :
@@ -842,6 +913,7 @@ sig
   val unbind : t -> unit
 end
   (**/**)
+
 
 (**)
 val shader_is_available : unit -> unit
@@ -1041,7 +1113,7 @@ object
 
       To use the texture of the object being draw, which cannot be known in advance, you can use set_current_texture:
       {[shader#set_current_texture "the_texture"]} *)
-  method set_texture : string -> texture -> unit
+  method set_texture : string -> #const_texture -> unit
     
   (** Change a matrix parameter of the shader.
       
@@ -1314,8 +1386,6 @@ end
   (**/**)
 
 
-(** Indicates a c++ reference ; be cautious with border-side effects *)
-type 'a reference = 'a
 
 
 (** Abstract base class for objects that can be drawn to a render target.
@@ -1552,7 +1622,7 @@ object
 
       After drawing to the render-texture and calling display, you can retrieve the updated texture using this function, and draw it using a sprite (for example). The internal texture of a render-texture is always the same instance, so that it is possible to call this function once and keep a reference to the texture even after it is modified. 
       @return Const reference to the texture. *)
-  method get_texture : texture
+  method get_texture : const_texture reference
 
   (** Tell whether the smooth filtering is enabled or not. 
       @return True if texture smoothing is enabled. *)
@@ -1723,7 +1793,7 @@ class shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?texture:texture ->
+    ?texture:#const_texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t -> 
@@ -1778,7 +1848,7 @@ object
 
       If the shape has no source texture, none is returned. The returned value is const, which means that you can't modify the texture when you retrieve it with this function.
       @return Shape's texture. *)
-  method get_texture : texture option
+  method get_texture : const_texture reference option
 
   (** Get the sub-rectangle of the texture displayed by the shape. 
       @return Texture rectangle of the shape *)
@@ -1809,7 +1879,7 @@ object
       @param texture The new texture. Default disables texturing
       @param reset_rect Should the texture rect be reset to the size of the new texture?
   *)
-  method set_texture : ?texture:texture -> ?reset_rect:bool -> unit -> unit
+  method set_texture : ?texture:(#const_texture) -> ?reset_rect:bool -> unit -> unit
 
   (** Set the sub-rectangle of the texture that the shape will display.
 
@@ -1850,7 +1920,7 @@ class rectangle_shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?texture:texture ->
+    ?texture:#const_texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
@@ -1915,7 +1985,7 @@ class circle_shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?texture:texture ->
+    ?texture:#const_texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
@@ -1983,7 +2053,7 @@ class convex_shape :
     ?scale:float * float ->
     ?rotation:float ->
     ?origin:float * float ->
-    ?texture:texture ->
+    ?texture:#const_texture ->
     ?texture_rect:int rect ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
@@ -2109,7 +2179,7 @@ object
 
       The returned reference is const, which means that you cannot modify the font when you get it from this function.
       @return Text's font. *)
-  method get_font : font
+  method get_font : const_font reference
     
   (** Get the global bounding rectangle of the entity.
       
@@ -2148,7 +2218,7 @@ object
   (** Set the text's font.
 
       The font argument refers to a font that must exist as long as the text uses it. Indeed, the text doesn't store its own copy of the font, but rather keeps a pointer to the one that you passed to this function. If the font is destroyed and the text tries to use it, the behaviour is undefined. Texts have a valid font by default, which is the built-in get_default_font().*)
-  method set_font : font -> unit
+  method set_font : #const_font -> unit
 
   (** Set the text's string. *)
   method set_string : string -> unit
@@ -2208,7 +2278,7 @@ end
     window#draw sprite
     ]}*)
 class sprite :
-  ?texture:texture ->
+    ?texture:#const_texture ->
     ?position:float * float ->
     ?scale:float * float ->
     ?rotation:float ->
@@ -2247,7 +2317,7 @@ object
 
       If the sprite has no source texture, none is returned. The returned value is const, which means that you can't modify the texture when you retrieve it with this function.
       @return The sprite's texture. *)
-  method get_texture : texture option
+  method get_texture : const_texture reference option
 
   (** Get the sub-rectangle of the texture displayed by the sprite. 
       @return Texture rectangle of the sprite. *)
@@ -2265,7 +2335,7 @@ object
   (** Change the source texture of the sprite.
 
       The texture argument refers to a texture that must exist as long as the sprite uses it. Indeed, the sprite doesn't store its own copy of the texture, but rather keeps a pointer to the one that you passed to this function. If the source texture is destroyed and the sprite tries to use it, the behaviour is undefined. If resetRect is true, the TextureRect property of the sprite is automatically adjusted to the size of the new texture. If it is false, the texture rect is left unchanged. *)
-  method set_texture : ?resize:bool -> texture -> unit
+  method set_texture : ?resize:bool -> #const_texture -> unit
 
   (** Set the sub-rectangle of the texture that the sprite will display.
 
