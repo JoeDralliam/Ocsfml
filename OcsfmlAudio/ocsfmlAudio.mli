@@ -1,5 +1,7 @@
 (** Audio I/O and sound management **)
 
+type 'a reference = 'a
+
 (** The audio listener is the point in the scene from where all the sounds are heard.
 
     The audio listener defines the global properties of the audio environment, it defines where and how sounds and musics are heard.
@@ -98,15 +100,15 @@ end
 class sound_source :
   ?pitch:float -> 
     ?volume:float ->
-    ?position:float * float * float ->
-    ?relative_to_listener:bool ->
-    ?min_distance:float -> 
-    ?attenuation:float ->
-    SoundSource.t ->
+      ?position:float * float * float ->
+	?relative_to_listener:bool ->
+	  ?min_distance:float -> 
+	    ?attenuation:float ->
+	      SoundSource.t ->
 object
   (**/**)
   val t_sound_source : SoundSource.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
@@ -137,7 +139,7 @@ object
 
   (**/**)
   method rep__sf_SoundSource : SoundSource.t
-    (**/**)
+  (**/**)
 
   (** Set the attenuation factor of the sound.
 
@@ -208,19 +210,19 @@ end
 class sound_stream :
   ?pitch:float ->
     ?volume:float ->
-    ?position:float * float * float ->
-    ?relative_to_listener:bool ->
-    ?min_distance:float -> 
-    ?attenuation:float ->
-    ?playing_offset:OcsfmlSystem.Time.t -> 
-    ?loop:bool ->
-    SoundStream.t ->
+      ?position:float * float * float ->
+	?relative_to_listener:bool ->
+	  ?min_distance:float -> 
+	    ?attenuation:float ->
+	      ?playing_offset:OcsfmlSystem.Time.t -> 
+		?loop:bool ->
+		  SoundStream.t ->
 object
   inherit sound_source
 
   (**/**)
   val t_sound_stream : SoundStream.t
-    (**/**) 
+  (**/**) 
     
   (**)
   method destroy : unit
@@ -261,7 +263,7 @@ object
 
   (**/**)
   method rep__sf_SoundStream : SoundStream.t
-    (**/**)
+  (**/**)
 
   (** Set whether or not the stream should loop after reaching the end.
 
@@ -325,19 +327,19 @@ end
 class music :
   ?pitch:float ->
     ?volume:float ->
-    ?position:float * float * float ->
-    ?relative_to_listener:bool ->
-    ?min_distance:float -> 
-    ?attenuation:float ->
-    ?playing_offset:OcsfmlSystem.Time.t -> 
-    ?loop:bool ->
-    unit ->
+      ?position:float * float * float ->
+	?relative_to_listener:bool ->
+	  ?min_distance:float -> 
+	    ?attenuation:float ->
+	      ?playing_offset:OcsfmlSystem.Time.t -> 
+		?loop:bool ->
+		  unit ->
 object
   inherit sound_stream 
 
   (**/**)  
   val t_music_base : Music.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
@@ -354,7 +356,7 @@ object
 
   (**/**)
   method rep__sf_Music : Music.t
-    (**/**)
+(**/**)
 end
 
 type samples_type =
@@ -382,6 +384,35 @@ end
 (**/**)
 
   
+
+class const_sound_buffer :
+  [ `Copy of < rep__sf_SoundBuffer : SoundBuffer.t ; .. >
+  | `None ] ->
+object
+  (**/**)
+  val t_sound_buffer_base : SoundBuffer.t
+  (**/**)
+    
+  (**)
+  method destroy : unit
+
+  method get_channel_count : int
+
+  method get_duration : OcsfmlSystem.Time.t
+
+  method get_sample_count : int
+
+  method get_sample_rate : int
+
+  method get_samples : samples_type
+    
+  (**/**)
+  method rep__sf_SoundBuffer : SoundBuffer.t
+  (**/**)
+
+  method save_to_file : string -> bool
+end
+
 (** Storage for audio samples defining a sound.
     
     A sound buffer holds the data of a sound, which is an array of audio samples.
@@ -424,16 +455,16 @@ class sound_buffer :
   | `Stream of OcsfmlSystem.input_stream 
   | `Copy of < rep__sf_SoundBuffer : SoundBuffer.t ; .. >
   | `None ] ->
-object ('self)
+object
   (**/**)
   val t_sound_buffer_base : SoundBuffer.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
 
   (**)
-  method affect : 'self -> unit
+  method affect : #const_sound_buffer -> unit
 
   (** Get the number of channels used by the sound.
 
@@ -484,7 +515,7 @@ object ('self)
 
   (**/**)
   method rep__sf_SoundBuffer : SoundBuffer.t
-    (**/**)
+  (**/**)
 
   (** Save the sound buffer to an audio file.
 
@@ -503,7 +534,7 @@ sig
   val start : t -> ?sampleRate:int -> unit -> unit
   val stop : t -> unit
   val get_sample_rate : t -> int
-    (**/**)
+  (**/**)
 
   (** Check if the system supports audio capture.
 
@@ -522,7 +553,7 @@ class sound_recorder : SoundRecorder.t ->
 object
   (**/**)
   val t_sound_recorder : SoundRecorder.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
@@ -535,7 +566,7 @@ object
 
   (**/**)
   method rep__sf_SoundRecorder : SoundRecorder.t
-    (**/**)
+  (**/**)
 
   (** Start the capture.
 
@@ -557,7 +588,7 @@ sig
   val get_buffer : t -> SoundBuffer.t
 end
 (**/**)
-    
+  
 (** Specialized sound_recorder which stores the captured audio data into a sound buffer.
     
     OcsfmlAudio.sound_buffer_recorder allows to access a recorded sound through a OcsfmlAudio.sound_buffer, so that it can be played, saved to a file, etc.
@@ -589,7 +620,7 @@ object
 
   (**/**)
   val t_sound_buffer_recorder_base : SoundBufferRecorder.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
@@ -597,11 +628,11 @@ object
   (** Get the sound buffer containing the captured audio data.
 
       The sound buffer is valid only after the capture has ended. This function provides a read-only access to the internal sound buffer, but it can be copied if you need to make any modification to it.*)
-  method get_buffer : sound_buffer
+  method get_buffer : const_sound_buffer reference
 
   (**/**)
   method rep__sf_SoundBufferRecorder : SoundBufferRecorder.t
-    (**/**)
+(**/**)
 end
 
 (**/**)
@@ -651,27 +682,27 @@ end
 class sound :
   ?pitch:float ->
     ?volume:float ->
-    ?position:float * float * float ->
-    ?relative_to_listener:bool ->
-    ?min_distance:float -> ?attenuation:float -> 
-    ?loop:bool ->
-    ?buffer:sound_buffer ->
-    ?playing_offset:OcsfmlSystem.Time.t ->
-    unit -> 
+      ?position:float * float * float ->
+	?relative_to_listener:bool ->
+	  ?min_distance:float -> ?attenuation:float -> 
+	    ?loop:bool ->
+	      ?buffer:sound_buffer ->
+		?playing_offset:OcsfmlSystem.Time.t ->
+		  unit -> 
 object
   (**)
   inherit sound_source
 
   (**/**)
   val t_sound_base : Sound.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
 
   (** Get the audio buffer attached to the sound.
       @return Sound buffer attached to the sound *)
-  method get_buffer : sound_buffer
+  method get_buffer : const_sound_buffer reference
 
   (** Tell whether or not the sound is in loop mode. 
       @return True if the sound is looping, false otherwise*)
@@ -697,7 +728,7 @@ object
 
   (**/**)
   method rep__sf_Sound : Sound.t
-    (**/**)
+  (**/**)
 
   (** Set the source buffer containing the audio data to play.
 

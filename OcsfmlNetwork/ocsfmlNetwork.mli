@@ -15,7 +15,7 @@ sig
   val to_string : t -> string
   val to_integer : t -> int
 end
-  (**/**)
+(**/**)
 
 
 
@@ -48,7 +48,7 @@ class ip_address :
 object ('self)
   (**/**)
   val t_ip_address : IPAddressBase.t
-    (**/**)
+  (**/**)
     
   (**)
   method destroy : unit
@@ -58,7 +58,7 @@ object ('self)
 
   (**/**)
   method rep__sf_IpAddress : IPAddressBase.t
-    (**/**)
+  (**/**)
     
     
   (** Get an integer representation of the address.
@@ -178,7 +178,7 @@ sig
   object  
     (**/**)
     val t_response : Response.t
-      (**/**)
+    (**/**)
 
     (**)
     method destroy : unit
@@ -196,7 +196,7 @@ sig
 
     (**/**)
     method rep__sf_Ftp_Response : Response.t
-      (**/**)
+  (**/**)
   end
 
   (**/**)
@@ -218,7 +218,7 @@ sig
 
     (**/**)
     val t_directory_response : DirectoryResponse.t
-      (**/**)
+    (**/**)
 
     (**)
     method destroy : unit
@@ -228,7 +228,7 @@ sig
       
     (**/**)
     method rep__sf_Ftp_DirectoryResponse : DirectoryResponse.t
-      (**/**)
+  (**/**)
   end
 
   (**/**)
@@ -250,7 +250,7 @@ sig
       
     (**/**)
     val t_listing_response : ListingResponse.t
-      (**/**)
+    (**/**)
 
     (**)
     method destroy : unit
@@ -260,7 +260,7 @@ sig
 
     (**/**)
     method rep__sf_Ftp_ListingResponse : ListingResponse.t
-      (**/**)
+  (**/**)
   end
 
 
@@ -343,7 +343,7 @@ sig
   object
     (**/**)
     val t_ftp : Ftp.t
-      (**/**)
+    (**/**)
 
     (** Change the current working directory.
 
@@ -424,7 +424,7 @@ sig
 
     (**/**)
     method rep__sf_Ftp : Ftp.t
-      (**/**)
+    (**/**)
 
     (** Upload a file to the server.
 
@@ -472,8 +472,8 @@ sig
     val invalidResponse : t (** Response is not a valid HTTP one. *)
     val connectionFailed : t (** Connection with server failed. *)
   end
-  
-  
+    
+    
   (**/**)
   module Request :
   sig
@@ -494,14 +494,14 @@ sig
   object
     (**/**)
     val t_request : Request.t
-      (**/**)
+    (**/**)
       
     (**)
     method destroy : unit
 
     (**/**)
     method rep__sf_Http_Request : Request.t
-      (**/**)
+    (**/**)
 
     (** Set the body of the request.
 
@@ -543,14 +543,14 @@ sig
     val get_body : t -> string
   end
   (**/**)
-  
+    
   (** Define a HTTP response. *)
   class response :
     Response.t ->
   object
     (**/**)
     val t_response : Response.t
-      (**/**)
+    (**/**)
       
     (**)
     method destroy : unit
@@ -588,7 +588,7 @@ sig
       
     (**/**)
     method rep__sf_Http_Response : Response.t
-      (**/**)
+  (**/**)
   end
     
   (**/**)
@@ -603,7 +603,7 @@ sig
     val send_request : t -> ?timeout:OcsfmlSystem.Time.t -> Request.t -> Response.t
   end
   (**/**)  
-  
+    
   (** A HTTP client.
 
       sf::Http is a very simple HTTP client that allows you to communicate with a web server.
@@ -656,14 +656,14 @@ sig
   object
     (**/**)
     val t_http : Http.t
-      (**/**)
+    (**/**)
       
     (**)
     method destroy : unit
 
     (**/**)
     method rep__sf_Http : Http.t
-      (**/**)
+    (**/**)
       
     (** Send a HTTP request and return the server's response.
 
@@ -710,7 +710,7 @@ sig
   val write_float : t -> float -> unit
   val write_string : t -> string -> unit
 end
-  (**/**)
+(**/**)
 
 (** Utility class to build blocks of data to transfer over the network.
     
@@ -731,34 +731,34 @@ end
     let s = "hello";
     let d = 5.89;
     
-    (* Group the variables to send into a packet *)
+(* Group the variables to send into a packet *)
     let packet = new packet in
     packet << (`Int32 x) << (`String s) << (`Float d) ;
     
-    (* Send it over the network (socket is a valid tcp_socket) *)
+(* Send it over the network (socket is a valid tcp_socket) *)
     socket#send packet
     
     -----------------------------------------------------------------
 
-    (* Receive the packet at the other end *)
+(* Receive the packet at the other end *)
     let packet = new packet in
     socket#receive packet ;
     
-    (* Extract the variables contained in the packet *)
+(* Extract the variables contained in the packet *)
     let x = ref 0 in
     let s = ref "" in
     ler d = ref 0. in
     if (packet >> (`Int32 x) >> (`String s) >> (`Float d))#is_valid
     then begin
-    (* Data extracted successfully... *)
+(* Data extracted successfully... *)
     end
     ]} *)
 class packet :
 object
   (**/**)
   val t_packet_base : Packet.t
-    (**/**)
-  
+  (**/**)
+    
   (** Append data to the end of the packet. *)
   method append : OcsfmlSystem.raw_data_type -> unit
 
@@ -823,7 +823,7 @@ object
     
   (**/**)
   method rep__sf_Packet : Packet.t
-    (**/**)
+  (**/**)
     
   (** Write a boolean into the packet *)
   method write_bool : bool -> unit
@@ -855,26 +855,26 @@ end
 
 
 type read_val =
-    [ `Bool of bool ref
-    | `Float of float ref
-    | `Int16 of int ref
-    | `Int32 of int ref
-    | `Int8 of int ref
-    | `String of string ref
-    | `UInt16 of int ref
-    | `UInt32 of int ref
-    | `UInt8 of int ref ]
+  [ `Bool of bool ref
+  | `Float of float ref
+  | `Int16 of int ref
+  | `Int32 of int ref
+  | `Int8 of int ref
+  | `String of string ref
+  | `UInt16 of int ref
+  | `UInt32 of int ref
+  | `UInt8 of int ref ]
 
 type write_val =
-    [ `Bool of bool
-    | `Float of float
-    | `Int16 of int
-    | `Int32 of int
-    | `Int8 of int
-    | `String of string
-    | `UInt16 of int
-    | `UInt32 of int
-    | `UInt8 of int ]
+  [ `Bool of bool
+  | `Float of float
+  | `Int16 of int
+  | `Int32 of int
+  | `Int8 of int
+  | `String of string
+  | `UInt16 of int
+  | `UInt32 of int
+  | `UInt8 of int ]
 
 val ( >> ) :
   (#packet as 'a) ->
@@ -935,7 +935,7 @@ class socket :
 object
   (**/**)
   val t_socket : Socket.t
-    (**/**)
+  (**/**)
 
   (**)
   method destroy : unit
@@ -946,7 +946,7 @@ object
 
   (**/**)
   method rep__sf_Socket : Socket.t
-    (**/**)
+  (**/**)
 
   (** Set the blocking state of the socket.
 
@@ -992,61 +992,61 @@ end
 
     Usage example:
     {[
-    (* Create a socket to listen to new connections *)
+(* Create a socket to listen to new connections *)
     let listener = new tcp_listener in
     listener#listen 55001 ;
 
-    (* Create a list to store the future clients *)
+(* Create a list to store the future clients *)
     let clients = ref [] in
 
-    (* Create a selector *)
+(* Create a selector *)
     let selector = new socket_selector (SocketSelector.default ()) in
 
-    (* Add the listener to the selector *)
+(* Add the listener to the selector *)
     selector#add listener 
 
-    (* Endless loop that waits for new connections *)
+(* Endless loop that waits for new connections *)
     let rec connection_loop () =
-        (* Make the selector wait for data on any socket *)
-        if selector#wait
-        then begin
-            (* Test the listener *)
-            if selector#is_ready listener
-            then begin
-                (* The listener is ready: there is a pending connection *)
-                let client = new tcp_socket in
-                if (listener#accept client) = Done
-                then begin
-                    (* Add the new client to the clients list *)
-                    clients := client :: !clients ;
+(* Make the selector wait for data on any socket *)
+    if selector#wait
+    then begin
+(* Test the listener *)
+    if selector#is_ready listener
+    then begin
+(* The listener is ready: there is a pending connection *)
+    let client = new tcp_socket in
+    if (listener#accept client) = Done
+    then begin
+(* Add the new client to the clients list *)
+    clients := client :: !clients ;
 
-                    (* Add the new client to the selector so that we will
-                       be notified when he sends something *)
-                    selector#add client
-                end
-            end
-            else begin
-                (* The listener socket is not ready, test all other sockets (the clients) *)
-                List.iter ( function client ->
-                               if selector#is_ready client
-                               then begin
-                                   (* The client has sent some data, we can receive it *)
-                                   let packet = new packet in
-                                   if (client#receive packet) = Done
-                                   then begin 
-                                       ...
-                                   end
-                               end ) clients
-            end
-        end ;
-        connection_loop ()
+(* Add the new client to the selector so that we will
+    be notified when he sends something *)
+    selector#add client
+    end
+    end
+    else begin
+(* The listener socket is not ready, test all other sockets (the clients) *)
+    List.iter ( function client ->
+    if selector#is_ready client
+    then begin
+(* The client has sent some data, we can receive it *)
+    let packet = new packet in
+    if (client#receive packet) = Done
+    then begin 
+    ...
+    end
+    end ) clients
+    end
+    end ;
+    connection_loop ()
     in connection_loop ()
     ]}*)
 class socket_selector :
 object ('self)
   (**/**)
   val t_socket_selector : SocketSelector.t
-    (**/**)
+  (**/**)
 
   (** Add a new socket to the selector.
 
@@ -1131,43 +1131,43 @@ end
     
     Usage example:
     {[
-    (* ----- The client ----- *)
+(* ----- The client ----- *)
     
-    (* Create a socket and connect it to 192.168.1.50 on port 55001 *)
+(* Create a socket and connect it to 192.168.1.50 on port 55001 *)
     let socket = new tcp_socket in
     socket#connect (new ip_address (`String "192.168.1.50")) 55001 ;
     
-    (* Send a message to the connected host *)
+(* Send a message to the connected host *)
     let message = "Hi, I am a client" in
     
     socket#send_string message;
     
-    (* Receive an answer from the server *)
+(* Receive an answer from the server *)
     let buffer = String.create 1024 in
     let (status, received) = socket#receive_string buffer in
     print_string "The server said: " ; 
     output stdout buffer 0 received ;
     print_newline () ;
     
-    (* ----- The server ----- *)
+(* ----- The server ----- *)
 
-    (* Create a listener to wait for incoming connections on port 55001 *)
+(* Create a listener to wait for incoming connections on port 55001 *)
     let listener = new listener in
     listener#listen 55001 ;
     
-    (* Wait for a connection *)
+(* Wait for a connection *)
     let socket = new tcp_socket in
     listener#accept socket;
     print_endline ("New client connected: " + socket#get_remote_address#to_string) ;
     
-    (* Receive a message from the client *)
+(* Receive a message from the client *)
     let buffer = String.create 1024 in
     let (status, received) = socket#receive_string buffer in
     print_string "The client said: " ; 
     output stdout buffer 0 received ; 
     print_newline () ;
     
-    (* Send an answer *)
+(* Send an answer *)
     let message = "Welcome, client";
     socket#send_string message;
     ]}*)
@@ -1177,7 +1177,7 @@ object
 
   (**/**)
   val t_tcp_socket_base : TcpSocket.t
-    (**/**)
+  (**/**)
 
   (** Connect the socket to a remote peer.
 
@@ -1233,7 +1233,7 @@ object
 
   (**/**)
   method rep__sf_TcpSocket : TcpSocket.t
-    (**/**)
+  (**/**)
 
 
   (** Send raw data to the remote peer.
@@ -1284,24 +1284,24 @@ end
     
     Usage example:
     {[  
-    (* Create a listener socket and make it wait for new 
-       connections on port 55001 *)
+(* Create a listener socket and make it wait for new 
+    connections on port 55001 *)
     let listener = new tcp_listener in
     listener#listen (Port.from_int 55001) 
     
-    (* Endless loop that waits for new connections *)
+(* Endless loop that waits for new connections *)
     let rec connection_loop running =
-        if running
-        then begin
-            let client = new tcp_socket in
-            if  listener#accept(client) = Done
-            then begin
-                (* A new client just connected! *)
-                print_endline ("New connection received from " ^ client#getçremote_address#to_string) ;
-                do_something_with client
-            end ;
-            connection_loop ...
-        end
+    if running
+    then begin
+    let client = new tcp_socket in
+    if  listener#accept(client) = Done
+    then begin
+(* A new client just connected! *)
+    print_endline ("New connection received from " ^ client#getçremote_address#to_string) ;
+    do_something_with client
+    end ;
+    connection_loop ...
+    end
     in connection_loop true
     ]}*)
 class tcp_listener :
@@ -1310,14 +1310,14 @@ object
 
   (**/**)
   val t_tcp_listener_base : TcpListener.t
-    (**/**)
+  (**/**)
 
   (** Accept a new connection.
 
       If the socket is in blocking mode, this function will not return until a connection is actually received.
       @return Status code *)
   method accept : tcp_socket -> socket_status
-  
+    
   (** Stop listening and close the socket.
 
       This function gracefully stops the listener. If the socket is not listening, this function has no effect. *)
@@ -1340,7 +1340,7 @@ object
 
   (**/**)
   method rep__sf_TcpListener : TcpListener.t
-    (**/**)
+(**/**)
 end
 
 
@@ -1388,17 +1388,17 @@ end
     
     Usage example:
     {[
-    (* ----- The client ----- *)
+(* ----- The client ----- *)
     
-    (* Create a socket and bind it to the port 55001 *)
+(* Create a socket and bind it to the port 55001 *)
     let socket = new udp_socket in
     socket.bind (Port.from_int 55001)
     
-    (* Send a message to 192.168.1.50 on port 55002 *)
+(* Send a message to 192.168.1.50 on port 55002 *)
     let message = "Hi, I am " ^ (IPAddress.get_local_address ())#to_string;
     socket#send message "192.168.1.50" (Port.from_int 55002);
     
-    (* Receive an answer (most likely from 192.168.1.50, but could be anyone else) *)
+(* Receive an answer (most likely from 192.168.1.50, but could be anyone else) *)
     let buffer = String.create 1024 in
     let sender = new ip_address `None in
     let (_, received, _) = socket#receive buffer sender in
@@ -1406,13 +1406,13 @@ end
     output stdout buffer 0 received ;
     print_newline ()
     
-    (* ----- The server ----- *)
+(* ----- The server ----- *)
     
-    (* Create a socket and bind it to the port 55002 *)
+(* Create a socket and bind it to the port 55002 *)
     let socket = new udp_socket in
     socket#bind (Port.from_int 55002) ;
     
-    (* Receive a message from anyone *)
+(* Receive a message from anyone *)
     let buffer = String.create 1024 in
     let sender = new ip_address `None in
     let (_, received, port) = socket.receive(buffer, sizeof(buffer), received, sender) in
@@ -1421,7 +1421,7 @@ end
     print_newline ()
     
     
-    (* Send an answer *)
+(* Send an answer *)
     let message = "Welcome " ^ sender#to_string in
     socket#send message sender port;
     ]}*)
@@ -1431,7 +1431,7 @@ object
 
   (**/**)
   val t_udp_socket_base : UdpSocket.t
-    (**/**)
+  (**/**)
 
   (** Bind the socket to a specific port.
 
@@ -1468,7 +1468,7 @@ object
 
   (**/**)
   method rep__sf_UdpSocket : UdpSocket.t
-    (**/**)
+  (**/**)
 
   (** Send raw data to a remote peer.
 

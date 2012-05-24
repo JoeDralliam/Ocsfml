@@ -1,4 +1,6 @@
 open OcsfmlSystem
+
+type 'a reference = 'a
   
 let do_if f = function | Some x -> f x | None -> ()
   
@@ -294,25 +296,13 @@ struct
   external get_duration : t -> Time.t = "sf_SoundBuffer_getDuration__impl"
 	    
 end
-  
-class sound_buffer_base t =
-object ((_ : 'self))
+
+class const_sound_buffer_base t =
+object
   val t_sound_buffer_base = (t : SoundBuffer.t)
   method rep__sf_SoundBuffer = t_sound_buffer_base
 
   method destroy = SoundBuffer.destroy t_sound_buffer_base
-
-  method affect : 'self -> unit =
-    fun p1 -> ignore (SoundBuffer.affect t_sound_buffer_base p1#rep__sf_SoundBuffer)
-
-  method load_from_file : string -> bool =
-    fun p1 -> SoundBuffer.load_from_file t_sound_buffer_base p1
-
-  method load_from_stream : input_stream -> bool =
-    fun p1 -> SoundBuffer.load_from_stream t_sound_buffer_base p1
-
-  method load_from_samples : samples_type -> int -> int -> bool =
-    fun p1 p2 p3 -> SoundBuffer.load_from_samples t_sound_buffer_base p1 p2 p3
 
   method save_to_file : string -> bool =
     fun p1 -> SoundBuffer.save_to_file t_sound_buffer_base p1
@@ -332,6 +322,30 @@ object ((_ : 'self))
   method get_duration : Time.t = SoundBuffer.get_duration t_sound_buffer_base
 end
   
+class sound_buffer_base t =
+object ((_ : 'self))
+  inherit const_sound_buffer_base t
+
+  method affect : 'a. (#const_sound_buffer_base as 'a) -> unit =
+    fun p1 -> ignore (SoundBuffer.affect t_sound_buffer_base p1#rep__sf_SoundBuffer)
+
+  method load_from_file : string -> bool =
+    fun p1 -> SoundBuffer.load_from_file t_sound_buffer_base p1
+
+  method load_from_stream : input_stream -> bool =
+    fun p1 -> SoundBuffer.load_from_stream t_sound_buffer_base p1
+
+  method load_from_samples : samples_type -> int -> int -> bool =
+    fun p1 p2 p3 -> SoundBuffer.load_from_samples t_sound_buffer_base p1 p2 p3
+end
+  
+
+class const_sound_buffer tag =
+  let t = match tag with
+    | `Copy other -> SoundBuffer.copy other#rep__sf_SoundBuffer
+    | `None -> SoundBuffer.default ()
+  in const_sound_buffer_base t
+
     
 class sound_buffer_init tag t =
 object (self)
@@ -416,8 +430,8 @@ object ((self : 'self))
 
   method destroy = SoundBufferRecorder.destroy t_sound_buffer_recorder_base
 
-  method get_buffer : sound_buffer =
-    new sound_buffer_base (SoundBufferRecorder.get_buffer t_sound_buffer_recorder_base)
+  method get_buffer : const_sound_buffer reference =
+    new const_sound_buffer_base (SoundBufferRecorder.get_buffer t_sound_buffer_recorder_base)
 end
   
     
@@ -492,8 +506,8 @@ object ((self : 'self))
   method set_playing_offset : Time.t -> unit =
     fun p1 -> Sound.set_playing_offset t_sound_base p1
 
-  method get_buffer : sound_buffer = 
-    new sound_buffer_base (Sound.get_buffer t_sound_base)
+  method get_buffer : const_sound_buffer reference = 
+    new const_sound_buffer_base (Sound.get_buffer t_sound_base)
 
   method get_loop : bool = Sound.get_loop t_sound_base
 
