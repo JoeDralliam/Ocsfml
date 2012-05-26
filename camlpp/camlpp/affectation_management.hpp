@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  affectation_management.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  23/08/2011 12:17:34
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
 #ifndef AFFECTATION_MANAGEMENT_HPP_INCLUDED
 #define AFFECTATION_MANAGEMENT_HPP_INCLUDED
 

@@ -1,20 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  custom_class.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  24/08/2011 10:52:39
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
 #ifndef CUSTOM_CLASS_HPP_INCLUDED
 #define CUSTOM_CLASS_HPP_INCLUDED
 

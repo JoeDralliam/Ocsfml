@@ -1,22 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  conversion_management.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  23/08/2011 13:35:30
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
-
 #ifndef CONVERSION_MANAGEMENT_HPP_INCLUDED
 #define CONVERSION_MANAGEMENT_HPP_INCLUDED
 

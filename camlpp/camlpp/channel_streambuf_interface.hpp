@@ -1,22 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  channel_streambuf_interface.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  28/10/2011 12:08:54
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
-
 #ifndef CHANNEL_STREAMBUF_INTERFACE
 #define CHANNEL_STREAMBUF_INTERFACE
 

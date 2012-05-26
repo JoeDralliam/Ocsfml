@@ -1,22 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  memory_management.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  23/08/2011 15:26:13
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
-
 #ifndef MEMORY_MANAGEMENT_HPP_INCLUDED
 #define MEMORY_MANAGEMENT_HPP_INCLUDED
 

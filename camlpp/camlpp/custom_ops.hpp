@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  custom_ops.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  07/11/2011 18:07:25
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
 #ifndef CAMLPP_CUSTOM_OPS_HPP_INCLUDED
 #define CAMLPP_CUSTOM_OPS_HPP_INCLUDED
 

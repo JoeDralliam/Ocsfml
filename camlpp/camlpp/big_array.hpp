@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  big_array.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  03/09/2011 15:51:35
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
 #ifndef BIG_ARRAY_HPP_INCLUDED
 #define BIG_ARRAY_HPP_INCLUDED
 

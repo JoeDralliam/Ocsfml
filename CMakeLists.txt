@@ -26,7 +26,7 @@ set( SFML_AUDIO ${SFML_AUDIO_LIBRARY_RELEASE} CACHE FILEPATH "SFML audio library
 set( SFML_NETWORK ${SFML_NETWORK_LIBRARY_RELEASE} CACHE FILEPATH "SFML network library path" )
 set( BOOST_DIR ${Boost_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" )
 set( OCAML_DIR ${OCAML_LIB_DIR} CACHE PATH "Ocaml 'include' directory path (where 'caml' directory is)" )
-
+set( OCSFML_DISTRIB_DIR "" CACHE PATH "What should be the ocsfml distrib directory")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set( OCSFML_LINK_BYTECODE_DYNAMIC TRUE CACHE BOOL "Link dynamically c++ primitives against byte-code executable" )
@@ -63,7 +63,7 @@ set( DEV_MODE FALSE)
 set( CPP_DEV_MODE FALSE)
 set( CAML_DEV_MODE FALSE)
 
-set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
+set(CPP_COMPILER ${CMAKE_CXX_COMPILERx})
 set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/camlpp")
 
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
@@ -106,6 +106,7 @@ endif()
 
 
 configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild.ml.in ${CMAKE_SOURCE_DIR}/myocamlbuild.ml)
+configure_file( ${CMAKE_SOURCE_DIR}/install.sh.in ${CMAKE_SOURCE_DIR}/install.sh)
 
 # configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_system_stub.hpp COPYONLY)
 # configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfml_system_stub.hpp COPYONLY)
@@ -207,5 +208,22 @@ add_dependencies(
 add_custom_target(
   doc
   ocamlbuild -use-ocamlfind ocsfml.docdir/index.html
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+
+add_custom_target(
+  distribuable
+  ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/System/
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Window/
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Graphics/
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Audio/
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Network/
+  COMMAND cp ${system} ${OCSFML_DISTRIB_DIR}/System/
+  COMMAND cp ${window} ${OCSFML_DISTRIB_DIR}/Window/
+  COMMAND cp ${graphics} ${OCSFML_DISTRIB_DIR}/Graphics/
+  COMMAND cp ${audio} ${OCSFML_DISTRIB_DIR}/Audio/
+  COMMAND cp ${network} ${OCSFML_DISTRIB_DIR}/Network/
+  COMMAND cp META ${OCSFML_DISTRIB_DIR}/
+  COMMAND cp install.sh ${OCSFML_DISTRIB_DIR}/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )

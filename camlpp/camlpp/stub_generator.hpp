@@ -1,22 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  stub_generator.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  23/08/2011 11:47:01
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- *
- */
-
 #ifndef STUB_GEBERATOR_HPP_INCLUDED
 #define STUB_GEBERATOR_HPP_INCLUDED
 

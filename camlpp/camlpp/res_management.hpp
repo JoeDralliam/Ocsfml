@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  res_management.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  23/08/2011 12:27:43
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
 #ifndef RES_MANAGEMENT_HPP_INCLUDED
 #define RES_MANAGEMENT_HPP_INCLUDED
 

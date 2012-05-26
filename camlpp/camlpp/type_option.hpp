@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  type_option.hpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  27/08/2011 15:53:47
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
 #ifndef TYPE_OPTION_HPP_INCLUDED
 #define TYPE_OPTION_HPP_INCLUDED
 
