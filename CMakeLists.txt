@@ -63,7 +63,7 @@ set( DEV_MODE FALSE)
 set( CPP_DEV_MODE FALSE)
 set( CAML_DEV_MODE FALSE)
 
-set(CPP_COMPILER ${CMAKE_CXX_COMPILERx})
+set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/camlpp")
 
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
@@ -91,6 +91,7 @@ endmacro()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DLL_EXTENSION "so")
+  set(SCRIPT_EXTENSION "sh")
  # set( COMPILATION_FLAGS "${COMPILATION_FLAGS}; A \"-arch\" ; A \"${CMAKE_OSX_ARCHITECTURES}\"")
  # set( LINKING_DLL_FLAGS "${LINKING_DLL_FLAGS}; A \"-arch\"; A \"${CMAKE_OSX_ARCHITECTURES}\"")
  correct_osx_framework( SYSTEM )
@@ -100,13 +101,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
  correct_osx_framework( AUDIO )
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(DLL_EXTENSION "so")
+  set(SCRIPT_EXTENSION "sh")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(DLL_EXTENSION "dll")
+  set(SCRIPT_EXTENSION "bat")
 endif()
 
 
 configure_file( ${CMAKE_SOURCE_DIR}/myocamlbuild.ml.in ${CMAKE_SOURCE_DIR}/myocamlbuild.ml)
-configure_file( ${CMAKE_SOURCE_DIR}/install.sh.in ${CMAKE_SOURCE_DIR}/install.sh)
+configure_file( ${CMAKE_SOURCE_DIR}/install.in ${CMAKE_SOURCE_DIR}/install)
 
 # configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlWindow/ocsfml_system_stub.hpp COPYONLY)
 # configure_file(${CMAKE_SOURCE_DIR}/OcsfmlSystem/ocsfml_system_stub.hpp ${CMAKE_SOURCE_DIR}/OcsfmlGraphics/ocsfml_system_stub.hpp COPYONLY)
@@ -170,7 +173,6 @@ macro(ocsfml_library dir name)
     _build/Ocsfml${dir}/ocsfml${name}.cma 
     _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} 
     _build/Ocsfml${dir}/ocsfml${name}.cmxa 
-    _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION} 
     )
 endmacro()
 
@@ -213,17 +215,25 @@ add_custom_target(
 
 add_custom_target(
   distribuable
-  ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/System/
+  ${CMAKE_COMMAND} -E remove_directory ${OCSFML_DISTRIB_DIR}/
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/System/
   COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Window/
   COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Graphics/
   COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Audio/
   COMMAND ${CMAKE_COMMAND} -E make_directory ${OCSFML_DISTRIB_DIR}/Network/
-  COMMAND cp ${system} ${OCSFML_DISTRIB_DIR}/System/
-  COMMAND cp ${window} ${OCSFML_DISTRIB_DIR}/Window/
-  COMMAND cp ${graphics} ${OCSFML_DISTRIB_DIR}/Graphics/
-  COMMAND cp ${audio} ${OCSFML_DISTRIB_DIR}/Audio/
-  COMMAND cp ${network} ${OCSFML_DISTRIB_DIR}/Network/
-  COMMAND cp META ${OCSFML_DISTRIB_DIR}/
-  COMMAND cp install.sh ${OCSFML_DISTRIB_DIR}/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory _build/OcsfmlSystem/ ${OCSFML_DISTRIB_DIR}/System/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory _build/OcsfmlWindow/ ${OCSFML_DISTRIB_DIR}/Window/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory _build/OcsfmlGraphics/ ${OCSFML_DISTRIB_DIR}/Graphics/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory _build/OcsfmlAudio/ ${OCSFML_DISTRIB_DIR}/Audio/
+  COMMAND ${CMAKE_COMMAND} -E copy_directory _build/OcsfmlNetwork/ ${OCSFML_DISTRIB_DIR}/Network/
+  COMMAND ${CMAKE_COMMAND} -E copy META ${OCSFML_DISTRIB_DIR}/
+  COMMAND ${CMAKE_COMMAND} -E copy install ${OCSFML_DISTRIB_DIR}/install.@SCRIPT_EXTENSION@
+  COMMAND rm ${OCSFML_DISTRIB_DIR}/*/*.${OBJ_EXTENSION}
+  COMMAND rm ${OCSFML_DISTRIB_DIR}/*/*.cmo
+  COMMAND rm ${OCSFML_DISTRIB_DIR}/*/*.cmx
+  COMMAND rm ${OCSFML_DISTRIB_DIR}/*/*.ml*
+  COMMAND rm ${OCSFML_DISTRIB_DIR}/*/*.cpplib
+  COMMAND rm -R ${OCSFML_DISTRIB_DIR}/*/ocsfml_*_stub/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
