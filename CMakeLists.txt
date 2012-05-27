@@ -173,6 +173,7 @@ macro(ocsfml_library dir name)
     _build/Ocsfml${dir}/ocsfml${name}.cma 
     _build/Ocsfml${dir}/libocsfml${name}.${LIB_EXTENSION} 
     _build/Ocsfml${dir}/ocsfml${name}.cmxa 
+    _build/Ocsfml${dir}/ocsfml${name}.${LIB_EXTENSION}
     )
 endmacro()
 
