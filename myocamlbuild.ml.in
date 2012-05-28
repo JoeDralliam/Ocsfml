@@ -191,7 +191,10 @@ let _ = dispatch begin function
 	(* If `static' is true then every ocaml link in bytecode will add -custom *)
       if not dynlink_byte then flag ["link"; "ocaml"; "byte"] (A"-custom");
   | After_rules ->
-    flag ["ocaml"; "doc" ; "colorize_code"] & A "-colorize-code"
+    begin
+      flag ["ocaml"; "doc" ; "colorize_code"] & A "-colorize-code" ;
+      flag ["ocaml"; "doc" ; "custom_intro"] & S [ A "-intro" ; A "../Documentation/intro.camldoc" ]
+    end
   | _ -> ()
 end
 

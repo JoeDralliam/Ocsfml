@@ -306,12 +306,12 @@ end
     Usage example:
     {[
 (* Declare a new music *)
-    let music = new music in
+    let music = new music () in
     
 (* Open it from an audio file *)
     if not (music#open_from_file "music.ogg")
     then begin
-(** error...*)
+    (* error...*)
     end
     
     // Change some parameters

@@ -39,4 +39,4 @@
 <Test/test_sockets.{{d.,}byte,native}> : package( ocsfml.network )
 <Test/graphicClock.{{d.,}byte,native}> : package( ocsfml.graphics ), package( unix )
 
-<ocsfml.docdir/index.html> : colorize_code
+<ocsfml.docdir/index.html> : colorize_code, custom_intro

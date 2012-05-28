@@ -1,0 +1,64 @@
+{2 Welcome}
+
+Welcome to the Ocsfml documentation. You may find here information about the Ocsfml interface. If you are new to Ocsfml, you may find more information on the website : {{:http://ocsfml.forge.ocamlcore.org/} http://ocsfml.forge.ocamlcore.org/}
+
+
+{2 Modules}
+
+Ocsfml is divided into five modules :
+
+{!modules: OcsfmlSystem OcsfmlWindow OcsfmlGraphics OcsfmlAudio OcsfmlNetwork}
+
+{2 Example}
+
+Here is a basic example -- it creates a windows where are drawn graphical elements and plays some music.
+
+{[
+open OcsfmlWindow
+open OcsfmlGraphics
+open OcsfmlAudio
+
+let _ = begin
+    let window = new render_window (VideoMode.create ~w:800 ~h:600 ()) "Ocsfml Window" in
+    
+    let texture = new texture (`File "cute_image.jpg") in
+    let sprite = new sprite ~texture () in
+
+    let font = new font (`File "arial.ttf") in
+    let text = new text ~string:"Hello Ocsfml" ~font ~character_size:50 in
+    
+
+    let music = new music () in
+    if not music#open_from_file "nice_music.ogg"
+    then raise OcsfmlSystem.LoadFailure ;
+
+    music#play ;
+
+    (* event loop *)
+    let rec event_loop () =
+	match window#poll_event with
+	| Some e -> begin 
+	       if e = Event.Closed then window#close ;
+	       event_loop ()
+	  end
+	| _ -> ()
+    in
+
+    let rec main_loop () =
+	if window#is_open
+	then begin
+	     event_loop () ;
+	     window#clear () ;
+	     window#draw sprite ;
+	     window#draw text ;
+	     window#display ;
+	     main_loop ()
+	end
+     in
+
+     main_loop () ;
+
+     font#destroy ;
+     texture#destroy ;     
+end
+]}
