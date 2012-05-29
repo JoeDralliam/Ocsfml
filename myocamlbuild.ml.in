@@ -119,6 +119,7 @@ let get_stub_directory s =
 
 let debug = true
 let sfml_static_libraries = @SFML_STATIC_LIBRARIES@
+let link_sfml_to_static_lib = @LINK_SFML_TO_STATIC_LIB@
 let dynlink_byte = @OCSFML_LINK_BYTECODE_DYNAMIC@ 
 let dynlink_nat = @OCSFML_LINK_NATIVE_DYNAMIC@ 
 let system = "@SFML_SYSTEM@"
@@ -154,7 +155,7 @@ let _ = dispatch begin function
 	
 	flag["c++" ; "shared" ; "ocsfml"^s] & S( libs_sfml );
 	
-	let link_sfml_cmxa = if sfml_static_libraries
+	let link_sfml_cmxa = if link_sfml_to_static_lib
 	  then ( flag["c++" ; "archive" ; "ocsfml"^s] & S( libs_sfml ) ; [] )
 	  else link_libs_ocaml in
 	
@@ -185,7 +186,7 @@ let _ = dispatch begin function
       flag [ "c++" ; "compile" ] & A(includepath_flag^"@SFML_DIR@" ) ;
       flag [ "c++" ; "compile" ] & A(includepath_flag^"@BOOST_DIR@") ;
       flag [ "c++" ; "compile" ] & A(includepath_flag^"@OCAML_DIR@") ;
-
+      if sfml_static_libraries then flag ["c++"; "compile"] & A( "-DSFML_STATIC" ) ;
 
       List.iter create_libs_flags libs ;
 	(* If `static' is true then every ocaml link in bytecode will add -custom *)
