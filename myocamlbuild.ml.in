@@ -15,7 +15,7 @@ let add_compile_rules () =
   in
 
 
-  let parse_deps file =
+  let parse_deps file = 
     let dir = dirname file in
     let deps = List.tl (List.tl (string_list_of_file file)) in
     let deps = List.filter (fun d -> d <> "\\") deps in (* remove \ *)
@@ -23,6 +23,9 @@ let add_compile_rules () =
     List.map correct deps
   in
 
+  (* prevent warnings when not used *)
+  if false then ignore (err_circular "" []) ;
+  if false then ignore (parse_deps "") ; 
 
   let deps_action dep prod env build =
     let cmake = "@CMAKE_COMMAND@" in
@@ -90,6 +93,8 @@ let add_compile_rules () =
 	let spec_obj_list =(List.map obtain_spec_obj o_files) in
 	Cmd(S[A lib_mk ;@LINKING_LIB_FLAGS@; A (lib_flag^staticlib); T tags; S spec_obj_list ])
       in
+       (* prevent warnings when not used *)
+      if false then ignore (make_library ()) ;
       @MAKE_STATIC_COMMAND@ () 
   end;   
   
