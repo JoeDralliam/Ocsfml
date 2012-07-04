@@ -190,11 +190,11 @@ class context =
 module Event =
 struct
   type mouseButton =
-    | MouseLeft
-    | MouseRight
-    | MouseMiddle
-    | MouseXButton1
-    | MouseXButton2
+    | LeftButton
+    | RightButton
+    | MiddleButton
+    | XButton1
+    | XButton2
     | MouseButtonCount
 	
   type sizeEvent = { width : int; height : int }

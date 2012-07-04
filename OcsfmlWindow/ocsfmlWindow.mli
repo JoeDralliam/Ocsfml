@@ -320,11 +320,11 @@ module Event :
 sig
   
   type mouseButton =
-      MouseLeft
-    | MouseRight
-    | MouseMiddle
-    | MouseXButton1
-    | MouseXButton2
+      LeftButton
+    | RightButton
+    | MiddleButton
+    | XButton1
+    | XButton2
     | MouseButtonCount
 
   (** Size events parameters (Resized) *)
