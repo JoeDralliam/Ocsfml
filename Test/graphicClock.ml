@@ -3,6 +3,7 @@ open OcsfmlWindow
 open OcsfmlGraphics
 
 let ( & ) f x = f x
+let font = new font (`File "resources/sansation.ttf")
 
 let set_time s m h =
   let tm = Unix.localtime & Unix.time () in
@@ -27,9 +28,12 @@ let _ =
 	~outline_color:Color.black
 	~outline_thickness:5. ()
   in
-  let seconds = new text ~string:"Seconds !" ~color:(Color.rgb 255 125 0) () in
-  let minutes = new text ~string:"Minutes !" ~color:Color.black () in
-  let hours = new text ~string:"Hours !" ~color:Color.black () in 
+  let seconds = new text ~string:"Seconds !" 
+    ~font ~color:(Color.rgb 255 125 0) () in
+  let minutes = new text ~string:"Minutes !" 
+    ~font ~color:Color.black () in
+  let hours = new text ~string:"Hours !" 
+    ~font ~color:Color.black () in 
   let update_time () = set_time seconds minutes hours in
 
   let place x w = 
@@ -42,11 +46,7 @@ let _ =
   in
 
   let clean_all () = 
-    hours # destroy ;
-    minutes # destroy ;
-    seconds # destroy ;
-    clock_display # destroy ;
-    app # destroy
+    font#destroy 
   in
 
 

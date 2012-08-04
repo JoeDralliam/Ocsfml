@@ -885,11 +885,6 @@ object
     
 end
 
-(** Return the default built-in font.
-    
-    This font is provided for convenience, it is used by text instances by default. It is provided so that users don't have to provide and load a font file in order to display text on screen. The font used is Arial. *)
-val get_default_font : unit -> const_font reference
-
 (**/**)
 module Shader :
 sig

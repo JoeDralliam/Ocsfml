@@ -16,7 +16,7 @@ namespace
   
   sf::View* view_center_and_size_constructor_helper( sf::Vector2f const& center, sf::Vector2f const& size)
   {
-    return new sf::View( center, size);
+    return new sf::View(center, size);
   }
 }
 

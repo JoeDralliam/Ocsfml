@@ -679,8 +679,6 @@ struct
       "sf_Font_getLineSpacing__impl"
 	
   external get_texture : t -> int -> Texture.t = "sf_Font_getTexture__impl"
-
-  external get_default_font : unit -> t = "sf_Font_getDefaultFont__impl"
 end
   
 
@@ -721,8 +719,6 @@ object
     fun p1 -> Font.load_from_stream t_font_base p1
 end
 
-let get_default_font () =
-  new const_font_base (Font.get_default_font ())
 
 class const_font tag =
   let t = match tag with

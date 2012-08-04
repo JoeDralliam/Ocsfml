@@ -20,11 +20,9 @@
 
 namespace
 {
-  sf::Text* text_constructor_helper( camlpp::optional<sf::Font const*> font, camlpp::optional<unsigned> characterSize, char* str)
+    sf::Text* text_constructor_helper(char* str, sf::Font const* font, unsigned characterSize)
   {
-    return new sf::Text( 	sf::String(str),
-				font.is_some() ? *font.get_value() : sf::Font::getDefaultFont(), 
-				characterSize.get_value_no_fail( 30 ) );
+    return new sf::Text(sf::String(str),*font,characterSize);
   }
 
   void text_set_string_helper( sf::Text* txt, camlpp::c_string latin1Str)

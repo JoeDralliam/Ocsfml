@@ -34,8 +34,3 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_external_method1( affect, &sf::Font::operator=, camlpp::release_caml_runtime);
 }
 #undef CAMLPP__CLASS_NAME
-
-extern "C"
-{
-  camlpp__register_overloaded_free_function0( sf_Font_getDefaultFont, &sf::Font::getDefaultFont, 0)
-}

@@ -4,6 +4,8 @@ open OcsfmlGraphics
 
 let ( & ) f x = f x
 
+let font = new font (`File "resources/sansation.ttf")
+
 class virtual effect (myName :string)  =
 object (this : 'this)
   inherit drawable ~overloaded:`draw (Drawable.inherits ())
@@ -16,6 +18,7 @@ let load_failure =
 object (self)
   inherit effect "load failure"
   val error = new text ~string:"Shader not\nsupported" 
+      ~font
       ~position:(320.,200.)
       ~character_size:36 ()
   method private draw target _ _ _ _ = target#draw error
@@ -79,7 +82,7 @@ end
       in
 object
   inherit effect "wave + blur"
-  val myText = new text ~string ~character_size:22 ~position:(30.,20.) ()
+  val myText = new text ~string ~font ~character_size:22 ~position:(30.,20.) ()
   val myShader = 
     let open ShaderSource in 
     new shader 
@@ -209,9 +212,6 @@ let _ =
       ~position:(0., 520.)
       ~color:(Color.rgba 255 255 255 200) ()
   in
-  
-  
-  let font = new font (`File "resources/sansation.ttf") in
 
   let description =
     new text ~string:("Current effect: " ^ effects#current#get_name )
@@ -281,12 +281,6 @@ let _ =
   textBackgroundTexture#destroy ;
   font#destroy ;
   List.iter (fun eff -> eff#destroy ) (effects#take 4);
-  (* app#destroy *)
-  print_newline () ;
-  Gc.full_major () ;
-  print_newline () ;
-  print_string "Ok!" ;
-  Gc.full_major ()
     
     
     
