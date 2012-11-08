@@ -799,9 +799,6 @@ struct
       "sf_Shader_setCurrentTexture__impl"
 	
   external bind : t -> unit = "sf_Shader_bind__impl"
-      
-  external unbind : t -> unit = "sf_Shader_unbind__impl"
-      
 end
   
 class shader_base t_shader_base' =
@@ -874,9 +871,6 @@ object ((self : 'self))
   
   method bind : unit = 
     Shader.bind t_shader_base
-  
-  method unbind : unit = 
-    Shader.unbind t_shader_base
 end
  
 external shader_is_available : unit -> unit = "Shader_isAvailable__impl"

@@ -84,7 +84,6 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_external_method2( setTextureParameter,   ((SetTextureParameterType)   &sf::Shader::setParameter), 0);
   camlpp__register_external_method1( setCurrentTexture, &shader_set_current_texture_helper, 0);
   camlpp__register_method0( bind, 0);
-  camlpp__register_method0( unbind, 0);
 }
 #undef CAMLPP__CLASS_NAME
 

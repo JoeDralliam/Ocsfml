@@ -302,8 +302,8 @@ struct
     external default : response -> char list -> t =
         "sf_Ftp_ListingResponse_default_constructor__impl"
           
-    external get_filenames : t -> (* ou char array ? *) string list =
-        "sf_Ftp_ListingResponse_getFilenames__impl"
+    external get_listing : t -> (* ou char array ? *) string list =
+        "sf_Ftp_ListingResponse_getListing__impl"
           
   end
     
@@ -316,8 +316,8 @@ struct
 
     method destroy = ListingResponse.destroy t_listing_response
 
-    method get_filenames : string list =
-      ListingResponse.get_filenames t_listing_response
+    method get_listing : string list =
+      ListingResponse.get_listing t_listing_response
   end
     
       

@@ -905,7 +905,6 @@ sig
   val set_texture : t -> string -> Texture.t -> unit
   val set_current_texture : t -> string -> unit
   val bind : t -> unit
-  val unbind : t -> unit
 end
   (**/**)
 
@@ -1120,11 +1119,6 @@ object
       transform#translate 5 10 ;
       shader#set_transform "matrix" transform]} *)
   method set_transform : string -> transform -> unit
-    
-  (** Unbind the shader (deactivate it)
-      
-      This function is normally for internal use only, unless you want to use the shader with a custom OpenGL rendering instead of a SFML drawable. *)
-  method unbind : unit
 end
 
 

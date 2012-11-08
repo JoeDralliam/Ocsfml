@@ -22,18 +22,18 @@ namespace camlpp
     static void affect(value& v, std::tuple< Args... > const& tup)
     {
       v = caml_alloc_tuple( sizeof...( Args ) );
-      affect_helper( v, tup, std::integral_constant<size_t, sizeof...(Args) - 1>() );
+      affect_helper( v, tup, std::integral_constant<long int, sizeof...(Args) - 1>() );
     }
   private:
-    static void affect_helper( value&, std::tuple< Args... > const&, std::integral_constant<size_t, -1>)
+    static void affect_helper( value&, std::tuple< Args... > const&, std::integral_constant<long int, -1>)
     {}
 
-    template<size_t I>
-    static void affect_helper( value& v, std::tuple< Args... > const& tup, std::integral_constant<size_t, I>)
+    template<long int I>
+    static void affect_helper( value& v, std::tuple< Args... > const& tup, std::integral_constant<long int, I>)
     {
       typedef typename std::tuple_element< I, std::tuple< Args... >>::type CurrentElemType;
       field_affectation_management< CurrentElemType >::affect_field( v, I, std::move( std::get<I>(tup) ) );
-      affect_helper( v, tup, std::integral_constant<size_t, I-1>() );
+      affect_helper( v, tup, std::integral_constant<long int, I-1>() );
     }
   };
 #else
@@ -130,18 +130,18 @@ namespace camlpp
       assert( Tag_val( v ) == 0 );
       assert( Wosize_val( v ) == sizeof...( Args ) );
       std::tuple< Args... > res;
-      from_value_helper( v, res, std::integral_constant<size_t, sizeof...( Args ) - 1 >() );
+      from_value_helper( v, res, std::integral_constant<long int, sizeof...( Args ) - 1 >() );
       return std::move( res );
     }
   private:
-    void from_value_helper( value const&, std::tuple< Args... >& , std::integral_constant<size_t, -1>)
+    void from_value_helper( value const&, std::tuple< Args... >& , std::integral_constant<long int, -1>)
     {}
     
-    template<size_t I>
-    void from_value_helper( value const& v, std::tuple< Args... >& res, std::integral_constant<size_t, I> )
+    template<long int I>
+    void from_value_helper( value const& v, std::tuple< Args... >& res, std::integral_constant<long int, I> )
     {
       std::get< I >( res ) = details::tuple_conversion_helper< std::tuple< Args... >, I >::cm.from_value( Field(v, I) );
-      from_value_helper( v, res, std::integral_constant<size_t, I-1>() );
+      from_value_helper( v, res, std::integral_constant<long int, I-1>() );
     }
   };
 #else

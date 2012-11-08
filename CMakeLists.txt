@@ -17,6 +17,7 @@ execute_process(
 	COMMAND ocamlc -where
 	OUTPUT_VARIABLE OCAML_LIB_DIR
 )
+string(STRIP OCAML_LIB_DIR OCAML_LIB_DIR)
 
 set( SFML_DIR ${SFML_INCLUDE_DIR} CACHE PATH "SFML 'include' directory path" )
 set( SFML_SYSTEM ${SFML_SYSTEM_LIBRARY_RELEASE} CACHE FILEPATH "SFML system library path" )
@@ -204,7 +205,6 @@ add_custom_target(
 add_custom_target(
   uninstall_ocsfml
   ${CMAKE_COMMAND} -E remove_directory "${TESTS_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "${EXTERNAL_CPP_INSTALL_PREFIX}/camlpp"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 

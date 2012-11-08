@@ -238,7 +238,7 @@ sig
     val destroy : t -> unit
     val to_response : t -> Response.t
     val default : response -> char list -> t
-    val get_filenames : t -> string list
+    val get_listing : t -> string list
   end
   (**/**)
 
@@ -256,7 +256,7 @@ sig
     method destroy : unit
 
     (** Return the list of filenames. *)
-    method get_filenames : string list
+    method get_listing : string list
 
     (**/**)
     method rep__sf_Ftp_ListingResponse : ListingResponse.t
