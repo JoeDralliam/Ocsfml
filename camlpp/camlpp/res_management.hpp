@@ -2,6 +2,7 @@
 #define RES_MANAGEMENT_HPP_INCLUDED
 
 
+#include <boost/config.hpp>
 #include <camlpp/affectation_management.hpp>
 #include <functional>
 #include <tuple>
@@ -12,6 +13,8 @@ extern "C"
 #include <caml/threads.h>
 #include <caml/fail.h>
 }
+
+
 
 namespace camlpp
 {
@@ -44,7 +47,7 @@ namespace camlpp
     };
 }
 
-#ifndef _MSC_VER
+#ifndef BOOST_NO_VARIADIC_TEMPLATES 
 namespace camlpp
 {
 
@@ -68,7 +71,7 @@ namespace camlpp
       catch( std::exception& e ) {
 	caml_failwith( e.what() );
       }
-      catch( ... ) {
+      catch(...) {
 	caml_failwith( "Non standard exception thrown from C++" );
       }
     }

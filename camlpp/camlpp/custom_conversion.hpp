@@ -23,6 +23,7 @@
 #include <utility>
 #include <tuple>
 
+#include <boost/config.hpp>
 #include <camlpp/conversion_management.hpp>
 #include <camlpp/affectation_management.hpp>
 #include <camlpp/field_affectation_management.hpp>
@@ -73,8 +74,7 @@ namespace camlpp
   }
 }
 
-#ifndef _MSC_VER
-
+#ifndef BOOST_NO_VARIADIC_TEMPLATES 
 namespace camlpp 
 { 
   namespace details 

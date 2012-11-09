@@ -17,7 +17,14 @@ execute_process(
 	COMMAND ocamlc -where
 	OUTPUT_VARIABLE OCAML_LIB_DIR
 )
-string(STRIP OCAML_LIB_DIR OCAML_LIB_DIR)
+string(STRIP ${OCAML_LIB_DIR} OCAML_LIB_DIR)
+
+if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+    set(CAMLPP_ARCHITECTURE_SIXTYFOUR TRUE)
+else()
+    set(CAMLPP_ARCHITECTURE_SIXTYFOUR FALSE)
+endif()
+
 
 set( SFML_DIR ${SFML_INCLUDE_DIR} CACHE PATH "SFML 'include' directory path" )
 set( SFML_SYSTEM ${SFML_SYSTEM_LIBRARY_RELEASE} CACHE FILEPATH "SFML system library path" )
@@ -28,6 +35,8 @@ set( SFML_NETWORK ${SFML_NETWORK_LIBRARY_RELEASE} CACHE FILEPATH "SFML network l
 set( BOOST_DIR ${Boost_INCLUDE_DIR} CACHE PATH "Boost 'include' directory path" )
 set( OCAML_DIR ${OCAML_LIB_DIR} CACHE PATH "Ocaml 'include' directory path (where 'caml' directory is)" )
 set( OCSFML_DISTRIB_DIR "" CACHE PATH "What should be the ocsfml distrib directory")
+set( CAMLPP_ARCHITECTURE_SIXTYFOUR ${CAMLPP_ARCHITECTURE_SIXTYFOUR}
+CACHE BOOLEAN "Is the target 64-bits?" )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set( OCSFML_LINK_BYTECODE_DYNAMIC TRUE CACHE BOOL "Link dynamically c++ primitives against byte-code executable" )
@@ -74,14 +83,10 @@ set( CAML_DEV_MODE FALSE)
 set(CPP_COMPILER ${CMAKE_CXX_COMPILER})
 set(EXTERNAL_CPP_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/camlpp")
 
-if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-    set(CAMLPP_ARCHITECTURE_SIXTYFOUR TRUE)
-else()
-    set(CAMLPP_ARCHITECTURE_SIXTYFOUR FALSE)
-endif()
-
 
 if(MSVC_VERSION EQUAL 1600) #VC++ 2010
+  include(Configuration/VC++2010.cmake)
+elseif(MSVC_VERSION EQUAL 1700) #VC++ 2012
   include(Configuration/VC++2010.cmake)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
   include(Configuration/G++.cmake)

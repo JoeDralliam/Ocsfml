@@ -13,7 +13,7 @@ set(OBJ_FLAG "/Fo")
 set(LIB_FLAG "/OUT:")
 set(INCLUDEPATH_FLAG "/I")
 set(OPTIMIZATION_LEVEL "/Ox" )
-set(COMPILATION_FLAGS "A \"/nologo\" ; A \"${OPTIMIZATION_LEVEL}\" ; A \"/MD\" ; A \"/I${EXTERNAL_CPP_INSTALL_PREFIX}\" ; A \"/EHs\" ; A \"/c\"")
+set(COMPILATION_FLAGS "A \"/nologo\" ; A \"${OPTIMIZATION_LEVEL}\" ; A \"/MD\" ; A \"/I${EXTERNAL_CPP_INSTALL_PREFIX}\" ; A\"/D_VARIADIC_MAX=10\"; A \"/EHs\" ; A \"/c\"")
 
 set(LINKING_LIB_FLAGS "A \"/NOLOGO\" ; A \"/LIBPATH:./build\"")
 if(${CAMLPP_ARCHITECTURE_SIXTYFOUR})
