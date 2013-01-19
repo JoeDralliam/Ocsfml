@@ -12,6 +12,7 @@
 #include <camlpp/stub_generator.hpp>
 #include <camlpp/type_option.hpp>
 #include <camlpp/big_array.hpp>
+#include <camlpp/unit.hpp>
 #include <camlpp/std/string.hpp>
 
 namespace
@@ -74,9 +75,9 @@ namespace
       }
   }
 
-  void texture_bind_helper( sf::Texture* tex, camlpp::optional<sf::Texture::CoordinateType> coordinateType)
+  void Texture_bind( camlpp::optional<sf::Texture*> tex, camlpp::optional<sf::Texture::CoordinateType> coordinateType, camlpp::unit)
   {
-    tex->bind( coordinateType.get_value_no_fail( sf::Texture::Normalized ) );
+      sf::Texture::bind( tex.get_value_no_fail(0), coordinateType.get_value_no_fail( sf::Texture::Normalized ) );
   }
 }
   
@@ -96,7 +97,6 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_external_method2( updateFromPixels, &texture_update_from_pixels_helper, 0);
   camlpp__register_external_method2( updateFromImage , &texture_update_from_image_helper, 0);
   camlpp__register_external_method2( updateFromWindow, &texture_update_from_window_helper, 0);
-  camlpp__register_method1( bind, 0);
   camlpp__register_method1( setSmooth, 0);
   camlpp__register_method0( isSmooth, 0);
   camlpp__register_method1( setRepeated, 0);
@@ -107,5 +107,6 @@ camlpp__register_preregistered_custom_class()
 
 extern "C"
 {
+  camlpp__register_free_function3( Texture_bind, 0);
   camlpp__register_overloaded_free_function0( Texture_getMaximumSize, &sf::Texture::getMaximumSize, 0)
 }

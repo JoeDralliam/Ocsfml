@@ -583,7 +583,6 @@ sig
   val update_from_image : t -> ?coords:int * int -> Image.t -> unit
   val update_from_window : t -> ?coords:int * int -> OcsfmlWindow.Window.t -> unit
   val update_from_pixels : t -> ?coords:int * int -> OcsfmlWindow.pixel_array_type -> unit
-  val bind : t -> unit
   val set_smooth : t -> bool -> unit
   val is_smooth : t -> bool
   val set_repeated : t -> bool -> unit
@@ -647,12 +646,6 @@ object
   (**)
   method affect : #const_texture -> unit
 
-  (** Activate the texture for rendering.
-      
-      This function is mainly used internally by the SFML rendering system. However it can be useful when using sf::Texture together with OpenGL code (this function is equivalent to glBindTexture).
-      
-      The coordinateType argument controls how texture coordinates will be interpreted. If Normalized (the default), they must be in range [0 .. 1], which is the default way of handling texture coordinates with OpenGL. If Pixels, they must be given in pixels (range [0 .. size]). This mode is used internally by the graphics classes of SFML, it makes the definition of texture coordinates more intuitive for the high-level API, users don't need to compute normalized values. *)
-  method bind : unit
     
   (** Copy the texture pixels to an image.
 
@@ -753,6 +746,13 @@ object
        @param coords Offset in the texture where to copy the source window. *)
   method update_from_window : ?coords:int * int -> #OcsfmlWindow.window -> unit
 end
+
+  (** Activate the texture for rendering.
+      
+      This function is mainly used internally by the SFML rendering system. However it can be useful when using sf::Texture together with OpenGL code (this function is equivalent to glBindTexture).
+      
+      The coordinateType argument controls how texture coordinates will be interpreted. If Normalized (the default), they must be in range [0 .. 1], which is the default way of handling texture coordinates with OpenGL. If Pixels, they must be given in pixels (range [0 .. size]). This mode is used internally by the graphics classes of SFML, it makes the definition of texture coordinates more intuitive for the high-level API, users don't need to compute normalized values. *)
+val bind : ?texture:texture -> ?cordinate_type:int -> unit -> unit
 
 
 (** Structure describing a glyph.
@@ -904,13 +904,12 @@ sig
   val set_transform : t -> string -> Transform.t -> unit
   val set_texture : t -> string -> Texture.t -> unit
   val set_current_texture : t -> string -> unit
-  val bind : t -> unit
 end
   (**/**)
 
 
 (**)
-val shader_is_available : unit -> unit
+val shader_is_available : unit -> bool
 
 module ShaderSource :
 sig
@@ -979,17 +978,6 @@ object
   (**/**)
   val t_shader_base : Shader.t
     (**/**)
-
-  (** Bind the shader for rendering (activate it)
-
-      This function is normally for internal use only, unless you want to use the shader with a custom OpenGL rendering instead of a SFML drawable.  
-      {[
-      window#set_active () ;
-      shader#bind ;
-  (* ... render OpenGL geometry ... *)
-      shader#unbind 
-      ]} *)
-  method bind : unit
 
   (**)
   method destroy : unit
@@ -1120,6 +1108,17 @@ object
       shader#set_transform "matrix" transform]} *)
   method set_transform : string -> transform -> unit
 end
+
+  (** Bind the shader for rendering (activate it)
+
+      This function is normally for internal use only, unless you want to use the shader with a custom OpenGL rendering instead of a SFML drawable.  
+      {[
+      window#set_active () ;
+      shader#bind ;
+  (* ... render OpenGL geometry ... *)
+      shader#unbind 
+      ]} *)
+val shader_bind : ?shader:shader -> unit -> unit
 
 
 (**/**)
@@ -1367,7 +1366,8 @@ sig
   val get_view : t -> View.t
   val get_default_view : t -> View.t
   val get_viewport : t -> View.t -> int rect
-  val convert_coords : t -> ?view:View.t -> int * int -> float * float
+  val map_pixel_to_coords : t -> ?view:View.t -> int * int -> float * float
+  val map_coords_to_pixel : t -> ?view:View.t -> float * float -> int * int
   val push_gl_states : t -> unit
   val pop_gl_states : t -> unit
   val reset_gl_states : t -> unit
@@ -1428,7 +1428,8 @@ object
 
       @param view The view to use for converting the point (default is the current view of the render_target) 
       @return The converted point, in "world" units *)
-  method convert_coords : 'a. ?view:(#const_view as 'a) -> int * int -> float * float
+  method map_pixel_to_coords : 'a. ?view:(#const_view as 'a) -> int * int -> float * float
+  method map_coords_to_pixel : 'a. ?view:(#const_view as 'a) -> float * float -> int * int
 
   (**)
   method destroy : unit

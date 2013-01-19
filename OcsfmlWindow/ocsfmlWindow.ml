@@ -1,5 +1,5 @@
 type pixel_array_type =
-    (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array3.t
+    (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Genarray.t
 
 let pixel_array_kind = Bigarray.int8_unsigned
   

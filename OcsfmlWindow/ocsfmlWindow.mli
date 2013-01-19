@@ -1,7 +1,7 @@
 (** Windowing & event management *)
 
 
-type pixel_array_type = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array3.t
+type pixel_array_type = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Genarray.t
 
 val pixel_array_kind : (int, Bigarray.int8_unsigned_elt) Bigarray.kind
 

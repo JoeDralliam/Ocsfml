@@ -61,6 +61,11 @@ namespace
   {
     s->setParameter( str, sf::Shader::CurrentTexture );
   }
+
+    void Shader_bind( camlpp::optional<sf::Shader*> s, camlpp::unit)
+  {
+    sf::Shader::bind(s.get_value_no_fail(0));
+  }
 }
 
 
@@ -89,5 +94,6 @@ camlpp__register_preregistered_custom_class()
 
 extern "C"
 {
+  camlpp__register_free_function2( Shader_bind, 0);
   camlpp__register_overloaded_free_function0( Shader_isAvailable, &sf::Shader::isAvailable, 0)
 }

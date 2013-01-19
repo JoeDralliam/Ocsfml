@@ -544,8 +544,6 @@ struct
 	
   external update_from_window : t -> ?coords: (int * int) -> Window.t -> unit =
       "sf_Texture_updateFromWindow__impl"
-	
-  external bind : t -> unit = "sf_Texture_bind__impl"
       
   external set_smooth : t -> bool -> unit = "sf_Texture_setSmooth__impl"
       
@@ -608,9 +606,6 @@ object
   method update_from_window : 'a. ?coords: (int * int) -> (#window as 'a) -> unit =
     fun ?coords p1 -> Texture.update_from_window t_texture_base ?coords p1#rep__sf_Window
 
-  method bind : unit = 
-    Texture.bind t_texture_base
-
   method set_smooth : bool -> unit =
     fun p1 -> Texture.set_smooth t_texture_base p1
 
@@ -645,6 +640,8 @@ class texture ?rect tag =
     | _ -> Texture.default ()
   in texture_init ?rect tag t
 
+
+external bind : ?texture:texture -> ?cordinate_type:int -> unit -> unit = "Texture_bind__impl"
 
 type glyph = { advance : int; bounds : int rect; texture_rect : int rect }
 
@@ -797,8 +794,6 @@ struct
 	
   external set_current_texture : t -> string -> unit =
       "sf_Shader_setCurrentTexture__impl"
-	
-  external bind : t -> unit = "sf_Shader_bind__impl"
 end
   
 class shader_base t_shader_base' =
@@ -868,14 +863,8 @@ object ((self : 'self))
   
   method set_current_texture : string -> unit =
     fun p1 -> Shader.set_current_texture t_shader_base p1
-  
-  method bind : unit = 
-    Shader.bind t_shader_base
 end
  
-external shader_is_available : unit -> unit = "Shader_isAvailable__impl"
-
-
 module ShaderSource =
 struct
   type file = [`File of string]
@@ -913,6 +902,11 @@ class shader ?vertex ?fragment () =
   let t = Shader.default ()
   in shader_init ?vertex ?fragment t
   
+
+external shader_is_available : unit -> bool = "Shader_isAvailable__impl"
+external shader_bind : ?shader:shader -> unit -> unit = "Shader_bind__impl"
+
+
 module View =
 struct
   type t
@@ -1108,9 +1102,12 @@ struct
 	
   external get_viewport : t -> View.t -> int rect =
       "sf_RenderTarget_getViewport__impl"
+
+  external map_coords_to_pixel : t -> ?view:View.t -> (float * float) -> (int * int) =
+      "sf_RenderTarget_coords_to_pixel__impl"
 	
-  external convert_coords : t -> ?view:View.t -> (int * int) -> (float * float) =
-      "sf_RenderTarget_convertCoords__impl"
+  external map_pixel_to_coords : t -> ?view:View.t -> (int * int) -> (float * float) =
+      "sf_RenderTarget_pixel_to_coords__impl"
 	
   external push_gl_states : t -> unit =
       "sf_RenderTarget_pushGLStates__impl"
@@ -1177,9 +1174,13 @@ object ((self : 'self))
   method get_viewport : 'a. (#const_view as 'a) -> int rect =
     fun view -> RenderTarget.get_viewport t_render_target view#rep__sf_View
 
-  method convert_coords : 'a. ?view:(#const_view as 'a) -> (int * int) -> (float * float) =
+  method map_pixel_to_coords : 'a. ?view:(#const_view as 'a) -> (int * int) -> (float * float) =
     fun ?view p1 -> let view = get_if (fun x -> x#rep__sf_View) view in
-		    RenderTarget.convert_coords t_render_target ?view p1
+		    RenderTarget.map_pixel_to_coords t_render_target ?view p1
+
+  method map_coords_to_pixel : 'a. ?view:(#const_view as 'a) -> (float * float) -> (int * int) =
+    fun ?view p1 -> let view = get_if (fun x -> x#rep__sf_View) view in
+		    RenderTarget.map_coords_to_pixel t_render_target ?view p1
 
   method push_gl_states : unit =
     RenderTarget.push_gl_states t_render_target

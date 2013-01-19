@@ -24,13 +24,22 @@ namespace
     return target->clear( color.get_value_no_fail( sf::Color(0, 0, 0, 255) ) );
   }
 
-  sf::Vector2f render_target_convert_coords_helper( sf::RenderTarget* target, camlpp::optional<sf::View const*> opt, sf::Vector2i const& point)
+  sf::Vector2f render_target_map_pixel_to_coords_helper( sf::RenderTarget* target, camlpp::optional<sf::View const*> opt, sf::Vector2i const& point)
   {
     if( opt.is_some() )
       {
-	return target->convertCoords(point, *opt.get_value() );
+	return target->mapPixelToCoords(point, *opt.get_value() );
       }
-    return target->convertCoords(point);
+    return target->mapPixelToCoords(point);
+  }
+
+  sf::Vector2i render_target_map_coords_to_pixel_helper( sf::RenderTarget* target, camlpp::optional<sf::View const*> opt, sf::Vector2f const& point)
+  {
+    if( opt.is_some() )
+      {
+	return target->mapCoordsToPixel(point, *opt.get_value() );
+      }
+    return target->mapCoordsToPixel(point);
   }
 
   void render_target_draw_helper( sf::RenderTarget* target,
@@ -89,7 +98,8 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_method0( getView, 0);
   camlpp__register_method0( getDefaultView, 0);
   camlpp__register_method1( getViewport, 0);
-  camlpp__register_external_method2( convertCoords, &render_target_convert_coords_helper, 0);
+  camlpp__register_external_method2( mapCoordsToPixel, &render_target_map_coords_to_pixel_helper, 0);
+  camlpp__register_external_method2( mapPixelToCoords, &render_target_map_pixel_to_coords_helper, 0);
   camlpp__register_method0( pushGLStates, camlpp::release_caml_runtime);
   camlpp__register_method0( popGLStates, camlpp::release_caml_runtime);
   camlpp__register_method0( resetGLStates, camlpp::release_caml_runtime);
