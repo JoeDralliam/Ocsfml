@@ -1104,10 +1104,10 @@ struct
       "sf_RenderTarget_getViewport__impl"
 
   external map_coords_to_pixel : t -> ?view:View.t -> (float * float) -> (int * int) =
-      "sf_RenderTarget_coords_to_pixel__impl"
+      "sf_RenderTarget_mapCoordsToPixel__impl"
 	
   external map_pixel_to_coords : t -> ?view:View.t -> (int * int) -> (float * float) =
-      "sf_RenderTarget_pixel_to_coords__impl"
+      "sf_RenderTarget_mapPixelToCoords__impl"
 	
   external push_gl_states : t -> unit =
       "sf_RenderTarget_pushGLStates__impl"
