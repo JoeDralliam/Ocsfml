@@ -12,19 +12,27 @@ sig
   (** Represents a time value 
       Time.t encapsulates a time value in a flexible way.
       
-      It allows to define a time value either as a number of seconds, milliseconds or microseconds. It also works the other way round: you can read a time value as either a number of seconds, milliseconds or microseconds.
+      It allows to define a time value either as a number of seconds,
+      milliseconds or microseconds. It also works the other way round:
+      you can read a time value as either a number of seconds,
+      milliseconds or microseconds.
       
-      By using such a flexible interface, the API doesn't impose any fixed type or resolution for time values, and let the user choose its own favorite representation.
+      By using such a flexible interface, the API doesn't impose any
+      fixed type or resolution for time values, and let the user
+      choose its own favorite representation.
       
-      Time values support the usual mathematical operations: you can add or subtract two times, multiply or divide a time by a number, compare two times, etc.
+      Time values support the usual mathematical operations: you can
+      add or subtract two times, multiply or divide a time by a
+      number, compare two times, etc.
       
-      Since they represent a time span and not an absolute time value, times can also be negative.
+      Since they represent a time span and not an absolute time value,
+      times can also be negative.
       
       Usage example:
       {[
       let t1 = Time.seconds 0.1 in
       let milli = Time.as_milliseconds t1 in // 100
-	
+      
       let t2 = Time.milliseconds 30  in
       let micro = Time.as_microseconds t2 in // 30000
       
@@ -32,7 +40,7 @@ sig
       let sec = Time.as_seconds t3 in // -0.8
       
       let update elapsed =
-          position := position +. speed *. (Time.as_seconds elapsed)
+      position := position +. speed *. (Time.as_seconds elapsed)
       
       update (Time.milliseconds 100)
       ]}
@@ -91,7 +99,10 @@ end
 (** Utility class that measures the elapsed time. 
       clock is a lightweight class for measuring time.
     
-    Its provides the most precise time that the underlying OS can achieve (generally microseconds or nanoseconds). It also ensures monotonicity, which means that the returned time can never go backward, even if the system time is changed.
+    Its provides the most precise time that the underlying OS can
+    achieve (generally microseconds or nanoseconds). It also ensures
+    monotonicity, which means that the returned time can never go
+    backward, even if the system time is changed.
     
     Usage example:
     {[
@@ -101,7 +112,8 @@ end
     ...
     let time2 = clock#restart in
     ]} 
-    The time value returned by the clock can then be converted to a number of seconds, milliseconds or even microseconds. *)
+    The time value returned by the clock can then be converted to a
+    number of seconds, milliseconds or even microseconds. *)
 class clock : 
 object
   (**/**)
@@ -111,27 +123,31 @@ object
   method destroy : unit
 
   (** Get the elapsed time.
-      This function returns the time elapsed since the last call to restart (or the construction of the instance if restart has not been called). *)
+      This function returns the time elapsed since the last call to restart
+      (or the construction of the instance if restart has not been
+      called). *)
   method get_elapsed_time : Time.t
-  
+    
   (**/**)
   method rep__sf_Clock : Clock.t
   (**/**)
 
   (** Restart the clock.
-      This function puts the time counter back to zero. It also returns the time elapsed since the clock was started. *)
+      This function puts the time counter back to zero. It also returns the
+      time elapsed since the clock was started. *)
   method restart : Time.t
 end
 
 
-(** Make the current thread sleep for a given duration.
-    sleep is the best way to block a program or one of its threads, as it doesn't consume any CPU power.*)
+(** Make the current thread sleep for a given duration.  
+    sleep is the best way to block a program or one of its threads, as it
+    doesn't consume any CPU power.*)
 val sleep : Time.t -> unit
   
 
 (** Common interface for all input streams
     currently doesn't work properly (not used anywhere)
- *)
+*)
 class virtual input_stream :
 object 
   method virtual get_size : int
