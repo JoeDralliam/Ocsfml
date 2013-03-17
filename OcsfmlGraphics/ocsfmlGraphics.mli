@@ -31,12 +31,19 @@ type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a; }
 
 (**/**)
 module type RECT_VAL =
-sig type t val add : t -> t -> t val sub : t -> t -> t end
-  (**/**)
+sig 
+  type t 
+  val zero : t
+  val add : t -> t -> t 
+  val sub : t -> t -> t 
+end
+(**/**)
 
 module Rect :
   functor (M : RECT_VAL) ->
 sig
+  val create : ?left:M.t -> ?top:M.t -> ?width:M.t -> ?height:M.t -> unit 
+    -> M.t rect
   val contains : M.t rect -> M.t -> M.t -> bool
   val contains_v : M.t rect -> M.t * M.t -> bool
   val intersects : M.t rect -> M.t rect -> M.t rect option
@@ -46,6 +53,8 @@ end
 
 module IntRect :
 sig
+  val create : ?left:int -> ?top:int -> ?width:int -> ?height:int -> unit 
+    -> int rect
   val contains : int rect -> int -> int -> bool
   val contains_v : int rect -> int * int -> bool
   val intersects : int rect -> int rect -> int rect option
@@ -54,6 +63,8 @@ end
 
 module FloatRect :
 sig
+  val create : ?left:float -> ?top:float -> ?width:float -> ?height:float -> unit 
+    -> float rect
   val contains : float rect -> float -> float -> bool
   val contains_v : float rect -> float * float -> bool
   val intersects :float rect -> float rect -> float rect option

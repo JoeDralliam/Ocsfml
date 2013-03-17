@@ -11,12 +11,16 @@ type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a }
 
 module type RECT_VAL =
 sig type t
+    val zero : t
     val add : t -> t -> t
     val sub : t -> t -> t
 end
   
 module Rect (M : RECT_VAL) =
 struct
+  let create ?(left=M.zero) ?(top=M.zero) ?(width=M.zero) ?(height=M.zero) () =
+    { left ; top ; width ; height }
+
   let contains { left = left; top = top; width = width; height = height } x y =
     (x >= left) && ((y >= top) && ((x < (M.add left width)) && (y < (M.add top height))))
       
@@ -42,6 +46,7 @@ end
   
 module MyInt : RECT_VAL with type t = int =
 struct type t = int
+       let zero = 0
        let add = ( + )
        let sub = ( - )
 end
@@ -50,6 +55,7 @@ module IntRect = Rect(MyInt)
   
 module MyFloat : RECT_VAL with type t = float =
 struct type t = float
+       let zero = 0.
        let add = ( +. )
        let sub = ( -. )
 end
