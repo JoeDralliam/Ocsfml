@@ -18,8 +18,8 @@ end
   
 module Rect (M : RECT_VAL) =
 struct
-  let create ?(left=M.zero) ?(top=M.zero) ?(width=M.zero) ?(height=M.zero) () =
-    { left ; top ; width ; height }
+  let create ?(position=(M.zero,M.zero)) ?(size=(M.zero,M.zero)) () =
+    { left = fst position ; top = snd position ; width = fst size; height = snd size }
 
   let contains { left = left; top = top; width = width; height = height } x y =
     (x >= left) && ((y >= top) && ((x < (M.add left width)) && (y < (M.add top height))))

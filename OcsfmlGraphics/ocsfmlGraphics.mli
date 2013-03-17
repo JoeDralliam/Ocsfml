@@ -42,8 +42,7 @@ end
 module Rect :
   functor (M : RECT_VAL) ->
 sig
-  val create : ?left:M.t -> ?top:M.t -> ?width:M.t -> ?height:M.t -> unit 
-    -> M.t rect
+  val create : ?position:M.t * M.t -> ?size:M.t * M.t -> unit -> M.t rect
   val contains : M.t rect -> M.t -> M.t -> bool
   val contains_v : M.t rect -> M.t * M.t -> bool
   val intersects : M.t rect -> M.t rect -> M.t rect option
@@ -53,8 +52,7 @@ end
 
 module IntRect :
 sig
-  val create : ?left:int -> ?top:int -> ?width:int -> ?height:int -> unit 
-    -> int rect
+  val create : ?position:int * int -> ?size:int * int -> unit -> int rect
   val contains : int rect -> int -> int -> bool
   val contains_v : int rect -> int * int -> bool
   val intersects : int rect -> int rect -> int rect option
@@ -63,8 +61,7 @@ end
 
 module FloatRect :
 sig
-  val create : ?left:float -> ?top:float -> ?width:float -> ?height:float -> unit 
-    -> float rect
+  val create : ?position:float * float -> ?size:float * float -> unit -> float rect
   val contains : float rect -> float -> float -> bool
   val contains_v : float rect -> float * float -> bool
   val intersects :float rect -> float rect -> float rect option
