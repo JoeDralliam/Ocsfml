@@ -1,0 +1,10 @@
+options:
+-os @OS@
+-cxx-toolchain @CXX_TOOLCHAIN@
+-system   @SFML_SYSTEM@
+-window   @SFML_WINDOW@
+-graphics @SFML_GRAPHICS@
+-audio    @SFML_AUDIO@
+-network  @SFML_NETWORK@
+-use-sfml-static-libraries @USE_SFML_STATIC_LIBRARIES@
+@OPTIONS@
