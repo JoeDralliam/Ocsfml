@@ -343,7 +343,7 @@ let add_compile_rules t =
           let make_library () =
 	    let obtain_spec_obj o = A (dir/o) in
 	    let spec_obj_list =(List.map obtain_spec_obj o_files) in
-	    Cmd(S ([A "link.exe"]  @ t.lib_flags @ [A (lib_flag^staticlib); T tags; S spec_obj_list ]))
+	    Cmd(S ([A "lib.exe" ; A (lib_flag^staticlib); T tags; S spec_obj_list ] @ t.lib_flags))
           in
           if t.lib_kind = Archive 
           then make_archive () else make_library () 

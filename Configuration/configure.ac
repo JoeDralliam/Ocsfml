@@ -12,8 +12,10 @@ if test "x" = "x${OS}" ; then
    case $host in
       *-linux-*) OS="linux" ;;
       *-apple-*) OS="mac" ;;
-      *win*) OS="windows" ;;
+      *win* | *-*-cygwin ) OS="windows" ;;
    esac
+elif test "$OS" = "Windows_NT" ; then
+	OS="windows"
 fi
 
 if test "x" = "x${CXX_TOOLCHAIN}" ; then
@@ -24,8 +26,12 @@ if test "x" = "x${CXX_TOOLCHAIN}" ; then
    esac
 fi
 
+if test "$OS" = "windows" && test "x" = "x${USE_SFML_STATIC_LIBRARIES}" ; then
+   USE_SFML_STATIC_LIBRARIES="true"
+fi
+
 if test "${USE_SFML_STATIC_LIBRARIES}" = "true" ; then
-   LIBPOSTFIX = "-s"
+   LIBPOSTFIX="-s"
 else
    USE_SFML_STATIC_LIBRARIES="false"
 fi
@@ -37,7 +43,7 @@ do
    if test "x" = "x${!option_name}" ; then
       case $OS in
            linux | mac) export $option_name="-lsfml-${module,,}${LIBPOSTFIX}" ;;
-           windows) export $option_name="sfml-${module,,}${LIBPOSTFIX}.lib" ;;
+           windows) export $option_name="${SFML_DIR}\lib\sfml-${module,,}${LIBPOSTFIX}.lib" ;;
       esac
    fi
 done
