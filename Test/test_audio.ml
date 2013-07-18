@@ -6,9 +6,9 @@ open Printf
 let ( & ) f x = f x
 
 let play_sound () =
-  let buffer = new sound_buffer in
-  let sound = new sound in
-    if buffer#load_from_file "Resources/canary.wav" 
+  let buffer = new sound_buffer `None in
+  let sound = new sound () in
+    if buffer#load_from_file "resources/canary.wav" 
     then
       begin
 	printf 
@@ -21,17 +21,17 @@ let play_sound () =
 	sound#play ;
 	while sound#get_status = Playing do
 	  sleep & Time.milliseconds 100 ;
-	  printf "\nPlaying... %f sec" & Time.as_seconds sound#get_playing_offset ;
+	  printf "\rPlaying... %f sec" & Time.as_seconds sound#get_playing_offset ;
 	  flush stdout ;
 	done ;
 	printf "\n\n" 
       end
     else
-      printf "Unable to load ./Resources/orchestral.ogg...\n"
+      printf "Unable to load ./resources/orchestral.ogg...\n"
 
 let play_music () =
-  let music = new music in
-    if music#open_from_file "Resources/orchestral.ogg" 
+  let music = new music () in
+    if music#open_from_file "resources/orchestral.ogg" 
     then
       begin
 	printf "orchestral.ogg :\n %f seconds\n %i samples / sec \n %i channels\n"
@@ -43,13 +43,13 @@ let play_music () =
 	
 	while music#get_status = Playing do
 	  sleep & Time.milliseconds 100 ;
-	  printf "\nPlaying... %f sec" & Time.as_seconds music#get_playing_offset ;
+	  printf "\rPlaying... %f sec" & Time.as_seconds music#get_playing_offset ;
 	  flush stdout;
 	done ;
 	printf "\n"
       end
     else 
-      Printf.printf "Unable to load ./Resources/orchestral.ogg...\n"
+      Printf.printf "Unable to load ./resources/orchestral.ogg...\n"
 
 let _ =
     play_sound () ;

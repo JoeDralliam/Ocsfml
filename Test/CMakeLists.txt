@@ -10,8 +10,8 @@ add_custom_target(
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_sockets.native 
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.byte
   COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/graphicClock.native
-  #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.byte
-  #	COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.native
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.byte
+  COMMAND ${OCAMLBUILD_COMMAND} -use-ocamlfind Test/test_audio.native
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 

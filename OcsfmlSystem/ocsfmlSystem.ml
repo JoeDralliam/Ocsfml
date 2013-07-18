@@ -11,13 +11,13 @@ struct
       
   let as_seconds (time : t) = (Int64.to_float time) /. 1000000.
     
-  let as_milliseconds (time : t) = (Int64.to_int time) / 1000
+  let as_milliseconds (time : t) = Int64.to_int (Int64.div time 1000L)
     
   let as_microseconds (time : t) = time
     
   let seconds s = Int64.of_float (s *. 1000000.)
     
-  let milliseconds m = Int64.of_int (m * 1000)
+  let milliseconds m = Int64.mul (Int64.of_int m)  1000L
     
   let microseconds m = m
     
