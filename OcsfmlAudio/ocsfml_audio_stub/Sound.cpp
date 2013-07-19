@@ -1,5 +1,7 @@
 #include "Sound.hpp"
 
+#include "Time.hpp"
+
 #include "SoundSource.hpp"
 #include "SoundBuffer.hpp"
 

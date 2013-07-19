@@ -1,5 +1,7 @@
 #include "SoundStream.hpp"
 
+#include "Time.hpp"
+
 #include "SoundSource.hpp"
 
 #define CAMLPP__CLASS_NAME() sf_SoundStream
