@@ -29,6 +29,8 @@ add_custom_target(
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_sockets.byte "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.native "${TESTS_INSTALL_PREFIX}/Test/"
   COMMAND ${CMAKE_COMMAND} -E copy _build/Test/graphicClock.byte "${TESTS_INSTALL_PREFIX}/Test/" 
+  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_audio.native "${TESTS_INSTALL_PREFIX}/Test/"
+  COMMAND ${CMAKE_COMMAND} -E copy _build/Test/test_audio.byte "${TESTS_INSTALL_PREFIX}/Test/" 
   COMMAND ${CMAKE_COMMAND} -E copy_directory resources "${TESTS_INSTALL_PREFIX}/Test/resources"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )

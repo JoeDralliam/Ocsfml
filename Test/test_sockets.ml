@@ -36,10 +36,8 @@ let run_tcp_server port =
       if not ((socket#receive_packet packet) = Done)
       then failwith "Coud not receive packet";
       ignore( packet >> (`String in_s) );
-      Printf.printf "Answer received from the client: \"%s\"\n" !in_s;
+      Printf.printf "Answer received from the client: \"%s\"\n" !in_s
       
-      packet#destroy  ;
-      socket#destroy 
 
 let run_tcp_client port =
   let server = get_ip_address () in
@@ -63,11 +61,7 @@ let run_tcp_client port =
   ignore( packet << (`String out) );
   if socket#send_packet packet <> Done
   then failwith "Could not send packet";
-  Printf.printf "Message sent to the server: \"%s\"\n" out;
-  
-  packet#destroy  ;
-  socket#destroy 
-
+  Printf.printf "Message sent to the server: \"%s\"\n" out
 	  
 let run_udp_server port = 
   let socket = new udp_socket in
@@ -92,11 +86,7 @@ let run_udp_server port =
   
   if socket#send_packet packet sender sender_port <> Done
   then failwith "Unable to send the packet to the client"
-  else Printf.printf "Message sent to the client: \"%s\"\n" answer ;
-  
-  packet#destroy  ;
-  socket#destroy 
-	
+  else Printf.printf "Message sent to the client: \"%s\"\n" answer	
 
 let run_udp_client port = 
   let server = get_ip_address () in
@@ -118,10 +108,7 @@ let run_udp_client port =
   if status <> Done
   then failwith "Could not receive the packet" 
   else Printf.printf "Message received from %s: \"%s\"\n" 
-    (sender#to_string ) (packet#read_string ) ;
-  
-  packet#destroy  ;
-  socket#destroy 
+    (sender#to_string ) (packet#read_string ) 
 
 let rec get_answer (q : ('a,'b,'c,'d,'e,'f) format6) a1 a2 = 
   Printf.printf q a1 a2 ; flush stdout ;
