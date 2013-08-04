@@ -49,14 +49,14 @@ struct
             let cpplib = env "%(path)/%(libname).cpplib" in
             let archive = env "%(path)/lib%(libname).lib" in
             let tags = tags_of_pathname cpplib ++ "link" ++ "static" ++ "c++" ++ compiler_name ++ os_name in
-
+			
             let dir = dirname cpplib in
             let o_files = string_list_of_file cpplib in
             List.iter Outcome.ignore_good (builder (parallel dir o_files));
 
             let obtain_spec_obj o = A (dir/o) in
             let spec_obj_list =(List.map obtain_spec_obj o_files) in
-	    Cmd(S[A "link.exe" ; A "/NOLOGO" ; A ("/OUT:" ^ archive) ; T tags; S spec_obj_list ])
+	    Cmd(S[A "lib.exe" ; A "/NOLOGO" ; A ("/OUT:" ^ archive) ; T tags; S spec_obj_list ])
           ) ;
 
     if Conf.OS.(current = Windows)
@@ -104,7 +104,7 @@ struct
 
     flag [ "compile" ; "c++" ; "msvc" ] 
       (S [A "/nologo" ; A "/MD" ; A "/EHs"]) ;
-
+    flag [ "compile" ; "c++" ; "msvc" ; "release" ] (A "/Ox") ; 
 
     flag [ "link" ; "shared" ; "linux" ] (A "-shared") ;
     flag [ "link" ; "shared" ; "mac" ] (A "-shared") ;
@@ -117,7 +117,12 @@ struct
 end
 
 
-let compiler = CppCompiler.Gcc
+let compiler = CppCompiler.MSVC
+let boostdir = 
+	try
+		Some (Sys.getenv "BOOST_ROOT")
+	with 
+		Not_found -> None
 
 let link lib =
   let open CppCompiler.Library in
@@ -232,16 +237,24 @@ let add_sfml_flags static =
     ) ["system" ; "window" ; "graphics" ; "audio" ; "network"]
 	
 
+	
 let add_other_flags () =
-  let ocaml_dir = "/usr/local/lib/ocaml" in
+  let ocaml_dir = input_line (Unix.open_process_in "ocamlc -where") in
   flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path ocaml_dir compiler)) ;
   let camlpp_dir =  "../camlpp" in
   flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path camlpp_dir compiler)) ;
 
+  (match boostdir with
+	| Some d -> flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path d compiler))
+	| _ -> () );
+
+  
   flag [ "c++" ; "compile" ; "gcc"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-stdlib=libc++") ;
-
+  flag [ "c++" ; "compile" ; "msvc"] (A "/D_VARIADIC_MAX=10") ;
+  
+  
   flag [ "c++" ; "link" ; "shared" ; "gcc"] (A "-lstdc++") ;
   flag [ "c++" ; "link" ; "shared" ; "clang"] (A "-lc++")
 

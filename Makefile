@@ -1,6 +1,6 @@
 all:plugin byte native
 
-OCAMLBUILD_CPP_PATH="/home/joedralliam/Projects/OcamlbuildCpp/_build"
+OCAMLBUILD_CPP_PATH="D:/Projects/OcamlbuildCpp/_build"
 
 plugin:
 	ocamlbuild -ocamlc "ocamlc str.cma ocamlbuildcpp.cma -I ${OCAMLBUILD_CPP_PATH}" -ocamlopt "ocamlopt str.cmxa ocamlbuildcpp.cmxa -I ${OCAMLBUILD_CPP_PATH}" -just-plugin OcsfmlSystem/ocsfmlsystem.cma
