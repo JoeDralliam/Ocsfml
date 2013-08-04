@@ -1,0 +1,8 @@
+ocsfml_audio_stub/Listener.o
+ocsfml_audio_stub/Music.o
+ocsfml_audio_stub/Sound.o
+ocsfml_audio_stub/SoundBuffer.o
+ocsfml_audio_stub/SoundBufferRecorder.o
+ocsfml_audio_stub/SoundRecorder.o
+ocsfml_audio_stub/SoundSource.o
+ocsfml_audio_stub/SoundStream.o

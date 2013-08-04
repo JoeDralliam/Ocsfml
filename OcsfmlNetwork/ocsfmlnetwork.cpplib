@@ -1,0 +1,9 @@
+ocsfml_network_stub/Ftp.o
+ocsfml_network_stub/Http.o
+ocsfml_network_stub/IpAddress.o
+ocsfml_network_stub/Packet.o
+ocsfml_network_stub/Socket.o
+ocsfml_network_stub/SocketSelector.o
+ocsfml_network_stub/TcpListener.o
+ocsfml_network_stub/TcpSocket.o
+ocsfml_network_stub/UdpSocket.o
