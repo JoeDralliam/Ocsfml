@@ -3,7 +3,7 @@ all:plugin byte native
 OCAMLBUILD_CPP_PATH="D:/Projects/OcamlbuildCpp/_build"
 
 plugin:
-	ocamlbuild -ocamlc "ocamlc str.cma ocamlbuildcpp.cma -I ${OCAMLBUILD_CPP_PATH}" -ocamlopt "ocamlopt str.cmxa ocamlbuildcpp.cmxa -I ${OCAMLBUILD_CPP_PATH}" -just-plugin OcsfmlSystem/ocsfmlsystem.cma
+	ocamlbuild -ocamlc "ocamlfind ocamlc -linkpkg -package ocamlbuildcpp" -ocamlopt "ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp" -just-plugin OcsfmlSystem/ocsfmlsystem.cma
 
 
 native:system-nat window-nat graphics-nat audio-nat network-nat
