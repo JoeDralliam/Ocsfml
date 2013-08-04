@@ -4,7 +4,7 @@ module Rule = Rule.Make (Ocamlbuild_plugin)
 open Ocamlbuild_plugin
 open Pathname
 
-let compiler = CppCompiler.MSVC
+let compiler = List.hd (CppCompiler.available ())
 let boostdir = 
 	try
 		Some (Sys.getenv "BOOST_ROOT")
