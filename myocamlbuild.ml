@@ -58,29 +58,22 @@ let add_sfml_flags static =
         (S [ link lib.system ; link lib.network ])
     end
     else begin
-      flag [ "link"; "ocaml"; "native" ; "use_libocsfmlsystem" ]
+      flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlsystem" ]
         (S [ A "-cclib" ; link lib.system ]) ;
     
-      flag [ "link"; "ocaml"; "native" ; "use_libocsfmlwindow" ]
+      flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlwindow" ]
         (S [ A "-cclib" ; link lib.system ; A "-cclib" ; link lib.window ]) ;
       
-      flag [ "link"; "ocaml"; "native" ; "use_libocsfmlgraphics" ]
+      flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlgraphics" ]
         (S [ A "-cclib" ; link lib.system ; A "-cclib" ; link lib.window ; A "-cclib" ; link lib.graphics ]) ;
       
-      flag [ "link"; "ocaml"; "native" ; "use_libocsfmlaudio" ]
+      flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlaudio" ]
         (S [ A "-cclib" ; link lib.system ; A "-cclib" ; link lib.audio ]) ;
 
-      flag [ "link"; "ocaml"; "native" ; "use_libocsfmlnetwork" ]
+      flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlnetwork" ]
         (S [ A "-cclib" ; link lib.system ; A "-cclib" ; link lib.network ])
     end
   in 
-  ( match sfml.release with
-    | Some lib -> add_flags "release" lib
-    | None -> () ) ;
-
-  ( match sfml.debug with
-    | Some lib -> add_flags "debug" lib
-    | None -> () ) ;
 
   flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path sfml.include_dir compiler)) ;
   if static then flag ["c++"; "compile"] (A "-DSFML_STATIC") ;
@@ -121,7 +114,23 @@ let add_sfml_flags static =
       dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] 
         [d^"/dllocsfml"^s^"."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
       ocaml_lib (d ^ "/ocsfml" ^ s);
-    ) ["system" ; "window" ; "graphics" ; "audio" ; "network"]
+    ) ["system" ; "window" ; "graphics" ; "audio" ; "network"] ;
+
+  ( match sfml.release with
+    | Some lib -> add_flags "release" lib
+    | None -> () ) ;
+
+  ( match sfml.debug with
+    | Some lib -> add_flags "debug" lib
+    | None -> () ) ;
+
+
+  if compiler = CppCompiler.Clang
+  then flag ["link"; "ocaml" ; "library" ] (S [A "-cclib" ; A"-lc++"])
+  else if CppCompiler.frontend compiler = CppCompiler.GccCompatible
+  then flag ["link"; "ocaml" ; "library" ] (S [A "-cclib" ;  A"-lstdc++" ])
+
+
 	
 
 	
@@ -139,13 +148,7 @@ let add_other_flags () =
   flag [ "c++" ; "compile" ; "gcc"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-stdlib=libc++") ;
-  flag [ "c++" ; "compile" ; "msvc"] (A "/D_VARIADIC_MAX=10") ;
-  
-  
-  flag [ "c++" ; "link" ; "shared" ; "gcc"] (A "-lstdc++") ;
-  flag [ "c++" ; "link" ; "shared" ; "clang"] (A "-lc++")
-
-
+  flag [ "c++" ; "compile" ; "msvc"] (A "/D_VARIADIC_MAX=10")
   
 
 let _ = dispatch (function
