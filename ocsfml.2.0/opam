@@ -8,4 +8,4 @@ build: [
 remove: [
         [make "uninstall"]
 ]
-depends: ["ocamlfind"]
+depends: ["ocamlfind", "ocamlbuildcpp"]
