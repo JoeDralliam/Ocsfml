@@ -1,0 +1,8 @@
+all:ThreadCallback
+
+ThreadCallback:ThreadCallback.obj
+	ocamlfind ocamlopt -thread -linkpkg -package 'threads' threadCallback.ml ThreadCallbackStubs.obj -o ThreadCallback
+
+ThreadCallback.obj:
+	cl /MD /I ../.. /I C:/ocamlmgw/lib /I "C:/Program Files (x86)/boost/boost_1_47" /c ThreadCallbackStubs.cpp
+

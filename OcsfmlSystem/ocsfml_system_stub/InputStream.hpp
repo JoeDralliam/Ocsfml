@@ -12,6 +12,8 @@ extern "C"
 
 #include <SFML/System/InputStream.hpp>
 
+#include "RawDataType.hpp"
+
 class CamlInputStream : public sf::InputStream
 {
   std::unique_ptr<value> inputStreamInst_;
@@ -35,15 +37,21 @@ public:
   virtual sf::Int64 read(void* data, sf::Int64 size)
   {
     CAMLparam0();
-    CAMLlocal1( res );
-    res = callback2( caml_get_public_method(*inputStreamInst_, 
-					    hash_variant("read") ), 
-		     *inputStreamInst_, 
-		     Val_int( size ) );
-    camlpp::conversion_management< std::pair<char*, sf::Int64> > cm;
-    auto tup = cm.from_value( res );
-    std::memcpy( data, tup.first, tup.second );
-    CAMLreturnT(sf::Int64, tup.second);
+    CAMLlocal1(buffer);
+    camlpp::affectation_management< RawDataType > am;
+
+
+    intnat data_dim[] = { size };
+    RawDataType data_ba(data, data_dim);
+
+    am.affect(buffer, data_ba);
+    sf::Int64 res = 
+      Int_val( callback3( caml_get_public_method(*inputStreamInst_, 
+						 hash_variant("read") ), 
+			  *inputStreamInst_,
+			  buffer,
+			  Val_int( size ) ) );
+    CAMLreturnT(sf::Int64, res);
   }
   
   virtual sf::Int64 seek(sf::Int64 position)

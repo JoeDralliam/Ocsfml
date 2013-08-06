@@ -21,7 +21,7 @@ namespace camlpp
     template<>
     struct big_array_integer_traits< void >
     {
-      enum { mask_value = BIGARRAY_SINT8 };
+      enum { mask_value = BIGARRAY_UINT8 };
     };
 
     template<>
