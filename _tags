@@ -1,7 +1,7 @@
 <OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <OcsfmlNetwork> or <Test> : include
 
 <Ocsfml*/*.cpplib> : release
-<Ocsfml*/*.cmxa> : release
+<Ocsfml*/*.cm{x,}a> : release
 <Ocsfml*/ocsfml_*_stub/*.cpp> : release
 
 <OcsfmlSystem/ocsfml_system_stub/*.cpp> : include_sfml_system

@@ -1,7 +1,5 @@
 all:plugin byte native
 
-OCAMLBUILD_CPP_PATH="D:/Projects/OcamlbuildCpp/_build"
-
 plugin:
 	ocamlbuild -ocamlc "ocamlfind ocamlc -linkpkg -package ocamlbuildcpp" -ocamlopt "ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp" -just-plugin OcsfmlSystem/ocsfmlsystem.cma
 
@@ -57,15 +55,15 @@ clean:
 	ocamlbuild -clean
 
 examples:
-	ocamlbuild -use-ocamlfind Test/test_clock.byte
+	ocamlbuild -use-ocamlfind -lflag -custom Test/test_clock.byte
 	ocamlbuild -use-ocamlfind Test/test_clock.native
-	ocamlbuild -use-ocamlfind Test/test_pong.byte
+	ocamlbuild -use-ocamlfind -lflag -custom Test/test_pong.byte
 	ocamlbuild -use-ocamlfind Test/test_pong.native
-	ocamlbuild -use-ocamlfind Test/test_shader.byte
+	ocamlbuild -use-ocamlfind -lflag -custom Test/test_shader.byte
 	ocamlbuild -use-ocamlfind Test/test_shader.native 
-	ocamlbuild -use-ocamlfind Test/test_sockets.byte
+	ocamlbuild -use-ocamlfind -lflag -custom Test/test_sockets.byte
 	ocamlbuild -use-ocamlfind Test/test_sockets.native 
-	ocamlbuild -use-ocamlfind Test/graphicClock.byte
+	ocamlbuild -use-ocamlfind -lflag -custom Test/graphicClock.byte
 	ocamlbuild -use-ocamlfind Test/graphicClock.native
 
 .PHONY:install uninstall

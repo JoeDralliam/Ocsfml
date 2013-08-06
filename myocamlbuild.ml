@@ -40,7 +40,7 @@ let add_sfml_flags static =
       (S [ link lib.system ; link lib.network ]) ;
 
 
-    if static || Conf.OS.(current = Windows)
+    if static || compiler = CppCompiler.MSVC
     then begin
       flag [ "link" ; "static" ; "c++" ; compilation_mode ; "use_libsfml_system" ]
         (S [ link lib.system ]) ;
@@ -58,7 +58,7 @@ let add_sfml_flags static =
         (S [ link lib.system ; link lib.network ])
     end
     else begin
-      flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlsystem" ]
+      flag [ "link"; "ocaml" ; compilation_mode ; "use_libocsfmlsystem" ]
         (S [ A "-cclib" ; link lib.system ]) ;
     
       flag [ "link"; "ocaml"; "native" ; compilation_mode ; "use_libocsfmlwindow" ]
@@ -105,7 +105,7 @@ let add_sfml_flags static =
       flag ["link"; "ocaml"; "byte"; "use_libocsfml"^s]
 	(S [A "-dllib" ; A("-locsfml"^s)]) ;
       
-      flag ["link"; "ocaml"; "native"; "use_libocsfml"^s]
+      flag ["link"; "ocaml"; "use_libocsfml"^s]
 	(S [A "-cclib" ;  A("-locsfml"^s) ]) ;
 
       let d = Printf.sprintf "Ocsfml%s" (String.capitalize s) in
@@ -129,8 +129,6 @@ let add_sfml_flags static =
   then flag ["link"; "ocaml" ; "library" ] (S [A "-cclib" ; A"-lc++"])
   else if CppCompiler.frontend compiler = CppCompiler.GccCompatible
   then flag ["link"; "ocaml" ; "library" ] (S [A "-cclib" ;  A"-lstdc++" ])
-
-
 	
 
 	
@@ -146,6 +144,7 @@ let add_other_flags () =
 
   
   flag [ "c++" ; "compile" ; "gcc"] (A "-std=c++0x") ;
+  flag [ "c++" ; "compile" ; "mingw"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-stdlib=libc++") ;
   flag [ "c++" ; "compile" ; "msvc"] (A "/D_VARIADIC_MAX=10")
