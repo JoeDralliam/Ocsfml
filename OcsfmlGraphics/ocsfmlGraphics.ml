@@ -510,7 +510,6 @@ class image tag =
       | _ -> Image.default ()
   in image_init tag t
   
-external get_maximum_size : unit -> int = "Texture_getMaximumSize__impl"
 
 module Texture =
 struct
@@ -647,7 +646,14 @@ class texture ?rect tag =
   in texture_init ?rect tag t
 
 
-external bind : ?texture:texture -> ?cordinate_type:int -> unit -> unit = "Texture_bind__impl"
+module CoordinateType =
+struct
+  type t = Normalized | Pixels
+end
+
+external get_maximum_texture_size : unit -> int = "Texture_getMaximumSize__impl"
+
+external bind_texture : ?texture:texture -> ?cordinate_type:CoordinateType.t -> unit -> unit = "Texture_bind__impl"
 
 type glyph = { advance : int; bounds : int rect; texture_rect : int rect }
 

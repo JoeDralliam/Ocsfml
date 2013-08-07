@@ -29,8 +29,10 @@ extern "C"
 #include <caml/threads.h>
 }
 
+
 #undef flush
 
+#include <SFML/System/Thread.hpp>
 
 std::function<void()>& gF()
 {
@@ -38,9 +40,9 @@ std::function<void()>& gF()
   return impl;
 }
 
-std::unique_ptr<std::thread>& t()
+std::unique_ptr<sf::Thread>& t()
 {
-  static std::unique_ptr<std::thread> impl;
+  static std::unique_ptr<sf::Thread> impl;
   return impl;
 }
 
@@ -70,13 +72,14 @@ void test1(std::function<void()> f)
 
 void test2(std::function<void()> f)
 {
-  t().reset(new std::thread(fil, f));
+  t().reset(new sf::Thread(fil, f));
+  t()->launch();
 }
 
 void test2bis()
 {
   caml_release_runtime_system() ;
-  t()->join();
+  t()->wait();
   t().reset();
   caml_acquire_runtime_system() ;
 }

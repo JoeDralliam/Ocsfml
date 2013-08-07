@@ -711,18 +711,11 @@ end
 
 
 
-(** Get the maximum texture size allowed.
 
-    This maximum size is defined by the graphics driver. You can
-    expect a value of 512 pixels for low-end graphics card, and up to
-    8192 pixels or more for newer hardware.
 
-    @return Maximum size allowed for textures, in pixels. *)
-val get_maximum_size : unit -> int
-
-(**/**)
 module Texture :
 sig
+  (**/**)
   type t
   val destroy : t -> unit
   val default : unit -> t
@@ -742,8 +735,9 @@ sig
   val is_smooth : t -> bool
   val set_repeated : t -> bool -> unit
   val is_repeated : t -> bool
-end
   (**/**)
+end
+
 
 class const_texture :
   [ `Copy of < rep__sf_Texture : Texture.t ; .. >
@@ -767,7 +761,9 @@ object
   method rep__sf_Texture : Texture.t
     (**/**)
 end
-  
+
+
+
 (** Image living on the graphics card that can be used for drawing.
     
     texture stores pixels that can be drawn, with a sprite for
@@ -879,7 +875,7 @@ object
       image, it is adjusted to fit the image size.
       
       The maximum size for a texture depends on the graphics driver
-      and can be retrieved with the get_maximum_size function.
+      and can be retrieved with the {!get_maximum_texture_size} function.
       
       If this function fails, the texture is left unchanged.
       @param rect Area of the image to load.
@@ -897,7 +893,7 @@ object
       image, it is adjusted to fit the image size.
       
       The maximum size for a texture depends on the graphics driver
-      and can be retrieved with the get_maximum_size function.
+      and can be retrieved with the {!get_maximum_texture_size} function.
       
       If this function fails, the texture is left unchanged. 
       @param rect Area of the image to load.
@@ -969,8 +965,14 @@ object
   method update_from_window : ?coords:int * int -> #OcsfmlWindow.window -> unit
 end
 
-  (** Activate the texture for rendering.
-      
+
+module CoordinateType :
+sig
+  type t = Normalized | Pixels
+end
+
+(** Activate the texture for rendering.
+    
       This function is mainly used internally by the SFML rendering
       system. However it can be useful when using sf::Texture together
       with OpenGL code (this function is equivalent to glBindTexture).
@@ -983,8 +985,16 @@ end
       graphics classes of SFML, it makes the definition of texture
       coordinates more intuitive for the high-level API, users don't
       need to compute normalized values. *)
-val bind : ?texture:texture -> ?cordinate_type:int -> unit -> unit
+val bind_texture : ?texture:texture -> ?cordinate_type:CoordinateType.t -> unit -> unit
 
+(** Get the maximum texture size allowed.
+    
+      This maximum size is defined by the graphics driver. You can
+      expect a value of 512 pixels for low-end graphics card, and up to
+      8192 pixels or more for newer hardware.
+    
+      @return Maximum size allowed for textures, in pixels. *)
+val get_maximum_texture_size : unit -> int
 
 (** Structure describing a glyph.
     

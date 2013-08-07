@@ -63,7 +63,13 @@ examples:
 	ocamlbuild -use-ocamlfind Test/test_shader.native 
 	ocamlbuild -use-ocamlfind -lflag -custom Test/test_sockets.byte
 	ocamlbuild -use-ocamlfind Test/test_sockets.native 
+	ocamlbuild -use-ocamlfind -lflag -custom Test/test_audio.byte
+	ocamlbuild -use-ocamlfind Test/test_audio.native 
 	ocamlbuild -use-ocamlfind -lflag -custom Test/graphicClock.byte
 	ocamlbuild -use-ocamlfind Test/graphicClock.native
+
+
+doc:
+	ocamlbuild -use-ocamlfind ocsfml.docdir/index.html
 
 .PHONY:install uninstall

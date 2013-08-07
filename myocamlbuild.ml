@@ -77,8 +77,8 @@ let add_sfml_flags static =
 
   flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path sfml.include_dir compiler)) ;
   if static then flag ["c++"; "compile"] (A "-DSFML_STATIC") ;
- 
- let stub_dir s =
+  
+  let stub_dir s =
     Printf.sprintf "../Ocsfml%s/ocsfml_%s_stub" (String.capitalize s) s
   in
   let add_path modname = 
