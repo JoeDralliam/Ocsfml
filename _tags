@@ -1,30 +1,30 @@
 <OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <OcsfmlNetwork> or <Test> : include
 
 <Ocsfml*/libocsfml*.{a,lib}> : release
-<Ocsfml*/*.cm{x,}a> : release
+<Ocsfml*/*.cm{x,}a> : release, ocamlmklib
 <Ocsfml*/ocsfml_*_stub/*.cpp> : release
 
 <OcsfmlSystem/ocsfml_system_stub/*.cpp> : include_sfml_system
-"OcsfmlSystem/libocsfmlsystem.{a,lib}" : use_libsfml_system
+<OcsfmlSystem/libocsfmlsystem.{a,lib}> : use_libsfml_system
 <OcsfmlSystem/*.cm{x,}a> : use_libsfml_system, use_libocsfmlsystem
 
 
 <OcsfmlWindow/ocsfml_window_stub/*.cpp> : include_sfml_window
-"OcsfmlWindow/libocsfmlwindow.{a,lib}" : use_libsfml_window
+<OcsfmlWindow/libocsfmlwindow.{a,lib}> : use_libsfml_window
 <OcsfmlWindow/*.cm{x,}a> : use_libsfml_window, use_libocsfmlwindow
 
 
 <OcsfmlGraphics/ocsfml_graphics_stub/*.cpp> : include_sfml_graphics
-"OcsfmlGraphics/libocsfmlgraphics.{a,lib}" : use_libsfml_graphics
+<OcsfmlGraphics/libocsfmlgraphics.{a,lib}> : use_libsfml_graphics
 <OcsfmlGraphics/*.cm{x,}a> : use_libsfml_graphics, use_libocsfmlgraphics
 
 
 <OcsfmlAudio/ocsfml_audio_stub/*.cpp> : include_sfml_audio
-"OcsfmlAudio/libocsfmlaudio.{a,lib}" : use_libsfml_audio
+<OcsfmlAudio/libocsfmlaudio.{a,lib}> : use_libsfml_audio
 <OcsfmlAudio/*.cm{x,}a> : use_libsfml_audio, use_libocsfmlaudio
 
 <OcsfmlNetwork/ocsfml_network_stub/*.cpp> : include_sfml_network
-"OcsfmlNetwork/libocsfmlnetwork.{a,lib}" : use_libsfml_network
+<OcsfmlNetwork/libocsfmlnetwork.{a,lib}> : use_libsfml_network
 <OcsfmlNetwork/*.cm{x,}a> : use_libsfml_network, use_libocsfmlnetwork
 
 
