@@ -11,18 +11,20 @@ let boostdir =
   with 
     Not_found -> None
     
-let link_one lib =
+let link_one to_c lib =
   let open CppCompiler.Library in
   match lib with
   | Library filename -> ( 
       match soname filename with
       | Some name -> A ("-l" ^ name)
-      | None -> A filename
+      | None -> 
+          if to_c then A filename
+          else S []
     )
   | Framework (path, name) -> S [A "-F" ; A path ; A "-framework" ; A name]
                                 
-let link libs =
-  S (List.map link_one libs)
+let link to_c libs =
+  S (List.map (link_one to_c) libs)
     
 let link_one_ocaml_native lib =
   let open CppCompiler.Library in
@@ -52,12 +54,19 @@ let add_sfml_flags static =
   let sfml = find ~static compiler modules in
   
   let add_flags compilation_mode lib =
-    flag [ "ocamlmklib" ; compilation_mode ; "use_libsfml_system" ] & link [lib.system] ;
-    flag [ "ocamlmklib" ; compilation_mode ; "use_libsfml_window" ] & link [lib.system ; lib.window] ;
-    flag [ "ocamlmklib" ; compilation_mode ; "use_libsfml_graphics" ] & link [lib.system ; lib.window ; lib.graphics] ;
-    flag [ "ocamlmklib" ; compilation_mode ; "use_libsfml_audio" ] & link [lib.system ; lib.audio ] ;
-    flag [ "ocamlmklib" ; compilation_mode ; "use_libsfml_network" ] & link [lib.system ; lib.network ]
-    
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_system" ] & link true [lib.system] ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_window" ] & link true [lib.system ; lib.window] ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_graphics" ] & link true [lib.system ; lib.window ; lib.graphics] ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_audio" ] & link true [lib.system ; lib.audio ] ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_network" ] & link true [lib.system ; lib.network ] ;
+
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_system" ] & link false [lib.system] ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_window" ] & link false [lib.system ; lib.window] ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_graphics" ] & link false [lib.system ; lib.window ; lib.graphics] ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_audio" ] & link false [lib.system ; lib.audio ] ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_network" ] & link false [lib.system ; lib.network ]
+
+
 (*
     flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_system" ] & link_ocaml_native [lib.system] ;
     flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_window" ] & link_ocaml_native [lib.system ; lib.window] ;
@@ -101,14 +110,19 @@ let add_sfml_flags static =
   
 
   List.iter (fun s ->
+		 (*
+      flag ["link"; "ocaml"; "use_libocsfml"^s]
+        (S [ A("-LOcsfml" ^ String.capitalize s) ]) ;
+
       flag ["link"; "ocaml"; "use_libocsfml"^s]
         (S [ A("-locsfml"^s) ]) ;
-
+*)
       let d = Printf.sprintf "Ocsfml%s" (String.capitalize s) in
       dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] 
         [d^"/libocsfml"^s^"."^(CppCompiler.Library.caml_static_extension compiler)] ;
       dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] 
         [d^"/dllocsfml"^s^"."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
+
       ocaml_lib (d ^ "/ocsfml" ^ s);
     ) ["system" ; "window" ; "graphics" ; "audio" ; "network"] ;
 

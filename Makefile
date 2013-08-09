@@ -1,7 +1,7 @@
 all:plugin byte native
 
 plugin:
-	ocamlbuild -ocamlc "ocamlfind ocamlc -linkpkg -package ocamlbuildcpp" -ocamlopt "ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp" -just-plugin OcsfmlSystem/ocsfmlsystem.cma
+	ocamlbuild -ocamlc "ocamlfind ocamlc -linkpkg -package ocamlbuildcpp" -ocamlopt "ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp" -just-plugin
 
 
 native:system-nat window-nat graphics-nat audio-nat network-nat
