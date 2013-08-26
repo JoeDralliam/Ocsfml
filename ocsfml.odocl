@@ -1,5 +1,5 @@
-OcsfmlSystem
-OcsfmlWindow
-OcsfmlGraphics
-OcsfmlAudio
-OcsfmlNetwork
+OcsfmlSystem/OcsfmlSystem
+OcsfmlWindow/OcsfmlWindow
+OcsfmlGraphics/OcsfmlGraphics
+OcsfmlAudio/OcsfmlAudio
+OcsfmlNetwork/OcsfmlNetwork

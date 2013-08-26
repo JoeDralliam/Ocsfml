@@ -1,26 +1,34 @@
-all:plugin byte native
+all:plugin-hack byte native
+
+plugin-hack:
+	(mkdir _build &> /dev/null) && \
+	cp myocamlbuild.ml _build/myocamlbuild.ml && \
+	cd _build && \
+	ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp -package ocamlbuild myocamlbuild.ml /home/joedralliam/.opam/4.02.0dev+trunk/lib/ocaml/ocamlbuild/ocamlbuild.cmx -o myocamlbuild && \
+	cd ..
+
 
 plugin:
-	ocamlbuild -ocamlc "ocamlfind ocamlc -linkpkg -package ocamlbuildcpp" -ocamlopt "ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp" -just-plugin
+	ocamlbuild -classic-display -verbose 10 -plugin-tag "package(ocamlbuildcpp)" -just-plugin
 
 
 native:system-nat window-nat graphics-nat audio-nat network-nat
 
 
 system-nat:
-	ocamlbuild -use-ocamlfind ocsfmlsystem.cmxa
+	ocamlbuild OcsfmlSystem/ocsfmlsystem.cmxa
 
 window-nat:
-	ocamlbuild -use-ocamlfind ocsfmlwindow.cmxa
+	ocamlbuild OcsfmlWindow/ocsfmlwindow.cmxa
 
 graphics-nat:
-	ocamlbuild -use-ocamlfind ocsfmlgraphics.cmxa
+	ocamlbuild OcsfmlGraphics/ocsfmlgraphics.cmxa
 
 audio-nat:
-	ocamlbuild -use-ocamlfind ocsfmlaudio.cmxa
+	ocamlbuild OcsfmlAudio/ocsfmlaudio.cmxa
 
 network-nat:
-	ocamlbuild -use-ocamlfind ocsfmlnetwork.cmxa
+	ocamlbuild OcsfmlNetwork/ocsfmlnetwork.cmxa
 
 
 
@@ -28,19 +36,19 @@ byte:system-byte window-byte graphics-byte audio-byte network-byte
 
 
 system-byte:
-	ocamlbuild -use-ocamlfind ocsfmlsystem.cma
+	ocamlbuild OcsfmlSystem/ocsfmlsystem.cma
 
 window-byte:
-	ocamlbuild -use-ocamlfind ocsfmlwindow.cma
+	ocamlbuild OcsfmlWindow/ocsfmlwindow.cma
 
 graphics-byte:
-	ocamlbuild -use-ocamlfind ocsfmlgraphics.cma
+	ocamlbuild OcsfmlGraphics/ocsfmlgraphics.cma
 
 audio-byte:
-	ocamlbuild -use-ocamlfind ocsfmlaudio.cma
+	ocamlbuild OcsfmlAudio/ocsfmlaudio.cma
 
 network-byte:
-	ocamlbuild -use-ocamlfind ocsfmlnetwork.cma
+	ocamlbuild OcsfmlNetwork/ocsfmlnetwork.cma
 
 
 
@@ -69,7 +77,7 @@ examples:
 	ocamlbuild -use-ocamlfind Test/graphicClock.native
 
 
-doc:
+doc:plugin-hack
 	ocamlbuild -use-ocamlfind ocsfml.docdir/index.html
 
 .PHONY:install uninstall

@@ -1,4 +1,4 @@
-<OcsfmlSystem> or <OcsfmlWindow> or <OcsfmlGraphics> or <OcsfmlAudio> or <OcsfmlNetwork> or <Test> : include
+<OcsfmlSystem> or <OcsfmlWindow> : include
 
 <Ocsfml*/libocsfml*.{a,lib}> : release
 <Ocsfml*/*.cm{x,}a> : release, ocamlmklib

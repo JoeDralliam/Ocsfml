@@ -1,6 +1,3 @@
-
-module Rule = Rule.Make (Ocamlbuild_plugin)
-    
 open Ocamlbuild_plugin
 open Pathname
   
@@ -26,45 +23,29 @@ let link_one to_c lib =
 let link to_c libs =
   S (List.map (link_one to_c) libs)
     
-let link_one_ocaml_native lib =
-  let open CppCompiler.Library in
-  match lib with
-  | Library filename -> S [A "-cclib" ; A filename]
-  | Framework (path, name) -> S [A "-ccopt" ; A "-F" ; A "-ccopt" ; A path ; 
-                                 A "-ccopt" ; A "-framework" ; A "-ccopt" ; A name]
-                                
-let link_one_ocaml_byte lib =
-  let open CppCompiler.Library in
-  match lib with
-  | Library filename -> S [A "-cclib" ; A filename ; A "-dllib" ; A filename]
-  | Framework (path, name) -> S [A "-ccopt" ; A "-F" ; A "-ccopt" ; A path ; 
-                                 A "-ccopt" ; A "-framework" ; A "-ccopt" ; A name]
-                                
-
-let link_ocaml_native libs =
-  S (List.map link_one_ocaml_native libs)
-    
-                                
-let link_ocaml_byte libs =
-  S (List.map link_one_ocaml_byte libs)
     
 let add_sfml_flags static = 
   let open FindSfml in
-  let modules = [System ; Window ; Graphics ; Audio ; Network] in
-  let sfml = find ~static compiler modules in
+  let modules = SfmlConfiguration.([System ; Window ; Graphics ; Audio ; Network]) in
+  let sfml = Sfml.find ~static compiler modules in
   
-  let add_flags compilation_mode lib =
-    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_system" ] & link true [lib.system] ;
-    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_window" ] & link true [lib.system ; lib.window] ;
-    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_graphics" ] & link true [lib.system ; lib.window ; lib.graphics] ;
-    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_audio" ] & link true [lib.system ; lib.audio ] ;
-    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_network" ] & link true [lib.system ; lib.network ] ;
+  let libs_of_components lib =
+    List.map (fun cp -> Sfml.LibraryMap.find cp lib)
+  in
 
-    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_system" ] & link false [lib.system] ;
-    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_window" ] & link false [lib.system ; lib.window] ;
-    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_graphics" ] & link false [lib.system ; lib.window ; lib.graphics] ;
-    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_audio" ] & link false [lib.system ; lib.audio ] ;
-    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_network" ] & link false [lib.system ; lib.network ]
+  let add_flags compilation_mode lib =
+    let open SfmlConfiguration in
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_system" ] & link true (libs_of_components lib [System]) ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_window" ] & link true (libs_of_components lib [System ; Window]);
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_graphics" ] & link true (libs_of_components lib [System ; Window ; Graphics]) ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_audio" ] & link true (libs_of_components lib [System ; Audio ]) ;
+    flag [ "ocamlmklib" ; "c" ; compilation_mode ; "use_libsfml_network" ] & link true (libs_of_components lib [System ; Network ]) ;
+
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_system" ] & link false (libs_of_components lib [System]) ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_window" ] & link false (libs_of_components lib [System ; Window]) ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_graphics" ] & link false (libs_of_components lib [System ; Window ; Graphics]) ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_audio" ] & link false (libs_of_components lib [System ; Audio ]) ;
+    flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_network" ] & link false (libs_of_components lib [System ; Network ])
 
 
 (*
@@ -83,7 +64,7 @@ let add_sfml_flags static =
   in
   
   
-  flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path sfml.include_dir compiler)) ;
+  flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path sfml.Sfml.includedir compiler)) ;
   if static then flag ["c++"; "compile"] (A "-DSFML_STATIC") ;
   
   let stub_dir s =
@@ -121,18 +102,12 @@ let add_sfml_flags static =
       dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] 
         [d^"/libocsfml"^s^"."^(CppCompiler.Library.caml_static_extension compiler)] ;
       dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] 
-        [d^"/dllocsfml"^s^"."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
+        [d^"/dllocsfml"^s^".."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
 
       ocaml_lib (d ^ "/ocsfml" ^ s);
     ) ["system" ; "window" ; "graphics" ; "audio" ; "network"] ;
 
-  ( match sfml.release with
-    | Some lib -> add_flags "release" lib
-    | None -> () ) ;
-
-  ( match sfml.debug with
-    | Some lib -> add_flags "debug" lib
-    | None -> () ) ;
+  add_flags "release" sfml.Sfml.library ;
   
 
   if compiler = CppCompiler.Clang
@@ -146,6 +121,10 @@ let add_sfml_flags static =
   
 
 let add_other_flags () =
+  let open FindBoost.Boost in
+  let boost = find compiler [] in
+  flag [ "c++" ; "compile"] (A (CppCompiler.BuildFlags.add_include_path boost.FindBoost.Boost.includedir compiler)) ;
+
   let ocaml_dir = input_line (Unix.open_process_in "ocamlc -where") in
   flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path ocaml_dir compiler)) ;
   let camlpp_dir =  "../camlpp" in
@@ -169,7 +148,9 @@ let _ = dispatch (function
       Rule.add_cpp_common_tags () ;
 
       add_sfml_flags false ;
-      add_other_flags () ;
-    | After_rules -> ()
+      add_other_flags ()
+    | After_rules -> 
+      flag ["ocaml"; "doc" ; "colorize_code"] & A "-colorize-code" ;
+      flag ["ocaml"; "doc" ; "custom_intro"] & S [ A "-intro" ; A "../Documentation/intro.camldoc" ]
     | _ -> ()
   )
