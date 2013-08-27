@@ -102,7 +102,7 @@ let add_sfml_flags static =
       dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] 
         [d^"/libocsfml"^s^"."^(CppCompiler.Library.caml_static_extension compiler)] ;
       dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] 
-        [d^"/dllocsfml"^s^".."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
+        [d^"/dllocsfml"^s^"."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
 
       ocaml_lib (d ^ "/ocsfml" ^ s);
     ) ["system" ; "window" ; "graphics" ; "audio" ; "network"] ;
