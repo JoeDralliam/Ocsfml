@@ -64,7 +64,7 @@ uninstall:
 
 clean:
 	$(OCAMLBUILD) -clean
-x
+
 doc:plugin-hack
 	$(OCAMLBUILD) -use-ocamlfind ocsfml.docdir/index.html
 
