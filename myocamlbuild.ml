@@ -1,7 +1,7 @@
 open Ocamlbuild_plugin
 open Pathname
   
-let compiler = List.hd (CppCompiler.available ()) ;;
+let compiler = CppCompiler.Clang ;;
 let boostdir = 
   try
     Some (Sys.getenv "BOOST_ROOT")
@@ -18,7 +18,7 @@ let link_one to_c lib =
           if to_c then A filename
           else S []
     )
-  | Framework (path, name) -> S [A "-F" ; A path ; A "-framework" ; A name]
+  | Framework (path, name) -> S [A ("-F" ^ path) ; A "-framework" ; A name]
                                 
 let link to_c libs =
   S (List.map (link_one to_c) libs)
