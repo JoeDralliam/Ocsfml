@@ -28,11 +28,4 @@
 <OcsfmlNetwork/*.cm{x,}a> : use_libsfml_network, use_libocsfmlnetwork
 
 
-<Test/test_clock.{{d.n,}byte,native}> : package( ocsfml.system )
-<Test/test_audio.{{d.,}byte,native}> : package( ocsfml.audio )
-<Test/test_pong.{{d.,}byte,native}> : package( ocsfml.graphics ), package( ocsfml.audio )
-<Test/test_shader.{{d.,}byte,native}> : package( ocsfml.graphics )
-<Test/test_sockets.{{d.,}byte,native}> : package( ocsfml.network )
-<Test/graphicClock.{{d.,}byte,native}> : package( ocsfml.graphics ), package( unix )
-
 <ocsfml.docdir/index.html> : colorize_code, custom_intro

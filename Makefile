@@ -4,7 +4,7 @@ OCAMLBUILD_DIR=$(shell ocamlbuild -where)
 all:plugin-hack byte native
 
 plugin-hack:
-	(mkdir _build &> /dev/null) && \
+	(mkdir _build &> /dev/null) ; \
 	cp myocamlbuild.ml _build/myocamlbuild.ml && \
 	cd _build && \
 	ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp -package ocamlbuild myocamlbuild.ml $(OCAMLBUILD_DIR)/ocamlbuild.cmx -o myocamlbuild && \
@@ -64,22 +64,7 @@ uninstall:
 
 clean:
 	$(OCAMLBUILD) -clean
-
-examples:
-	$(OCAMLBUILD) -lflag -custom Test/test_clock.byte
-	$(OCAMLBUILD) Test/test_clock.native
-	$(OCAMLBUILD) -lflag -custom Test/test_pong.byte
-	$(OCAMLBUILD) Test/test_pong.native
-	$(OCAMLBUILD) -lflag -custom Test/test_shader.byte
-	$(OCAMLBUILD) Test/test_shader.native 
-	$(OCAMLBUILD) -lflag -custom Test/test_sockets.byte
-	$(OCAMLBUILD) Test/test_sockets.native 
-	$(OCAMLBUILD) -lflag -custom Test/test_audio.byte
-	$(OCAMLBUILD) Test/test_audio.native 
-	$(OCAMLBUILD) -lflag -custom Test/graphicClock.byte
-	$(OCAMLBUILD) Test/graphicClock.native
-
-
+x
 doc:plugin-hack
 	$(OCAMLBUILD) -use-ocamlfind ocsfml.docdir/index.html
 

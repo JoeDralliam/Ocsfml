@@ -258,27 +258,27 @@ struct
     
 end
   
-type context_settings =
-    { 
-      depth_bits        : int; 
-      stencil_bits      : int; 
-      antialising_level : int;
-      major_version     : int;
-      minor_version     : int
-    }
-
-(* FIXME : add default values and check input values *)
-let mk_context_settings ?(depth_bits=0) ?(stencil_bits=0) ?(antialising_level=0)
-    ?(major_version=2) ?(minor_version=0) () =
-  {
-    depth_bits = depth_bits;
-    stencil_bits = stencil_bits;
-    antialising_level = antialising_level;
-    major_version = major_version;
-    minor_version = minor_version;
+module ContextSettings =
+struct
+  type t = { 
+    depth_bits        : int; 
+    stencil_bits      : int; 
+    antialising_level : int;
+    major_version     : int;
+    minor_version     : int
   }
-    
 
+  let create ?(depth_bits=0) ?(stencil_bits=0) ?(antialising_level=0)
+      ?(major_version=2) ?(minor_version=0) () =
+    {
+      depth_bits = depth_bits;
+      stencil_bits = stencil_bits;
+      antialising_level = antialising_level;
+      major_version = major_version;
+      minor_version = minor_version;
+    }
+end
+  
 module WindowBase =
 struct
   type style = | Titlebar | Resize | Close | Fullscreen
@@ -291,13 +291,13 @@ struct
       
   external create_init :
     ?style: (style list) ->
-    ?context: context_settings -> VideoMode.t -> string -> t =
+    ?context: ContextSettings.t -> VideoMode.t -> string -> t =
       "sf_Window_constructor_create__impl"
 	
   external create :
     t ->
     ?style: (style list) ->
-    ?context: context_settings -> VideoMode.t -> string -> unit =
+    ?context: ContextSettings.t -> VideoMode.t -> string -> unit =
       "sf_Window_create__impl"
 	
   external close : t -> unit = "sf_Window_close__impl"
@@ -308,7 +308,7 @@ struct
       
   external get_position : t -> (int * int) = "sf_Window_getPosition__impl"
       
-  external get_settings : t -> context_settings =
+  external get_settings : t -> ContextSettings.t =
       "sf_Window_getSettings__impl"
 	
   external poll_event : t -> Event.t option = "sf_Window_pollEvent__impl"
@@ -356,7 +356,7 @@ object ((self : 'self))
   method destroy = WindowBase.destroy t_window_base
   method create :
     ?style: (WindowBase.style list) ->
-    ?context: context_settings -> VideoMode.t -> string -> unit =
+    ?context: ContextSettings.t -> VideoMode.t -> string -> unit =
     fun ?style ?context p1 p2 ->
       WindowBase.create t_window_base ?style ?context p1 p2
   method close : unit = WindowBase.close t_window_base
@@ -365,7 +365,7 @@ object ((self : 'self))
   method get_width = fst self#get_size
   method get_height = snd self#get_size
   method get_position : (int * int) = WindowBase.get_position t_window_base
-  method get_settings : context_settings =
+  method get_settings : ContextSettings.t =
     WindowBase.get_settings t_window_base
   method poll_event : Event.t option = WindowBase.poll_event t_window_base
   method wait_event : Event.t option = WindowBase.wait_event t_window_base

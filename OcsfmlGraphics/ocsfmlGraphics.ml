@@ -7,7 +7,8 @@ let do_if f = function | Some x -> f x | None -> ()
 let get_if f = function | Some x -> Some (f x) | None -> None
 
   
-type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a }
+
+
 
 module type RECT_VAL =
 sig type t
@@ -18,6 +19,9 @@ end
   
 module Rect (M : RECT_VAL) =
 struct
+  type 'a rect = { left : 'a ; top : 'a ; width : 'a ; height : 'a }
+  type t = M.t rect
+
   let create ?(position=(M.zero,M.zero)) ?(size=(M.zero,M.zero)) () =
     { left = fst position ; top = snd position ; width = fst size; height = snd size }
 
@@ -108,7 +112,10 @@ struct
   end
 end
   
-type blend_mode = | BlendAlpha | BlendAdd | BlendMultiply | BlendNone
+module BlendMode = 
+struct
+  type t = BlendAlpha | BlendAdd | BlendMultiply | BlendNone
+end
 
 module Transform =
 struct
@@ -137,7 +144,7 @@ struct
   external transform_point_v : t -> (float * float) -> (float * float) =
 	    "sf_Transform_transformPointV__impl"
 	      
-  external transform_rect : t -> float rect -> float rect =
+  external transform_rect : t -> FloatRect.t -> FloatRect.t =
 	    "sf_Transform_transformRect__impl"
 	      
   external combine : t -> t -> t = "sf_Transform_combine__impl"
@@ -178,7 +185,7 @@ object
   method transform_point_v : (float * float) -> (float * float) =
     fun p1 -> Transform.transform_point_v t_transform_base p1
   
-  method transform_rect : float rect -> float rect =
+  method transform_rect : FloatRect.t -> FloatRect.t =
     fun p1 -> Transform.transform_rect t_transform_base p1
 end
 
@@ -418,7 +425,7 @@ struct
   external create_mask_from_color : t -> ?alpha: int -> Color.t -> unit =
 	    "sf_Image_createMaskFromColor__impl"
 	      
-  external copy_image : t -> ?srcRect: (int rect) -> ?alpha: bool -> t -> int -> int -> unit =
+  external copy_image : t -> ?srcRect: (IntRect.t) -> ?alpha: bool -> t -> int -> int -> unit =
 	    "sf_Image_copy__byte" "sf_Image_copy__impl"
 	      
   external set_pixel : t -> int -> int -> Color.t -> unit =
@@ -471,7 +478,7 @@ object ((self : 'self))
   method create_mask_from_color : ?alpha: int -> Color.t -> unit =
     fun ?alpha p1 -> Image.create_mask_from_color t_image_base ?alpha p1
   
-  method copy : ?srcRect: (int rect) -> ?alpha: bool -> 'self -> int -> int -> unit =
+  method copy : ?srcRect: (IntRect.t) -> ?alpha: bool -> 'self -> int -> int -> unit =
     fun ?srcRect ?alpha p1 p2 p3 -> Image.copy_image t_image_base ?srcRect ?alpha (p1#rep__sf_Image) p2 p3
 
   method set_pixel : int -> int -> Color.t -> unit =
@@ -525,16 +532,16 @@ struct
 
   external create : t -> int -> int -> unit = "sf_Texture_create__impl"
       
-  external load_from_file : t -> ?rect: (int rect) -> string -> bool =
+  external load_from_file : t -> ?rect: (IntRect.t) -> string -> bool =
       "sf_Texture_loadFromFile__impl"
 	
-  external load_from_memory : t -> ?rect: (int rect) -> raw_data_type -> bool =
+  external load_from_memory : t -> ?rect: (IntRect.t) -> raw_data_type -> bool =
       "sf_Texture_loadFromMemory__impl"
 	
-  external load_from_stream : t -> ?rect: (int rect) -> input_stream -> bool =
+  external load_from_stream : t -> ?rect: (IntRect.t) -> input_stream -> bool =
       "sf_Texture_loadFromStream__impl"
 	
-  external load_from_image : t -> ?rect: (int rect) -> Image.t -> bool =
+  external load_from_image : t -> ?rect: (IntRect.t) -> Image.t -> bool =
       "sf_Texture_loadFromImage__impl"
 	
   external get_size : t -> (int * int) = "sf_Texture_getSize__impl"
@@ -590,16 +597,16 @@ object
   method create : int -> int -> unit =
     fun p1 p2 -> Texture.create t_texture_base p1 p2
 
-  method load_from_file : ?rect: (int rect) -> string -> bool =
+  method load_from_file : ?rect: (IntRect.t) -> string -> bool =
     fun ?rect p1 -> Texture.load_from_file t_texture_base ?rect p1
 
-  method load_from_memory : ?rect: (int rect) -> raw_data_type -> bool =
+  method load_from_memory : ?rect: (IntRect.t) -> raw_data_type -> bool =
     fun ?rect p1 -> Texture.load_from_memory t_texture_base ?rect p1
 
-  method load_from_stream : ?rect: (int rect) -> input_stream -> bool =
+  method load_from_stream : ?rect: (IntRect.t) -> input_stream -> bool =
     fun ?rect p1 -> Texture.load_from_stream t_texture_base ?rect p1
 
-  method load_from_image : ?rect: (int rect) -> image -> bool =
+  method load_from_image : ?rect: (IntRect.t) -> image -> bool =
     fun ?rect p1 -> Texture.load_from_image t_texture_base ?rect p1#rep__sf_Image
 
   method update_from_pixels : ?coords: (int * int) -> OcsfmlWindow.pixel_array_type -> unit =
@@ -655,7 +662,10 @@ external get_maximum_texture_size : unit -> int = "Texture_getMaximumSize__impl"
 
 external bind_texture : ?texture:texture -> ?cordinate_type:CoordinateType.t -> unit -> unit = "Texture_bind__impl"
 
-type glyph = { advance : int; bounds : int rect; texture_rect : int rect }
+module Glyph =
+struct
+  type t = { advance : int; bounds : IntRect.t; texture_rect : IntRect.t }
+end
 
 module Font =
 struct
@@ -678,7 +688,7 @@ struct
   external load_from_stream : t -> (#input_stream as 'a) -> bool =
       "sf_Font_loadFromStream__impl"
 	
-  external get_glyph : t -> int -> int -> bool -> glyph =
+  external get_glyph : t -> int -> int -> bool -> Glyph.t =
       "sf_Font_getGlyph__impl"
 	
   external get_kerning : t -> int -> int -> int -> int =
@@ -698,7 +708,7 @@ object
 
   method destroy = Font.destroy t_font_base
 
-  method get_glyph : int -> int -> bool -> glyph =
+  method get_glyph : int -> int -> bool -> Glyph.t =
     fun p1 p2 p3 -> Font.get_glyph t_font_base p1 p2 p3
 
   method get_kerning : int -> int -> int -> int =
@@ -928,7 +938,7 @@ struct
   external default : (* view *) unit -> t =
       "sf_View_default_constructor__impl"
 	
-  external create_from_rect : float rect -> t =
+  external create_from_rect : FloatRect.t -> t =
       "sf_View_rectangle_constructor__impl"
 	
   external create_from_vectors : (float * float) -> (float * float) -> t =
@@ -953,10 +963,10 @@ struct
 	
   external set_rotation : t -> float -> unit = "sf_View_setRotation__impl"
       
-  external set_viewport : t -> float rect -> unit =
+  external set_viewport : t -> FloatRect.t -> unit =
       "sf_View_setViewport__impl"
 	
-  external reset : t -> float rect -> unit = "sf_View_reset__impl"
+  external reset : t -> FloatRect.t -> unit = "sf_View_reset__impl"
       
   external get_center : t -> (float * float) = "sf_View_getCenter__impl"
       
@@ -964,7 +974,7 @@ struct
       
   external get_rotation : t -> float = "sf_View_getRotation__impl"
       
-  external get_viewport : t -> float rect = "sf_View_getViewport__impl"
+  external get_viewport : t -> FloatRect.t = "sf_View_getViewport__impl"
       
   external move : t -> float -> float -> unit = "sf_View_move__impl"
       
@@ -989,7 +999,7 @@ object ((self : 'self))
   
   method get_rotation : float = View.get_rotation t_view_base
   
-  method get_viewport : float rect = View.get_viewport t_view_base
+  method get_viewport : FloatRect.t = View.get_viewport t_view_base
 end
 
 class const_view tag =
@@ -1028,10 +1038,10 @@ object ((self : 'self))
   method set_rotation : float -> unit =
     fun p1 -> View.set_rotation t_view_base p1
   
-  method set_viewport : float rect -> unit =
+  method set_viewport : FloatRect.t -> unit =
     fun p1 -> View.set_viewport t_view_base p1
   
-  method reset : float rect -> unit = fun p1 -> View.reset t_view_base p1
+  method reset : FloatRect.t -> unit = fun p1 -> View.reset t_view_base p1
   
   method get_center : (float * float) = View.get_center t_view_base
   
@@ -1039,7 +1049,7 @@ object ((self : 'self))
   
   method get_rotation : float = View.get_rotation t_view_base
   
-  method get_viewport : float rect = View.get_viewport t_view_base
+  method get_viewport : FloatRect.t = View.get_viewport t_view_base
   
   method move : float -> float -> unit =
   fun p1 p2 -> View.move t_view_base p1 p2
@@ -1098,7 +1108,7 @@ struct
   external draw :
     t ->
     (*?render_states: render_states -> *)
-    ?blend_mode:blend_mode ->  ?transform:Transform.t -> ?texture:Texture.t ->  ?shader:Shader.t ->
+    ?blend_mode:BlendMode.t ->  ?transform:Transform.t -> ?texture:Texture.t ->  ?shader:Shader.t ->
     Drawable.t -> unit =
       "sf_RenderTarget_draw__byte"
       "sf_RenderTarget_draw__impl"
@@ -1112,7 +1122,7 @@ struct
   external get_default_view : t -> View.t =
       "sf_RenderTarget_getDefaultView__impl"
 	
-  external get_viewport : t -> View.t -> int rect =
+  external get_viewport : t -> View.t -> IntRect.t =
       "sf_RenderTarget_getViewport__impl"
 
   external map_coords_to_pixel : t -> ?view:View.t -> (float * float) -> (int * int) =
@@ -1132,7 +1142,7 @@ struct
 end
   
 (* external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> RenderStatesBase.t -> unit) -> unit = "sf_Drawable_override_draw__impl" *)
-external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> blend_mode ->  Transform.t -> Texture.t ->  Shader.t -> unit) -> unit = "sf_Drawable_override_draw__impl"
+external set_drawable_draw_override : Drawable.t -> (RenderTarget.t -> BlendMode.t ->  Transform.t -> Texture.t ->  Shader.t -> unit) -> unit = "sf_Drawable_override_draw__impl"
 
 class drawable ?overloaded t_drawable' =
 object ((self : 'self))
@@ -1146,7 +1156,7 @@ object ((self : 'self))
   method rep__sf_Drawable = t_drawable
   method destroy = Drawable.destroy t_drawable
 
-  method private draw : render_target -> blend_mode -> transform -> texture -> shader -> unit = fun p1 p2 p3 p4 p5 -> ()
+  method private draw : render_target -> BlendMode.t -> transform -> texture -> shader -> unit = fun p1 p2 p3 p4 p5 -> ()
 end
 and render_target t_render_target' =
 object ((self : 'self))
@@ -1163,7 +1173,7 @@ object ((self : 'self))
 (*    'a. ?render_states: render_states -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit = 
       fun ?render_states p1 ->
       RenderTarget.draw t_render_target ?render_states p1#rep__sf_Drawable*)
-  method draw : 'a. ?blend_mode:blend_mode -> ?transform:transform -> ?texture:texture -> ?shader:shader -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit =
+  method draw : 'a. ?blend_mode:BlendMode.t -> ?transform:transform -> ?texture:texture -> ?shader:shader -> (< rep__sf_Drawable : Drawable.t; .. > as 'a) -> unit =
     fun ?blend_mode ?transform ?texture ?shader p1 ->
       let transform = get_if (fun x -> x#rep__sf_Transform) transform in
       let texture = get_if (fun x -> x#rep__sf_Texture) texture in
@@ -1183,7 +1193,7 @@ object ((self : 'self))
     new const_view_base (RenderTarget.get_default_view t_render_target)
 
 
-  method get_viewport : 'a. (#const_view as 'a) -> int rect =
+  method get_viewport : 'a. (#const_view as 'a) -> IntRect.t =
     fun view -> RenderTarget.get_viewport t_render_target view#rep__sf_View
 
   method map_pixel_to_coords : 'a. ?view:(#const_view as 'a) -> (int * int) -> (float * float) =
@@ -1287,7 +1297,7 @@ struct
   external default : unit -> t =
       "sf_RenderWindow_default_constructor__impl"
 	
-  external create : ?style: (Window.style list) -> ?context: context_settings -> VideoMode.t -> string -> t =
+  external create : ?style: (Window.style list) -> ?context: ContextSettings.t -> VideoMode.t -> string -> t =
       "sf_RenderWindow_create_constructor__impl"
 	
   external capture : t -> Image.t = "sf_RenderWindow_capture__impl"
@@ -1330,7 +1340,7 @@ struct
   external set_texture : t -> ?texture:Texture.t -> ?reset_rect:bool -> unit -> unit =
       "sf_Shape_setTexture__impl"
 	
-  external set_texture_rect : t -> int rect -> unit =
+  external set_texture_rect : t -> IntRect.t -> unit =
       "sf_Shape_setTextureRect__impl"
 	
   external set_fill_color : t -> Color.t -> unit =
@@ -1344,7 +1354,7 @@ struct
 	
   external get_texture : t -> Texture.t option = "sf_Shape_getTexture__impl"
       
-  external get_texture_rect : t -> int rect =
+  external get_texture_rect : t -> IntRect.t =
       "sf_Shape_getTextureRect__impl"
 	
   external get_fill_color : t -> Color.t = "sf_Shape_getFillColor__impl"
@@ -1360,10 +1370,10 @@ struct
   external get_point : t -> int -> (float * float) =
       "sf_Shape_getPoint__impl"
 	
-  external get_local_bounds : t -> float rect =
+  external get_local_bounds : t -> FloatRect.t =
       "sf_Shape_getLocalBounds__impl"
 	
-  external get_global_bounds : t -> float rect =
+  external get_global_bounds : t -> FloatRect.t =
       "sf_Shape_getGlobalBounds__impl"
 	
 end
@@ -1384,7 +1394,7 @@ object ((self : 'self))
       let texture = get_if (fun x -> x#rep__sf_Texture) texture in
       Shape.set_texture t_shape_base ?texture ?reset_rect p1
 
-  method set_texture_rect : int rect -> unit =
+  method set_texture_rect : IntRect.t -> unit =
     fun p1 -> Shape.set_texture_rect t_shape_base p1
 
   method set_fill_color : Color.t -> unit =
@@ -1399,7 +1409,7 @@ object ((self : 'self))
   method get_texture : const_texture reference option =
     get_if (fun t -> new const_texture_base t) (Shape.get_texture t_shape_base)
 
-  method get_texture_rect : int rect =
+  method get_texture_rect : IntRect.t =
     Shape.get_texture_rect t_shape_base
 
   method get_fill_color : Color.t =
@@ -1417,10 +1427,10 @@ object ((self : 'self))
   method get_point : int -> (float * float) =
     fun p1 -> Shape.get_point t_shape_base p1
 
-  method get_local_bounds : float rect =
+  method get_local_bounds : FloatRect.t =
     Shape.get_local_bounds t_shape_base
 
-  method get_global_bounds : float rect =
+  method get_global_bounds : FloatRect.t =
     Shape.get_global_bounds t_shape_base
 end
 
@@ -1597,7 +1607,10 @@ class convex_shape ?position ?scale ?rotation ?origin ?texture ?texture_rect ?fi
   let t = ConvexShape.default ()
   in convex_shape_init ?position ?scale ?rotation ?origin ?texture ?texture_rect ?fill_color ?outline_color ?outline_thickness ?points t
   
-type text_style = | Bold | Italic | Underline
+module TextStyle =
+struct
+  type t  = Bold | Italic | Underline
+end
 
 module Text =
 struct
@@ -1623,7 +1636,7 @@ struct
   external set_character_size : t -> int -> unit =
       "sf_Text_setCharacterSize__impl"
 	
-  external set_style : t -> text_style list -> unit =
+  external set_style : t -> TextStyle.t list -> unit =
       "sf_Text_setStyle__impl"
 	
   external set_color : t -> Color.t -> unit = "sf_Text_setColor__impl"
@@ -1634,15 +1647,15 @@ struct
       
   external get_character_size : t -> int = "sf_Text_getCharacterSize__impl"
       
-  external get_style : t -> text_style list = "sf_Text_getStyle__impl"
+  external get_style : t -> TextStyle.t list = "sf_Text_getStyle__impl"
       
   external find_character_pos : t -> int -> (float * float) =
       "sf_Text_findCharacterPos__impl"
 	
-  external get_local_bounds : t -> float rect =
+  external get_local_bounds : t -> FloatRect.t =
       "sf_Text_getLocalBounds__impl"
 	
-  external get_global_bounds : t -> float rect =
+  external get_global_bounds : t -> FloatRect.t =
       "sf_Text_getGlobalBounds__impl"
 	
 end
@@ -1667,7 +1680,7 @@ object ((self : 'self))
   method set_character_size : int -> unit =
     fun p1 -> Text.set_character_size t_text_base p1
 
-  method set_style : text_style list -> unit =
+  method set_style : TextStyle.t list -> unit =
     fun p1 -> Text.set_style t_text_base p1
 
   method set_color : Color.t -> unit =
@@ -1682,15 +1695,15 @@ object ((self : 'self))
   method get_character_size : int =
     Text.get_character_size t_text_base
   
-  method get_style : text_style list = Text.get_style t_text_base
+  method get_style : TextStyle.t list = Text.get_style t_text_base
   
   method find_character_pos : int -> (float * float) =
     fun p1 -> Text.find_character_pos t_text_base p1
   
-  method get_local_bounds : float rect =
+  method get_local_bounds : FloatRect.t =
     Text.get_local_bounds t_text_base
   
-  method get_global_bounds : float rect =
+  method get_global_bounds : FloatRect.t =
     Text.get_global_bounds t_text_base
 end    
   
@@ -1729,7 +1742,7 @@ struct
   external set_texture : t -> ?resize:bool -> Texture.t -> unit =
       "sf_Sprite_setTexture__impl"
 	
-  external set_texture_rect : t -> int rect -> unit =
+  external set_texture_rect : t -> IntRect.t -> unit =
       "sf_Sprite_setTextureRect__impl"
 	
   external set_color : t -> Color.t -> unit = 
@@ -1738,16 +1751,16 @@ struct
   external get_texture : t -> Texture.t option = 
       "sf_Sprite_getTexture__impl"
       
-  external get_texture_rect : t -> int rect =
+  external get_texture_rect : t -> IntRect.t =
       "sf_Sprite_getTextureRect__impl"
 	
   external get_color : t -> Color.t = 
       "sf_Sprite_getColor__impl"
       
-  external get_local_bounds : t -> float rect =
+  external get_local_bounds : t -> FloatRect.t =
       "sf_Sprite_getLocalBounds__impl"
 	
-  external get_global_bounds : t -> float rect =
+  external get_global_bounds : t -> FloatRect.t =
       "sf_Sprite_getGlobalBounds__impl"
 	
 end
@@ -1766,7 +1779,7 @@ object ((self : 'self))
   method set_texture : 'a. ?resize: bool -> (#const_texture as 'a) -> unit =
     fun ?resize tx -> Sprite.set_texture t_sprite_base ?resize tx#rep__sf_Texture
 
-  method set_texture_rect : int rect -> unit =
+  method set_texture_rect : IntRect.t -> unit =
     fun p1 -> Sprite.set_texture_rect t_sprite_base p1
 
   method set_color : Color.t -> unit =
@@ -1775,16 +1788,16 @@ object ((self : 'self))
   method get_texture : const_texture reference option =
     get_if (fun t -> new const_texture_base t) (Sprite.get_texture t_sprite_base)
 
-  method get_texture_rect : int rect =
+  method get_texture_rect : IntRect.t =
     Sprite.get_texture_rect t_sprite_base
 
   method get_color : Color.t = 
     Sprite.get_color t_sprite_base
 
-  method get_local_bounds : float rect =
+  method get_local_bounds : FloatRect.t =
     Sprite.get_local_bounds t_sprite_base
 
-  method get_global_bounds : float rect =
+  method get_global_bounds : FloatRect.t =
     Sprite.get_global_bounds t_sprite_base
 end
   
@@ -1801,26 +1814,29 @@ class sprite ?texture ?position ?scale ?rotation ?origin ?color ?texture_rect ()
   let t = Sprite.default ()
   in sprite_init ?texture ?position ?scale ?rotation ?origin ?color ?texture_rect t
   
+  
+module Vertex =
+struct
+  type t = { position : (float * float); color : Color.t; tex_coords : (float * float)}
+
+
+
+  let create ?(position = (0., 0.)) ?(color = Color.white)
+      ?(tex_coords = (0., 0.)) () =
+    { position = position; color = color; tex_coords = tex_coords; }
+end
     
-type vertex =
-    { position : (float * float); color : Color.t; tex_coords : (float * float)
-    }
-
-
-let mk_vertex ?(position = (0., 0.)) ?(color = Color.white)
-    ?(tex_coords = (0., 0.)) () =
-  { position = position; color = color; tex_coords = tex_coords; }
-
-    
-type primitive_type =
-  | Points
-  | Lines
-  | LinesStrip
-  | Triangles
-  | TrianglesStrip
-  | TrianglesFan
-  | Quads
-
+module PrimitiveType =
+struct 
+  type t =
+    | Points
+    | Lines
+    | LinesStrip
+    | Triangles
+    | TrianglesStrip
+    | TrianglesFan
+    | Quads
+end
 
 module VertexArray =
 struct
@@ -1836,25 +1852,25 @@ struct
   external get_vertex_count : t -> int =
       "sf_VertexArray_getVertexCount__impl"
 	
-  external set_at_index : t -> int -> vertex -> unit =
+  external set_at_index : t -> int -> Vertex.t-> unit =
       "sf_VertexArray_setAtIndex__impl"
 	
-  external get_at_index : t -> int -> vertex =
+  external get_at_index : t -> int -> Vertex.t=
       "sf_VertexArray_getAtIndex__impl"
 	
   external clear : t -> unit = "sf_VertexArray_clear__impl"
       
   external resize : t -> int -> unit = "sf_VertexArray_resize__impl"
       
-  external append : t -> vertex -> unit = "sf_VertexArray_append__impl"
+  external append : t -> Vertex.t -> unit = "sf_VertexArray_append__impl"
       
-  external set_primitive_type : t -> primitive_type -> unit =
+  external set_primitive_type : t -> PrimitiveType.t -> unit =
       "sf_VertexArray_setPrimitiveType__impl"
 	
-  external get_primitive_type : t -> primitive_type =
+  external get_primitive_type : t -> PrimitiveType.t =
       "sf_VertexArray_getPrimitiveType__impl"
 	
-  external get_bounds : t -> float rect = "sf_VertexArray_getBounds__impl"
+  external get_bounds : t -> FloatRect.t = "sf_VertexArray_getBounds__impl"
       
 end
   
@@ -1870,10 +1886,10 @@ object ((self : 'self))
   method get_vertex_count : int =
     VertexArray.get_vertex_count t_vertex_array_base
 
-  method set_at_index : int -> vertex -> unit =
+  method set_at_index : int -> Vertex.t-> unit =
     fun p1 p2 -> VertexArray.set_at_index t_vertex_array_base p1 p2
 
-  method get_at_index : int -> vertex =
+  method get_at_index : int -> Vertex.t=
     fun p1 -> VertexArray.get_at_index t_vertex_array_base p1
 
   method clear : unit = 
@@ -1882,16 +1898,16 @@ object ((self : 'self))
   method resize : int -> unit =
     fun p1 -> VertexArray.resize t_vertex_array_base p1
   
-  method append : vertex -> unit =
+  method append : Vertex.t-> unit =
     fun p1 -> VertexArray.append t_vertex_array_base p1
   
-  method set_primitive_type : primitive_type -> unit =
+  method set_primitive_type : PrimitiveType.t -> unit =
     fun p1 -> VertexArray.set_primitive_type t_vertex_array_base p1
   
-  method get_primitive_type : primitive_type =
+  method get_primitive_type : PrimitiveType.t =
     VertexArray.get_primitive_type t_vertex_array_base
   
-  method get_bounds : float rect = VertexArray.get_bounds t_vertex_array_base
+  method get_bounds : FloatRect.t = VertexArray.get_bounds t_vertex_array_base
 end
        
 class vertex_array ?primitive_type content = 

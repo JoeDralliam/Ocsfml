@@ -5,7 +5,20 @@
 type 'a reference = 'a
 
 
-(** Utility class for manipulating 2D axis aligned rectangles.
+
+(**/**)
+module type RECT_VAL =
+sig 
+  type t 
+  val zero : t
+  val add : t -> t -> t 
+  val sub : t -> t -> t 
+end
+(**/**)
+
+
+
+(** Utility module for manipulating 2D axis aligned rectangles.
     
     A rectangle is defined by its top-left corner and its size.
     
@@ -27,44 +40,38 @@ type 'a reference = 'a
     This means that \{ left = 0; top = 0 ; width = 1; height = 1 \}
     and \{ left = 0; top = 0 ; width = 1; height = 1 \} don't
     intersect. *)
-type 'a rect = { left : 'a; top : 'a; width : 'a; height : 'a; }
-
-(**/**)
-module type RECT_VAL =
-sig 
-  type t 
-  val zero : t
-  val add : t -> t -> t 
-  val sub : t -> t -> t 
-end
-(**/**)
-
 module Rect :
   functor (M : RECT_VAL) ->
 sig
-  val create : ?position:M.t * M.t -> ?size:M.t * M.t -> unit -> M.t rect
-  val contains : M.t rect -> M.t -> M.t -> bool
-  val contains_v : M.t rect -> M.t * M.t -> bool
-  val intersects : M.t rect -> M.t rect -> M.t rect option
+  type 'a rect = { left : 'a ; top : 'a ; width : 'a ; height : 'a }
+  type t = M.t rect
+  val create : ?position:M.t * M.t -> ?size:M.t * M.t -> unit -> t
+  val contains : t -> M.t -> M.t -> bool
+  val contains_v : t -> M.t * M.t -> bool
+  val intersects : t -> t -> t option
 end
 
 
 
 module IntRect :
 sig
-  val create : ?position:int * int -> ?size:int * int -> unit -> int rect
-  val contains : int rect -> int -> int -> bool
-  val contains_v : int rect -> int * int -> bool
-  val intersects : int rect -> int rect -> int rect option
+  type 'a rect = { left : 'a ; top : 'a ; width : 'a ; height : 'a }
+  type t = int rect
+  val create : ?position:int * int -> ?size:int * int -> unit -> t
+  val contains : t -> int -> int -> bool
+  val contains_v : t -> int * int -> bool
+  val intersects : t -> t -> t option
 end
 
 
 module FloatRect :
 sig
-  val create : ?position:float * float -> ?size:float * float -> unit -> float rect
-  val contains : float rect -> float -> float -> bool
-  val contains_v : float rect -> float * float -> bool
-  val intersects :float rect -> float rect -> float rect option
+  type 'a rect = { left : 'a ; top : 'a ; width : 'a ; height : 'a }
+  type t = float rect
+  val create : ?position:float * float -> ?size:float * float -> unit -> t
+  val contains : t -> float -> float -> bool
+  val contains_v : t -> float * float -> bool
+  val intersects :t -> t -> t option
 end
 
 module Color :
@@ -152,12 +159,14 @@ sig
 end
 
 (** Available blending modes for drawing. *)
-type blend_mode = 
+module BlendMode :
+sig
+  type t = 
     BlendAlpha (** Pixel = Source * Source.a + Dest * (1 - Source.a) *)
   | BlendAdd  (** Pixel = Source + Dest. *)
   | BlendMultiply (** Pixel = Source * Dest. *)
   | BlendNone (** Pixel = Source. *)
-
+end
 (**/**)
 module Transform :
 sig
@@ -169,7 +178,7 @@ sig
   val get_inverse : t -> t
   val transform_point : t -> float -> float -> float * float
   val transform_point_v : t -> float * float -> float * float
-  val transform_rect : t -> float rect -> float rect
+  val transform_rect : t -> FloatRect.t -> FloatRect.t
   val combine : t -> t -> t
   val translate : t -> float -> float -> t
   val translate_v : t -> float * float -> t
@@ -201,7 +210,7 @@ object
     
   method transform_point_v : float * float -> float * float
     
-  method transform_rect : float rect -> float rect
+  method transform_rect : FloatRect.t -> FloatRect.t
 end
 
 (** Define a 3x3 transform matrix.
@@ -324,7 +333,7 @@ object ('self)
       returned.
 
       @return Transformed rectangle *)
-  method transform_rect : float rect -> float rect
+  method transform_rect : FloatRect.t -> FloatRect.t
     
 
   (** Combine the current transform with a translation. *)
@@ -565,7 +574,7 @@ sig
   val get_size : t -> int * int
   val get_pixels_ptr : t -> OcsfmlWindow.pixel_array_type
   val create_mask_from_color : t -> ?alpha:int -> Color.t -> unit
-  val copy_image : t -> ?srcRect:int rect -> ?alpha:bool -> t -> int -> int -> unit
+  val copy_image : t -> ?srcRect:IntRect.t -> ?alpha:bool -> t -> int -> int -> unit
   val set_pixel : t -> int -> int -> Color.t -> unit
   val get_pixel : t -> int -> int -> Color.t
   val flip_horizontally : t -> unit
@@ -614,7 +623,7 @@ object ('self)
 
       @param srcRect Sub-rectangle of the source image to copy.
       @param alpha Should the copy take in account the source transparency ? *)
-  method copy : ?srcRect:int rect -> ?alpha:bool -> 'self -> int -> int -> unit
+  method copy : ?srcRect:IntRect.t -> ?alpha:bool -> 'self -> int -> int -> unit
 
 
   (** Create the image and fill it with a unique color. 
@@ -722,10 +731,10 @@ sig
   val copy : t -> t
   val affect : t -> t -> t
   val create : t -> int -> int -> unit
-  val load_from_file : t -> ?rect:int rect -> string -> bool
-  val load_from_stream : t -> ?rect:int rect -> OcsfmlSystem.input_stream -> bool
-  val load_from_image : t -> ?rect:int rect -> Image.t -> bool
-  val load_from_memory : t -> ?rect:int rect -> OcsfmlSystem.raw_data_type -> bool
+  val load_from_file : t -> ?rect:IntRect.t -> string -> bool
+  val load_from_stream : t -> ?rect:IntRect.t -> OcsfmlSystem.input_stream -> bool
+  val load_from_image : t -> ?rect:IntRect.t -> Image.t -> bool
+  val load_from_memory : t -> ?rect:IntRect.t -> OcsfmlSystem.raw_data_type -> bool
   val get_size : t -> int * int
   val copy_to_image : t -> Image.t
   val update_from_image : t -> ?coords:int * int -> Image.t -> unit
@@ -802,7 +811,7 @@ end
     composed of 8 bits red, green, blue and alpha channels -- just
     like a color.*)
 class texture :
-  ?rect:int rect -> 
+  ?rect:IntRect.t -> 
     [ `File of string
     | `Image of image
     | `Stream of OcsfmlSystem.input_stream 
@@ -865,7 +874,7 @@ object
       If this function fails, the texture is left unchanged.
       @param rect Area of the image to load.
       @return True if loading was successful. *)
-  method load_from_file : ?rect:int rect -> string -> bool
+  method load_from_file : ?rect:IntRect.t -> string -> bool
     
   (** Load the texture from an image.
       
@@ -880,10 +889,10 @@ object
       If this function fails, the texture is left unchanged.
       @param rect Area of the image to load.
       @return True if loading was successful. *)
-  method load_from_image : ?rect:int rect -> image -> bool
+  method load_from_image : ?rect:IntRect.t -> image -> bool
 
   (**)
-  method load_from_memory : ?rect:int rect -> OcsfmlSystem.raw_data_type -> bool
+  method load_from_memory : ?rect:IntRect.t -> OcsfmlSystem.raw_data_type -> bool
 
   (** Load the texture from a custom stream.
       
@@ -898,7 +907,7 @@ object
       If this function fails, the texture is left unchanged. 
       @param rect Area of the image to load.
       @return True if loading was successful. *)
-  method load_from_stream : ?rect:int rect -> OcsfmlSystem.input_stream -> bool
+  method load_from_stream : ?rect:IntRect.t -> OcsfmlSystem.input_stream -> bool
     
   (**/**)
   method rep__sf_Texture : Texture.t
@@ -1006,17 +1015,20 @@ val get_maximum_texture_size : unit -> int
     - its coordinates in the font's texture
     - its bounding rectangle
     - the offset to apply to get the starting position of the next glyph *)
-type glyph = { 
+module Glyph :
+sig
+  type t = { 
 
   (** Offset to move horizontically to the next character. *)
-  advance : int; 
+    advance : int; 
 
   (** Bounding rectangle of the glyph, in coordinates relative to the baseline. *)
-  bounds : int rect; 
+    bounds : IntRect.t; 
 
   (** Texture coordinates of the glyph inside the font's texture. *)
-  texture_rect : int rect; 
-}
+    texture_rect : IntRect.t; 
+  }
+end
 
 (**/**)
 module Font :
@@ -1029,7 +1041,7 @@ sig
   val load_from_file : t -> string -> bool
   val load_from_memory : t -> OcsfmlSystem.raw_data_type -> bool
   val load_from_stream : t -> #OcsfmlSystem.input_stream -> bool
-  val get_glyph : t -> int -> int -> bool -> glyph
+  val get_glyph : t -> int -> int -> bool -> Glyph.t
   val get_kerning : t -> int -> int -> int -> int
   val get_line_spacing : t -> int -> int
   val get_texture : t -> int -> Texture.t
@@ -1046,7 +1058,7 @@ object
 
   method destroy : unit
 
-  method get_glyph : int -> int -> bool -> glyph
+  method get_glyph : int -> int -> bool -> Glyph.t
 
   method get_kerning : int -> int -> int -> int
     
@@ -1109,7 +1121,7 @@ object
 
   (** Retrieve a glyph of the font. 
       @return The glyph corresponding to codePoint and characterSize.*)
-  method get_glyph : int -> int -> bool -> glyph
+  method get_glyph : int -> int -> bool -> Glyph.t
 
   (** Get the kerning offset of two glyphs.
 
@@ -1479,19 +1491,19 @@ sig
   type t
   val destroy : t -> unit
   val default : unit -> t
-  val create_from_rect : float rect -> t
+  val create_from_rect : FloatRect.t -> t
   val create_from_vectors : float * float -> float * float -> t
   val set_center : t -> float -> float -> unit
   val set_center_v : t -> float * float -> unit
   val set_size : t -> float -> float -> unit
   val set_size_v : t -> float * float -> unit
   val set_rotation : t -> float -> unit
-  val set_viewport : t -> float rect -> unit
-  val reset : t -> float rect -> unit
+  val set_viewport : t -> FloatRect.t -> unit
+  val reset : t -> FloatRect.t -> unit
   val get_center : t -> float * float
   val get_size : t -> float * float
   val get_rotation : t -> float
-  val get_viewport : t -> float rect
+  val get_viewport : t -> FloatRect.t
   val move : t -> float -> float -> unit
   val move_v : t -> float * float -> unit
   val rotate : t -> float -> unit
@@ -1501,7 +1513,7 @@ end
 
 class const_view : 
   [ `Center of (float * float) * (float * float)
-  | `Rect of float rect
+  | `Rect of FloatRect.t
   | `Copy of < rep__sf_View : View.t ; .. >
   | `None ] ->
 object 
@@ -1522,7 +1534,7 @@ object
     
   method get_rotation : float 
     
-  method get_viewport : float rect 
+  method get_viewport : FloatRect.t 
 end
 
 
@@ -1577,7 +1589,7 @@ end
     ]} *)
 class view : 
   [ `Center of (float * float) * (float * float)
-  | `Rect of float rect
+  | `Rect of FloatRect.t
   | `Copy of < rep__sf_View : View.t ; .. >
   | `None ] ->
 object ('self)
@@ -1610,7 +1622,7 @@ object ('self)
 
   (** Get the target viewport rectangle of the view. 
       @return Viewport rectangle, expressed as a factor of the target size. *)
-  method get_viewport : float rect
+  method get_viewport : FloatRect.t
 
   (** Move the view relatively to its current position. *)
   method move : float -> float -> unit
@@ -1625,7 +1637,7 @@ object ('self)
   (** Reset the view to the given rectangle.
 
       Note that this function resets the rotation angle to 0.*)
-  method reset : float rect -> unit
+  method reset : FloatRect.t -> unit
 
   (** Rotate the view relatively to its current orientation. *)
   method rotate : float -> unit
@@ -1656,7 +1668,7 @@ object ('self)
       of the target would be defined with
       View.setViewport(sf::FloatRect(0, 0, 0.5, 1)). By default, a
       view has a viewport which covers the entire target. *)
-  method set_viewport : float rect -> unit
+  method set_viewport : FloatRect.t -> unit
     
   (** Resize the view rectangle relatively to its current size.
       
@@ -1705,18 +1717,23 @@ end
     amount of pixels, their type is float because of some buggy
     graphics drivers that are not able to process integer coordinates
     correctly. *)
-type vertex = {
-  position : float * float;
-  color : Color.t;
-  tex_coords : float * float;
-}
+module Vertex :
+sig
+  type t = {
+    position : float * float;
+    color : Color.t;
+    tex_coords : float * float;
+  }
 
 
-val mk_vertex :
-  ?position:float * float ->
-  ?color:Color.t -> ?tex_coords:float * float -> unit -> vertex
+  val create :
+    ?position:float * float ->
+    ?color:Color.t -> ?tex_coords:float * float -> unit -> t
+end
 
-type primitive_type =
+module PrimitiveType :
+sig
+  type t =
     Points
   | Lines
   | LinesStrip
@@ -1724,7 +1741,7 @@ type primitive_type =
   | TrianglesStrip
   | TrianglesFan
   | Quads
-
+end
 
 (**/**)
 module Drawable :
@@ -1744,12 +1761,12 @@ sig
   val clear : t -> ?color:Color.t -> unit -> unit
     (** Note : changed #drawable into Drawable.t *)
     (*  val draw : t -> ?render_states:render_states -> Drawable.t -> unit *)
-  val draw : t -> ?blend_mode:blend_mode ->  ?transform:Transform.t -> ?texture:Texture.t ->  ?shader:Shader.t -> Drawable.t -> unit
+  val draw : t -> ?blend_mode:BlendMode.t ->  ?transform:Transform.t -> ?texture:Texture.t ->  ?shader:Shader.t -> Drawable.t -> unit
   val get_size : t -> int * int
   val set_view : t -> View.t -> unit
   val get_view : t -> View.t
   val get_default_view : t -> View.t
-  val get_viewport : t -> View.t -> int rect
+  val get_viewport : t -> View.t -> IntRect.t
   val map_pixel_to_coords : t -> ?view:View.t -> int * int -> float * float
   val map_coords_to_pixel : t -> ?view:View.t -> float * float -> int * int
   val push_gl_states : t -> unit
@@ -1784,7 +1801,7 @@ object
   (**/**)
   method rep__sf_Drawable : Drawable.t
 
-  method private draw : render_target -> blend_mode -> transform -> texture -> shader -> unit
+  method private draw : render_target -> BlendMode.t -> transform -> texture -> shader -> unit
 end
 
 
@@ -1845,7 +1862,7 @@ object
   (** Draw a drawable object to the render-target. 
       @param render_states Render states to use for drawing. *)
   (*  method draw : ?render_states:render_states -> < rep__sf_Drawable : Drawable.t; .. > -> unit *)
-  method draw : ?blend_mode:blend_mode ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> < rep__sf_Drawable : Drawable.t; .. > -> unit
+  method draw : ?blend_mode:BlendMode.t ->  ?transform:transform -> ?texture:texture ->  ?shader:shader -> < rep__sf_Drawable : Drawable.t; .. > -> unit
 
   (** Get the default view of the render target.
 
@@ -1871,7 +1888,7 @@ object
       viewport actually covers in the target.
 
       @return Viewport rectangle, expressed in pixels  *)
-  method get_viewport : 'a. (#const_view as 'a) -> int rect
+  method get_viewport : 'a. (#const_view as 'a) -> IntRect.t
 
   (** Restore the previously saved OpenGL render states and matrices.
 
@@ -2110,7 +2127,7 @@ sig
   val to_window_base : t -> OcsfmlWindow.Window.t
   val to_render_target : t -> RenderTarget.t
   val default : unit -> t
-  val create : ?style:OcsfmlWindow.Window.style list -> ?context:OcsfmlWindow.context_settings -> OcsfmlWindow.VideoMode.t -> string -> t
+  val create : ?style:OcsfmlWindow.Window.style list -> ?context:OcsfmlWindow.ContextSettings.t -> OcsfmlWindow.VideoMode.t -> string -> t
   val capture : t -> Image.t
 end
   (**/**)
@@ -2174,7 +2191,7 @@ end
     ]} *)
 class render_window :
   ?style:OcsfmlWindow.Window.style list ->
-    ?context:OcsfmlWindow.context_settings ->
+    ?context:OcsfmlWindow.ContextSettings.t ->
     OcsfmlWindow.VideoMode.t -> string -> 
 object
   inherit OcsfmlWindow.window
@@ -2221,19 +2238,19 @@ sig
   val to_transformable : t -> Transformable.t
   val to_drawable : t -> Drawable.t
   val set_texture : t -> ?texture:Texture.t -> ?reset_rect:bool -> unit -> unit
-  val set_texture_rect : t -> int rect -> unit
+  val set_texture_rect : t -> IntRect.t -> unit
   val set_fill_color : t -> Color.t -> unit
   val set_outline_color : t -> Color.t -> unit
   val set_outline_thickness : t -> float -> unit
   val get_texture : t -> Texture.t option
-  val get_texture_rect : t -> int rect
+  val get_texture_rect : t -> IntRect.t
   val get_fill_color : t -> Color.t
   val get_outline_color : t -> Color.t
   val get_outline_thickness : t -> float
   val get_point_count : t -> int
   val get_point : t -> int -> float * float
-  val get_local_bounds : t -> float rect
-  val get_global_bounds : t -> float rect
+  val get_local_bounds : t -> FloatRect.t
+  val get_global_bounds : t -> FloatRect.t
 end
   (**/**)
 
@@ -2272,7 +2289,7 @@ class shape :
     ?rotation:float ->
     ?origin:float * float ->
     ?texture:#const_texture ->
-    ?texture_rect:int rect ->
+    ?texture_rect:IntRect.t ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t -> 
     ?outline_thickness:float ->
@@ -2301,7 +2318,7 @@ object
       global 2D world's coordinate system.
 
       @return Global bounding rectangle of the entity *)
-  method get_global_bounds : float rect
+  method get_global_bounds : FloatRect.t
 
   (** Get the local bounding rectangle of the entity.
 
@@ -2312,7 +2329,7 @@ object
       coordinate system.
 
       @return Local bounding rectangle of the entity *)
-  method get_local_bounds : float rect
+  method get_local_bounds : FloatRect.t
 
   (** Get the outline color of the shape. 
       @return Outline color of the shape. *)
@@ -2344,7 +2361,7 @@ object
   (** Get the sub-rectangle of the texture displayed by the shape.
 
       @return Texture rectangle of the shape *)
-  method get_texture_rect : int rect
+  method get_texture_rect : IntRect.t
 
   (**/**)
   method rep__sf_Shape : Shape.t
@@ -2393,7 +2410,7 @@ object
       The texture rect is useful when you don't want to display the
       whole texture, but rather a part of it. By default, the texture
       rect covers the entire texture.*)
-  method set_texture_rect : int rect -> unit
+  method set_texture_rect : IntRect.t -> unit
 end
 
 
@@ -2432,7 +2449,7 @@ class rectangle_shape :
     ?rotation:float ->
     ?origin:float * float ->
     ?texture:#const_texture ->
-    ?texture_rect:int rect ->
+    ?texture_rect:IntRect.t ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
     ?outline_thickness:float -> 
@@ -2505,7 +2522,7 @@ class circle_shape :
       ?rotation:float ->
         ?origin:float * float ->
           ?texture:#const_texture ->
-            ?texture_rect:int rect ->
+            ?texture_rect:IntRect.t ->
               ?fill_color:Color.t ->
                 ?outline_color:Color.t ->
                   ?outline_thickness:float -> 
@@ -2578,7 +2595,7 @@ class convex_shape :
     ?rotation:float ->
     ?origin:float * float ->
     ?texture:#const_texture ->
-    ?texture_rect:int rect ->
+    ?texture_rect:IntRect.t ->
     ?fill_color:Color.t ->
     ?outline_color:Color.t ->
     ?outline_thickness:float ->
@@ -2611,8 +2628,10 @@ object
 end
 
 
-type text_style = Bold | Italic | Underline
-
+module TextStyle :
+sig
+  type t = Bold | Italic | Underline
+end
 
 (**/**)
 module Text :
@@ -2626,15 +2645,15 @@ sig
   val set_string : t -> string -> unit
   val set_font : t -> Font.t -> unit
   val set_character_size : t -> int -> unit
-  val set_style : t -> text_style list -> unit
+  val set_style : t -> TextStyle.t list -> unit
   val set_color : t -> Color.t -> unit
   val get_string : t -> string
   val get_font : t -> Font.t
   val get_character_size : t -> int
-  val get_style : t -> text_style list
+  val get_style : t -> TextStyle.t list
   val find_character_pos : t -> int -> float * float
-  val get_local_bounds : t -> float rect
-  val get_global_bounds : t -> float rect
+  val get_local_bounds : t -> FloatRect.t
+  val get_global_bounds : t -> FloatRect.t
 end
   (**/**)
 
@@ -2693,7 +2712,7 @@ class text :
     ?color:Color.t ->
     ?font:font -> 
     ?character_size:int -> 
-    ?style:text_style list -> unit ->
+    ?style:TextStyle.t list -> unit ->
 object
   inherit drawable
   inherit transformable
@@ -2741,7 +2760,7 @@ object
       global 2D world's coordinate system.
 
       @return Global bounding rectangle of the entity *)
-  method get_global_bounds : float rect
+  method get_global_bounds : FloatRect.t
     
   (** Get the local bounding rectangle of the entity.
       
@@ -2752,7 +2771,7 @@ object
       coordinate system.
       
       @return Local bounding rectangle of the entity *)
-  method get_local_bounds : float rect
+  method get_local_bounds : FloatRect.t
     
   (** Get the text's string. 
       @return Text's string*)
@@ -2760,7 +2779,7 @@ object
 
   (** Get the text's style. 
       @return Text's style. *)
-  method get_style : text_style list
+  method get_style : TextStyle.t list
 
   (**/**)
   method rep__sf_Text : Text.t
@@ -2792,8 +2811,8 @@ object
   (** Set the text's style.
 
       You can pass a combination of one or more styles, for example [
-      Bold ; Italic ]. The default style is [].*)
-  method set_style : text_style list -> unit
+      TextStyle.Bold ; TextStyle.Italic ]. The default style is [].*)
+  method set_style : TextStyle.t list -> unit
 end
 
 
@@ -2807,13 +2826,13 @@ sig
   val default : unit -> t
   val create_from_texture : Texture.t -> t
   val set_texture : t -> ?resize:bool -> Texture.t -> unit
-  val set_texture_rect : t -> int rect -> unit
+  val set_texture_rect : t -> IntRect.t -> unit
   val set_color : t -> Color.t -> unit
   val get_texture : t -> Texture.t option
-  val get_texture_rect : t -> int rect
+  val get_texture_rect : t -> IntRect.t
   val get_color : t -> Color.t
-  val get_local_bounds : t -> float rect
-  val get_global_bounds : t -> float rect
+  val get_local_bounds : t -> FloatRect.t
+  val get_global_bounds : t -> FloatRect.t
 end
   (**/**)
   
@@ -2868,7 +2887,7 @@ class sprite :
     ?rotation:float ->
     ?origin:float * float ->
     ?color:Color.t -> 
-    ?texture_rect:int rect -> unit ->
+    ?texture_rect:IntRect.t -> unit ->
 object
 
   inherit drawable
@@ -2894,7 +2913,7 @@ object
       global 2D world's coordinate system.
 
       @return Global bounding rectangle of the entity. *)
-  method get_global_bounds : float rect
+  method get_global_bounds : FloatRect.t
 
   (** Get the local bounding rectangle of the entity.
 
@@ -2905,7 +2924,7 @@ object
       coordinate system.
       
       @return Local bounding rectangle of the entity. *)
-  method get_local_bounds : float rect
+  method get_local_bounds : FloatRect.t
 
   (** Get the source texture of the sprite.
 
@@ -2918,7 +2937,7 @@ object
 
   (** Get the sub-rectangle of the texture displayed by the sprite. 
       @return Texture rectangle of the sprite. *)
-  method get_texture_rect : int rect
+  method get_texture_rect : IntRect.t
 
   (**/**)
   method rep__sf_Sprite : Sprite.t
@@ -2950,7 +2969,7 @@ object
       The texture rect is useful when you don't want to display the
       whole texture, but rather a part of it. By default, the texture
       rect covers the entire texture. *)
-  method set_texture_rect : int rect -> unit
+  method set_texture_rect : IntRect.t -> unit
 end
 
 (**/**)
@@ -2961,20 +2980,20 @@ sig
   val to_drawable : t -> Drawable.t
   val default : unit -> t
   val get_vertex_count : t -> int
-  val set_at_index : t -> int -> vertex -> unit
-  val get_at_index : t -> int -> vertex
+  val set_at_index : t -> int -> Vertex.t -> unit
+  val get_at_index : t -> int -> Vertex.t
   val clear : t -> unit
   val resize : t -> int -> unit
-  val append : t -> vertex -> unit
-  val set_primitive_type : t -> primitive_type -> unit
-  val get_primitive_type : t -> primitive_type
-  val get_bounds : t -> float rect
+  val append : t -> Vertex.t -> unit
+  val set_primitive_type : t -> PrimitiveType.t -> unit
+  val get_primitive_type : t -> PrimitiveType.t
+  val get_bounds : t -> FloatRect.t
 end
   (**/**)
 
 class vertex_array : 
-  ?primitive_type:primitive_type ->
-    vertex list -> 
+  ?primitive_type:PrimitiveType.t ->
+    Vertex.t list -> 
 object
   inherit drawable
 
@@ -2983,7 +3002,7 @@ object
     (**/**)
 
   (** Add a vertex to the array. *)
-  method append : vertex -> unit
+  method append : Vertex.t -> unit
 
   (** Clear the vertex array.
 
@@ -3000,7 +3019,7 @@ object
 
       This function doesn't check index, it must be in range [0,
       GetVertexCount() - 1]. The behaviour is undefined otherwise.*)
-  method get_at_index : int -> vertex
+  method get_at_index : int -> Vertex.t
 
   (** Compute the bounding rectangle of the vertex array.
 
@@ -3008,11 +3027,11 @@ object
       all the vertices of the array.
 
       @return Bounding rectangle of the vertex array *)
-  method get_bounds : float rect
+  method get_bounds : FloatRect.t
 
   (** Get the type of primitives drawn by the vertex array. 
       @return Primitive type *)
-  method get_primitive_type : primitive_type
+  method get_primitive_type : PrimitiveType.t
 
   (** Return the vertex count. 
       @return Number of vertices in the array. *)
@@ -3031,7 +3050,7 @@ object
   method resize : int -> unit
 
   (** *)
-  method set_at_index : int -> vertex -> unit
+  method set_at_index : int -> Vertex.t -> unit
 
   (** Set the type of primitives to draw.
 
@@ -3043,7 +3062,7 @@ object
       - As triangles
       - As quads 
       The default primitive type is sf::Points. *)
-  method set_primitive_type : primitive_type -> unit
+  method set_primitive_type : PrimitiveType.t -> unit
 end
 
 
