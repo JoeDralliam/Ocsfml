@@ -1,7 +1,8 @@
 open Ocamlbuild_plugin
 open Pathname
-  
-let compiler = CppCompiler.Clang ;;
+
+let compiler = List.hd (CppCompiler.available ()) ;;  
+
 let boostdir = 
   try
     Some (Sys.getenv "BOOST_ROOT")
