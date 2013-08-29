@@ -1,4 +1,5 @@
-# Ocsfml -  an OCaml port of the C++ SFML library (version >= 2.0)
+# Ocsfml 
+##### An OCaml port of the C++ SFML library (version >= 2.0)
 
 ## Requirements
   - SFML >= 2.0
