@@ -1,0 +1,6 @@
+ocsfml_window_stub/Context.o
+ocsfml_window_stub/Joystick.o
+ocsfml_window_stub/Keyboard.o
+ocsfml_window_stub/Mouse.o
+ocsfml_window_stub/VideoMode.o
+ocsfml_window_stub/Window.o

@@ -1,7 +1,7 @@
 (** Time management & input stream *)
 
 
-type raw_data_type = (char, Bigarray.int8_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
+type raw_data_type = (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
 (** Raised when an object can't load its resources *)
 exception LoadFailure
@@ -151,7 +151,7 @@ val sleep : Time.t -> unit
 class virtual input_stream :
 object 
   method virtual get_size : int
-  method virtual read : int -> string * int
+  method virtual read : raw_data_type -> int -> int
   method virtual seek : int -> int
   method virtual tell : int
 end

@@ -1,5 +1,5 @@
 type raw_data_type =
-    (char, Bigarray.int8_signed_elt, Bigarray.c_layout) Bigarray.Array1.t
+    (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
 exception LoadFailure
   
@@ -101,7 +101,7 @@ external sleep : Time.t -> unit = "sf_sleep__impl"
 
 (* Note : New cpp workaround does implement thread *)
 class virtual input_stream =
-object method virtual read : int -> (string * int)
+object method virtual read : raw_data_type -> int -> int
        method virtual seek : int -> int
        method virtual tell : int
        method virtual get_size : int

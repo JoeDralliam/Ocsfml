@@ -133,7 +133,7 @@ end
     {[
     if OcsfmlWindow.Keyboard.is_key_pressed OcsfmlWindow.KeyCode.Left
     then begin
-(* move left... *)
+    (* move left... *)
     end
     else if OcsfmlWindow.Keyboard.is_key_pressed OcsfmlWindow.KeyCode.Right
     then begin
@@ -190,7 +190,7 @@ end
 
     Usage example:
     {[
-(* The id of joystick #0 *)
+    (* The id of joystick #0 *)
     let id = OcsfmlWindow.id_from_int 0
 
     (* Is joystick #0 connected? *)
@@ -302,13 +302,13 @@ end
     {[
     let thread_func () =
     let context = new context in
-(* from now on, you have a valid context *)
+    (* from now on, you have a valid context *)
       
-        (* you can make OpenGL calls *)
-         GlClear.clear [`depth];
+    (* you can make OpenGL calls *)
+    GlClear.clear [`depth];
 
-        (* Destruction is not automated *)
-         context#destroy 
+    (* Destruction is not automated *)
+    context#destroy 
     ]}
 *)
 class context :
@@ -518,7 +518,7 @@ end
 (** Structure defining the settings of the OpenGL context attached to
     a window.
 
-    context_settings allows to define several advanced settings of the
+    ContextSettings.t allows to define several advanced settings of the
     OpenGL context attached to a window.
     
     All these settings have no impact on the regular SFML rendering
@@ -544,22 +544,23 @@ end
     system; instead, SFML will try to find the closest valid
     match. You can then retrieve the settings that the window actually
     used to create its context, with window.get_settings.  *)
-type context_settings = {
-  depth_bits : int; (** Bits of the depth buffer. *)
-  stencil_bits : int; (** Bits of the stencil buffer. *)
-  antialising_level : int; (** Level of antialiasing. *)
-  major_version : int; (** Major number of the context version to create. *)
-  minor_version : int; (** Minor number of the context version to create. *)
-}
+module ContextSettings :
+sig
+  type t = {
+    depth_bits : int; (** Bits of the depth buffer. *)
+    stencil_bits : int; (** Bits of the stencil buffer. *)
+    antialising_level : int; (** Level of antialiasing. *)
+    major_version : int; (** Major number of the context version to create. *)
+    minor_version : int; (** Minor number of the context version to create. *)
+  }
 
-
-val mk_context_settings :
-  ?depth_bits:int ->
-  ?stencil_bits:int ->
-  ?antialising_level:int ->
-  ?major_version:int -> 
-  ?minor_version:int -> unit -> context_settings
-
+  val create :
+    ?depth_bits:int ->
+    ?stencil_bits:int ->
+    ?antialising_level:int ->
+    ?major_version:int -> 
+    ?minor_version:int -> unit -> t
+end
 
 (**/**)
 module WindowBase :
@@ -575,16 +576,16 @@ sig
   val default : unit -> t
   val create_init :
     ?style:style list ->
-      ?context:context_settings -> VideoMode.t -> string -> t
+      ?context:ContextSettings.t -> VideoMode.t -> string -> t
   val create :
     t ->
       ?style:style list ->
-	?context:context_settings -> VideoMode.t -> string -> unit
+	?context:ContextSettings.t -> VideoMode.t -> string -> unit
   val close : t -> unit
   val is_open : t -> bool
   val get_position : t -> int * int
   val get_size : t -> int * int
-  val get_settings : t -> context_settings
+  val get_settings : t -> ContextSettings.t
   val poll_event : t -> Event.t option
   val wait_event : t -> Event.t option
   val set_vertical_sync_enabled : t -> bool -> unit
@@ -608,12 +609,12 @@ object
   method close : unit
   method create :
     ?style:WindowBase.style list ->
-      ?context:context_settings -> VideoMode.t -> string -> unit
+      ?context:ContextSettings.t -> VideoMode.t -> string -> unit
   method destroy : unit
   method display : unit
   method get_height : int
   method get_position : int * int
-  method get_settings : context_settings
+  method get_settings : ContextSettings.t
   method get_size : int * int
   method get_width : int
   method is_open : bool
@@ -654,16 +655,16 @@ sig
   val default : unit -> t
   val create_init :
     ?style:style list ->
-      ?context:context_settings -> VideoMode.t -> string -> t
+      ?context:ContextSettings.t -> VideoMode.t -> string -> t
   val create :
     t ->
       ?style:style list ->
-	?context:context_settings -> VideoMode.t -> string -> unit
+	?context:ContextSettings.t -> VideoMode.t -> string -> unit
   val close : t -> unit
   val is_open : t -> bool
   val get_position : t -> int * int
   val get_size : t -> int * int
-  val get_settings : t -> context_settings
+  val get_settings : t -> ContextSettings.t
   val poll_event : t -> Event.t option
   val wait_event : t -> Event.t option
   val set_vertical_sync_enabled : t -> bool -> unit
@@ -730,7 +731,7 @@ end
     ]} *)
 class window :
   ?style:Window.style list ->
-    ?context:context_settings -> VideoMode.t -> string -> 
+    ?context:ContextSettings.t -> VideoMode.t -> string -> 
 object
   (**/**)
   val t_window_base : WindowBase.t
@@ -754,7 +755,7 @@ object
       @param contex Additional settings for the underlying OpenGL context *)
   method create :
     ?style:Window.style list ->
-      ?context:context_settings -> VideoMode.t -> string -> unit
+      ?context:ContextSettings.t -> VideoMode.t -> string -> unit
         
   (**)
   method destroy : unit
@@ -782,7 +783,7 @@ object
       settings were not supported. In this case, SFML chose the
       closest match.
       @return Structure containing the OpenGL context settings *)
-  method get_settings : context_settings
+  method get_settings : ContextSettings.t
   
   (** Get the size of the rendering region of the window.
 
