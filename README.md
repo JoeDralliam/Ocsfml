@@ -12,6 +12,6 @@
 
 ## Installation
    To install, do :
-      ```make``` to build ocsfml
-      ```make install``` to install ocsfml
-      ```make doc``` to build the documentation
+   - ```make``` to build ocsfml
+   - ```make install``` to install ocsfml
+   - ```make doc``` to build the documentation
