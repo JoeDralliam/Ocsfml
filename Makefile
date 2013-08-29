@@ -1,4 +1,4 @@
-OCAMLBUILD=ocamlbuild -use-ocamlfind
+OCAMLBUILD=ocamlbuild -use-ocamlfind -j 4
 OCAMLBUILD_DIR=$(shell ocamlc -where)/ocamlbuild
 
 all:plugin-hack byte native

@@ -1,13 +1,8 @@
 open Ocamlbuild_plugin
 open Pathname
 
+let link_to_static_sfml_libraries = false ;;
 let compiler = List.hd (CppCompiler.available ()) ;;  
-
-let boostdir = 
-  try
-    Some (Sys.getenv "BOOST_ROOT")
-  with 
-    Not_found -> None
     
 let link_one to_c lib =
   let open CppCompiler.Library in
@@ -47,21 +42,6 @@ let add_sfml_flags static =
     flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_graphics" ] & link false (libs_of_components lib [System ; Window ; Graphics]) ;
     flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_audio" ] & link false (libs_of_components lib [System ; Audio ]) ;
     flag [ "ocamlmklib" ; "ocaml" ; compilation_mode ; "use_libsfml_network" ] & link false (libs_of_components lib [System ; Network ])
-
-
-(*
-    flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_system" ] & link_ocaml_native [lib.system] ;
-    flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_window" ] & link_ocaml_native [lib.system ; lib.window] ;
-    flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_graphics" ] & link_ocaml_native [lib.system ; lib.window ; lib.graphics] ;
-    flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_audio" ] & link_ocaml_native [lib.system ; lib.audio ] ;
-    flag [ "ocaml" ; "link" ; "library" ; "native" ; compilation_mode ; "use_libsfml_network" ] & link_ocaml_native [lib.system ; lib.network ] ;
-  
-    flag [ "ocaml" ; "link" ; "library" ; "byte" ; compilation_mode ; "use_libsfml_system" ] & link_ocaml_byte [lib.system] ;
-    flag [ "ocaml" ; "link" ; "library" ; "byte" ; compilation_mode ; "use_libsfml_window" ] & link_ocaml_byte [lib.system ; lib.window] ;
-    flag [ "ocaml" ; "link" ; "library" ; "byte" ; compilation_mode ; "use_libsfml_graphics" ] & link_ocaml_byte [lib.system ; lib.window ; lib.graphics] ;
-    flag [ "ocaml" ; "link" ; "library" ; "byte" ; compilation_mode ; "use_libsfml_audio" ] & link_ocaml_byte [lib.system ; lib.audio ] ;
-    flag [ "ocaml" ; "link" ; "library" ; "byte" ; compilation_mode ; "use_libsfml_network" ] & link_ocaml_byte [lib.system ; lib.network ]
-*)
   in
   
   
@@ -89,7 +69,7 @@ let add_sfml_flags static =
   
   flag [ "compile" ; "c++" ; "include_sfml_network" ]
     (S [ add_path "system" ; add_path "network" ]) ;
-  
+
 
   List.iter (fun s ->
 		 (*
@@ -101,9 +81,9 @@ let add_sfml_flags static =
 *)
       let d = Printf.sprintf "Ocsfml%s" (String.capitalize s) in
       dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] 
-        [d^"/libocsfml"^s^"."^(CppCompiler.Library.caml_static_extension compiler)] ;
+        [d^"/libocsfml"^s^"."^(!Options.ext_lib)] ;
       dep  ["link"; "ocaml"; "byte"; "use_libocsfml"^s] 
-        [d^"/dllocsfml"^s^"."^(CppCompiler.Library.caml_dynamic_extension compiler)] ;
+        [d^"/dllocsfml"^s^"."^(!Options.ext_dll)] ;
 
       ocaml_lib (d ^ "/ocsfml" ^ s);
     ) ["system" ; "window" ; "graphics" ; "audio" ; "network"] ;
@@ -131,11 +111,6 @@ let add_other_flags () =
   let camlpp_dir =  "../camlpp" in
   flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path camlpp_dir compiler)) ;
   
-  (match boostdir with
-   | Some d -> flag [ "c++" ; "compile" ] (A (CppCompiler.BuildFlags.add_include_path d compiler))
-   | _ -> () );
-
-
   flag [ "c++" ; "compile" ; "gcc"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "mingw"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "clang"] (A "-std=c++0x") ;
@@ -148,7 +123,7 @@ let _ = dispatch (function
       Rule.add_cpp_rules compiler ;
       Rule.add_cpp_common_tags () ;
 
-      add_sfml_flags false ;
+      add_sfml_flags link_to_static_sfml_libraries ;
       add_other_flags ()
     | After_rules -> 
       flag ["ocaml"; "doc" ; "colorize_code"] & A "-colorize-code" ;
