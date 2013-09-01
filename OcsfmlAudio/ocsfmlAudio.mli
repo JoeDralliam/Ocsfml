@@ -449,6 +449,7 @@ sig
   val copy : t -> t
   val affect : t -> t -> t
   val load_from_file : t -> string -> bool
+  val load_from_memory : t -> OcsfmlSystem.raw_data_type -> bool
   val load_from_stream : t -> OcsfmlSystem.input_stream -> bool
   val load_from_samples : t -> samples_type -> int -> int -> bool
   val save_to_file : t -> string -> bool
@@ -555,6 +556,7 @@ end
     ]}*)
 class sound_buffer :
   [ `File of string
+  | `Memory of OcsfmlSystem.raw_data_type
   | `Samples of samples_type * int * int
   | `Stream of OcsfmlSystem.input_stream 
   | `Copy of < rep__sf_SoundBuffer : SoundBuffer.t ; .. >
@@ -616,6 +618,8 @@ object
       @return True if loading succeeded, false if it failed*)
   method load_from_file : string -> bool
 
+
+  method load_from_memory : OcsfmlSystem.raw_data_type -> bool
 
   (** Load the sound buffer from an array of audio samples.
 

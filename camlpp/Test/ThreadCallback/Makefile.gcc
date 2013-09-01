@@ -1,8 +1,10 @@
+OCAML_LIB=$(shell ocamlc -where)
+
 all:ThreadCallback
 
 ThreadCallback:ThreadCallbackStubs.o threadCallback.ml
 	ocamlc -custom -linkall -thread unix.cma threads.cma -cclib ThreadCallbackStubs.o -cclib -lstdc++ -cclib -lsfml-system threadCallback.ml -o ThreadCallback
 
 ThreadCallbackStubs.o:
-	g++ -I ../.. -I /usr/local/lib/ocaml -std=c++0x -fPIC -c ThreadCallbackStubs.cpp
+	g++ -I ../.. -I $(OCAML_LIB)  -std=c++0x -fPIC -c ThreadCallbackStubs.cpp
 

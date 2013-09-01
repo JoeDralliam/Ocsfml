@@ -2,12 +2,20 @@
 
 #include "InputStream.hpp"
 #include "Time.hpp"
+#include "RawDataType.hpp"
 
 #include <camlpp/big_array.hpp>
 #include <camlpp/std/string.hpp>
 
 namespace
 {
+  bool sound_buffer_load_from_memory_helper( sf::SoundBuffer* buffer,
+					     RawDataType memory)
+  {
+    return buffer->loadFromMemory(memory.data, memory.size[0]);
+  }
+
+
   bool sound_buffer_load_from_samples_helper( 	sf::SoundBuffer* buffer, 
 						camlpp::big_array< sf::Int16, 1 > samples, 
 						unsigned channelsCount, 
@@ -31,7 +39,7 @@ camlpp__register_preregistered_custom_class()
   camlpp__register_constructor1( copy_constructor, sf::SoundBuffer const&, 0 );
   camlpp__register_external_method1( affect, &sf::SoundBuffer::operator=, 0 );
   camlpp__register_method1( loadFromFile, camlpp::release_caml_runtime );
-  //	camlpp__register_method2( LoadFromMemory, &sf::SoundBuffer::LoadFromMemory );
+  camlpp__register_external_method1( loadFromMemory, &sound_buffer_load_from_memory_helper, 0);
   camlpp__register_method1( loadFromStream, 0);
   camlpp__register_external_method3( loadFromSamples, &sound_buffer_load_from_samples_helper, 0);
   camlpp__register_method1( saveToFile, camlpp::release_caml_runtime );

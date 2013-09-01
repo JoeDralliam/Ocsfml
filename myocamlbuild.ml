@@ -74,9 +74,9 @@ let add_sfml_flags static =
   )
   else if CppCompiler.frontend compiler = CppCompiler.GccCompatible
   then (
+    flag ["compile" ; "c++" ] (S [A "-fvisibility=hidden"]) ;
     flag ["ocamlmklib" ] (S [A "-lstdc++"]) ;
-  )
-  
+  )   
 
 let add_other_flags () =
   let open FindBoost.Boost in

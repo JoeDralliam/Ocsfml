@@ -272,6 +272,9 @@ struct
   external load_from_file : t -> string -> bool =
 	    "sf_SoundBuffer_loadFromFile__impl"
 	      
+  external load_from_memory : t -> raw_data_type -> bool =
+            "sf_SoundBuffer_loadFromMemory__impl"
+
   external load_from_stream : t -> input_stream -> bool =
 	    "sf_SoundBuffer_loadFromStream__impl"
 	      
@@ -332,6 +335,9 @@ object ((_ : 'self))
   method load_from_file : string -> bool =
     fun p1 -> SoundBuffer.load_from_file t_sound_buffer_base p1
 
+  method load_from_memory : raw_data_type -> bool =
+    fun p1 -> SoundBuffer.load_from_memory t_sound_buffer_base p1
+
   method load_from_stream : input_stream -> bool =
     fun p1 -> SoundBuffer.load_from_stream t_sound_buffer_base p1
 
@@ -355,6 +361,7 @@ object (self)
     if
       match tag with
 	| `File s -> self#load_from_file s
+	| `Memory m -> self#load_from_memory m
 	| `Stream s -> self#load_from_stream s
 	| `Samples (s, i, j) -> self#load_from_samples s i j
 	| `Copy _ | `None -> true
