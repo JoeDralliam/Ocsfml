@@ -375,7 +375,7 @@ struct
     
   external destroy : t -> unit = "sf_SoundRecorder_destroy__impl"
       
-  external start : t -> ?sampleRate: int -> unit -> unit =
+  external start : t -> ?sample_rate: int -> unit -> unit =
       "sf_SoundRecorder_start__impl"
 	
   external stop : t -> unit = "sf_SoundRecorder_stop__impl"
@@ -393,8 +393,8 @@ object ((self : 'self))
 
   method destroy = SoundRecorder.destroy t_sound_recorder
 
-  method start : ?sampleRate: int -> unit -> unit =
-    fun ?sampleRate p1 -> SoundRecorder.start t_sound_recorder ?sampleRate p1
+  method start : ?sample_rate: int -> unit -> unit =
+    fun ?sample_rate p1 -> SoundRecorder.start t_sound_recorder ?sample_rate p1
 
   method stop : unit = SoundRecorder.stop t_sound_recorder
 
@@ -497,7 +497,7 @@ object ((self : 'self))
   method stop : unit = 
     Sound.stop t_sound_base
   
-  method set_buffer : sound_buffer -> unit =
+  method set_buffer : 'a. (#const_sound_buffer as 'a) -> unit =
     fun buf -> Sound.set_buffer t_sound_base buf#rep__sf_SoundBuffer
 
   method set_loop : bool -> unit = 

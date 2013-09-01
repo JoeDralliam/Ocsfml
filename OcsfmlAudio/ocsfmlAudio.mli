@@ -655,7 +655,7 @@ sig
   (**/**)
   type t
   val destroy : t -> unit
-  val start : t -> ?sampleRate:int -> unit -> unit
+  val start : t -> ?sample_rate:int -> unit -> unit
   val stop : t -> unit
   val get_sample_rate : t -> int
   (**/**)
@@ -714,7 +714,7 @@ object
 
       @param sampleRate Desired capture rate, in number of samples per
       second *)
-  method start : ?sampleRate:int -> unit -> unit
+  method start : ?sample_rate:int -> unit -> unit
 
   (** Stop the capture. *)
   method stop : unit
@@ -846,7 +846,7 @@ class sound :
 	?relative_to_listener:bool ->
 	  ?min_distance:float -> ?attenuation:float -> 
 	    ?loop:bool ->
-	      ?buffer:sound_buffer ->
+	      ?buffer:#const_sound_buffer ->
 		?playing_offset:OcsfmlSystem.Time.t ->
 		  unit -> 
 object
@@ -900,7 +900,7 @@ object
       It is important to note that the sound buffer is not copied,
       thus the sf::SoundBuffer instance must remain alive as long as
       it is attached to the sound.*)
-  method set_buffer : sound_buffer -> unit
+  method set_buffer : #const_sound_buffer -> unit
 
   (** Set whether or not the sound should loop after reaching the end.
 
