@@ -1,7 +1,7 @@
 OCAMLBUILD=ocamlbuild -use-ocamlfind -j 4
 OCAMLBUILD_DIR=$(shell ocamlc -where)/ocamlbuild
 
-all:plugin-hack byte native
+all:plugin byte native
 
 plugin-hack:
 	(mkdir _build &> /dev/null) ; \
@@ -12,7 +12,7 @@ plugin-hack:
 
 
 plugin:
-	ocamlbuild -classic-display -verbose 10 -plugin-tag "package(ocamlbuildcpp)" -just-plugin
+	$(OCAMLBUILD) -plugin-tag "package(ocamlbuildcpp)" -just-plugin
 
 
 native:system-nat window-nat graphics-nat audio-nat network-nat
@@ -65,7 +65,7 @@ uninstall:
 clean:
 	$(OCAMLBUILD) -clean
 
-doc:plugin-hack
+doc:plugin
 	$(OCAMLBUILD) -use-ocamlfind ocsfml.docdir/index.html
 
 .PHONY:install uninstall

@@ -1,9 +1,10 @@
 open Ocamlbuild_plugin
+open OcamlbuildCpp
 open Pathname
 
 let link_to_static_sfml_libraries = false ;;
-let compiler = List.hd (CppCompiler.available ()) ;;    
-    
+let compiler = List.hd (Compiler.available ()) ;;    
+
 let add_sfml_flags static = 
   let open FindSfml in
   let modules = SfmlConfiguration.([System ; Window ; Graphics ; Audio ; Network]) in
@@ -12,29 +13,29 @@ let add_sfml_flags static =
   let libs_of_components lib =
     List.map (fun cp -> Sfml.LibraryMap.find cp lib)
   in
-
+  
   if static then flag ["c++"; "compile"] (A "-DSFML_STATIC") ;
-
+  
   let add_flags lib =
     let open SfmlConfiguration in
     let includedir = sfml.Sfml.includedir in
-    CppLibrary.register ~libraries:(libs_of_components lib [System]) 
-                        ~includedir "libsfml_system" compiler ;
-    CppLibrary.register ~libraries:(libs_of_components lib [System ; Window]) 
-                        ~includedir "libsfml_window" compiler ;
-    CppLibrary.register ~libraries:(libs_of_components lib [System ; Window ; Graphics]) 
-                        ~includedir "libsfml_graphics" compiler ;
-    CppLibrary.register ~libraries:(libs_of_components lib [System ; Audio]) 
-                        ~includedir "libsfml_audio" compiler ;
-    CppLibrary.register ~libraries:(libs_of_components lib [System ; Network]) 
-                        ~includedir "libsfml_network" compiler ;
+    Library.register ~libraries:(libs_of_components lib [System]) 
+      ~includedir "libsfml_system" compiler ;
+    Library.register ~libraries:(libs_of_components lib [System ; Window]) 
+      ~includedir "libsfml_window" compiler ;
+    Library.register ~libraries:(libs_of_components lib [System ; Window ; Graphics]) 
+      ~includedir "libsfml_graphics" compiler ;
+    Library.register ~libraries:(libs_of_components lib [System ; Audio]) 
+      ~includedir "libsfml_audio" compiler ;
+    Library.register ~libraries:(libs_of_components lib [System ; Network]) 
+      ~includedir "libsfml_network" compiler ;
   in
   
   let stub_dir s =
     Printf.sprintf "../Ocsfml%s/ocsfml_%s_stub" (String.capitalize s) s
   in
   let add_path modname = 
-    A (CppCompiler.BuildFlags.add_include_path (stub_dir modname) compiler) 
+    A (Compiler.BuildFlags.add_include_path (stub_dir modname) compiler) 
   in
   
   flag [ "compile" ; "c++" ; "include_sfml_system" ]
@@ -68,30 +69,30 @@ let add_sfml_flags static =
   add_flags sfml.Sfml.library ;
   
 
-  if compiler = CppCompiler.Clang
+  if fst compiler = Compiler.Clang
   then (
     flag ["ocamlmklib"] (S [A"-lc++"]) ;
   )
-  else if CppCompiler.frontend compiler = CppCompiler.GccCompatible
+  else if Compiler.frontend compiler = Compiler.GccCompatible
   then (
     flag ["compile" ; "c++" ] (S [A "-fvisibility=hidden"]) ;
     flag ["ocamlmklib" ] (S [A "-lstdc++"]) ;
   )   
-
+    
 let add_other_flags () =
   let open FindBoost.Boost in
   
   let boost = find compiler [] in
   flag [ "c++" ; "compile"] 
-    (A (CppCompiler.BuildFlags.add_include_path boost.FindBoost.Boost.includedir compiler)) ;
+    (A (Compiler.BuildFlags.add_include_path boost.FindBoost.Boost.includedir compiler)) ;
 
   let ocaml_dir = input_line (Unix.open_process_in "ocamlc -where") in
   flag [ "c++" ; "compile" ] 
-    (A (CppCompiler.BuildFlags.add_include_path ocaml_dir compiler)) ;
+    (A (Compiler.BuildFlags.add_include_path ocaml_dir compiler)) ;
   
   let camlpp_dir =  "../camlpp" in
   flag [ "c++" ; "compile" ] 
-    (A (CppCompiler.BuildFlags.add_include_path camlpp_dir compiler)) ;
+    (A (Compiler.BuildFlags.add_include_path camlpp_dir compiler)) ;
   
   flag [ "c++" ; "compile" ; "gcc"] (A "-std=c++0x") ;
   flag [ "c++" ; "compile" ; "mingw"] (A "-std=c++0x") ;
@@ -110,6 +111,6 @@ let _ = dispatch (function
     | After_rules -> 
       flag ["ocaml"; "doc" ; "colorize_code"] & A "-colorize-code" ;
       flag ["ocaml"; "doc" ; "custom_intro"] 
-          & S [ A "-intro" ; A "../Documentation/intro.camldoc" ]
+        & S [ A "-intro" ; A "../Documentation/intro.camldoc" ]
     | _ -> ()
   )
