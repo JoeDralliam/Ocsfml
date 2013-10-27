@@ -1,6 +1,7 @@
 #include "TcpSocket.hpp"
 
 #include "RawDataType.hpp"
+#include "Time.hpp"
 
 #include "IpAddress.hpp"
 #include "Socket.hpp"

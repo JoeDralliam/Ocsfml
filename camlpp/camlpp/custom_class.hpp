@@ -1,6 +1,8 @@
 #ifndef CUSTOM_CLASS_HPP_INCLUDED
 #define CUSTOM_CLASS_HPP_INCLUDED
 
+
+
 #include <cstring>
 #include <functional>
 #include <type_traits>
@@ -460,18 +462,9 @@ using boost::mpl::int_;
     {									\
       class_name* from_value( value const& v)				\
       {									\
-	if( Tag_val( v ) == Object_tag )				\
+	if ( Is_long(v) )						\
 	  {								\
-	    static value callback_method = 0;				\
-	    if( !callback_method )					\
-	      {								\
-		callback_method = hash_variant( BOOST_PP_STRINGIZE( BOOST_PP_CAT( rep__, class_name ) ) ); \
-	      }								\
-	    return from_value(callback(caml_get_public_method( v, callback_method),v)); \
-	  }								\
-	if( Tag_val( v ) == Abstract_tag )				\
-	  {								\
-	    return reinterpret_cast< class_name *>( Field(v, 0) );	\
+	    return reinterpret_cast< class_name * >(v - 1);		\
 	  }								\
 	assert( Tag_val( v ) == Custom_tag );				\
 	return *reinterpret_cast< class_name **>( Data_custom_val(v) );	\

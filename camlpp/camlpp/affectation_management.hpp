@@ -49,32 +49,20 @@ namespace camlpp
 
 
   template< class T >
-  struct affectation_management<T const*>
+  struct affectation_management<T*>
   {
-    static void affect(value& v, T const* t)
+    static void affect(value& v, T* t)
     {
-      v = caml_alloc(1, Abstract_tag);
-      Store_field(v, 0,reinterpret_cast<value>(t));
+      v = reinterpret_cast<value>(t) + 1;
     }
   };
-
-
-
-  template<class T>
-  struct affectation_management< T*> 
-  {
-    static void affect( value& v, T* obj ) 
-    { 
-      affectation_management< T const*>::affect( v, obj ); 
-    } 
-  }; 
 
   template<class T>
   struct affectation_management< T&> 
   { 
     static void affect( value& v, T& obj ) 
     { 
-      affectation_management< T const*>::affect( v, &obj ); 
+      affectation_management<T*>::affect( v, &obj ); 
     } 
   }; 
 
@@ -209,13 +197,6 @@ namespace camlpp
       v = Val_int(d);
     }
   };
-
-  template< class T>
-  inline void affect(value& v, T const& t)
-  {
-    affectation_management< T >::affect(v,t);
-  }
-
 }
 #endif
 

@@ -6,6 +6,9 @@
 #include <camlpp/unit.hpp>
 #include <camlpp/std/string.hpp>
 
+
+#include "Time.hpp"
+
 #define CAMLPP__CLASS_NAME() sf_IpAddress
 camlpp__register_preregistered_custom_operations( CAMLPP__DEFAULT_FINALIZE(), CAMLPP__DEFAULT_COMPARE(), CAMLPP__NO_HASH() )
 camlpp__register_preregistered_custom_class()

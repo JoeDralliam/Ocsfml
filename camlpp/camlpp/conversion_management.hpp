@@ -12,16 +12,9 @@ extern "C"
 
 namespace camlpp
 {
-
   template<class T>
   struct conversion_management
-  {
-    conversion_management< T const* > cm;
-    T from_value( value const& v)
-    {
-      return *cm.from_value(v);
-    }
-  };
+  {};
 
 
   template<class T>
@@ -29,21 +22,18 @@ namespace camlpp
   {
     T* from_value(value const& v)
     {
-      assert( Is_block( v ) ); 
-      assert( Tag_val(v) == Abstract_tag );
-      return reinterpret_cast<T*>(Field(v, 0));
+      assert( Is_long( v ) ); 
+      return reinterpret_cast<T*>(v - 1);
     }
   };
 
   template<class T>
   struct conversion_management<T&>
   {
-    conversion_management<T> cm;
-    std::unique_ptr<T> ptr;
+    conversion_management<T*> cm;
     T& from_value(value const& v)
     {
-      ptr.reset(new T( cm.from_value(v) ) );
-      return *ptr;
+      return *cm.from_value(v);
     }
   };
 
@@ -197,7 +187,6 @@ namespace camlpp
   template<class T>
   struct conversion_management< T const& >: public conversion_management< T >
   {};
-
 }
 
 #endif

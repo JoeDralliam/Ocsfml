@@ -9,7 +9,7 @@
 #include <camlpp/unit.hpp>
 #include <camlpp/std/string.hpp>
 #include <camlpp/std/vector.hpp>
-
+#include <camlpp/std/pair.hpp>
 
 namespace
 {
