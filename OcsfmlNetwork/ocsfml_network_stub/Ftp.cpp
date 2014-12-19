@@ -52,7 +52,7 @@ camlpp__register_preregistered_custom_class()
 {
   camlpp__register_inheritance_relationship( sf_Ftp_Response );
   camlpp__register_constructor2(default_constructor, 
-				const sf_Ftp_Response&, const std::vector<char>&, 0 );
+				const sf_Ftp_Response&, const std::string&, 0 );
   camlpp__register_method0( getListing, 0 );
 }
 #undef CAMLPP__CLASS_NAME
