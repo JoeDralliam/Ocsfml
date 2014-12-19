@@ -56,6 +56,8 @@ let add_sfml_flags static =
 
   List.iter (fun s ->
       let d = Printf.sprintf "Ocsfml%s" (String.capitalize s) in
+
+      mark_tag_used ("use_libocsfml"^s) ;
       
       dep  ["link"; "ocaml"; "native"; "use_libocsfml"^s] 
         [d^"/libocsfml"^s^"."^(!Options.ext_lib)] ;

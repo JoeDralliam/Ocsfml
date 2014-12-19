@@ -161,11 +161,39 @@ end
 (** Available blending modes for drawing. *)
 module BlendMode :
 sig
-  type t = 
+  type factor =
+      Zero | One |
+      SrcColor | OneMinusSrcColor |
+      DstColor | OneMinusDstColor |
+      SrcAlpha | OneMinusSrcAlpha |
+      DstAlpha | OneMinusDstAlpha 
+
+  type equation = Add | Substract
+
+  type t = {
+       color_src_factor: factor ;
+       color_dst_factor: factor ;
+       color_equation: equation ;
+       alpha_src_factor: factor ;
+       alpha_dst_factor: factor ;
+       alpha_equation: equation
+  }
+
+
+  val blend : ?equation:equation -> factor -> factor -> t
+	         
+  val blend_alpha : t		      
+  val blend_add : t
+  val blend_multiply : t 
+  val blend_none : t
+
+
+  (*type t = 
     BlendAlpha (** Pixel = Source * Source.a + Dest * (1 - Source.a) *)
   | BlendAdd  (** Pixel = Source + Dest. *)
   | BlendMultiply (** Pixel = Source * Dest. *)
   | BlendNone (** Pixel = Source. *)
+   *)
 end
 (**/**)
 module Transform :

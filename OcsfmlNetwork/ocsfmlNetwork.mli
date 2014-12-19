@@ -312,7 +312,7 @@ sig
     type t
     val destroy : t -> unit
     val to_response : t -> Response.t
-    val default : response -> char list -> t
+    val default : response -> string -> t
     val get_listing : t -> string list
   end
   (**/**)

@@ -299,7 +299,7 @@ struct
     external to_response : t -> Response.t =
         "upcast__sf_Ftp_Response_of_sf_Ftp_ListingResponse__impl"
           
-    external default : response -> char list -> t =
+    external default : response -> string -> t =
         "sf_Ftp_ListingResponse_default_constructor__impl"
           
     external get_listing : t -> (* ou char array ? *) string list =

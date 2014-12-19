@@ -114,7 +114,55 @@ end
   
 module BlendMode = 
 struct
-  type t = BlendAlpha | BlendAdd | BlendMultiply | BlendNone
+  type factor =
+      Zero | One |
+      SrcColor | OneMinusSrcColor |
+      DstColor | OneMinusDstColor |
+      SrcAlpha | OneMinusSrcAlpha |
+      DstAlpha | OneMinusDstAlpha 
+
+  type equation = Add | Substract
+
+  type t = {
+       color_src_factor: factor ;
+       color_dst_factor: factor ;
+       color_equation: equation ;
+       alpha_src_factor: factor ;
+       alpha_dst_factor: factor ;
+       alpha_equation: equation
+  }
+
+
+  let blend ?(equation=Add) srcFact dstFact =
+    {
+      color_src_factor = srcFact ;
+      color_dst_factor = dstFact ;
+      color_equation = equation  ;
+      alpha_src_factor = srcFact ;
+      alpha_dst_factor = dstFact ;
+      alpha_equation = equation
+    }
+    
+  let blend_alpha = {
+    color_src_factor = SrcAlpha ;
+    color_dst_factor = OneMinusSrcAlpha ;
+    color_equation = Add ;
+    alpha_src_factor = One ;
+    alpha_dst_factor = OneMinusSrcAlpha ;
+    alpha_equation = Add
+  }
+		      
+  let blend_add = {
+    color_src_factor = SrcAlpha ;
+    color_dst_factor = One ;
+    color_equation = Add ;
+    alpha_src_factor = One ;
+    alpha_dst_factor = One ;
+    alpha_equation = Add
+  }
+
+  let blend_multiply = blend DstColor Zero
+  let blend_none = blend One Zero		     		      
 end
 
 module Transform =
