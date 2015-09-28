@@ -1510,7 +1510,7 @@ struct
   external from_size : (float * float) -> t =
       "sf_RectangleShape_size_constructor__impl"
 	
-  external set_size : t -> (float * float) =
+  external set_size : t -> (float * float) -> unit =
       "sf_RectangleShape_setSize__impl"
 	
   external get_size : t -> (float * float) =
@@ -1527,7 +1527,7 @@ object ((self : 'self))
 
   method destroy = RectangleShape.destroy t_rectangle_shape_base
 
-  method set_size : (float * float) =
+  method set_size : (float * float) -> unit =
     RectangleShape.set_size t_rectangle_shape_base
 
   method get_size : (float * float) =

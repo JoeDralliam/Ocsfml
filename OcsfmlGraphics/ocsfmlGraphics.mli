@@ -2450,7 +2450,7 @@ sig
   val to_shape : t -> Shape.t
   val default : unit -> t
   val from_size : float * float -> t
-  val set_size : t -> float * float
+  val set_size : t -> (float * float) -> unit
   val get_size : t -> float * float
 end
   (**/**)
@@ -2492,16 +2492,16 @@ object
   (**)
   method destroy : unit
 
-  (** Set the size of the rectangle. *)
+  (** Get the size of the rectangle. 
+      @return Size of the rectangle. *)
   method get_size : float * float
 
   (**/**)
   method rep__sf_RectangleShape : RectangleShape.t
     (**/**)
 
-  (** Get the size of the rectangle. 
-      @return Size of the rectangle. *)
-  method set_size : float * float
+  (** Set the size of the rectangle. *)
+  method set_size : (float * float) -> unit
 end
 
 
