@@ -7,7 +7,7 @@
 
 #include <camlpp/custom_ops.hpp>
 
-typedef sf::Vertex const& (sf::VertexArray::*GetAtIndexFunc)(unsigned int) const;
+typedef sf::Vertex const& (sf::VertexArray::*GetAtIndexFunc)(std::size_t) const;
 
 namespace
 {

@@ -260,22 +260,29 @@ end
   
 module ContextSettings =
 struct
-  type t = { 
-    depth_bits        : int; 
-    stencil_bits      : int; 
+  (* FIXME: let attribute be a real flag *)
+  let default = 0
+  let core = 1 lsl 0
+  let debug = 1 lsl 2
+
+  type t = {
+    depth_bits        : int;
+    stencil_bits      : int;
     antialising_level : int;
     major_version     : int;
-    minor_version     : int
-  }
+    minor_version     : int;
+    attribute_flags   : int;
+ }
 
   let create ?(depth_bits=0) ?(stencil_bits=0) ?(antialising_level=0)
-      ?(major_version=2) ?(minor_version=0) () =
+      ?(major_version=2) ?(minor_version=0) ?(attribute_flags=default) () =
     {
-      depth_bits = depth_bits;
-      stencil_bits = stencil_bits;
-      antialising_level = antialising_level;
-      major_version = major_version;
-      minor_version = minor_version;
+      depth_bits ;
+      stencil_bits ;
+      antialising_level ;
+      major_version ;
+      minor_version ;
+      attribute_flags ;
     }
 end
   

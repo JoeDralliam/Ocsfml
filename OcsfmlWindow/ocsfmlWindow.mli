@@ -546,20 +546,26 @@ end
     used to create its context, with window.get_settings.  *)
 module ContextSettings :
 sig
+  val default : int
+  val core : int
+  val debug : int
+
   type t = {
     depth_bits : int; (** Bits of the depth buffer. *)
     stencil_bits : int; (** Bits of the stencil buffer. *)
     antialising_level : int; (** Level of antialiasing. *)
     major_version : int; (** Major number of the context version to create. *)
     minor_version : int; (** Minor number of the context version to create. *)
+    attribute_flags : int ; (** **)
   }
 
   val create :
     ?depth_bits:int ->
     ?stencil_bits:int ->
     ?antialising_level:int ->
-    ?major_version:int -> 
-    ?minor_version:int -> unit -> t
+    ?major_version:int ->
+    ?minor_version:int ->
+    ?attribute_flags:int -> unit -> t
 end
 
 (**/**)
