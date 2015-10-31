@@ -1,0 +1,17 @@
+opam-version: "1.2"
+name: "ocsfml-dev"
+version: "2.3"
+maintainer: "Joe Dralliam <jdralliam@gmail.com>"
+authors: "Joe Dralliam <jdralliam@gmail.com>"
+homepage: "https://github.com/JoeDralliam/Ocsfml"
+bug-reports: "https://github.com/JoeDralliam/Ocsfml/issues"
+dev-repo: "git://github.com/JoeDralliam/Ocsfml"
+build: [
+  [make]
+]
+install: [make "install"]
+remove: [make "uninstall"]
+depends: [
+  "ocamlfind" {build}
+  "ocamlbuildcpp-dev" {build}
+]
