@@ -4,6 +4,7 @@
 #include "Keyboard.hpp"
 #include "Joystick.hpp"
 #include "Mouse.hpp"
+#include "Sensor.hpp"
 
 #include <stdexcept>
 
@@ -11,6 +12,7 @@
 #include <camlpp/conversion_management.hpp>
 #include <camlpp/custom_conversion.hpp>
 #include <camlpp/std/pair.hpp>
+#include <camlpp/std/tuple.hpp>
 
 #include <SFML/Window/Event.hpp>
 
@@ -67,6 +69,22 @@ namespace camlpp
   };
 
   template<>
+  struct affectation_management< sf::Event::MouseWheelScrollEvent >
+  {
+    static void affect( value & v, sf::Event::MouseWheelScrollEvent e )
+    {
+      typedef std::tuple< sf::Mouse::Wheel, int, sf::Event::MouseMoveEvent > Ret;
+      Ret r;
+      std::get<0>(r) = e.wheel;
+      std::get<1>(r) = e.delta;
+      std::get<2>(r).x = e.x;
+      std::get<2>(r).y = e.y;
+      affectation_management< Ret >::affect(v, r);
+    }
+  };
+
+
+  template<>
   struct affectation_management< sf::Event::JoystickConnectEvent >
   {
     static void affect( value & v, sf::Event::JoystickConnectEvent e )
@@ -85,6 +103,17 @@ custom_struct_affectation( 	sf::Event::JoystickMoveEvent,
 custom_struct_affectation( 	sf::Event::JoystickButtonEvent, 
 				&sf::Event::JoystickButtonEvent::joystickId, 
 				&sf::Event::JoystickButtonEvent::button );
+
+custom_struct_affectation( sf::Event::TouchEvent,
+                         &sf::Event::TouchEvent::finger,
+                         &sf::Event::TouchEvent::x,
+                         &sf::Event::TouchEvent::y);
+
+custom_struct_affectation( sf::Event::SensorEvent,
+                         &sf::Event::SensorEvent::type,
+                         &sf::Event::SensorEvent::x,
+                         &sf::Event::SensorEvent::y,
+                         &sf::Event::SensorEvent::z);
 
 namespace camlpp
 {
@@ -123,39 +152,59 @@ namespace camlpp
 	  v = caml_alloc( 1, 4 );
 	  affect_field( v, 0, e.mouseWheel );
 	  break;
-	case sf::Event::MouseButtonPressed:
-	  v = caml_alloc( 1, 5 );
-	  affect_field( v, 0, e.mouseButton );
-	  break;
-	case sf::Event::MouseButtonReleased:
+  case sf::Event::MouseWheelScrolled:
+    v = caml_alloc( 1, 5);
+    affect_field( v, 0, e.mouseWheelScroll);
+    break;
+  case sf::Event::MouseButtonPressed:
 	  v = caml_alloc( 1, 6 );
 	  affect_field( v, 0, e.mouseButton );
 	  break;
-	case sf::Event::MouseMoved: 
+	case sf::Event::MouseButtonReleased:
 	  v = caml_alloc( 1, 7 );
+	  affect_field( v, 0, e.mouseButton );
+	  break;
+	case sf::Event::MouseMoved: 
+	  v = caml_alloc( 1, 8 );
 	  affect_field( v, 0, e.mouseMove );
 	  break;
 	case sf::Event::JoystickButtonPressed:
-	  v = caml_alloc( 1, 8 );
-	  affect_field( v, 0, e.joystickButton );
-	  break;
-	case sf::Event::JoystickButtonReleased:
 	  v = caml_alloc( 1, 9 );
 	  affect_field( v, 0, e.joystickButton );
 	  break;
-	case sf::Event::JoystickMoved:
+	case sf::Event::JoystickButtonReleased:
 	  v = caml_alloc( 1, 10 );
+	  affect_field( v, 0, e.joystickButton );
+	  break;
+	case sf::Event::JoystickMoved:
+	  v = caml_alloc( 1, 11 );
 	  affect_field( v, 0, e.joystickMove );
 	  break;
 	case sf::Event::JoystickConnected:
-	  v = caml_alloc( 1, 11 );
-	  affect_field( v, 0, e.joystickConnect );
-	  break;
-	case sf::Event::JoystickDisconnected:
 	  v = caml_alloc( 1, 12 );
 	  affect_field( v, 0, e.joystickConnect );
 	  break;
-	default:
+	case sf::Event::JoystickDisconnected:
+	  v = caml_alloc( 1, 13 );
+	  affect_field( v, 0, e.joystickConnect );
+	  break;
+  case sf::Event::TouchBegan:
+    v = caml_alloc( 1, 14);
+    affect_field( v, 0, e.touch);
+    break;
+  case sf::Event::TouchMoved:
+    v = caml_alloc( 1, 15);
+    affect_field( v, 0, e.touch);
+    break;
+  case sf::Event::TouchEnded:
+    v = caml_alloc( 1, 16);
+    affect_field( v, 0, e.touch);
+    break;
+  case sf::Event::SensorChanged:
+    v = caml_alloc( 1, 17);
+    affect_field( v, 0, e.sensor);
+    break;
+  default:
 	  throw std::runtime_error("Unknwown error while converting sf::Event to value");
 	}
     }

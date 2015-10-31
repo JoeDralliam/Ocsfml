@@ -116,6 +116,17 @@ sig
     | Count
 end
 
+module Sensor :
+sig
+  type t =
+    | Accelerometer
+    | Gyroscope
+    | Magnetometer
+    | Gravity
+    | UserAcceleration
+    | Orientation
+end
+
 (** Give access to the real-time state of the keyboard.
     
     Keyboard provides an interface to the state of the keyboard.
@@ -369,6 +380,10 @@ sig
     | XButton2
     | MouseButtonCount
 
+  type wheel =
+    | VerticalWheel
+    | HorizontalWheel
+
   (** Size events parameters (Resized) *)
   type sizeEvent = { 
     width : int; (** New width, in pixels. *)
@@ -414,12 +429,18 @@ sig
       int * mouseCoord  
   (** Number of ticks the wheel has moved (positive is up, negative is
       down) and coordinates of the mouse pointer *)
-        
+
+  type mouseWheelScrollEvent =
+    wheel * int * mouseCoord
+
+  type sensorEvent =
+    Sensor.t * float * float * float
+
   (** Joystick connection events parameters (JoystickConnected,
       JoystickDisconnected) *)
   type joystickConnectEvent = Joystick.id 
   (** Index of the joystick (in range [0 .. Joystick.count - 1]) *)
-      
+
   (** Joystick axis move event parameters (JoystickMoved) *)
   type joystickMoveEvent = 
       Joystick.id * Joystick.axis * float 
@@ -433,7 +454,13 @@ sig
       Joystick.id * int 
   (** Index of the joystick (in range [0 .. Joystick.count - 1]) and
       index of the joystick (in range [0 .. Joystick.count - 1]) *)
-        
+
+  type touchEvent =
+    int * int * int
+  (** Index of the finger
+      X coordinate
+      Y coordinate *)
+
   (** Enumeration of the different types of events. *)
   type t =
       Closed	(** The window requested to be closed. *)
@@ -444,6 +471,7 @@ sig
     | KeyPressed of keyEvent (** A key was pressed. *)
     | KeyReleased of keyEvent (** A key was released. *)
     | MouseWheelMoved of mouseWheelEvent (** The mouse wheel was scrolled. *)
+    | MouseWheelScrolled of mouseWheelScrollEvent
     | MouseButtonPressed of mouseButtonEvent (** A mouse button was pressed. *)
     | MouseButtonReleased of mouseButtonEvent (** A mouse button was released. *)
     | MouseMoved of mouseMoveEvent (** The mouse cursor moved. *)
@@ -454,6 +482,10 @@ sig
     | JoystickMoved of joystickMoveEvent (** The joystick moved along an axis. *)
     | JoystickConnected of joystickConnectEvent (** A joystick was connected. *)
     | JoystickDisconnected of joystickConnectEvent (** A joystick was disconnected. *)
+    | TouchedBegan of touchEvent
+    | TouchedMoved of touchEvent
+    | TouchedEnded of touchEvent
+    | SensorChanged of sensorEvent
 end
   
 (** VideoMode.t defines a video mode (width, height, bpp)

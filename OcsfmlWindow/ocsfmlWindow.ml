@@ -113,6 +113,18 @@ struct
 	
 end
 
+module Sensor =
+struct
+  type t =
+    | Accelerometer
+    | Gyroscope
+    | Magnetometer
+    | Gravity
+    | UserAcceleration
+    | Orientation
+end
+
+
 module Keyboard =
 struct
   external is_key_pressed : KeyCode.t -> bool = "Keyboard_isKeyPressed__impl"
@@ -196,7 +208,12 @@ struct
     | XButton1
     | XButton2
     | MouseButtonCount
-	
+
+  type wheel =
+    | VerticalWheel
+    | HorizontalWheel
+
+
   type sizeEvent = { width : int; height : int }
       
   type keyEvent =
@@ -213,13 +230,20 @@ struct
   type mouseButtonEvent = (mouseButton * mouseCoord)
       
   type mouseWheelEvent = (int * mouseCoord)
-      
+
+  type mouseWheelScrollEvent = (wheel * int * mouseCoord)
+
+  type sensorEvent = Sensor.t * float * float * float
+
   type joystickConnectEvent = Joystick.id
-      
+
   type joystickMoveEvent = (Joystick.id * Joystick.axis * float)
-      
+
   type joystickButtonEvent = (Joystick.id * int)
-      
+
+  type touchEvent = int * int * int
+
+
   type t =
     | Closed
     | LostFocus
@@ -229,6 +253,7 @@ struct
     | KeyPressed of keyEvent
     | KeyReleased of keyEvent
     | MouseWheelMoved of mouseWheelEvent
+    | MouseWheelScrolled of mouseWheelScrollEvent
     | MouseButtonPressed of mouseButtonEvent
     | MouseButtonReleased of mouseButtonEvent
     | MouseMoved of mouseMoveEvent
@@ -239,7 +264,11 @@ struct
     | JoystickMoved of joystickMoveEvent
     | JoystickConnected of joystickConnectEvent
     | JoystickDisconnected of joystickConnectEvent
-	
+	  | TouchedBegan of touchEvent
+    | TouchedMoved of touchEvent
+    | TouchedEnded of touchEvent
+    | SensorChanged of sensorEvent
+
 end
   
 module VideoMode =
