@@ -8,6 +8,7 @@ script:
   - pushd SFML-2.3.2 && mkdir build && cd build && cmake .. && make 
   - sudo make install
   - popd
+  - rm -fR SFML-2.3.2
   - bash -ex .travis-opam.sh
 env:
  - OCAML_VERSION=4.02 UBUNTU_TRUSTY=1 PACKAGE=ocsfml-dev EXTRA_REMOTES="git://github.com/JoeDralliam/opam-repository"

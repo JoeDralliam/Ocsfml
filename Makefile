@@ -7,12 +7,12 @@ plugin-hack:
 	(mkdir _build &> /dev/null) ; \
 	cp myocamlbuild.ml _build/myocamlbuild.ml && \
 	cd _build && \
-	ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp-dev -package ocamlbuild myocamlbuild.ml $(OCAMLBUILD_DIR)/ocamlbuild.cmx -o myocamlbuild && \
+	ocamlfind ocamlopt -linkpkg -package ocamlbuildcpp -package ocamlbuild myocamlbuild.ml $(OCAMLBUILD_DIR)/ocamlbuild.cmx -o myocamlbuild && \
 	cd ..
 
 
 plugin:
-	$(OCAMLBUILD) -plugin-tag "package(ocamlbuildcpp-dev)" -just-plugin
+	$(OCAMLBUILD) -plugin-tag "package(ocamlbuildcpp)" -just-plugin
 
 
 native:system-nat window-nat graphics-nat audio-nat network-nat
