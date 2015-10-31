@@ -2,11 +2,34 @@ language: c
 sudo: required
 dist: trusty
 install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-opam.sh
-script: bash -ex .travis-opam.sh
+script:
+  - wget http://www.sfml-dev.org/files/SFML-2.3.2-sources.zip
+  - unzip -q SFML-2.3.2-sources.zip
+  - pushd SFML-2.3.2 && mkdir build && cd build && cmake .. && make 
+  - sudo make install
+  - popd
+  - bash -ex .travis-opam.sh
 env:
  - OCAML_VERSION=4.02 UBUNTU_TRUSTY=1 PACKAGE=ocsfml-dev EXTRA_REMOTES="git://github.com/JoeDralliam/opam-repository"
 os:
   - linux
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libsfml-dev libboost-dev
+addons:
+  apt:
+    packages:
+    - libpthread-stubs0-dev
+    - libgl1-mesa-dev
+    - libx11-dev
+    - libx11-xcb-dev
+    - libxcb-image0-dev
+    - libxrandr-dev
+    - libxcb-randr0-dev
+    - libudev-dev
+    - libfreetype6-dev
+    - libglew-dev
+    - libjpeg8-dev
+    - libgpgme11-dev
+    - libsndfile1-dev
+    - libopenal-dev
+    - libjpeg62
+    - cmake
+    - libbost-dev
