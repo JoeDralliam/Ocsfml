@@ -33,4 +33,4 @@ addons:
     - libopenal-dev
     - libjpeg62
     - cmake
-    - libbost-dev
+    - libboost-dev
