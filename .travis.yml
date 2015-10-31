@@ -3,7 +3,7 @@ sudo: required
 install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-opam.sh
 script: bash -ex .travis-opam.sh
 env:
- - OCAML_VERSION=4.02 PACKAGE=ocsfml-dev EXTRA_REMOTES="https://github.com/JoeDralliam/opam-repository"
+ - OCAML_VERSION=4.02 PACKAGE=ocsfml-dev EXTRA_REMOTES="git://github.com/JoeDralliam/opam-repository"
 os:
   - linux
 before_install:
