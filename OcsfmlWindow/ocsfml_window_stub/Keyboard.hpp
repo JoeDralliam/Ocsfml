@@ -5,8 +5,26 @@
 
 #include <SFML/Window/Keyboard.hpp>
 
-custom_enum_conversion( sf::Keyboard::Key );
-custom_enum_affectation( sf::Keyboard::Key );
+namespace camlpp
+{
+  template<>
+  struct affectation_management<sf::Keyboard::Key>
+  {
+    static void affect(value& v, sf::Keyboard::Key d)
+    {
+      v = Val_int(d + 1);
+    }
+  };
+
+  template<>
+  struct conversion_management<sf::Keyboard::Key>
+  {
+    sf::Keyboard::Key from_value( value const& v)
+    {
+      return static_cast<sf::Keyboard::Key>( Int_val( v ) - 1 );
+    }
+  };
+}
 
 
 #endif
