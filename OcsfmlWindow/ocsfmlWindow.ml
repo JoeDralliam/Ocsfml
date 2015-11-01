@@ -8,6 +8,7 @@ let pixel_array_layout = Bigarray.c_layout
 module KeyCode =
 struct
   type t =
+    | Unknown
     | A
     | B
     | C
@@ -110,7 +111,6 @@ struct
     | F15
     | Pause
     | Count
-	
 end
 
 module Sensor =
@@ -133,13 +133,13 @@ end
 module Joystick =
 struct
   type id = int
-      
+
   let count = 8
-    
+
   let buttonCount = 32
-    
+
   let axisCount = 8
-    
+
   type axis =
     | X (* The X axis *)
     | Y (* The Y axis *)

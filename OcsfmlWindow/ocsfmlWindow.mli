@@ -11,8 +11,10 @@ val pixel_array_layout : Bigarray.c_layout Bigarray.layout
 (** Module KeyCode : Key codes. *)
 module KeyCode :
 sig
+
   type t =
-      A
+    | Unknown
+    | A
     | B
     | C
     | D
